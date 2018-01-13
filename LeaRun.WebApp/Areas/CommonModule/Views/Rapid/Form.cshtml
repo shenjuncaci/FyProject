@@ -1,0 +1,1765 @@
+﻿@{
+    ViewBag.Title = "QSB》QSB";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+    string role = ViewData["dt"] as string;
+    string UserName = ViewData["UserName"] as string;
+
+}
+<!--上传文件组件start-->
+<link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
+<script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>
+<link href="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.css" rel="stylesheet" />
+<script src="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.js"></script>
+<script type="text/javascript">
+    $(function () {
+
+        BindDepartment();
+        
+        InitControl();
+        //js通配符获取所有日期，去掉T后面的内容
+        //测试后效率还可以,如果以后发现效率不行,可以尝试去掉if判断,根据日期格式固定截取字符串
+        $('input[id$="date"]').each(function () {
+            var w = this.value.indexOf("T");
+            //alert(this.value);
+            if (w > 0) {
+
+                this.value = this.value.substring(0, w);
+                //alert(this.value);
+            }
+        });
+        $('input[id$="dt"]').each(function () {
+
+            var w = this.value.indexOf("T");
+            if (w > 0) {
+                this.value=this.value.substring(0, w);
+            }
+            this.disabled = true;
+            this.readOnly=true;
+        });
+        $('input[id$="Time"]').each(function () {
+            var w = this.value.indexOf("T");
+            //alert(w);
+            //alert(this.value);
+            if (w > 0) {
+                this.value = this.value.substring(0, w);
+            }
+        });
+        $("#PlanTime").disabled = true;
+        $("#PlanTime").readOnly = true;
+        //lazyloadbutton();
+        //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
+
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+       // alert(GetQueryNew('KeyValue'));
+
+        if (!!GetQueryNew('KeyValue')) {
+            AjaxJson("/CommonModule/Rapid/SetTestForm", { KeyValue: GetQueryNew('KeyValue') }, function (data) {
+                SetWebControls(data);
+
+                //alert(String(data["res_msfj"]));
+                if (String(data["res_msfj"]) != "" && String(data["res_msfj"]) != "null" && data["res_msfj"] != undefined && data["res_msfj"] != "&nbsp;") {
+
+                    document.getElementById("uploadify").style.display = "none";
+                    //document.getElementById("uploadify").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                    //~不生效，只能替换相对地址
+                    var address = String(data["res_msfj"]).replace('~', '../../../../')
+                    document.getElementById("tt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                    document.getElementById("tt").style.display = "block";
+                }
+                else { uploadify(); }
+                //alert(String(data["res_yzbfj"]));
+                if (String(data["res_yzbfj"]) != "" && String(data["res_yzbfj"]) != "null" && data["res_yzbfj"] != undefined) {
+
+                    var address = String(data["res_yzbfj"]).replace('~', '../../../../')
+                    document.getElementById("uploadifyyzbtxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                    document.getElementById("uploadifyyzbtxt").style.display = "block";
+                    if (String(data["res_yzb"]) == "待审" || String(data["res_yzb"]) == "通过") {
+                        document.getElementById("uploadifyyzb").style.display = "none";
+                    }
+                    else { uploadifyyzb(); }
+                }
+                else { uploadifyyzb(); }
+
+                if (String(data["res_fxfj"]) != "" && String(data["res_fxfj"]) != "null" && data["res_fxfj"] != undefined) {
+                    var address = String(data["res_fxfj"]).replace('~', '../../../../')
+                    document.getElementById("uploadifyfxtxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                    document.getElementById("uploadifyfxtxt").style.display = "block";
+                    if (String(data["res_fx"]) == "待审" || String(data["res_fx"]) == "通过") {
+                        document.getElementById("uploadifyfx").style.display = "none";
+                    }
+                    else { uploadifyfx(); }
+                }
+                else { uploadifyfx(); }
+
+                if (String(data["res_csfj"]) != "" && String(data["res_csfj"]) != "null" && data["res_csfj"] != undefined) {
+                    var address = String(data["res_csfj"]).replace('~', '../../../../')
+                    document.getElementById("uploadifycstxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                    document.getElementById("uploadifycstxt").style.display = "block";
+                    if (String(data["res_cs"]) == "待审" || String(data["res_cs"]) == "通过") {
+                        //alert("查看有没有问题");
+                        document.getElementById("uploadifycs").style.display = "none";
+                    }
+                    else {
+
+                        uploadifycs();
+                    }
+                }
+                else {
+
+                    uploadifycs();
+                }
+
+                if (String(data["res_fcffj"]) != "" && String(data["res_fcffj"]) != "null" && data["res_fcffj"] != undefined) {
+
+                    var address = String(data["res_fcffj"]).replace('~', '../../../../')
+                    document.getElementById("uploadifyfcftxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                    document.getElementById("uploadifyfcftxt").style.display = "block";
+                    if (String(data["res_fcf"]) == "待审" || String(data["res_fcf"]) == "通过") {
+                        document.getElementById("uploadifyfcf").style.display = "none";
+                    }
+                    else { uploadifyfcf(); }
+                }
+                else { uploadifyfcf(); }
+
+                if (String(data["res_fcshfj"]) != "" && String(data["res_fcshfj"]) != "null" && data["res_fcshfj"] != undefined) {
+                    var address = String(data["res_fcshfj"]).replace('~', '../../../../')
+                    document.getElementById("uploadifyfcshtxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                    document.getElementById("uploadifyfcshtxt").style.display = "block";
+                    if (String(data["res_fcsh"]) == "待审" || String(data["res_fcsh"]) == "通过") {
+                        document.getElementById("uploadifyfcsh").style.display = "none";
+                    }
+                    else { uploadifyfcsh(); }
+                }
+                else { uploadifyfcsh(); }
+
+                if (String(data["res_csgzfj"]) != "" && String(data["res_csgzfj"]) != "null" && data["res_csgzfj"] != undefined) {
+                    var address = String(data["res_csgzfj"]).replace('~', '../../../../')
+                    document.getElementById("uploadifycsgztxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                    document.getElementById("uploadifycsgztxt").style.display = "block";
+                    if (String(data["res_csgz"]) == "待审" || String(data["res_csgz"]) == "通过") {
+                        document.getElementById("uploadifycsgz").style.display = "none";
+                    }
+                    else { uploadifycsgz(); }
+                }
+                else { uploadifycsgz(); }
+
+                if (String(data["res_fmeafj"]) != "" && String(data["res_fmeafj"]) != "null" && data["res_fmeafj"] != undefined) {
+                    var address = String(data["res_fmeafj"]).replace('~', '../../../../')
+                    document.getElementById("uploadifyfmeatxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                    document.getElementById("uploadifyfmeatxt").style.display = "block";
+                    if (String(data["res_fmea"]) == "待审" || String(data["res_fmea"]) == "通过") {
+                        document.getElementById("uploadifyfmea").style.display = "none";
+                    }
+                    else { uploadifyfmea(); }
+                }
+                else { uploadifyfmea(); }
+
+                if (String(data["res_jyjxfj"]) != "" && String(data["res_jyjxfj"]) != "null" && data["res_jyjxfj"] != undefined) {
+                    var address = String(data["res_jyjxfj"]).replace('~', '../../../../')
+                    document.getElementById("uploadifyjyjxtxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                    document.getElementById("uploadifyjyjxtxt").style.display = "block";
+                    if (String(data["res_jyjx"]) == "待审" || String(data["res_jyjx"]) == "通过") {
+                        document.getElementById("uploadifyjyjx").style.display = "none";
+                    }
+                    else { uploadifyjyjx(); }
+                }
+                else { uploadifyjyjx(); }
+
+                if (String(data["res_bzgxfj"]) != "" && String(data["res_bzgxfj"]) != "null" && data["res_bzgxfj"] != undefined) {
+                    var address = String(data["res_bzgxfj"]).replace('~', '../../../../')
+                    document.getElementById("uploadifybzgxtxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                    document.getElementById("uploadifybzgxtxt").style.display = "block";
+                    if (String(data["res_bzgx"]) == "待审" || String(data["res_bzgx"]) == "通过") {
+                        document.getElementById("uploadifybzgx").style.display = "none";
+                    }
+                    else { uploadifybzgx(); }
+                }
+                else { uploadifybzgx(); }
+
+                if (String(data["NotCompleteReasonfj"]) != "" && String(data["NotCompleteReasonfj"]) != "null" && data["NotCompleteReasonfj"] != undefined) {
+                    var address = String(data["NotCompleteReasonfj"]).replace('~', '../../../../')
+                    document.getElementById("uploadifyNotCompleteReasontxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                    document.getElementById("uploadifyNotCompleteReasontxt").style.display = "block";
+                    document.getElementById("uploadifyNotCompleteReason").style.display = "none";
+                }
+                else { uploadifyNotCompleteReason(); }
+
+                if (String(data["Actionfj"]) != "" && String(data["Actionfj"]) != "null" && data["Actionfj"] != undefined) {
+                    var address = String(data["Actionfj"]).replace('~', '../../../../')
+                    document.getElementById("uploadifyActiontxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                    document.getElementById("uploadifyActiontxt").style.display = "block";
+
+                    document.getElementById("uploadifyAction").style.display = "none";
+                }
+                else { uploadifyAction(); }
+
+                if (String(data["res_8dfj"]) != "" && String(data["res_8dfj"]) != "null" && data["res_8dfj"] != undefined) {
+                    var address = String(data["res_8dfj"]).replace('~', '../../../../')
+                    document.getElementById("uploadify8dtxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                    document.getElementById("uploadify8dtxt").style.display = "block";
+
+                    if (String(data["res_8d"]) == "待审" || String(data["res_8d"]) == "通过") {
+                        document.getElementById("uploadify8d").style.display = "none";
+                    }
+                    else { uploadify8d(); }
+                }
+                else { uploadify8d(); }
+
+                if (String(data["RapidState"]) == "已完成")
+                {
+
+                    $("form input").prop("readonly", true);
+                    $("form input").prop("disabled", true);
+                    $("form textarea").prop("readonly", true);
+                    $("form select").prop("disabled", true);
+
+                    //$("form1>input").readOnly = true;
+                    //$("form1>input").disabled = true;
+                }
+                //RealName 添加权限控制，只有责任人可以编辑信息
+
+                if (String(data["res_cpeo"]) != '@UserName' && '@role' != '质保部审批') {
+
+                    $("form input").prop("readonly", true);
+                    $("form input").prop("disabled", true);
+                    $("form textarea").prop("readonly", true);
+                    $("form select").prop("disabled", true);
+
+                    document.getElementById("uploadify").style.display = "none";
+                    document.getElementById("uploadifyyzb").style.display = "none";
+                    document.getElementById("uploadifycs").style.display = "none";
+                    document.getElementById("uploadifyfx").style.display = "none";
+                    document.getElementById("uploadifyfcf").style.display = "none";
+                    document.getElementById("uploadifyfcsh").style.display = "none";
+                    document.getElementById("uploadifycsgz").style.display = "none";
+                    document.getElementById("uploadifyfmea").style.display = "none";
+                    document.getElementById("uploadifyjyjx").style.display = "none";
+                    document.getElementById("uploadifybzgx").style.display = "none";
+                    document.getElementById("uploadifyNotCompleteReason").style.display = "none";
+                    document.getElementById("uploadifyAction").style.display = "none";
+                    document.getElementById("uploadify8d").style.display = "none";
+
+                    //$('input[id^="upload"]').each(function () {
+                    //    alert(this.id);
+                    //    this.style.display = "none";
+                    //});
+                }
+                else {
+                    lazyloadbutton();
+                    $("#res_cpeo").searchableSelect();
+                }
+                //alert($("#res_cpeo").find("option:selected").text());
+               // var x = document.getElementsByClassName("searchable-select-holder");
+                ///alert(document.getElementsByClassName("searchable-select-holder")[0].innerHTML);
+                //用了可搜索后的jquery插件，原理是隐藏原来的下拉框，修改为div显示，将div赋值原来select的值
+                document.getElementsByClassName("searchable-select-holder")[0].innerHTML = $("#res_cpeo").find("option:selected").text();
+                //alert(String(data["res_cpeo"]));
+                //$("#res_cpeo").val('009908');
+                //alert("后面报错还是前面");
+                //BindDepartment(); $("#DepartmentId").val(data.DepartmentId);
+                //$("#Password").val("******");
+            });
+        }
+
+
+    }
+    //保存事件
+    function AcceptClick() {
+        if ($("#res_cpeo").val() == undefined || $("#res_cpeo").val() == "" || $("#res_cpeo").val() == null)
+        {
+            alert("请先匹配责任人账号");
+            return false;
+        }
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            AjaxJson("/CommonModule/Rapid/SubmitTestTableForm?KeyValue=" + GetQueryNew('KeyValue'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+
+    //人员下拉框
+    function BindDepartment() {
+        $("#res_cpeo").html("");
+        $("#res_cpeo").append("<option value=''>==请选择==</option>");
+        AjaxJson("/CommonModule/Rapid/ListJson", {  }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#res_cpeo").append($("<option></option>").val(DataJson[i].code).html(DataJson[i].RealName));
+            });
+        })
+        $("#res_kf").html("");
+        $("#res_kf").append("<option value=''>==请选择==</option>");
+        AjaxJson("/CommonModule/Rapid/CustomerJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#res_kf").append($("<option></option>").val(DataJson[i].fy_cus_name).html(DataJson[i].fy_cus_name));
+            });
+        })
+    }
+
+    //日期格式重写
+    //function RewriteDate()
+    //{
+    //    //alert(22);
+    //    var eles = document.getElementsByClassName("txt Wdate");
+    //    //alert(eles);
+    //    for (var e in eles)
+    //    {
+    //        alert(e.value);
+    //    }
+    //}
+
+
+
+
+</script>
+
+@*//上传文件js*@
+<script>
+    //$(function () {
+    //    uploadify1();
+    //});
+    //上传文件
+    var index_uploadify = 1;
+    function uploadify() {
+        //if (!!GetQueryNew('KeyValue'))
+        //{ alert(11)};
+        $("#uploadify").uploadify({
+            uploader: '/CommonModule/Rapid/SubmitUploadify?FolderId=' + GetQueryNew('KeyValue') + '&type=res_msfj',
+            swf: '/Content/Scripts/uploadify/uploadify.swf',
+            buttonText: "添加文件",
+            height: 24,
+            width: 70,
+            fileSizeLimit: 4096,
+            onFallback: function () {
+                alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+            },
+            onUploadSuccess: function (file, data, response) {
+                alert("上传成功");
+
+                var DataJson = JSON.parse(data);
+                var address = DataJson.NetworkFile.res_msfj;
+                address = address.replace('~', '../../../../');
+                document.getElementById("tt").style.display = "block";
+                document.getElementById("tt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                //$("#tt").val(html);
+                //top.frames[tabiframeId()].windowload();
+
+                //document.getElementById("tt").innerText = "<a href=\"~/Resource/Document/NetworkDisk/System/20170504/f9127be9-5695-4214-9eab-189b0e206113.txt\" download=\"附件下载\">附件下载</a>";
+            },
+            onUploadError: function () { alert("请先保存本单，再上传附件")}
+        });
+    }
+
+    function uploadifyyzb() {
+        $("#uploadifyyzb").uploadify({
+            uploader: '/CommonModule/Rapid/SubmitUploadify?FolderId=' + GetQueryNew('KeyValue') + '&type=res_yzb',
+            swf: '/Content/Scripts/uploadify/uploadify.swf',
+            buttonText: "添加文件",
+            height: 24,
+            width: 70,
+            fileSizeLimit: 4096,
+            onFallback: function () {
+                alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+            },
+            onUploadSuccess: function (file, data, response) {
+                alert("上传成功");
+                //document.getElementById("uploadifyyzb").style.display = "none";
+                var DataJson = JSON.parse(data);
+                var address = DataJson.NetworkFile.res_yzbfj;
+                address = address.replace('~', '../../../../');
+                document.getElementById("uploadifyyzbtxt").style.display = "block";
+                document.getElementById("uploadifyyzbtxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+            }
+        });
+    }
+
+    function uploadifyfx() {
+        $("#uploadifyfx").uploadify({
+            uploader: '/CommonModule/Rapid/SubmitUploadify?FolderId=' + GetQueryNew('KeyValue') + '&type=res_fx',
+            swf: '/Content/Scripts/uploadify/uploadify.swf',
+            buttonText: "添加文件",
+            height: 24,
+            width: 70,
+            fileSizeLimit: 4096,
+            onFallback: function () {
+                alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+            },
+            onUploadSuccess: function (file, data, response) {
+                var DataJson = JSON.parse(data);
+                var address = DataJson.NetworkFile.res_fxfj;
+                address = address.replace('~', '../../../../');
+                document.getElementById("uploadifyfxtxt").style.display = "block";
+                document.getElementById("uploadifyfxtxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+            }
+        });
+    }
+
+    function uploadifycs() {
+        $("#uploadifycs").uploadify({
+            uploader: '/CommonModule/Rapid/SubmitUploadify?FolderId=' + GetQueryNew('KeyValue') + '&type=res_cs',
+            swf: '/Content/Scripts/uploadify/uploadify.swf',
+            buttonText: "添加文件",
+            height: 24,
+            width: 70,
+            fileSizeLimit: 4096,
+            onFallback: function () {
+                alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+            },
+            onUploadSuccess: function (file, data, response) {
+                var DataJson = JSON.parse(data);
+                var address = DataJson.NetworkFile.res_csfj;
+                address = address.replace('~', '../../../../');
+                document.getElementById("uploadifycstxt").style.display = "block";
+                document.getElementById("uploadifycstxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+            }
+        });
+    }
+
+    function uploadifyfcf() {
+        $("#uploadifyfcf").uploadify({
+            uploader: '/CommonModule/Rapid/SubmitUploadify?FolderId=' + GetQueryNew('KeyValue') + '&type=res_fcf',
+            swf: '/Content/Scripts/uploadify/uploadify.swf',
+            buttonText: "添加文件",
+            height: 24,
+            width: 70,
+            fileSizeLimit: 4096,
+            onFallback: function () {
+                alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+            },
+            onUploadSuccess: function (file, data, response) {
+                var DataJson = JSON.parse(data);
+                var address = DataJson.NetworkFile.res_fcffj;
+                address = address.replace('~', '../../../../');
+                document.getElementById("uploadifyfcftxt").style.display = "block";
+                document.getElementById("uploadifyfcftxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+            }
+        });
+    }
+
+    function uploadifyfcsh() {
+        $("#uploadifyfcsh").uploadify({
+            uploader: '/CommonModule/Rapid/SubmitUploadify?FolderId=' + GetQueryNew('KeyValue') + '&type=res_fcsh',
+            swf: '/Content/Scripts/uploadify/uploadify.swf',
+            buttonText: "添加文件",
+            height: 24,
+            width: 70,
+            fileSizeLimit: 4096,
+            onFallback: function () {
+                alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+            },
+            onUploadSuccess: function (file, data, response) {
+                var DataJson = JSON.parse(data);
+                var address = DataJson.NetworkFile.res_fcshfj;
+                address = address.replace('~', '../../../../');
+                document.getElementById("uploadifyfcshtxt").style.display = "block";
+                document.getElementById("uploadifyfcshtxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+            }
+        });
+    }
+
+    function uploadifycsgz() {
+        $("#uploadifycsgz").uploadify({
+            uploader: '/CommonModule/Rapid/SubmitUploadify?FolderId=' + GetQueryNew('KeyValue') + '&type=res_csgz',
+            swf: '/Content/Scripts/uploadify/uploadify.swf',
+            buttonText: "添加文件",
+            height: 24,
+            width: 70,
+            fileSizeLimit: 4096,
+            onFallback: function () {
+                alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+            },
+            onUploadSuccess: function (file, data, response) {
+                var DataJson = JSON.parse(data);
+                var address = DataJson.NetworkFile.res_csgzfj;
+                address = address.replace('~', '../../../../');
+                document.getElementById("uploadifycsgztxt").style.display = "block";
+                document.getElementById("uploadifycsgztxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+            }
+        });
+    }
+
+    function uploadifyfmea() {
+        $("#uploadifyfmea").uploadify({
+            uploader: '/CommonModule/Rapid/SubmitUploadify?FolderId=' + GetQueryNew('KeyValue') + '&type=res_fmea',
+            swf: '/Content/Scripts/uploadify/uploadify.swf',
+            buttonText: "添加文件",
+            height: 24,
+            width: 70,
+            fileSizeLimit: 4096,
+            onFallback: function () {
+                alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+            },
+            onUploadSuccess: function (file, data, response) {
+                var DataJson = JSON.parse(data);
+                var address = DataJson.NetworkFile.res_fmeafj;
+                address = address.replace('~', '../../../../');
+                document.getElementById("uploadifyfmeatxt").style.display = "block";
+                document.getElementById("uploadifyfmeatxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+            }
+        });
+    }
+
+    function uploadifyjyjx() {
+        $("#uploadifyjyjx").uploadify({
+            uploader: '/CommonModule/Rapid/SubmitUploadify?FolderId=' + GetQueryNew('KeyValue') + '&type=res_jyjx',
+            swf: '/Content/Scripts/uploadify/uploadify.swf',
+            buttonText: "添加文件",
+            height: 24,
+            width: 70,
+            fileSizeLimit: 4096,
+            onFallback: function () {
+                alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+            },
+            onUploadSuccess: function (file, data, response) {
+                var DataJson = JSON.parse(data);
+                var address = DataJson.NetworkFile.res_jyjxfj;
+                address = address.replace('~', '../../../../');
+                document.getElementById("uploadifyjyjxtxt").style.display = "block";
+                document.getElementById("uploadifyjyjxtxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+            }
+        });
+    }
+
+    function uploadifyNotCompleteReason() {
+        $("#uploadifyNotCompleteReason").uploadify({
+            uploader: '/CommonModule/Rapid/SubmitUploadify?FolderId=' + GetQueryNew('KeyValue') + '&type=uploadifyNotCompleteReason',
+            swf: '/Content/Scripts/uploadify/uploadify.swf',
+            buttonText: "添加文件",
+            height: 24,
+            width: 70,
+            fileSizeLimit: 4096,
+            onFallback: function () {
+                alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+            },
+            onUploadSuccess: function (file, data, response) {
+                var DataJson = JSON.parse(data);
+                var address = DataJson.NetworkFile.NotCompleteReasonfj;
+                address = address.replace('~', '../../../../');
+                document.getElementById("uploadifyNotCompleteReasontxt").style.display = "block";
+                document.getElementById("uploadifyNotCompleteReasontxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+            }
+        });
+    }
+
+    function uploadifyAction() {
+        $("#uploadifyAction").uploadify({
+            uploader: '/CommonModule/Rapid/SubmitUploadify?FolderId=' + GetQueryNew('KeyValue') + '&type=Action',
+            swf: '/Content/Scripts/uploadify/uploadify.swf',
+            buttonText: "添加文件",
+            height: 24,
+            width: 70,
+            fileSizeLimit: 4096,
+            onFallback: function () {
+                alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+            },
+            onUploadSuccess: function (file, data, response) {
+                var DataJson = JSON.parse(data);
+                var address = DataJson.NetworkFile.Actionfj;
+                address = address.replace('~', '../../../../');
+                document.getElementById("uploadifyActiontxt").style.display = "block";
+                document.getElementById("uploadifyActiontxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+            }
+        });
+    }
+
+    function uploadifybzgx() {
+        $("#uploadifybzgx").uploadify({
+            uploader: '/CommonModule/Rapid/SubmitUploadify?FolderId=' + GetQueryNew('KeyValue') + '&type=res_bzgx',
+            swf: '/Content/Scripts/uploadify/uploadify.swf',
+            buttonText: "添加文件",
+            height: 24,
+            width: 70,
+            fileSizeLimit: 4096,
+            onFallback: function () {
+                alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+            },
+            onUploadSuccess: function (file, data, response) {
+                var DataJson = JSON.parse(data);
+                var address = DataJson.NetworkFile.res_bzgxfj;
+                address = address.replace('~', '../../../../');
+                document.getElementById("uploadifybzgxtxt").style.display = "block";
+                document.getElementById("uploadifybzgxtxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+            }
+        });
+    }
+
+    function uploadify8d() {
+        $("#uploadify8d").uploadify({
+            uploader: '/CommonModule/Rapid/SubmitUploadify?FolderId=' + GetQueryNew('KeyValue') + '&type=res_8d',
+            swf: '/Content/Scripts/uploadify/uploadify.swf',
+            buttonText: "添加文件",
+            height: 24,
+            width: 70,
+            fileSizeLimit: 15360,
+            onFallback: function () {
+                alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+            },
+            onUploadSuccess: function (file, data, response) {
+                var DataJson = JSON.parse(data);
+                var address = DataJson.NetworkFile.res_bzgxfj;
+                address = address.replace('~', '../../../../');
+                document.getElementById("uploadify8dtxt").style.display = "block";
+                document.getElementById("uploadify8dtxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+            }
+        });
+    }
+
+    function MatchUser()
+    {
+        var condition = $('#res_cpeoName').val();
+        if (condition == null || condition == undefined)
+        {
+            alert("请先输入姓名或者工号");
+        }
+        var durl = encodeURI('@Url.Action("MatchUser", "Rapid")?condition=' + condition);
+                        $.ajax({
+                            type: "post",
+                            url: durl,
+                            async: false,
+                            success: function (msg) {
+                                //alert(msg);
+                                if (msg == "")
+                                {
+                                    alert("没有匹配到数据");
+                                }
+                                else
+                                {
+                                    alert("匹配成功");
+                                    var arr = msg.split(",");
+
+                                    $('#res_cpeo').html(arr[0]);
+                                    $('#res_cpeoName').html(arr[1]);
+
+                                }
+                                //alert(msg);
+                                //obj = JSON.parse(msg);
+                                //alert(obj);
+                                //alert(obj.userno);
+                                //$('#NO').val(obj.userno);
+                                //$('#Name').val(obj.username);
+                            },
+                            error: function () {
+                                alert("出错了");
+                            }
+                        });
+    }
+
+
+    //uploadifybzgx
+</script>
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
+
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+
+    input {
+        background: #E0FFFF;
+    }
+
+    textarea {
+        background: #E0FFFF;
+    }
+
+    select {
+        background: #E0FFFF;
+    }
+</style>
+
+@*//添加提交、审批按钮*@
+<script>
+
+
+    function lazyloadbutton() {
+        var yzbdt = document.getElementById("res_yzbdt");
+        var yzbnode = document.getElementById("res_yzbnode");
+            var yzbstate = document.getElementById("res_yzb");
+            yzbstate.readOnly = true;
+            if (yzbstate.value == "未提交" || yzbstate.value == "回退" || yzbstate.value == "撤回")
+            {
+                var temptext = document.getElementById("res_yzbstate").value;
+
+                if (temptext == undefined)
+                {
+                    temptext = "";
+                }
+                temptext += "状态:" + yzbstate.value;
+
+                temptext += " <button onclick=\"approve('res_yzb','" + yzbstate.value + "','y','" + yzbdt.value + "','" + yzbnode.value + "')\">提交</button> ";
+
+                document.getElementById("res_yzbstate").innerHTML = temptext;
+            }
+            else if (yzbstate.value == "待审")
+            {
+                var temptext = document.getElementById("res_yzbstate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + yzbstate.value;
+                if ('@role' == "质保部审批") {
+                    //temptext += " <button onclick=\"approve(res_yzb," + yzbstate.value + ",y)\">通过</button> ";
+                    temptext += " <button onclick=\"approve('res_yzb','" + yzbstate.value + "','y','" + yzbdt.value + "','" + yzbnode.value + "')\">通过</button> ";
+                    temptext += " <button onclick=\"approve('res_yzb','" + yzbstate.value + "','n','" + yzbdt.value + "','" + yzbnode.value + "')\">退回</button> ";
+                }
+                else {
+                    temptext += " <button onclick=\"approve('res_yzb','" + yzbstate.value + "','sn','" + yzbdt.value + "','" + yzbnode.value + "')\">撤回</button> ";
+                }
+                document.getElementById("res_yzbstate").innerHTML = temptext;
+            }
+            else if (yzbstate.value == "通过")
+            {
+                document.getElementById("res_yzbdt").readOnly = true;
+                document.getElementById("res_yzbnode").readOnly = true;
+                document.getElementById("res_yzbdt").disabled = true;
+                document.getElementById("res_yzbnode").disabled = true;
+                var temptext = document.getElementById("res_yzbstate").value;
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + yzbstate.value;
+                if ('@role' == "质保部审批") {
+                    temptext += " <button onclick=\"approve('res_yzb','" + yzbstate.value + "','n','" + yzbdt.value + "','" + yzbnode.value + "')\">撤销</button> ";
+                }
+                document.getElementById("res_yzbstate").innerHTML = temptext;
+            }
+
+
+        var fxdt = document.getElementById("res_fxdt");
+        var fxnode = document.getElementById("res_fxnode");
+            var fxstate = document.getElementById("res_fx");
+            fxstate.readOnly = true;
+            if (fxstate.value == "未提交" || fxstate.value == "回退" || fxstate.value=="撤回") {
+                var temptext = document.getElementById("res_fxstate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + fxstate.value;
+
+                temptext += " <button onclick=\"approve('res_fx','" + fxstate.value + "','y','" + fxdt.value + "','" + fxnode.value.replace(/[\r\n]/g, "") + "')\">提交</button> ";
+
+
+                document.getElementById("res_fxstate").innerHTML = temptext;
+            }
+            else if (fxstate.value == "待审") {
+                var temptext = document.getElementById("res_fxstate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + fxstate.value;
+                if ('@role' == "质保部审批") {
+
+                    temptext += " <button onclick=\"approve('res_fx','" + fxstate.value + "','y','" + fxdt.value + "','" + fxnode.value.replace(/[\r\n]/g, "") + "')\">通过</button> ";
+                    temptext += " <button onclick=\"approve('res_fx','" + fxstate.value + "','n','" + fxdt.value + "','" + fxnode.value.replace(/[\r\n]/g, "") + "')\">退回</button> ";
+                }
+                else
+                {
+                    temptext += " <button onclick=\"approve('res_fx','" + fxstate.value + "','sn','" + fxdt.value + "','" + fxnode.value.replace(/[\r\n]/g, "") + "')\">撤回</button> ";
+                }
+                document.getElementById("res_fxstate").innerHTML = temptext;
+            }
+            else if (fxstate.value == "通过") {
+
+                document.getElementById("res_fxdt").readOnly = true;
+                document.getElementById("res_fxnode").readOnly = true;
+                //alert("66");
+                document.getElementById("res_fxdt").disabled = true;
+                document.getElementById("res_fxnode").disabled = true;
+
+                var temptext = document.getElementById("res_fxstate").value;
+
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + fxstate.value;
+                if ('@role' == "质保部审批") {
+                    temptext += " <button onclick=\"approve('res_fx','" + fxstate.value + "','n','" + fxdt.value + "','" + fxnode.value + "')\">撤销</button> ";
+                }
+                document.getElementById("res_fxstate").innerHTML = temptext;
+            }
+
+        var csdt = document.getElementById("res_csdt");
+        var csnode = document.getElementById("res_csnode");
+            var csstate = document.getElementById("res_cs");
+            csstate.readOnly = true;
+            if (csstate.value == "未提交" || csstate.value == "回退" || csstate.value=="撤回") {
+                var temptext = document.getElementById("res_csstate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + csstate.value;
+
+                temptext += " <button onclick=\"approve('res_cs','" + csstate.value + "','y','" + csdt.value + "','" + csnode.value.replace(/[\r\n]/g, "") + "')\">提交</button> ";
+
+
+                document.getElementById("res_csstate").innerHTML = temptext;
+            }
+            else if (csstate.value == "待审") {
+                var temptext = document.getElementById("res_csstate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + csstate.value;
+                if ('@role' == "质保部审批") {
+
+                    temptext += " <button onclick=\"approve('res_cs','" + csstate.value + "','y','" + csdt.value + "','" + csnode.value.replace(/[\r\n]/g, "") + "')\">通过</button> ";
+                    temptext += " <button onclick=\"approve('res_cs','" + csstate.value + "','n','" + csdt.value + "','" + csnode.value.replace(/[\r\n]/g, "") + "')\">退回</button> ";
+                }
+                else
+                {
+                    temptext += " <button onclick=\"approve('res_cs','" + csstate.value + "','sn','" + csdt.value + "','" + csnode.value.replace(/[\r\n]/g, "") + "')\">撤回</button> ";
+                }
+                document.getElementById("res_csstate").innerHTML = temptext;
+            }
+            else if (csstate.value == "通过") {
+                document.getElementById("res_csdt").readOnly = true;
+                document.getElementById("res_csnode").readOnly = true;
+                document.getElementById("res_csdt").disabled = true;
+                document.getElementById("res_csnode").disabled = true;
+                var temptext = document.getElementById("res_csstate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + csstate.value;
+                if ('@role' == "质保部审批") {
+                    temptext += " <button onclick=\"approve('res_cs','" + csstate.value + "','n','" + csdt.value + "','" + csnode.value + "')\">撤销</button> ";
+                }
+
+                document.getElementById("res_csstate").innerHTML = temptext;
+            }
+
+
+        var fcfdt = document.getElementById("res_fcfdt");
+        var fcfnode = document.getElementById("res_fcfnode");
+            var fcfstate = document.getElementById("res_fcf");
+            fcfstate.readOnly = true;
+            if (fcfstate.value == "未提交" || fcfstate.value == "回退" || fcfstate.value=="撤回") {
+                var temptext = document.getElementById("res_fcfstate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + fcfstate.value;
+
+                temptext += " <button onclick=\"approve('res_fcf','" + fcfstate.value + "','y','" + fcfdt.value + "','" + fcfnode.value + "')\">提交</button> ";
+
+
+                document.getElementById("res_fcfstate").innerHTML = temptext;
+            }
+            else if (fcfstate.value == "待审") {
+                var temptext = document.getElementById("res_fcfstate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + fcfstate.value;
+                if ('@role' == "质保部审批") {
+
+                    temptext += " <button onclick=\"approve('res_fcf','" + fcfstate.value + "','y','" + fcfdt.value + "','" + fcfnode.value + "')\">通过</button> ";
+                    temptext += " <button onclick=\"approve('res_fcf','" + fcfstate.value + "','n','" + fcfdt.value + "','" + fcfnode.value + "')\">退回</button> ";
+                }
+                else
+                {
+                    temptext += " <button onclick=\"approve('res_fcf','" + fcfstate.value + "','sn','" + fcfdt.value + "','" + fcfnode.value + "')\">撤回</button> ";
+                }
+                document.getElementById("res_fcfstate").innerHTML = temptext;
+            }
+            else if (fcfstate.value == "通过") {
+                document.getElementById("res_fcfdt").readOnly = true;
+                document.getElementById("res_fcfnode").readOnly = true;
+                document.getElementById("res_fcfdt").disabled = true;
+                document.getElementById("res_fcfnode").disabled = true;
+                var temptext = document.getElementById("res_fcfstate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + fcfstate.value;
+                if ('@role' == "质保部审批") {
+                    temptext += " <button onclick=\"approve('res_fcf','" + fcfstate.value + "','n','" + fcfdt.value + "','" + fcfnode.value + "')\">撤销</button> ";
+                }
+                document.getElementById("res_fcfstate").innerHTML = temptext;
+            }
+
+        var fcshdt = document.getElementById("res_fcshdt");
+        var fcshnode = document.getElementById("res_fcshnode");
+            var fcshstate = document.getElementById("res_fcsh");
+            fcshstate.readOnly = true;
+            if (fcshstate.value == "未提交" || fcshstate.value == "回退" || fcshstate.value=="撤回") {
+                var temptext = document.getElementById("res_fcshstate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+
+                temptext += "状态:" + fcshstate.value;
+
+                temptext += " <button onclick=\"approve('res_fcsh','" + fcshstate.value + "','y','" + fcshdt.value + "','" + fcshnode.value + "')\">提交</button> ";
+
+                //alert(temptext);
+                document.getElementById("res_fcshstate").innerHTML = temptext;
+            }
+            else if (fcshstate.value == "待审") {
+                $("#btn_fcshadd").css("display", "none");
+                $("#btn_fcshedit").css("display", "none");
+                $("#btn_fcshdel").css("display", "none");
+                
+
+                var temptext = document.getElementById("res_fcshstate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + fcshstate.value;
+                if ('@role' == "质保部审批") {
+
+                    temptext += " <button onclick=\"approve('res_fcsh','" + fcshstate.value + "','y','" + fcshdt.value + "','" + fcshnode.value + "')\">通过</button> ";
+                    temptext += " <button onclick=\"approve('res_fcsh','" + fcshstate.value + "','n','" + fcshdt.value + "','" + fcshnode.value + "')\">退回</button> ";
+                }
+                else
+                {
+                    temptext += " <button onclick=\"approve('res_fcsh','" + fcshstate.value + "','sn','" + fcshdt.value + "','" + fcshnode.value + "')\">撤回</button> ";
+                }
+                document.getElementById("res_fcshstate").innerHTML = temptext;
+            }
+            else if (fcshstate.value == "通过") {
+                $("#btn_fcshadd").css("display", "none");
+                $("#btn_fcshedit").css("display", "none");
+                $("#btn_fcshdel").css("display", "none");
+                document.getElementById("res_fcshdt").readOnly = true;
+                document.getElementById("res_fcshnode").readOnly = true;
+                document.getElementById("res_fcshdt").disabled = true;
+                document.getElementById("res_fcshnode").disabled = true;
+                var temptext = document.getElementById("res_fcshstate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + fcshstate.value;
+                if ('@role' == "质保部审批") {
+                    temptext += " <button onclick=\"approve('res_fcsh','" + fcshstate.value + "','n','" + fcshdt.value + "','" + fcshnode.value + "')\">撤销</button> ";
+                }
+                document.getElementById("res_fcshstate").innerHTML = temptext;
+            }
+
+
+        var csgzdt = document.getElementById("res_csgzdt");
+        var csgznode = document.getElementById("res_csgznode");
+            var csgzstate = document.getElementById("res_csgz");
+            csgzstate.readOnly = true;
+            if (csgzstate.value == "未提交" || csgzstate.value == "回退" || csgzstate.value=="撤回") {
+                var temptext = document.getElementById("res_csgzstate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + csgzstate.value;
+
+                temptext += " <button onclick=\"approve('res_csgz','" + csgzstate.value + "','y','" + csgzdt.value + "','" + csgznode.value + "')\">提交</button> ";
+
+                //alert(temptext);
+                document.getElementById("res_csgzstate").innerHTML = temptext;
+            }
+            else if (csgzstate.value == "待审") {
+                var temptext = document.getElementById("res_csgzstate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + csgzstate.value;
+                if ('@role' == "质保部审批") {
+
+                    temptext += " <button onclick=\"approve('res_csgz','" + csgzstate.value + "','y','" + csgzdt.value + "','" + csgznode.value + "')\">通过</button> ";
+                    temptext += " <button onclick=\"approve('res_csgz','" + csgzstate.value + "','n','" + csgzdt.value + "','" + csgznode.value + "')\">退回</button> ";
+                }
+                else
+                {
+                    temptext += " <button onclick=\"approve('res_csgz','" + csgzstate.value + "','sn','" + csgzdt.value + "','" + csgznode.value + "')\">撤回</button> ";
+                }
+                document.getElementById("res_csgzstate").innerHTML = temptext;
+            }
+            else if (csgzstate.value == "通过") {
+                document.getElementById("res_csgzdt").readOnly = true;
+                document.getElementById("res_csgznode").readOnly = true;
+                document.getElementById("res_csgzdt").disabled = true;
+                document.getElementById("res_csgznode").disabled = true;
+                var temptext = document.getElementById("res_csgzstate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + csgzstate.value;
+                if ('@role' == "质保部审批") {
+                    temptext += " <button onclick=\"approve('res_csgz','" + csgzstate.value + "','n','" + csgzdt.value + "','" + csgznode.value + "')\">撤销</button> ";
+                }
+                document.getElementById("res_csgzstate").innerHTML = temptext;
+            }
+
+        var fmeadt = document.getElementById("res_fmeadt");
+        var fmeanode = document.getElementById("res_fmeanode");
+
+            var fmeastate = document.getElementById("res_fmea");
+            fmeastate.readOnly = true;
+            if (fmeastate.value == "未提交" || fmeastate.value == "回退" || fmeastate.value=="撤回") {
+                var temptext = document.getElementById("res_fmeastate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + fmeastate.value;
+
+                temptext += " <button onclick=\"approve('res_fmea','" + fmeastate.value + "','y','" + fmeadt.value + "','" + fmeanode.value + "')\">提交</button> ";
+
+                //alert(temptext);
+                document.getElementById("res_fmeastate").innerHTML = temptext;
+            }
+            else if (fmeastate.value == "待审") {
+                var temptext = document.getElementById("res_fmeastate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + fmeastate.value;
+                if ('@role' == "质保部审批") {
+
+                    temptext += " <button onclick=\"approve('res_fmea','" + fmeastate.value + "','y','" + fmeadt.value + "','" + fmeanode.value + "')\">通过</button> ";
+                    temptext += " <button onclick=\"approve('res_fmea','" + fmeastate.value + "','n','" + fmeadt.value + "','" + fmeanode.value + "')\">退回</button> ";
+                }
+                else
+                {
+                    temptext += " <button onclick=\"approve('res_fmea','" + fmeastate.value + "','sn','" + fmeadt.value + "','" + fmeanode.value + "')\">撤回</button> ";
+                }
+                document.getElementById("res_fmeastate").innerHTML = temptext;
+            }
+            else if (fmeastate.value == "通过") {
+                document.getElementById("res_fmeadt").readOnly = true;
+                document.getElementById("res_fmeanode").readOnly = true;
+                document.getElementById("res_fmeadt").disabled = true;
+                document.getElementById("res_fmeanode").disabled = true;
+                var temptext = document.getElementById("res_fmeastate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + fmeastate.value;
+                if ('@role' == "质保部审批") {
+                    temptext += " <button onclick=\"approve('res_fmea','" + fmeastate.value + "','n','" + fmeadt.value + "','" + fmeanode.value + "')\">撤销</button> ";
+                }
+                document.getElementById("res_fmeastate").innerHTML = temptext;
+            }
+        var bzgxdt = document.getElementById("res_bzgxdt");
+        var bzgxnode = document.getElementById("res_bzgxnode");
+            var bzgxstate = document.getElementById("res_bzgx");
+            bzgxstate.readOnly = true;
+            //alert(bzgxstate.value);
+            if (bzgxstate.value == "未提交" || bzgxstate.value == "回退" || bzgxstate.value=="撤回") {
+                var temptext = document.getElementById("res_bzgxstate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + bzgxstate.value;
+
+                temptext += " <button onclick=\"approve('res_bzgx','" + bzgxstate.value + "','y','" + bzgxdt.value + "','" + bzgxnode.value + "')\">提交</button> ";
+
+                //alert(temptext);
+                document.getElementById("res_bzgxstate").innerHTML = temptext;
+            }
+            else if (bzgxstate.value == "待审") {
+                var temptext = document.getElementById("res_bzgxstate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + bzgxstate.value;
+                if ('@role' == "质保部审批") {
+
+                    temptext += " <button onclick=\"approve('res_bzgx','" + bzgxstate.value + "','y','" + bzgxdt.value + "','" + bzgxnode.value + "')\">通过</button> ";
+                    temptext += " <button onclick=\"approve('res_bzgx','" + bzgxstate.value + "','n','" + bzgxdt.value + "','" + bzgxnode.value + "')\">退回</button> ";
+                }
+                else
+                {
+                    temptext += " <button onclick=\"approve('res_bzgx','" + bzgxstate.value + "','sn','" + bzgxdt.value + "','" + bzgxnode.value + "')\">撤回</button> ";
+                }
+                document.getElementById("res_bzgxstate").innerHTML = temptext;
+            }
+            else if (bzgxstate.value == "通过") {
+                document.getElementById("res_bzgxdt").readOnly = true;
+                document.getElementById("res_bzgxnode").readOnly = true;
+                document.getElementById("res_bzgxdt").disabled = true;
+                document.getElementById("res_bzgxnode").disabled = true;
+                var temptext = document.getElementById("res_bzgxstate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + bzgxstate.value;
+                if ('@role' == "质保部审批") {
+                    temptext += " <button onclick=\"approve('res_bzgx','" + bzgxstate.value + "','y','" + bzgxdt.value + "','" + bzgxnode.value + "')\">撤销</button> ";
+                }
+                document.getElementById("res_bzgxstate").innerHTML = temptext;
+            }
+
+        var jyjxdt = document.getElementById("res_jyjxdt");
+        var jyjxnode = document.getElementById("res_jyjxnode");
+            var jyjxstate = document.getElementById("res_jyjx");
+            jyjxstate.readOnly = true;
+            if (jyjxstate.value == "未提交" || jyjxstate.value == "回退" || jyjxstate.value=="撤回") {
+                var temptext = document.getElementById("res_jyjxstate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + jyjxstate.value;
+
+                temptext += " <button onclick=\"approve('res_jyjx','" + jyjxstate.value + "','y','" + jyjxdt.value + "','" + jyjxnode.value + "')\">提交</button> ";
+
+                //alert(temptext);
+                document.getElementById("res_jyjxstate").innerHTML = temptext;
+            }
+            else if (jyjxstate.value == "待审") {
+                var temptext = document.getElementById("res_jyjxstate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + jyjxstate.value;
+                if ('@role' == "质保部审批") {
+
+                    temptext += " <button onclick=\"approve('res_jyjx','" + jyjxstate.value + "','y','" + jyjxdt.value + "','" + jyjxnode.value + "')\">通过</button> ";
+                    temptext += " <button onclick=\"approve('res_jyjx','" + jyjxstate.value + "','n','" + jyjxdt.value + "','" + jyjxnode.value + "')\">退回</button> ";
+                }
+                else
+                {
+                    temptext += " <button onclick=\"approve('res_jyjx','" + jyjxstate.value + "','sn','" + jyjxdt.value + "','" + jyjxnode.value + "')\">撤回</button> ";
+                }
+                document.getElementById("res_jyjxstate").innerHTML = temptext;
+            }
+            else if (jyjxstate.value == "通过") {
+                document.getElementById("res_jyjxdt").readOnly = true;
+                document.getElementById("res_jyjxnode").readOnly = true;
+                document.getElementById("res_jyjxdt").disabled = true;
+                document.getElementById("res_jyjxnode").disabled = true;
+                var temptext = document.getElementById("res_jyjxstate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + jyjxstate.value;
+                if ('@role' == "质保部审批") {
+                    temptext += " <button onclick=\"approve('res_jyjx','" + jyjxstate.value + "','n','" + jyjxdt.value + "','" + jyjxnode.value + "')\">撤销</button> ";
+                }
+                document.getElementById("res_jyjxstate").innerHTML = temptext;
+            }
+
+
+        //新加完整8d报告
+        var eightddt = document.getElementById("res_8ddt");
+        var eightdnode = document.getElementById("res_8dnode");
+        var eightdstate = document.getElementById("res_8d");
+            eightdstate.readOnly = true;
+            if (eightdstate.value == "未提交" || eightdstate.value == "回退" || eightdstate.value=="撤回") {
+                var temptext = document.getElementById("res_8dstate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + eightdstate.value;
+
+                temptext += " <button onclick=\"approve('res_8d','" + eightdstate.value + "','y','" + eightddt.value + "','" + eightdnode.value + "')\">提交</button> ";
+
+                //alert(temptext);
+                document.getElementById("res_8dstate").innerHTML = temptext;
+            }
+            else if (eightdstate.value == "待审") {
+                var temptext = document.getElementById("res_8dstate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + eightdstate.value;
+                if ('@role' == "质保部审批") {
+
+                    temptext += " <button onclick=\"approve('res_8d','" + eightdstate.value + "','y','" + eightddt.value + "','" + eightdnode.value + "')\">通过</button> ";
+                    temptext += " <button onclick=\"approve('res_8d','" + eightdstate.value + "','n','" + eightddt.value + "','" + eightdnode.value + "')\">退回</button> ";
+                }
+                else
+                {
+                    temptext += " <button onclick=\"approve('res_8d','" + eightdstate.value + "','sn','" + eightddt.value + "','" + eightdnode.value + "')\">撤回</button> ";
+                }
+                document.getElementById("res_8dstate").innerHTML = temptext;
+            }
+            else if (eightdstate.value == "通过") {
+                document.getElementById("res_8ddt").readOnly = true;
+                document.getElementById("res_8dnode").readOnly = true;
+                document.getElementById("res_8ddt").disabled = true;
+                document.getElementById("res_8dnode").disabled = true;
+                var temptext = document.getElementById("res_8dstate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + eightdstate.value;
+                if ('@role' == "质保部审批") {
+                    temptext += " <button onclick=\"approve('res_8d','" + eightdstate.value + "','n','" + eightddt.value + "','" + eightdnode.value + "')\">撤销</button> ";
+                }
+                document.getElementById("res_8dstate").innerHTML = temptext;
+            }
+
+
+        }
+
+    function custom_close() {
+
+            window.opener = null;
+            window.open('', '_self');
+            window.close()
+
+    }
+
+    function delHtmlTag(str) {
+        var str = str.replace(/<\/?[^>]*>/gim, "");//去掉所有的html标记
+        var result = str.replace(/(^\s+)|(\s+$)/g, "");//去掉前后空格
+        return result.replace(/\s/g, "");//去除文章中间空格
+    }
+
+    function approve(field, state, IsOK,dt,node) {
+
+        //Loading(true, "正在提交数据...");
+        //window.setTimeout(function () {
+        //    var postData = GetWebControls("#form1");
+        //    postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+        //    AjaxJson("/CommonModule/Rapid/SubmitTestTableForm?KeyValue=" + GetQueryNew('KeyValue'), postData, function (data) {
+        //        tipDialog(data.Message, 3, data.Code);
+        //        top.frames[tabiframeId()].windowload();
+        //        closeDialog();
+        //    });
+        //}, 200);
+        //AjaxJson("/CommonModule/Rapid/Approve?KeyValue=" + GetQueryNew('KeyValue')+"&field="+field+"&state="+state+"&isok="+IsOK, function (data) {
+        //    history.replaceState();
+        //});
+        var tid = field + "dt";
+        var tnode = field + "node";
+        
+
+        var tupload = "uploadify" + field.replace("res_", "") + "txt";
+        dt = document.getElementById(tid).value;
+        node = document.getElementById(tnode).value;
+        var upload = $("#" + tupload).val();
+        upload = document.getElementById(tupload).innerText;
+        if (node == "" || node == undefined || node == null)
+        {
+            alert("请填写完整信息再提交");
+            //closeDialog();
+            return false;
+        }
+        //alert(node);
+        if (node != "NA")
+        {
+            if (field == "res_fcsh")
+            {
+                var ProcessID = $("#ProcessID").val();
+                if (ProcessID == "" || ProcessID == undefined || ProcessID == null) {
+                    alert("请先填写分层审核信息再提交");
+                    //closeDialog();
+                    return false;
+                }
+
+            }
+            else {
+                upload = delHtmlTag(upload);
+                if (upload == "" || upload == undefined || upload == null) {
+                    alert("请先上传附件再提交");
+                    //closeDialog();
+                    return false;
+                }
+            }
+        }
+
+        var durl = encodeURI('@Url.Action("Approve", "Rapid")?KeyValue=' + GetQueryNew('KeyValue') + '&field='+field+'&state='+state+'&isok='+IsOK+'&dt='+dt+'&node='+node);
+        $.ajax({
+            type: "post",
+            url: durl,
+            async: false,
+            success: function (msg) {
+               // alert(msg);
+                if (msg >0) {
+                    //var tempcon = document.getElementById("tempcon").value;
+                    top.frames[tabiframeId()].windowload();
+                    alert("成功更新" + msg + "条记录");
+
+                    //closeDialog();
+                    //SettagValue();
+                    //alert("成功");
+                }
+                else if (msg == -3)
+                {
+                    alert("请先提交前一个节点");
+                    return false;
+                    //closeDialog();
+                }
+                else {
+                    alert("出错了！");
+                    closeDialog();
+                }
+            },
+            error: function () {
+                alert("出错了");
+                closeDialog();
+            }
+        });
+
+    }
+
+    function fcshmodify(tag)
+    {
+        
+        if (tag == "add")
+        {
+            if ($("#ProcessID").val() != undefined && $("#ProcessID").val() != null && $("#ProcessID").val() != "")
+            {
+                alert("已存在分层审核记录，无法再新增");
+                return false;
+            }
+        }
+        else if (tag == "edit")
+        {
+            if ($("#ProcessID").val() == undefined || $("#ProcessID").val() == null || $("#ProcessID").val() == "") {
+                alert("尚未新增分层审核记录，请先新增");
+                return false;
+            }
+        }
+        else if(tag=="del")
+        {
+
+            var postData = { KeyValue: GetQueryNew('KeyValue'), ProcessID: $("#ProcessID").val() }
+            AjaxJson("/CommonModule/Rapid/DeleteFcsh", postData, function (data) {
+                //Loading(false);
+                alert("删除成功");
+                return false;
+            });
+
+            
+            return false;
+        }
+        else if (tag == "view")
+        {
+            var obj = new Array();
+            var reValue = window.showModalDialog('FormForRapid?tag=edit&ProcessID=' + $("#ProcessID").val() + '&rapidID=' + GetQueryNew('KeyValue') + '&state=只读', window, 'dialogWidth=650px;dialogHeight=400px;status:1;title:0;');
+            return false;
+        }
+
+        //var url = "/FYModule/Process/FormForRapid?tag=" + tag + "&ProcessID=" + $("#ProcessID").val()
+        //openDialog(url, "Form", "新增", 650, 350, function (iframe) {
+        //    top.frames[iframe].AcceptClick();
+        //});
+        //alert($("#res_fcshstate").val());
+        var obj = new Array();
+        var reValue = window.showModalDialog('FormForRapid?tag=' + tag + '&ProcessID=' + $("#ProcessID").val() + '&rapidID=' + GetQueryNew('KeyValue') + '&state=' + $("#res_fcsh").val(), window, 'dialogWidth=650px;dialogHeight=400px;status:1;title:0;');
+        //var reValue = Dialog('UpdatePlan?id=' + event.id, "test", "test", 400, 200)
+        //alert(reValue);
+        if (reValue == undefined) {
+            return false;
+        }
+
+
+    }
+
+
+</script>
+<form id="form1">
+    <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="Tabbasic" class="tab_list bd" onclick="Tabchange('basic')">问题描述</div>
+                <div id="Tabwork" class="tab_list bd actived" onclick="Tabchange('work')">进度跟踪</div>
+                <div id="Tabproblem" class="tab_list bd " onclick="Tabchange('problem')">问题跟踪</div>
+
+            </div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+        <!--基本信息-->
+        <div id="basic" class="tabPanel" style="display:none">
+            <table class="form">
+
+                <tr>
+                    <th class="formTitle">客户：</th>
+                    <td class="formValue">
+                        <select id="res_kf" class="txtselect"></select>
+                    </td>
+                    <th class="formTitle">投诉级别：</th>
+                    <td class="formValue">
+                        <select id="res_jb" class="txtselect">
+                            <option value="A级">A级</option>
+                            <option value="B级">B级</option>
+                            <option value="C级">C级</option>
+                            <option value="D级">D级</option>
+                            <option value="E级">E级</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">事发地：</th>
+                    <td class="formValue">
+                        <input id="res_dd" type="text" class="txt" />
+                    </td>
+                    <th class="formTitle">重复发生：</th>
+                    <td class="formValue">
+                        <select id="res_again" class="txtselect">
+                            <option value="是">是</option>
+                            <option value="否">否</option>
+
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">产品名称：</th>
+                    <td class="formValue">
+                        <input id="res_mc" type="text" class="txt" />
+                    </td>
+                    <th class="formTitle">问题类别：</th>
+                    <td class="formValue">
+                        <select id="res_ok" class="txtselect">
+                            <option value="外部">外部</option>
+                            <option value="内部">内部</option>
+
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">负责人：</th>
+                    <td class="formValue">
+                        <select id="res_cpeo" class="txtselect"></select>
+                    </td>
+                    <th class="formTitle">重要程度：</th>
+                    <td class="formValue">
+                        <select id="res_cd" class="txtselect">
+                            <option value="I级">I级</option>
+                            <option value="II级">II级</option>
+
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">发生日期：</th>
+                    <td class="formValue" colspan="3">
+                        <input id="res_cdate" type="text" class="txt Wdate" onfocus="WdatePicker({maxDate:'%y-%M-%d'})" style="background:#E0FFFF" />
+                    </td>
+                    <th class="formTitle" style="display:none">下次汇报日期：</th>
+                    <td class="formValue" style="display:none">
+
+                        <input id="res_ndate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" />
+
+
+                    </td>
+
+                </tr>
+                <tr>
+                    <th class="formTitle">产品区域：</th>
+                    <td class="formValue">
+                        <select id="res_area" class="txtselect">
+                            <option value="国内">国内</option>
+                            <option value="国外">国外</option>
+
+                        </select>
+                    </td>
+                    <th class="formTitle">问题类型：</th>
+                    <td class="formValue">
+
+                        <select id="res_type" class="txtselect">
+                            <option value="外观">外观</option>
+                            <option value="印刷">印刷</option>
+                            <option value="装配">装配</option>
+                            <option value="性能">性能</option>
+                            <option value="附属件">附属件</option>
+                            <option value="附件材料">附件材料</option>
+                            <option value="包装">包装</option>
+                            <option value="产品错误">产品错误</option>
+
+                        </select>
+
+
+                    </td>
+
+                </tr>
+                <tr>
+                    <th class="formTitle">问题内容描述：</th>
+                    <td class="formValue" colspan="2">
+                        <textarea id="res_ms" class="txt" style="width:320px;height:80px;" /></textarea>
+                    </td>
+                    <td>
+                        <table>
+                            <tr>
+                                <td>
+                                    <input id="uploadify" name="uploadify" type="file" />
+                                </td>
+                                <td>
+                                    <label id="tt" style="display:none" />
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+
+                    @* <input id="download" /></td>*@
+                </tr>
+
+
+            </table>
+        </div>
+        <!--进度跟踪-->
+        <div id="work" class="tabPanel">
+            <table class="form" style="table-layout:fixed;">
+                <tr>
+                    <th class="formTitle" style="width:10%;word-wrap:break-word;word-break:break-all;">遏制表</br>（24H）：</th>
+                    <td class="formValue" style="width:30%">
+                        <b>操作日期：</b> <input id="res_yzbdt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>节点状态:</b><select id="res_yzbnode" class="txtselect">
+                            <option value="">请选择</option>
+                            <option value="NA">NA</option>
+                            <option value="G">G</option>
+
+                        </select>
+                        <table>
+                            <tr>
+                                <td>
+                                    <input id="uploadifyyzb" name="uploadify" type="file" />
+                                    <label id="uploadifyyzbtxt" style="display:none" />
+                                </td>
+                            </tr>
+                        </table>
+
+                    </td>
+                    <td class="formValue" style="width:10%" id="res_yzbstate">状态：<input id="res_yzb" type="text" class="txt" /></td>
+                    <th class="formTitle" style="width:10%">根本原因</br>分析(3D)：</th>
+                    <td class="formValue" style="width:30%">
+                        <b>操作日期：</b> <input id="res_fxdt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>根本原因分析：</b>
+                        <textarea id="res_fxnode" class="txt" style="width:180px;height:80px;" /></textarea>
+                        <input id="uploadifyfx" name="uploadify" type="file" /><label id="uploadifyfxtxt" style="display:none" />
+                    </td>
+                    <td class="formValue" style="width:10%" id="res_fxstate">状态：<input id="res_fx" type="text" class="txt" /></td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">纠正措施</br>（7D)：</th>
+                    <td class="formValue">
+                        <b>操作日期：</b> <input id="res_csdt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>纠正措施：</b>
+                        <textarea id="res_csnode" class="txt" style="width:180px;height:80px;" /></textarea>
+                        <input id="uploadifycs" name="uploadify" type="file" /><label id="uploadifycstxt" style="display:none" />
+
+                    </td>
+                    <td class="formValue" id="res_csstate">状态：<input id="res_cs" type="text" class="txt" /></td>
+                    <th class="formTitle">防错法</br>（14D)：</th>
+                    <td class="formValue">
+                        <b>操作日期：</b> <input id="res_fcfdt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>节点状态：</b> <select id="res_fcfnode" class="txtselect">
+                            <option value="">请选择</option>
+                            <option value="NA">NA</option>
+                            <option value="G">G</option>
+
+                        </select> <input id="uploadifyfcf" name="uploadify" type="file" /><label id="uploadifyfcftxt" style="display:none" />
+                    </td>
+                    <td class="formValue" id="res_fcfstate">状态：<input id="res_fcf" type="text" class="txt" /></td>
+                </tr>
+
+
+                <tr>
+                    <th class="formTitle">分层审核</br>（14D):</th>
+                    <td class="formValue">
+                        <b>操作日期：</b>
+                        <input id="res_fcshdt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" />
+                        <b>节点状态：</b>
+                        <select id="res_fcshnode" class="txtselect">
+                            <option value="">请选择</option>
+                            <option value="NA">NA</option>
+                            <option value="G">G</option>
+
+                        </select>
+
+                        <table style="display:none">
+                            <tr>
+                                <td>
+                                    <input id="uploadifyfcsh" name="uploadify" type="file" />
+                                    <label id="uploadifyfcshtxt" style="display:none" />
+                                    <label id="ProcessID" style="display:none" />
+                                </td>
+                            </tr>
+                        </table>
+
+                        <button id="btn_fcshadd" onclick="fcshmodify('add')">新增</button>
+                        <button id="btn_fcshedit" onclick="fcshmodify('edit')">编辑</button>
+                        <button id="btn_fcshdel" onclick="fcshmodify('del')">删除</button>
+                        <button id="btn_fcshview" onclick="fcshmodify('view')">查看</button>
+
+                    </td>
+                    <td class="formValue" id="res_fcshstate">状态：<input id="res_fcsh" type="text" class="txt" /></td>
+                    <th class="formTitle">措施跟踪</br>（34D):</th>
+                    <td class="formValue">
+                        <b>操作日期：</b> <input id="res_csgzdt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>节点状态：</b> <select id="res_csgznode" class="txtselect">
+                            <option value="">请选择</option>
+                            <option value="NA">NA</option>
+                            <option value="G">G</option>
+
+                        </select> <input id="uploadifycsgz" name="uploadify" type="file" /><label id="uploadifycsgztxt" style="display:none" />
+                    </td>
+                    <td class="formValue" id="res_csgzstate">状态：<input id="res_csgz" type="text" class="txt" /></td>
+                </tr>
+
+
+                <tr>
+                    <th class="formTitle">FMEA/CP<br />更新日期</br>（35D):</th>
+                    <td class="formValue">
+                        <b>操作日期：</b> <input id="res_fmeadt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>节点状态：</b> <select id="res_fmeanode" class="txtselect">
+                            <option value="">请选择</option>
+                            <option value="NA">NA</option>
+                            <option value="G">G</option>
+
+                        </select> <input id="uploadifyfmea" name="uploadify" type="file" /><label id="uploadifyfmeatxt" style="display:none" />
+
+                    </td>
+                    <td class="formValue" id="res_fmeastate">状态：<input id="res_fmea" type="text" class="txt" /></td>
+                    <th class="formTitle">标准更新</br>（35D):</th>
+                    <td class="formValue">
+                        <b>操作日期：</b> <input id="res_bzgxdt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>节点状态：</b> <select id="res_bzgxnode" class="txtselect">
+                            <option value="">请选择</option>
+                            <option value="NA">NA</option>
+                            <option value="G">G</option>
+
+                        </select> <input id="uploadifybzgx" name="uploadify" type="file" /><label id="uploadifybzgxtxt" style="display:none" />
+                    </td>
+                    <td class="formValue" id="res_bzgxstate">状态：<input id="res_bzgx" type="text" class="txt" /></td>
+                </tr>
+                <tr>
+                    <th class="formTitle">经验教训</br>（40D):</th>
+                    <td class="formValue">
+                        <b>操作日期：</b> <input id="res_jyjxdt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>节点状态：</b> <select id="res_jyjxnode" class="txtselect">
+                            <option value="">请选择</option>
+                            <option value="NA">NA</option>
+                            <option value="G">G</option>
+
+                        </select> <input id="uploadifyjyjx" name="uploadify" type="file" /><label id="uploadifyjyjxtxt" style="display:none" />
+
+                    </td>
+                    <td class="formValue" id="res_jyjxstate">状态：<input id="res_jyjx" type="text" class="txt" /></td>
+                    <th class="formTitle">完整8D</br>报告(40D)</th>
+                    <td class="formValue">
+                        <b>操作日期：</b> <input id="res_8ddt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" />
+                        <b>节点状态：</b> <select id="res_8dnode" class="txtselect">
+                            <option value="">请选择</option>
+                            <option value="NA">NA</option>
+                            <option value="G">G</option>
+
+                        </select> <input id="uploadify8d" name="uploadify" type="file" /><label id="uploadify8dtxt" style="display:none" />
+                    </td>
+                    <td class="formValue" id="res_8dstate">状态：<input id="res_8d" type="text" class="txt" /></td>
+                </tr>
+
+            </table>
+        </div>
+        <!--问题跟踪-->
+        <div id="problem" class="tabPanel" style="display: none;">
+            <table class="form">
+                <tr style="display:none">
+                    <th class="formTitle">未按进度完成原因：</th>
+                    <td class="formValue">
+                        @*<Area id="NotCompleteReason" type="text" class="txt" /Area>*@
+                        <textarea id="NotCompleteReason" class="txt" style="width:220px;height:80px;" /></textarea>
+                        <input id="uploadifyNotCompleteReason" name="uploadify" type="file" />
+                        <label id="uploadifyNotCompleteReasontxt" style="display:none" />
+                    </td>
+                    <th class="formTitle">对策措施：</th>
+                    <td class="formValue">
+                        <textarea id="Action" class="txt" style="width:220px;height:80px;" /></textarea>
+
+                        <input id="uploadifyAction" name="uploadify" type="file" />
+                        <label id="uploadifyActiontxt" style="display:none" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">计划完成日期：</th>
+                    <td class="formValue">
+                        <input id="PlanTime" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" disabled="disabled" />
+
+                    </td>
+                    <th class="formTitle">实际完成日期：</th>
+                    <td class="formValue">
+                        <input id="RealTime" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" />
+
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">客户关闭时间:</th>
+                    <td class="formValue">
+                        <input placeholder="选填" id="CustomerTime" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" />
+
+                    </td>
+                    <th class="formTitle"></th>
+                    <td class="formValue"></td>
+                </tr>
+                <tr>
+                    <th class="formTitle" style="display:none">是否发过邮件：</th>
+                    <td class="formValue" style="display:none">
+                        <input id="IsEmail" type="text" class="txt" />
+                    <th class="formTitle" style="display:none">单据状态：</th>
+                    <td class="formValue" style="display:none">
+                        <input id="RapidState" type="text" class="txt" />
+                    </td>
+                </tr>
+
+
+
+
+
+
+
+
+            </table>
+        </div>
+    </div>
+
+</form>

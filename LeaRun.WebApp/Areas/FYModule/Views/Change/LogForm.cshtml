@@ -1,0 +1,91 @@
+﻿@{
+
+    ViewBag.Title = "AuditForm";
+    Layout = null;
+    DataTable dt = ViewData["dt"] as DataTable;
+
+}
+@using System;
+@using System.Data;
+<link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+<link href="~/Content/Styles/learunui-accordion.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+<script src="~/Content/Scripts/learunui-framework.js"></script>
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+
+
+<style type="text/css">
+    table.gridtable {
+        font-family: verdana,arial,sans-serif;
+        font-size: 11px;
+        color: #333333;
+        border-width: 1px;
+        border-color: #666666;
+        border-collapse: collapse;
+    }
+
+        table.gridtable th {
+            border-width: 1px;
+            padding: 8px;
+            border-style: solid;
+            border-color: #666666;
+            background-color: #dedede;
+        }
+
+        table.gridtable td {
+            border-width: 1px;
+            padding: 8px;
+            border-style: solid;
+            border-color: #666666;
+            background-color: #ffffff;
+        }
+</style>
+
+<table class="gridtable" border="1" bordercolor="#000000" style="border-collapse: collapse;">
+
+    <tr>
+        <th style="border: solid 1px #000000;">
+            操作人
+        </th>
+        <th style="border: solid 1px #000000 ;width:20px">
+            操作内容
+        </th>
+        <th style="border: solid 1px #000000; width:20px">
+            变更单号
+        </th>
+        <th style="border: solid 1px #000000;width:60px">
+            项目名称
+        </th>
+        <th style="border: solid 1px #000000;width:60px">
+            操作日期
+        </th>
+       
+    </tr>
+    @for (int i = 0; i < dt.Rows.Count; i++)
+    {
+        
+        <tr>
+            <td style="border: solid 1px #000000;">
+                @dt.Rows[i][0]
+            </td>
+            <td style="border: solid 1px #000000; ">
+                @dt.Rows[i][1]
+            </td>
+            <td style="border: solid 1px #000000; ">
+                @dt.Rows[i][2]
+            </td>
+            <td style="border: solid 1px #000000; ">
+                @dt.Rows[i][3]
+            </td>
+            <td style="border: solid 1px #000000; ">
+                @dt.Rows[i][4]
+            </td>
+        </tr>
+
+    }
+</table>
+
+
+
+
+

@@ -1,0 +1,117 @@
+﻿@using LeaRun.Entity;
+@using LeaRun.Utilities;
+@{
+    ViewBag.Title = "ExamForm";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+    List<TR_ChoiceQuestionDisplay> ChoiceList = ViewData["ChoiceList"] as List<TR_ChoiceQuestionDisplay>;
+    List<TR_JudgmentQuestionDisplay> JudgmentList = ViewData["JudgmentList"] as List<TR_JudgmentQuestionDisplay>;
+
+    TR_PersonalInfo info = ViewData["Info"] as TR_PersonalInfo;
+}
+
+<style>
+    .examselect {
+        border: 1px solid #fff;
+        border-bottom: 1px solid #A8A8A8;
+        height: 22px;
+        line-height: 22px;
+        position: relative;
+    }
+</style>
+<div id="info" style="float:left;width:20%">
+    <h2>@info.ExamName 考试</h2>
+    </br>
+    <table>
+        <tr>
+            <td>工号:</td>
+            <td>@info.UserCode</td>
+        </tr>
+        <tr>
+            <td>姓名:</td>
+            <td>@info.UserName</td>
+        </tr>
+
+        <tr>
+            <td>考试成绩:</td>
+            <td>@info.Score </td>
+        </tr>
+        <tr>
+        </tr>
+        <tr>
+            <td colspan="2">说明：红色背景的表示答案错误，请重新学习</td>
+        </tr>
+        
+    </table>
+</div>
+
+<div style="float:right;width:80%">
+    <form id="examForm">
+        @*<h2>选择题</h2>*@
+        <div>
+            <table>
+        @for (int i = 0; i < ChoiceList.Count; i++)
+        {
+            <tr>
+                <td>
+                第@(i + 1)题：@ChoiceList[i].QuestionDescripe &nbsp;&nbsp;&nbsp;&nbsp;
+                    </td>
+
+                @if (ChoiceList[i].IsTrue == 1)
+                {
+                <td>
+                (@ChoiceList[i].Answer)  &nbsp;&nbsp;&nbsp;&nbsp; 
+                    </td>
+                }
+                else
+                {
+                    <td style="background-color:red">
+                        (@ChoiceList[i].Answer)  &nbsp;&nbsp;&nbsp;&nbsp;
+                    </td>
+                }
+                <td style="display:none">
+                正确答案： @ChoiceList[i].TrueAnswer
+                    </td>
+                
+                
+           </tr>
+           <tr>
+               <td colspan="3">
+                A.@ChoiceList[i].Option1 &nbsp;&nbsp;&nbsp;&nbsp;
+                B.@ChoiceList[i].Option2 &nbsp;&nbsp;&nbsp;&nbsp;
+                C.@ChoiceList[i].Option3 &nbsp;&nbsp;&nbsp;&nbsp;
+                D.@ChoiceList[i].Option4 &nbsp;&nbsp;&nbsp;&nbsp;
+                   </td>
+            </tr>
+
+        }
+                </table>
+            </div>
+        </br></br>
+        @*<h2>判断题</h2>
+        <div>
+            <table>
+                @for (int i = 0; i < JudgmentList.Count; i++)
+                {
+
+                    <tr>
+                        <td>
+                            第@(i + 1)题：@JudgmentList[i].QuestionDescripe &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </td>
+                        @if (JudgmentList[i].IsTrue == 1)
+                        {
+                        <td>(@JudgmentList[i].Answer) &nbsp;&nbsp;&nbsp;&nbsp; </td>
+                        }
+                        else
+                        {
+                            <td style="background-color:red">(@JudgmentList[i].Answer) &nbsp;&nbsp;&nbsp;&nbsp; </td>
+                        }
+                        <td style="display:none">正确答案： @JudgmentList[i].TrueAnswer</td>
+                    </tr>
+
+
+                }
+            </table>
+        </div>*@
+    </form>
+
+</div>

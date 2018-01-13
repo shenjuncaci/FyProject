@@ -1,0 +1,205 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+<style type="text/css">
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .test {
+        height: 600px;
+        max-width: 600px;
+        font-size: 40px;
+    }
+</style>
+<script src="~/Content/Scripts/jquery/jQuery.md5.js"></script>
+
+<body>
+    <div data-role="page">
+
+        <div data-role="header">
+            <h1>登录页面</h1>
+        </div>
+
+        <div data-role="content" id="mm">
+            <label for="fname">用户名:</label>
+            <input type="text"  id="txtaccount">
+            <label for="fname">密码:</label>
+            <input type="password" id="txtpassword">
+
+            <button id="login">登录</button>
+            
+        </div>
+
+        <div data-role="footer">
+            <h1>develop by--shenjun</h1>
+        </div>
+        
+    </div>
+    
+</body>
+
+<script>
+    $("#login").on("tap", function () {
+        var txtaccount = $("#txtaccount").val();
+        var txtpassword = $("#txtpassword").val();
+        if (txtaccount == "") {
+            $("#txtaccount").focus();
+            alert("登录账户不能为空");
+
+            return false;
+        } else if (txtpassword == "") {
+            $("#txtpassword").focus();
+            alert("登录密码不能为空");
+
+            return false;
+        } else {
+
+            window.setTimeout(function () {
+                var postData = {
+                    Account: escape(txtaccount),
+                    Password: escape($.md5(txtpassword))
+                }
+                //getAjax('/Home/CheckLogin', postData, function (rs) {
+                //    if (parseInt(rs) == -1) {
+                //        $("#txtaccount").focus();
+                //        alert("登录账户不存在");
+
+                //    } else if (parseInt(rs) == 2) {
+                //        $("#txtaccount").focus();
+                //        alert("登录账户被系统锁定");
+
+                //    } else if (parseInt(rs) == 4) {
+                //        $("#txtaccount").focus();
+                //        $("#txtpassword").val("");
+                //        alert("登录密码错误");
+
+                //    } else if (parseInt(rs) == 3) {
+
+
+                //        Load();
+                //    } else {
+                //        alert(rs);
+                //    }
+                //});
+                $.ajax({
+                    type: "post",
+                    url: "/Home/CheckLogin",
+                    data: postData,
+                    async: false,
+                    success: function (rs) {
+                      if (parseInt(rs) == -1) {
+                        $("#txtaccount").focus();
+                        alert("登录账户不存在");
+
+                    } else if (parseInt(rs) == 2) {
+                        $("#txtaccount").focus();
+                        alert("登录账户被系统锁定");
+
+                    } else if (parseInt(rs) == 4) {
+                        $("#txtaccount").focus();
+                        $("#txtpassword").val("");
+                        alert("登录密码错误");
+
+                    } else if (parseInt(rs) == 3) {
+
+
+                        Load();
+                    } else {
+                        alert(rs);
+                    }
+                    },
+                    error: function () {
+                        alert("出错了");
+                    }
+                });
+            }, 500);
+        }
+    });
+
+    function Load() {
+
+        window.location.href = '@Url.Content("~/Home/FirstPage")';
+
+        return false;
+    }
+
+    $(document).ready(function () {
+        var browser = {
+            versions: function () {
+                var u = navigator.userAgent, app = navigator.appVersion;
+                return {//移动终端浏览器版本信息
+                    trident: u.indexOf('Trident') > -1, //IE内核
+                    presto: u.indexOf('Presto') > -1, //opera内核
+                    webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+                    gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+                    mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+                    ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+                    android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+                    iPhone: u.indexOf('iPhone') > -1, //是否为iPhone或者QQHD浏览器
+                    iPad: u.indexOf('iPad') > -1, //是否iPad
+                    webApp: u.indexOf('Safari') == -1, //是否web应该程序，没有头部与底部
+                    weixin: u.indexOf('MicroMessenger') > -1, //是否微信
+                    qq: u.match(/\sQQ/i) == " qq" //是否QQ
+                };
+            }(),
+            language: (navigator.browserLanguage || navigator.language).toLowerCase()
+        }
+
+        if (browser.versions.mobile || browser.versions.ios || browser.versions.android ||
+            browser.versions.iPhone || browser.versions.iPad) {
+
+        }
+        else
+        {
+            alert("该页面只能通过移动端登录");
+            window.location.href = '@Url.Content("~/Home/ErrorPage")';
+
+        }
+
+        //判断微信扫一扫的话，提示浏览器打开
+       
+	
+	
+
+  //      var isWeixin = is_weixin;
+		//var winHeight = typeof window.innerHeight != 'undefined' ? window.innerHeight : document.documentElement.clientHeight;
+  //      var weixinTip = $('<div id="weixinTip"><p><img src="../Content/Images/live_weixin.png" alt="微信打开" /></p></div>');
+
+		//if(isWeixin){
+  //              $("#mm").append(weixinTip);
+  //          }
+		//$("#weixinTip").css({
+  //              "position":"fixed",
+		//	"left":"0",
+		//	"top":"0",
+		//	"height":winHeight,
+		//	"width":"100%",
+		//	"z-index":"1000",
+		//	"background-color":"rgba(0,0,0,0.8)",
+		//	"filter":"alpha(opacity=80)",
+		//});
+		//$("#weixinTip p").css({
+  //              "text-align":"center",
+		//	"margin-top":"10%",
+		//	"padding-left":"5%",
+		//	"padding-right":"5%"
+		//});
+
+    })
+
+    function is_weixin() {
+        var ua = navigator.userAgent.toLowerCase();
+        if (ua.match(/MicroMessenger/i) == "micromessenger") {
+            return true;
+        } else {
+            return false;
+        }
+    }
+</script>

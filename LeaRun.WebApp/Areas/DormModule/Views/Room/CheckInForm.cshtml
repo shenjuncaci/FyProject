@@ -1,0 +1,344 @@
+﻿@{
+    ViewBag.Title = "判断题";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+    
+}
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+<link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
+<script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>
+
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
+
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+
+    input {
+        background: #E0FFFF;
+    }
+
+    textarea {
+        background: #E0FFFF;
+    }
+
+    select {
+        background: #E0FFFF;
+    }
+</style>
+
+
+<script type="text/javascript">
+    //$(document).ready(function () {
+
+    //    uploadify();
+    //});
+    $(function () {
+        BindData();
+        InitControl();
+        //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
+        //BindResponseBy();
+        $('input[id^="CheckInDate"]').each(function () {
+            var w = this.value.indexOf("T");
+            //alert(this.value);
+            if (w > 0) {
+
+                this.value = this.value.substring(0, w);
+                //alert(this.value);
+            }
+        });
+
+        $('input[id^="CheckOutDate"]').each(function () {
+            var w = this.value.indexOf("T");
+            //alert(this.value);
+            if (w > 0) {
+
+                this.value = this.value.substring(0, w);
+                //alert(this.value);
+            }
+        });
+
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/DormModule/Room/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+
+            });
+
+            var rowindex = 1;
+            //评审明细信息
+            AjaxJson("/DormModule/Room/GetList", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                var JsonData = data.rows;
+                //var colorState = "";
+                $.each(JsonData, function (i) {
+
+
+                    
+                    var rowData = JsonData[i];
+                    if (rowData.IsLeave == "1")
+                    {
+                        
+                        AddHistoryOne(rowindex);
+                        $("#PersonCode➩" + rowindex).val(rowData.PersonCode);
+                        $("#PersonName➩" + rowindex).val(rowData.PersonName);
+                        $("#PersonSex➩" + rowindex).val(rowData.PersonSex);
+                        $("#PersonDept➩" + rowindex).val(rowData.PersonDept);
+                        $("#CheckInDate➩" + rowindex).val(rowData.CheckInDate);
+                        $("#CheckOutDate➩" + rowindex).val(rowData.CheckOutDate);
+                    }
+                    else
+                    {
+                       
+                        AddCurrentOne(rowindex);
+                        $("#CheckInID➩" + rowindex).val(rowData.CheckInID);
+                        $("#PersonCode➩" + rowindex).val(rowData.PersonCode);
+                        $("#PersonName➩" + rowindex).val(rowData.PersonName);
+                        $("#PersonSex➩" + rowindex).val(rowData.PersonSex);
+                        $("#PersonDept➩" + rowindex).val(rowData.PersonDept);
+                        $("#CheckInDate➩" + rowindex).val(rowData.CheckInDate);
+                    }
+
+
+                    rowindex++;
+
+                });
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            var DetailForm = GetTableDataJson("#CurrentForm");
+            
+            postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            postData["CurrentForm"] = DetailForm;
+            AjaxJson("/DormModule/Room/SubmitCheckInForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+
+    function BindData() {
+
+        $("#DormID").html("");
+
+        $("#DormID").append("<option value=''>==请选择==</option>");
+        AjaxJson("/DormModule/Room/DormList", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#DormID").append($("<option></option>").val(DataJson[i].DormID).html(DataJson[i].DormName));
+            });
+        });
+    }
+
+
+
+    function AddCurrentOne(i) {
+        //alert(i);
+        var tab = document.getElementById('CurrentForm');
+        var tab2 = document.getElementById('HistoryForm');
+        var rowIndex = tab.rows.length + 1 + tab2.rows.length;
+        if (i == 999) {
+            //999表示是新增，-3表示减去3行标题
+            i = rowIndex - 4;
+        }
+        //添加一行;
+        var tr = tab.insertRow();
+        //tr.onmouseover = tr.className = "displayStyle";
+        //tr.onmouseout = tr.className = "hideStyle";
+        //tr.onclick = function () { this.className = "onClickChangeStyle(this)"; }
+
+        var td1 = tr.insertCell();
+        var td2 = tr.insertCell();
+        var td3 = tr.insertCell();
+        var td4 = tr.insertCell();
+        var td5 = tr.insertCell();
+        var td6 = tr.insertCell();
+
+        td1.innerHTML = "<input  id=\"PersonCode➩" + i + "\" class=\"txt\"><input  id=\"CheckInID➩" + i + "\" class=\"txt\" hidden>";
+        td2.innerHTML = "<input  id=\"PersonName➩" + i + "\" class=\"txt\">";
+        td3.innerHTML = "<select id=\"PersonSex➩" + i + "\" class=\"txtselect\"><option value=\"男\">男</option><option value=\"女\">女</option></select>";
+        td4.innerHTML = "<input  id=\"PersonDept➩" + i + "\" class=\"txt\">";
+        td5.innerHTML = "<input  id=\"CheckInDate➩" + i + "\" class=\"txt Wdate\" onfocus=\"WdatePicker()\">";
+        td6.innerHTML = "<a onClick=\"CheckOut($('#CheckInID➩" + i + "').val())\">退宿</a>";
+        //初始化行;
+        //initRows(tab);
+    }
+
+    function AddHistoryOne(i) {
+        //alert(i);
+        var tab = document.getElementById('HistoryForm');
+        var rowIndex = tab.rows.length + 1;
+        if (i == 999) {
+            //999表示是新增，-3表示减去3行标题
+            i = rowIndex - 2;
+        }
+        //添加一行;
+        var tr = tab.insertRow();
+        //tr.onmouseover = tr.className = "displayStyle";
+        //tr.onmouseout = tr.className = "hideStyle";
+        //tr.onclick = function () { this.className = "onClickChangeStyle(this)"; }
+
+        var td1 = tr.insertCell();
+        var td2 = tr.insertCell();
+        var td3 = tr.insertCell();
+        var td4 = tr.insertCell();
+        var td5 = tr.insertCell();
+        var td6 = tr.insertCell();
+
+        td1.innerHTML = "<input readonly id=\"PersonCode➩" + i + "\" class=\"txt\"><input  id=\"CheckInID➩" + i + "\" class=\"txt\" hidden>";
+        td2.innerHTML = "<input readonly id=\"PersonName➩" + i + "\" class=\"txt\">";
+        td3.innerHTML = "<input readonly id=\"PersonSex➩" + i + "\" class=\"txt\">";
+        td4.innerHTML = "<input readonly id=\"PersonDept➩" + i + "\" class=\"txt\">";
+        td5.innerHTML = "<input readonly id=\"CheckInDate➩" + i + "\" class=\"txt\">";
+        td6.innerHTML = "<input readonly id=\"CheckOutDate➩" + i + "\" class=\"txt\">";
+        //初始化行;
+        //initRows(tab);
+    }
+
+
+    function CheckOut(CheckInID)
+    {
+        //alert(CheckInID);
+        var postData = { CheckInID: CheckInID };
+        AjaxJson("/DormModule/Room/CheckOut", postData, function (data) {
+            //Loading(false);
+            
+           // top.frames[tabiframeId()].windowload();
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            closeDialog();
+            
+        });
+       
+    }
+
+
+</script>
+
+
+<form id="form1">
+    <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">宿舍信息</div>
+
+
+            </div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+        <!--基本信息-->
+        <div id="basic" class="tabPanel">
+            <table class="form">
+
+                <tr>
+                    <th class="formTitle">楼栋：</th>
+                    <td class="formValue">
+
+
+                        <select disabled="disabled"  id="DormID" class="select" datacol="yes" err="楼栋" checkexpession="NotNull"></select>
+                    </td>
+
+                    <th class="formTitle">房间号</th>
+                    <td class="formValue">
+                        <input readonly id="RoomNO" type="text" class="txt" datacol="yes" err="房间号" checkexpession="NotNull" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">房间类型：</th>
+                    <td class="formValue">
+
+                        <input readonly id="RoomType" type="text" class="txt" datacol="yes" err="房间类型" checkexpession="NotNull" />
+
+                    </td>
+
+                    <th class="formTitle">额定人员</th>
+                    <td class="formValue">
+                        <input readonly id="StandardPeople" type="text" class="txt" datacol="yes" err="额定人员" checkexpession="NotNull" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">备注：</th>
+                    <td class="formValue" colspan="3">
+
+                        <input readonly id="Remark" type="text" class="txt" datacol="yes" err="备注" checkexpession="NotNull" />
+
+                    </td>
+
+
+                </tr>
+
+            </table>
+
+            <table id="CurrentForm" class="form-bill">
+                <tr><td colspan="5"><strong>当前住宿人员信息</strong></td><td style="text-align:right"><a class="button button-caution button-square button-small" onclick="AddCurrentOne(999)">添加</a></td></tr>
+                <tr>
+                    <th style="width:20%">工号</th>
+                    <th style="width:25%">姓名</th>
+                    <th style="width:15%">性别</th>
+                    <th style="width:25%">部门</th>
+                    <th style="width:10%">入住日期</th>
+                    <th style="width:15%">退宿</th>
+
+                </tr>
+
+            </table>
+            <table id="HistoryForm" class="form-bill">
+                <tr><td colspan="6"><strong>历史住宿人员信息</strong></td></tr>
+                <tr>
+                    <th style="width:20%">工号</th>
+                    <th style="width:25%">姓名</th>
+                    <th style="width:15%">性别</th>
+                    <th style="width:25%">部门</th>
+                    <th style="width:12%">入住日期</th>
+                    <th style="width:13%">退宿日期</th>
+
+                </tr>
+
+            </table>
+        </div>
+
+
+    </div>
+
+</form>

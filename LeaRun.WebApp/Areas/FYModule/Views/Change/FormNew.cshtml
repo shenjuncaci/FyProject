@@ -1,0 +1,189 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+
+<script type="text/javascript">
+    //$(document).ready(function () {
+
+    //    uploadify();
+    //});
+    $(function () {
+        InitControl();
+
+        //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
+        //BindResponseBy();
+
+
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/FYModule/Change/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+
+            });
+            //将评审人员显示在页面上
+            AjaxJson("/FYModule/Change/SetChangeUser", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                $("#ChangeUser").val(data.Content);
+
+            });
+
+            var rowindex = 1;
+            //明细信息
+            AjaxJson("/FYModule/Change/GetChangeReviewList", { ChangeID: GetQuery('KeyValue') }, function (data) {
+                var JsonData = data.rows;
+                $.each(JsonData, function (i) {
+
+                    addone(rowindex);
+                    var rowData = JsonData[i];
+                    alert(rowData.ReviewDepart);
+                    $("#ChangeReviewID➩" + rowindex).val(rowData.ChangeReviewID);
+                    $("#ReviewDepart➩" + rowindex).val(rowData.ReviewDepart);
+                    $("#ReviewBy➩" + rowindex).val(rowData.ReviewBy);
+                    $("#ReviewContent➩" + rowindex).val(rowData.ReviewContent);
+                    $("#Measures➩" + rowindex).val(rowData.Measures);
+                    $("#PlanDate➩" + rowindex).val(rowData.PlanDate);
+
+
+                    rowindex++;
+
+                });
+            });
+
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            AjaxJson("/FYModule/Change/SubmitForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+
+    function AddChangeUser()
+    {
+        alert("请先保存本单");
+
+
+    }
+</script>
+
+
+<form id="form1">
+    <div class="leftline rightline" style="margin-left: 1px; margin-right: 1px;">
+
+        <table id="tb_POOrderFrom" class="form-bill">
+            <tr><td colspan="8"><strong>主表内容</strong></td></tr>
+            <tr>
+                <th>
+                    变更序号：
+                </th>
+                <td>
+                    <input readonly id="ChangeNO" type="text" class="txt" value="@ViewBag.BillNo" style="width: 95%" />
+                </td>
+                <th>
+                    项目名称：
+                </th>
+                <td>
+                    <input id="ProjectName" type="text" class="txt" datacol="yes" err="项目名称" checkexpession="NotNull" style="width: 95%" />
+                </td>
+                <th>
+                    变更来源：
+                </th>
+                <td>
+                    @*<input id="ChangeSource" type="text" class="txt" datacol="yes" err="ChangeSource" checkexpession="NotNull"  style="width: 95%" />*@
+                    <select id="ChangeSource" class="select" datacol="yes" err="变更来源" checkexpession="NotNull" style="width: 96%">
+                        <option value="">==请选择==</option>
+                        <option value="客户">客户</option>
+                        <option value="内部顾客">内部顾客</option>
+                        <option value="供应商">供应商</option>
+                    </select>
+                </td>
+                <th>
+                    变更类型：
+                </th>
+                <td>
+                    <select id="ChangeType" class="select" datacol="yes" err="变更类型" checkexpession="NotNull" style="width: 96%">
+                        <option value="">==请选择==</option>
+                        <option value="设计变更">设计变更</option>
+                        <option value="工程变更">工程变更</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    提出更改日期：
+                </th>
+                <td>
+                    <input id="ChangeStartDt" type="text" class="txt" datacol="yes" err="提出更改日期" checkexpession="NotNull" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd' })" style="width: 95%" />
+                </td>
+                <th>
+                    更改完成日期：
+                </th>
+                <td>
+                    <input id="ChangePutDt" type="text" class="txt" datacol="yes" err="更改完成日期" checkexpession="NotNull" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd' })" style="width: 95%" />
+                </td>
+                <th>
+                    零件号：
+                </th>
+                <td>
+                    <input id="ComponentNO" type="text" class="txt" datacol="yes" err="零件号" checkexpession="NotNull" style="width: 95%" />
+
+                </td>
+                <th>
+                    车型：
+                </th>
+                <td>
+                    <input id="CarType" type="text" class="txt" datacol="yes" err="车型" checkexpession="NotNull" style="width: 95%" />
+                </td>
+            </tr>
+            <tr>
+                <th>更改原因：</th>
+                <td colspan="7">
+                    <input id="ChangeReson" type="text" class="txt" datacol="yes" err="更改原因" checkexpession="NotNull" style="width: 99%" />
+                </td>
+            </tr>
+            <tr>
+                <th>更改内容：</th>
+                <td colspan="7">
+                    <input id="ChangeBasis" type="text" class="txt" datacol="yes" err="更改内容" checkexpession="NotNull" style="width: 99%" />
+                </td>
+            </tr>
+
+            <tr style="display:none">
+                <td colspan="8">
+                    <input readonly id="CreateByID" type="text" class="txt" />
+                    <input readonly id="CreateBy" type="text" class="txt" />
+                    <input readonly id="CreateDept" type="text" class="txt" />
+                    <input readonly id="CreateDt" type="text" class="txt" />
+                    <input readonly id="ChangeState" type="text" class="txt" />
+                </td>
+            </tr>
+            <tr style="display:none">
+                <th>评审人员</th>
+                <td colspan="1"><input readonly id="ChangeUser" type="text" class="txt" /></td>
+                <td colspan="2"><button class="button button-caution button-small" id="btn_AddUser" onclick="AddChangeUser()">添加评审人员</button></td>
+                <td colspan="2"> <button class="button button-caution button-small" id="btn_AddUser2" onclick="SendAudit()">发送评审</button> </td>
+                <td colspan="2"> <button class="button button-caution button-small" id="btn_AddUser3" onclick="SendTopManager()">提交总经理</button> </td>
+            </tr>
+            <tr style="height:30px"></tr>
+
+        </table>
+
+    </div>
+
+</form>

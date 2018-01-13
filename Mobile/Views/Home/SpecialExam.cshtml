@@ -1,0 +1,41 @@
+﻿
+@{
+    ViewBag.Title = "SpecialExam";
+}
+
+<body>
+    <div data-role="page">
+
+        <div data-role="header">
+            <a href="#" data-role="button" data-rel="back" data-icon="arrow-l">后退</a><h1>专项考试</h1>
+        </div>
+
+        <div data-role="content">
+            @Html.Raw(ViewData["Content"])
+            
+        </div>
+
+        <div data-role="footer">
+            <h1>develop by--shenjun</h1>
+        </div>
+
+    </div>
+</body>
+<script>
+    //$(document).on("pageload", function () {
+    //    alert("pageload 事件触发!")
+    //});
+    //$(document).ready(function () {
+    //    alert('ready，dom加载完');
+    //})    
+    //window.onload=alert(121);
+    //function examinfo(id, type) {
+    //    if (type == "0") {
+    //        alert("技能");
+    //    }
+    //    if (type == "1") {
+    //        alert("专项");
+    //    }
+    //}
+</script>
+

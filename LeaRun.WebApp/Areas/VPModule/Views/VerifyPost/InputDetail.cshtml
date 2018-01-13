@@ -1,0 +1,87 @@
+﻿@{
+    ViewBag.Title = "InputDetail";
+    Layout = null;
+}
+
+<style>
+    .button1 {
+        background-color: red; /* Green */
+        border: none;
+        color: white;
+        height: 30px;
+        width: 40px;
+        text-align: center;
+        /*text-decoration: none;*/
+       
+        /*font-family: 微软雅黑;*/
+    }
+</style>
+
+<link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+<link href="~/Content/Styles/learunui-accordion.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+<script src="~/Content/Scripts/learunui-framework.js"></script>
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+
+<table align=center valign=middle>
+    <tr>
+        <td>检验时段：</td>
+        <td>
+            <input id="timespan" readonly>
+        </td>
+    </tr>
+    <tr>
+        <td>累计缺陷数量</td>
+        <td>
+            <input id="defectNum" />
+        </td>
+    </tr>
+    <tr>
+        <td>检验数量</td>
+        <td>
+            <input id="checkNum" />
+        </td>
+    </tr>
+    
+</table>
+
+<div align=center valign=middle>
+    <button class="button button-primary button-square button-small" onclick="cancel()">取消</button>
+    <button class="button button-primary button-square button-small" onclick="confirm()">确认</button>
+
+    @*<button class="button button-caution button-square button-small" onclick="del()">未生产</button>*@
+    <button id="notproduce" onclick="del()" class="button1">未生产</button>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#timespan").val(GetQuery('timespan'));
+    });
+
+    function del() {
+        window.returnValue = "del";
+        window.close();
+    }
+    function cancel() {
+        self.close();
+    }
+    function confirm() {
+        var _defectNum = String($("#defectNum").val());
+        var _checkNum = String($("#checkNum").val());
+       
+
+        if (_defectNum == "" || _checkNum == "") {
+            alert("请填写完整项目再提交");
+            return false;
+        }
+
+        var ResultArr = new Array();
+        ResultArr[0] = _defectNum;
+        ResultArr[1] = _checkNum;
+       
+        window.returnValue = ResultArr;
+        window.close();
+    }
+   
+</script>
+

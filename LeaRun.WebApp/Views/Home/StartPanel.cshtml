@@ -1,0 +1,435 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>欢迎使用</title>
+
+    <link href="~/Content/Styles/learunui-startmenu.css" rel="stylesheet" />
+    <link href="~/Content/Styles/learunui-accordionTree.css" rel="stylesheet" />
+    <link href="~/Content/Scripts/tree/tree.css" rel="stylesheet" />
+
+    <!--框架必需start-->
+    <link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+    <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+    <script src="~/Content/Scripts/learunui-framework.js"></script>
+    <!--框架必需end-->
+    <!--第三方统计图start-->
+    <script src="~/Content/Scripts/highcharts/highcharts.js"></script>
+    <script src="~/Content/Scripts/highcharts/highcharts-more.js"></script>
+    <script src="~/Content/Scripts/highcharts/modules/exporting.js"></script>
+
+    <script src="~/Content/Scripts/jquery.echarts/echarts.js"></script>
+    <!--第三方统计图end-->
+
+    <link href="~/Content/Scripts/jquery.dropdown/css/menu.css" rel="stylesheet" />
+    <script src="~/Content/Scripts/jquery.dropdown/js/jquery.backgroundpos.js"></script>
+    <script src="~/Content/Scripts/jquery.dropdown/js/menu.js"></script>
+   
+
+  
+
+    <script src="~/Content/Scripts/Index.js"></script>
+
+
+
+
+
+    <script type="text/javascript">
+        $(function () {
+            onChange();
+            //ShortcutsList();
+            GetWaitToDoList();
+
+            ShortcutsList();
+        });
+
+       
+        function windowload() {
+            Replace();
+        }
+
+        function onChange() {
+            var date = new Date;
+            var year = date.getFullYear();
+            //var year = $("#year").val();
+            var X = new Array();
+            var Y = new Array();
+            var Y2 = new Array();
+            var durl = encodeURI('@Url.Action("GetPictueData", "Rapid")?year='+year);
+        $.ajax({
+            type: "post",
+            url: durl,
+            async: false,
+            success: function (data) {
+                var dataA = new Array();
+                dataA = data.split("|");
+
+                X = dataA[2].split(",");
+                Y2 = dataA[1].split(",");
+                Y = dataA[0].split(",");
+                for(var i=0;i<X.length;i++)
+                {
+                    X[i] = X[i] + "月份";
+                }
+            }
+
+        });
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('container'));
+        // 指定图表的配置项和数据
+        var option = {
+            color: ['#3398DB','green'],
+            title: {
+                text: '快速反应年度统计'
+            },
+            tooltip: {},
+            legend: {
+                data: ['问题次数','已完成数']
+            },
+            xAxis: {
+                data: X
+            },
+            yAxis: {
+                //type: 'value',
+                //boundaryGap: [0, 0.01]
+            },
+            series: [{
+                name: '问题次数',
+                type: 'bar',
+                data: Y,
+                itemStyle: { normal: { label: { show: true, position: 'top' } } }
+            },
+                {
+                    name: '已完成数',
+                    type: 'bar',
+                    data: Y2,
+                    itemStyle: { normal: { label: { show: true, position: 'top' } } }
+                }
+            //{
+
+            //    name: '已完成问题数',
+            //    type: 'bar',
+            //    data: Y
+            //},
+            ]
+        };
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+
+        //document.getElementById('container').style.display = "none";
+        }
+
+                function picture2()
+                {
+                    var date = new Date;
+                    var year = date.getFullYear();
+                    var DataForMyChart2 = new Array();
+
+        var c1=new Array();
+        var c2=new Array();
+        var durl = encodeURI('@Url.Action("GetPieData", "Rapid")?year='+year);
+        $.ajax({
+            type: "post",
+            url: durl,
+            async: false,
+            success: function (data) {
+                var xx;
+                var dataA = new Array();
+                //var i = 0;
+                dataA = data.split("|");
+
+
+                c1 = dataA[0].split(",");
+                c2 = dataA[1].split(",");
+                c3 = dataA[2].split(",");
+                for (var i = 0; i < c1.length; i++)
+                {
+                    var TempObject = {};
+                    TempObject["value"] = parseInt(c1[i]);
+
+                    TempObject["name"] = c3[i] + "(总共:" + c1[i] + "单,已超期:" + c2[i] + "单)";
+
+                    DataForMyChart2.push(TempObject);
+                }
+            }
+        });
+
+        var myChart2 = echarts.init(document.getElementById('container'));
+        //饼图
+        myChart2.setOption({
+            title: {
+                text: '快速反应个部门问题统计'
+            },
+            roseType: 'angle',
+            series: [
+                {
+                    name: '访问来源',
+                    type: 'pie',
+                    radius: '55%',
+                    data: DataForMyChart2
+                }
+            ]
+        })
+        }
+
+                function picture3()
+                {
+                            var X;
+        var Y;
+        var startDate = $("#txtStartDate").val();
+        var endDate = $("#txtEndDate").val();
+
+        var durl = encodeURI('@Url.Action("GetSperateReport", "Plan")?startDate=' + startDate + '&endDate=' + endDate );
+        $.ajax({
+            type: "post",
+            url: durl,
+            async: false,
+            success: function (data) {
+                var dataA = new Array();
+                dataA = data.split("|");
+
+                X = dataA[0].split(",");
+
+                Y1 = dataA[1].split(",");
+
+                Y2 = dataA[2].split(",");
+
+                Y3 = dataA[3].split(",");
+
+                Y4 = dataA[4].split(",");
+
+            }
+
+        });
+        var myChart = echarts.init(document.getElementById('container'));
+
+        option = {
+           // color: ['#3398DB', '#66CDAA', '#B22222', '#A020F0'],
+            color: ['#A020F0'],
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                    type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                }
+            },
+            legend: {
+                //data: ['班长完成率', '车间主任完成率', '厂长完成率', '车间完成率']
+                data: ['车间完成率']
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '30%',
+                containLabel: true
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    data: X,
+                    axisTick: {
+                        alignWithLabel: true
+                    },
+                    axisLabel: {
+
+                        interval: 0,
+                        rotate: 90,
+                        margin:8
+                    }
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+
+                    axisLabel: {
+                        show: true,
+                        interval: 'auto',
+
+                        formatter: '{value} %'
+
+                    },
+                    show: true
+                }
+            ],
+            series: [
+                //{
+                //    name: '班长完成率',
+                //    type: 'bar',
+                //    data: Y1,
+                //    itemStyle: { normal: { label: { show: true, position: 'top', formatter: '{c}%' } } }
+                //},
+                //{
+                //    name: '车间主任完成率',
+                //    type: 'bar',
+                //    data: Y2,
+                //    itemStyle: { normal: { label: { show: true, position: 'top', formatter: '{b}\n{c}%' } } }
+                //},
+                //{
+                //    name: '厂长完成率',
+                //    type: 'bar',
+                //    data: Y3,
+                //    itemStyle: { normal: { label: { show: true, position: 'top', formatter: '{b}\n{c}%' } } }
+                //},
+                {
+                    name: '车间完成率',
+                    type: 'bar',
+                    data: Y4,
+                    itemStyle: { normal: { label: { show: true, position: 'top', formatter: '{c}%', rotate: 90 } } }
+                },
+            ]
+        };
+
+        myChart.setOption(option);
+                }
+
+        function GetWaitToDoList()
+        {
+            //alert(121);
+            var durl = encodeURI('@Url.Action("WaitToDoList", "Home")');
+            $.ajax({
+                type: "post",
+                url: durl,
+                dataType: "json",//请求页面返回的数据类型 
+                async: false,
+                success: function (data) {
+                    //data = data.substring(1, data.length - 1);
+                    //console.log(data);
+                    ////console.log(JSON.parse(data));
+                    ////[]在转json对象时需要把前后两个方括号取消，真实坑
+                    //console.log(typeof (data))
+                    //var Object1 = JSON.parse(data);
+                    //console.log(data);
+                    //console.log(Object);
+                    //console.log(Object.KeyValue);
+                    if (data == "-1")
+                    {
+                        $("#WaitDone").append("<li>暂无待办任务</li>");
+                    }
+                    else {
+                        for (var i = 0; i < data.length; i++) {
+                            $("#WaitDone").append("<li onclick='AddTab(\"" + data[i].KeyValue + "\",\"" + data[i].Url + "\")'>" + data[i].ProblemDescripe.substring(0, 50) + "..." + "</li>");
+                        }
+                    }
+                   
+
+
+                }
+
+            });
+        }
+
+
+        function AddTab(KeyValue, Url) {
+            var url = Url + "?KeyValue=" + KeyValue;
+            FullopenDialog(url, "Form", "编辑",  function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+        }
+    </script>
+</head>
+<body>
+    <div>
+        <table style="width: 100%;">
+            <tr>
+                <td colspan="2" style="width: 100%">
+                    <div class="box">
+                        <div class="box-title">
+                            <div style="float: left">
+                                <img src="~/Content/Images/Icon32/chart_bar.png" alt="" width="20" height="20" />
+                                数据统计
+                            </div>
+                            <div id="SeriesType" title="点击切换图表" style="float: right; padding-right: 10px; cursor: pointer;">
+                                <ul class="menu">
+                                    <li class="li_3">
+                                        <a class="noclick">更多</a>
+                                        <dl class="li_3_content">
+                                            <dt></dt>
+                                            <dd><a href="#" onclick="onChange()"><span>快速反应年度统计</span></a></dd>
+                                            <dd><a href="#" onclick="picture2()"><span>快速反应部门统计</span></a></dd>
+                                            
+                                            <dd class="lastItem" onclick="picture3()"><a href="#"><span>分层审核完成率</span></a></dd>
+                                        </dl>
+                                    </li>
+                                    </ul>
+
+</div>
+                        </div>
+                        <div class="box-content" style="height: 300px;">
+                            <div id="container" style="height: 300px;">
+                            </div>
+                            
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="box" style="display:none">
+                        <div class="box-title">
+                            <div style="float: left">
+                                <img src="~/Content/Images/Icon32/sound.png" alt="" width="20" height="20" />
+                                通知公告
+                            </div>
+                            <div style="float: right; padding-right: 10px;">更多</div>
+                        </div>
+                        <div class="box-content" style="height: 300px;">
+                            <a href="#" target="_blank">1、VS出了MAC版本啦 ！ </a>
+                            <br />
+                            <a href="#" target="_blank">2、什么！乐视亡了？！ </a>
+                            <br />
+                            <a href="#" target="_blank">3、福耀事业部无开发^_^ </a>
+                            <br />
+                            <a href="#" target="_blank">4、若果还有下个接手的兄弟，好自为之~~/(ㄒoㄒ)/~~ </a>
+                            <br />
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="box">
+                        <div class="box-title">
+                            <div style="float: left">
+                                <img src="~/Content/Images/Icon32/hourglass_go.png" alt="" width="20" height="20" />
+                                待办任务
+                            </div>
+                            <div style="float: right; padding-right: 10px;"></div>
+                        </div>
+                        <div class="box-content" style="height: 250px; width: 650px;overflow:auto">
+                            <ul id="WaitDone"></ul>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="box">
+                        <div class="box-title">
+                            <div style="float: left">
+                                <img src="~/Content/Images/Icon32/tag_blue.png" alt="" width="20" height="20" />
+                                快捷方式
+                            </div>
+                            <div style="float: right; padding-right: 10px;"></div>
+                        </div>
+                        <div class="box-content" style="height: 250px; width: 550px">
+                            <div id="Shortcuts"></div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <div class="box" style="display:none">
+                        <div class="box-title">
+                            <div style="float: left">
+                                <img src="~/Content/Images/Icon32/lightbulb_off.png" alt="" width="20" height="20" />
+                                讨论话题
+                            </div>
+                            <div style="float: right; padding-right: 10px;">更多</div>
+                        </div>
+                        <div class="box-content" style="height: 250px;">
+                           
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

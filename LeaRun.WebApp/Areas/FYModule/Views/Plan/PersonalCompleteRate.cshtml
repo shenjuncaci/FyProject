@@ -1,0 +1,269 @@
+﻿@{
+    ViewBag.Title = "ScoreReport";
+    //Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+<link href="~/Content/Styles/learunui-accordion.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+<script src="~/Content/Scripts/learunui-framework.js"></script>
+
+<script src="~/Content/Scripts/jquery.echarts/echarts.js"></script>
+
+<script src="~/Content/Scripts/datepicker/WdatePicker.js"></script>
+
+<div id="grid_List">
+    <div class="bottomline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px">
+        <table>
+            <tr>
+                <th>
+                    开始日期：
+                </th>
+                <td>
+                    <input id="txtStartDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="width: 200px;border:1px,solid" />
+                </td>
+                <th>
+                    结束日期：
+                </th>
+                <td>
+                    <input id="txtEndDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="width: 200px;border:1px,solid" />
+                </td>
+                <th>
+                    车间/部门：
+                </th>
+                <td>
+                    <select id="datatype" class="txtselect">
+                        
+                    </select>
+                </td>
+                @*<th>
+                    人员范围：
+                </th>
+                <td>
+                    <select id="person" class="txtselect">
+                        <option value="">请选择</option>
+                        <option value="责任人">责任人</option>
+                        <option value="常委">常委</option>
+                    </select>
+                </td>*@
+                <td>
+                    <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<!--视图-->
+<div id="main" style="width: auto;height:400px"></div>
+<div id="main2" style="width: auto;height:400px"></div>
+
+<script>
+
+    $(document).ready(function () {
+        $("#datatype").html("");
+
+        $("#datatype").append("<option value=''>==请选择==</option>");
+        AjaxJson("/FYModule/Plan/DepartmentJson2", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#datatype").append($("<option></option>").val(DataJson[i].DepartmentID).html(DataJson[i].FullName));
+            });
+        })
+        btn_Search();
+
+    });
+
+
+
+    function btn_Search() {
+        var X;
+        var Y;
+        var startDate = $("#txtStartDate").val();
+        var endDate = $("#txtEndDate").val();
+        var dataType = $("#datatype").val();
+        var person = $("#person").val();
+        var durl = encodeURI('@Url.Action("GetPersonalCompleteRate", "Plan")?StartDate=' + startDate + '&EndDate=' + endDate + '&DepartmentID=' + dataType + '&person=' + person);
+        $.ajax({
+            type: "post",
+            url: durl,
+            async: false,
+            success: function (data) {
+                if (data == "") {
+                   
+                }
+                else {
+                    var dataA = new Array();
+                    dataA = data.split("|");
+
+                    X = dataA[0].split(",");
+
+                    Y = dataA[1].split(",");
+                }
+
+            }
+
+        });
+        var myChart = echarts.init(document.getElementById('main'));
+
+        option = {
+            title: {
+                text: '个人完成次数报表'
+            },
+            color: ['#3398DB'],
+            
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                    type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                }
+            },
+            legend: {
+                data: ['完成率']
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    data: X,
+                    axisTick: {
+                        alignWithLabel: true
+                    }
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    axisLabel: {
+                        show: true,
+                        interval: 'auto',
+                        formatter: '{value}'
+                    },
+                    show: true
+                }
+            ],
+            series: [
+                {
+                    name: '完成次数',
+                    type: 'bar',
+                    barWidth: '60%',
+                    data: Y,
+                    itemStyle: { normal: { label: { show: true, position: 'top', formatter: '{c}' } } }
+                }
+            ]
+        };
+
+        myChart.setOption(option);
+
+
+        myChart.on('click', function (params) {
+            //alert(params.name);
+            var startDate = $("#txtStartDate").val();
+            var endDate = $("#txtEndDate").val();
+            var dataType = $("#datatype").val();
+            var url = "/FYModule/Plan/DetialForm?Name=" + params.name + "&startDate=" + startDate + "&endDate=" + endDate + "&dataType=" + dataType;
+            Dialog(url, "Form", "明细情况", 500, 350);
+        });
+
+        //var ecConfig = echarts.config;
+        //function eConsole(param) {
+        //    alert(11);
+        //    if (typeof param.seriesIndex == 'undefined') {
+        //        return;
+        //    }
+        //    if (param.type == 'click') {
+        //        alert(param.name);
+        //    }
+        //}
+        //myChart.on(ecConfig.EVENT.CLICK, eConsole);
+        SetAnother();
+    }
+
+    function SetAnother()
+    {
+         var X;
+        var Y;
+        var startDate = $("#txtStartDate").val();
+        var endDate = $("#txtEndDate").val();
+        var dataType = $("#datatype").val();
+        var person = $("#person").val();
+        var durl = encodeURI('@Url.Action("GetUnqualifiedCount", "Plan")?StartDate=' + startDate + '&EndDate=' + endDate + '&DepartmentID=' + dataType + '&person=' + person);
+        $.ajax({
+            type: "post",
+            url: durl,
+            async: false,
+            success: function (data) {
+                if (data == "")
+                {
+                    
+                }
+                else {
+                    var dataA = new Array();
+                    dataA = data.split("|");
+
+                    X = dataA[0].split(",");
+
+                    Y = dataA[1].split(",");
+                }
+
+            }
+
+        });
+        var myChart = echarts.init(document.getElementById('main2'));
+
+        option = {
+            title: {
+                text: '不符合项目数报表'
+            },
+            color: ['#3398DB'],
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                    type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                }
+            },
+            legend: {
+                data: ['不符合项目数']
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    data: X,
+                    axisTick: {
+                        alignWithLabel: true
+                    }
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    axisLabel: {
+                        show: true,
+                        interval: 'auto',
+                        formatter: '{value}'
+                    },
+                    show: true
+                }
+            ],
+            series: [
+                {
+                    name: '不符合项目数',
+                    type: 'bar',
+                    barWidth: '60%',
+                    data: Y,
+                    itemStyle: { normal: { label: { show: true, position: 'top', formatter: '{c}' } } }
+                }
+            ]
+        };
+
+        myChart.setOption(option);
+    }
+</script>

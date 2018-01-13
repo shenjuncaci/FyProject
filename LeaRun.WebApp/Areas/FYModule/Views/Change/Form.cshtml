@@ -1,0 +1,1209 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+    
+}
+
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+
+<script type="text/javascript">
+    //$(document).ready(function () {
+
+    //    uploadify();
+    //});
+    $(function () {
+        InitControl();
+
+        //日期格式化
+        $('input[id^="PlanDate"]').each(function () {
+            var w = this.value.indexOf("T");
+            //alert(this.value);
+            if (w > 0) {
+
+                this.value = this.value.substring(0, w);
+                //alert(this.value);
+            }
+        });
+
+        $('input[id^="PayDt"]').each(function () {
+            var w = this.value.indexOf("T");
+            //alert(this.value);
+            if (w > 0) {
+
+                this.value = this.value.substring(0, w);
+                //alert(this.value);
+            }
+        });
+
+        $('input[id$="Dt"]').each(function () {
+            var w = this.value.indexOf("T");
+            if (w > 0) {
+                this.value = this.value.substring(0, w);
+            }
+        });
+        //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
+        //BindResponseBy();
+
+
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+
+        if (!!GetQueryNew('KeyValue')) {
+            AjaxJson("/FYModule/Change/SetForm", { KeyValue: GetQueryNew('KeyValue') }, function (data) {
+                SetWebControls(data);
+                //alert(data.CreateBy);
+                if ('@ViewData["UserID"]' != data.CreateByID || data.ChangeState == "已完成" || data.ChangeState == "等待总经理批准")
+                {
+
+                    $("#SubmitBreakDetail").css("display", "none");
+                    var t = document.getElementById("tb_POOrderFrom");
+                    var a = t.getElementsByTagName("input");
+                    var b = t.getElementsByTagName("select");
+                    for (var i = 0; i<a.length; i++)
+                    {
+                      a[i].setAttribute("disabled", "true");
+                    }
+                    for (var i = 0; i < b.length; i++)
+                    {
+                        b[i].setAttribute("disabled", "true");
+                    }
+                    $("#btn_SendAudit").css("display", "none");
+                    $("#btn_Cost").css("display", "none");
+                    $("#btn_Break").css("display", "none");
+                    $("#btn_SendTopManager").css("display", "none");
+                    $("#btn_EndNote").css("display", "none");
+                    $("#saveBreak").css("display", "none");
+
+
+                }
+
+                if ('@ViewData["IsTopManager"]' != 1 || data.ChangeState !="等待总经理批准")
+                {
+                    $("#btn_ManagerApproveYes").css("display", "none");
+                    $("#btn_ManagerApproveNo").css("display", "none");
+                    $("#btn_ManagerApprove1Yes").css("display", "none");
+                    $("#btn_ManagerApprove1No").css("display", "none");
+                }
+
+                if ('@ViewData["IsFi"]' != 1 || data.ChangeState != '等待财务确认')
+                {
+                    $("#btn_FiConfirm").css("display", "none");
+                    $("#ScrappeGlass").prop("disabled", true);
+                    $("#ScrappeMaterial").prop("disabled", true);
+                    $("#ScrappeAll").prop("disabled", true);
+                    $("#FiRemark").prop("disabled", true);
+                }
+                if ('@ViewData["UserID"]' == data.CreateByID )
+                {
+                    if (data.CreateState != '等待发起人填写意见' && data.CreateState !='部门负责人退回')
+                    {
+                        $("#btn_CreateSubmit").css("display", "none");
+
+                        $("#CreateRemark").prop("disabled", true);
+
+                    }
+                   // alert(data.CreateDept);
+                    if (data.CreateState != '等待部门负责人审核' || data.CreateDept != '@ViewData["IsManager"]') {
+
+                        $("#btn_CreateYes").css("display", "none");
+                        $("#btn_CreateNo").css("display", "none");
+                    }
+                }
+                else
+                {
+                    $("#btn_CreateSubmit").css("display", "none");
+                    $("#CreateRemark").prop("disabled", true);
+                    $("#btn_CreateYes").css("display", "none");
+                    $("#btn_CreateNo").css("display", "none");
+                }
+                if (data.IsChangeOver != '评审通过')
+                {
+                    document.getElementById("FlowStatus").style.display = "none";
+                    document.getElementById("FiConfirm").style.display = "none";
+                    document.getElementById("StockForm").style.display = "none";
+                    document.getElementById("botton-button").style.display = "none";
+                    //document.getElementById("botton-button1").style.display = "none";
+
+                }
+                else
+                {
+                    document.getElementById("botton-button1").style.display = "none";
+                }
+
+                if (data.ChangeState == '等待项目主管评审' || data.ChangeState == '项目主管退回')
+                {
+                    document.getElementById("button-flow").style.display = "none";
+
+                    if (data.ChangeState == '项目主管退回'||'@ViewData["IsProjectLeader"]'!='1')
+                    {
+                        document.getElementById("btn_ProjectApproveYes").style.display = "none";
+                        document.getElementById("btn_ProjectApproveNo").style.display = "none";
+                    }
+                    if (data.ChangeState == '等待项目主管评审')
+                    {
+                        document.getElementById("btn_SubmitProject").style.display = "none";
+                    }
+
+                    document.getElementById("AuditForm").style.display = "none";
+                    document.getElementById("FlowStatus1").style.display = "none";
+                    document.getElementById("CostForm").style.display = "none";
+                }
+                else
+                {
+                    document.getElementById("button-approve").style.display = "none";
+                }
+
+
+            });
+            //将评审人员显示在页面上
+            //AjaxJson("/FYModule/Change/SetChangeUser", { KeyValue: GetQueryNew('KeyValue') }, function (data) {
+            //    $("#ChangeUser").val(data.Content);
+
+            //});
+
+            var rowindex = 1;
+            //评审明细信息
+            AjaxJson("/FYModule/Change/GetChangeReviewList", { ChangeID: GetQueryNew('KeyValue') }, function (data) {
+                var JsonData = data.rows;
+                //var colorState = "";
+                $.each(JsonData, function (i) {
+
+                    //if (rowData.ChangeReviewState == "未提交" || rowData.ChangeReviewState == "进行中")
+                    //{
+                    //    colorState = "<font color='yellow'>" + rowData.ChangeReviewState + "</font>";
+                    //}
+                    //else if (rowData.ChangeReviewState == "已完成")
+                    //{
+                    //    colorState = "<font color='green'>" + rowData.ChangeReviewState + "</font>";
+                    //}
+                    //else
+                    //{
+                    //    colorState = "<font color='red'>" + rowData.ChangeReviewState + "</font>";
+                    //}
+
+                    addone(rowindex);
+                    var rowData = JsonData[i];
+                    //alert(rowData.FllowStatus);
+                    //alert(rowData.ReviewDepart);ChangeReviewState
+                    $("#ChangeReviewState➩" + rowindex).val(rowData.ChangeReviewState);
+                    $("#ChangeReviewID➩" + rowindex).val(rowData.ChangeReviewID);
+                    $("#ReviewDepart➩" + rowindex).val(rowData.ReviewDepart);
+                    $("#ReviewDepartName➩" + rowindex).val(rowData.FullName);
+                    $("#ReviewBy➩" + rowindex).val(rowData.ReviewBy);
+                    $("#ReviewByName➩" + rowindex).val(rowData.RealName);
+                    $("#ReviewContent➩" + rowindex).val(rowData.ReviewContent);
+                    $("#Measures➩" + rowindex).val(rowData.Measures);
+                    $("#PlanDate➩" + rowindex).val(rowData.PlanDate);
+                    $("#Result➩" + rowindex).val(rowData.Result);
+
+                    $("#FllowStatus➩" + rowindex).val(rowData.FllowStatus);
+                    $("#IsEnd➩" + rowindex).val(rowData.IsEnd);
+                    //ApproveYes
+                    $("#ApproveYes" + rowindex).css("display", "none");
+                    $("#ApproveNo" + rowindex).css("display", "none");
+                    if (rowData.ChangeReviewState == "进行中" || rowData.ChangeReviewState == "已完成")
+                    {
+
+                        $("#Measures➩" + rowindex).prop("readonly", true);
+                        $("#PlanDate➩" + rowindex).prop("disabled", true);
+                        $("#Result➩" + rowindex).prop("disabled", true);
+                        $("#tijiao" + rowindex).css("display", "none");
+                        //alert()
+                        if (rowData.ChangeReviewState == "进行中" && rowData.ReviewDepart == '@ViewData["IsManager"]')
+                        {
+                            $("#ApproveYes" + rowindex).css("display", "block");
+                            $("#ApproveNo" + rowindex).css("display", "block");
+                        }
+
+
+                    }
+                    if ('@ViewData["UserID"]' != rowData.ReviewBy)
+                    {
+                        //alert(11);
+                        $("#Measures➩" + rowindex).prop("readonly", true);
+                        $("#PlanDate➩" + rowindex).prop("disabled", true);
+                        $("#Result➩" + rowindex).prop("disabled", true);
+                        $("#tijiao" + rowindex).css("display", "none");
+
+                        $("#EndIt" + rowindex).css('display', 'none');
+                        $("#FllowStatus➩" + rowindex).prop("disabled", true);
+
+                    }
+                    else
+                    {
+                        //alert(22);
+                        $("#EndIt" + rowindex).css('display', 'block');
+                        //alert(22);
+
+                    }
+                    if ($("#ChangeReviewState➩" + rowindex).val() == "未提交" || $("#ChangeReviewState➩" + rowindex).val() == "进行中")
+                    {
+                        //alert("测试是否进入");
+                        $("#ChangeReviewState➩" + rowindex).css('background-color', 'yellow');
+                    }
+                    else if ($("#ChangeReviewState➩" + rowindex).val() == "已完成")
+                    {
+                        $("#ChangeReviewState➩" + rowindex).css('background-color', 'green');
+                    }
+                    else
+                    {
+                        $("#ChangeReviewState➩" + rowindex).css('background-color', 'red');
+                    }
+
+                    if (rowData.IsEnd == "1")
+                    {
+                        $("#FllowStatus➩" + rowindex).prop("readonly", true);
+                        $("#EndIt" + rowindex).css('display', 'none');
+                    }
+
+                    rowindex++;
+
+                });
+            });
+
+            rowindex = 1;
+            //变更费用明细信息
+            AjaxJson("/FYModule/Change/GetChangeCostList", { ChangeID: GetQueryNew('KeyValue') }, function (data) {
+                var JsonData = data.rows;
+                //var colorState = "";
+                $.each(JsonData, function (i) {
+                    addonecost(rowindex);
+                    var rowData = JsonData[i];
+                    //alert(rowData.ReviewDepart);ChangeReviewState
+                    $("#CostID➩" + rowindex).val(rowData.CostID);
+                    $("#CostType➩" + rowindex).val(rowData.CostType);
+                    $("#CostNum➩" + rowindex).val(rowData.CostNum);
+                    $("#CostCurrency➩" + rowindex).val(rowData.CostCurrency);
+                    $("#ChargedWith➩" + rowindex).val(rowData.ChargedWith);
+                    $("#PayWith➩" + rowindex).val(rowData.PayWith);
+                    $("#PayDt➩" + rowindex).val(rowData.PayDt);
+                    $("#Remark➩" + rowindex).val(rowData.Remark);
+
+                    //ApproveYes
+                    rowindex++;
+
+                });
+
+
+            });
+
+            rowindex = 1;
+            //断点明细信息
+            AjaxJson("/FYModule/Change/GetChangeBreakList", { ChangeID: GetQueryNew('KeyValue') }, function (data) {
+                var JsonData = data.rows;
+                //var colorState = "";
+                $.each(JsonData, function (i) {
+                    addonebreak(rowindex);
+                    var rowData = JsonData[i];
+                    //alert(rowData.ReviewDepart);ChangeReviewState ChangeBreakID
+                    $("#ChangeBreakID➩" + rowindex).val(rowData.ChangeBreakID);
+                    $("#BreakState➩" + rowindex).val(rowData.BreakState);
+                    $("#ChangeBreakDeptID➩" + rowindex).val(rowData.ChangeBreakDeptID);
+                    $("#ChangeBreakName➩" + rowindex).val(rowData.ChangeBreakName);
+                    $("#ChangeBreakBy➩" + rowindex).val(rowData.ChangeBreakBy);
+                    $("#ChangeBreakByID➩" + rowindex).val(rowData.ChangeBreakByID);
+                    $("#StockMessage➩" + rowindex).val(rowData.StockMessage);
+                    $("#CreateOpinion➩" + rowindex).val(rowData.CreateOpinion);
+                    if ('@ViewData["UserID"]' != $("#CreateByID").val())
+                    {
+                        $("#CreateOpinion➩" + rowindex).prop("disabled", true);
+                    }
+                    if ('@ViewData["UserID"]' != rowData.ChangeBreakByID)
+                    {
+                        $("#StockMessage➩" + rowindex).prop("disabled", true);
+                    }
+                    if (rowData.BreakState == "进行中" || rowData.BreakState == "已完成")
+                    {
+                        $("#Breaktijiao" + rowindex).css("display", "none");
+                        if (rowData.BreakState == "已完成" || '@ViewData["IsManager"]' != rowData.ChangeBreakDeptID) {
+                            $("#BreakApproveNo" + rowindex).css("display", "none");
+                            $("#BreakApproveYes" + rowindex).css("display", "none");
+                        }
+                        $("#StockMessage➩" + rowindex).prop("disabled", true);
+
+                    }
+                    if (rowData.BreakState == "未提交" || rowData.BreakState == "退回")
+                    {
+                        $("#BreakApproveNo" + rowindex).css("display", "none");
+                        $("#BreakApproveYes" + rowindex).css("display", "none");
+                        if ('@ViewData["UserID"]' != rowData.ChangeBreakByID)
+                        {
+                            $("#Breaktijiao" + rowindex).css("display", "none");
+                            //$("#BreakApproveYes" + rowindex).css("display", "none");
+                        }
+                    }
+
+
+
+                    if ($("#BreakState➩" + rowindex).val() == "未提交" || $("#BreakState➩" + rowindex).val() == "进行中") {
+                        //alert("测试是否进入");
+                        $("#BreakState➩" + rowindex).css('background-color', 'yellow');
+                    }
+                    else if ($("#BreakState➩" + rowindex).val() == "已完成") {
+                        $("#BreakState➩" + rowindex).css('background-color', 'green');
+                    }
+                    else {
+                        $("#BreakState➩" + rowindex).css('background-color', 'red');
+                    }
+
+                    //ApproveYes
+                    rowindex++;
+
+                });
+
+
+            });
+
+
+
+            if ('@ViewData["UserID"]' == $("#CreateByID").val() || '@ViewData["IsTopManager"]' == 1)
+            {
+                if ($("#ChangeState").val() == "已完成")
+                {
+                    var t2 = document.getElementById("CostForm");
+                    var a2 = t2.getElementsByTagName("input");
+                    for (var i = 0; i < a2.length; i++) {
+                        a2[i].setAttribute("disabled", "true");
+                    }
+
+                    document.getElementById("saveCost").style.display = "none";
+                    //document.getElementById("costAdd").style.display = "none";
+
+                    $('a[id^="Delete➩"]').each(function () {
+                        this.style.display = "none";
+                    });
+                }
+            }
+            else
+            {
+                document.getElementById("CostForm").style.display = "none";
+            }
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            AjaxJson("/FYModule/Change/SubmitForm?KeyValue=" + GetQueryNew('KeyValue'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+
+    function AddChangeUser()
+    {
+        var obj = new Array();
+        var reValue = window.showModalDialog('AddChangeUser?ChangeID=' + GetQueryNew('KeyValue'), obj, 'dialogWidth=800px;dialogHeight=400px;');
+    }
+    function SendAudit()
+    {
+        var postData = { ChangeID: GetQueryNew('KeyValue') }
+        AjaxJson("/FYModule/Change/SendAudit", postData, function (data) {
+            //Loading(false);
+            window.close();
+        });
+    }
+
+    function addone(i)
+    {
+        //alert(i);
+        var tab = document.getElementById('AuditForm');
+        var rowIndex = tab.rows.length + 1;
+
+        //添加一行;
+        var tr = tab.insertRow();
+        //tr.onmouseover = tr.className = "displayStyle";
+        //tr.onmouseout = tr.className = "hideStyle";
+        //tr.onclick = function () { this.className = "onClickChangeStyle(this)"; }
+
+        var td1 = tr.insertCell();
+        var td2 = tr.insertCell();
+        var td3 = tr.insertCell();
+        var td4 = tr.insertCell();
+        var td5 = tr.insertCell();
+        var td6 = tr.insertCell();
+        var td7 = tr.insertCell();
+        var td8 = tr.insertCell();
+        var td9 = tr.insertCell();
+        var td10 = tr.insertCell();
+
+        td1.innerHTML = "<input readonly id=\"ChangeReviewState➩" + i + "\" type=\"text\" class=\"txt\"><input readonly id=\"ChangeReviewID➩" + i + "\" type=\"hidden\" class=\"txt\">";
+        td2.innerHTML = "<input readonly id='ReviewDepart➩" + i + "'type=\"hidden\" class=\"txt\"><input readonly id=\"ReviewDepartName➩" + i + "\"  class=\"txt\">";
+        td3.innerHTML = "<input readonly id='ReviewBy➩" + i + "' type=\"hidden\" class=\"txt\"><input readonly id='ReviewByName➩" + i + "' type=\"text\" class=\"txt\">";
+        td4.innerHTML = "<input readonly id='ReviewContent➩" + i + "' type=\"text\" class=\"txt\">";
+        td5.innerHTML = "<select id='Result➩" + i + "'><option value=''>请选择</option><option value='是'>是</option><option value='否'>否</option></select> ";
+        td6.innerHTML = "<input id='Measures➩" + i + "' type=\"text\" class=\"txt\">";
+        td7.innerHTML = "<input id='PlanDate➩" + i + "' type=\"text\" class=\"txt\" onfocus=\"WdatePicker()\" >";
+        td8.innerHTML = "<input id='FllowStatus➩" + i + "' type=\"text\" class=\"txt\"><input readonly id=\"IsEnd➩" + i + "\" type=\"hidden\" class=\"txt\">";
+        td9.innerHTML = "<a href='#' id='tijiao" + i + "' onclick='UpdateRow(" + i + ")'>提交</a><a href='#' id='ApproveYes" + i + "' onclick='ApproveReview(" + i + ",\"Yes\")'>通过</a>";
+        td10.innerHTML = "<a href='#' id='ApproveNo" + i + "' onclick='ApproveReview(" + i + ",\"No\")'>回退</a><a href='#' id='EndIt" + i + "' onclick='EndIt(" + i +")'>结单</a>";
+
+        //初始化行;
+        //initRows(tab);
+    }
+
+    function addonebreak(i)
+    {
+        var tab = document.getElementById('StockForm');
+        var tr = tab.insertRow();
+        var td1 = tr.insertCell();
+        var td2 = tr.insertCell();
+        var td3 = tr.insertCell();
+        var td4 = tr.insertCell();
+        var td5 = tr.insertCell();
+        var td6 = tr.insertCell();
+        var td7 = tr.insertCell();
+
+
+
+        td1.innerHTML = "<input readonly  id=\"BreakState➩" + i + "\" type=\"text\" class=\"txt\"><input readonly id=\"ChangeBreakDeptID➩" + i + "\" type=\"hidden\" class=\"txt\"><input readonly id=\"ChangeBreakID➩" + i + "\" type=\"hidden\" class=\"txt\">";
+        td2.innerHTML = "<input readonly  id=\"ChangeBreakName➩" + i + "\" type=\"text\" class=\"txt\"><input readonly id=\"ChangeBreakID➩" + i + "\" type=\"hidden\" class=\"txt\">";
+        td3.innerHTML = "<input readonly  id='ChangeBreakBy➩" + i + "' type=\"text\" class=\"txt\"><input readonly id=\"ChangeBreakByID➩" + i + "\" type=\"hidden\" class=\"txt\">";
+        td4.innerHTML = "<input  id='StockMessage➩" + i + "' type=\"text\" class=\"txt\">";
+        td5.innerHTML = "<input  id='CreateOpinion➩" + i + "' type=\"text\" class=\"txt\">";
+        td6.innerHTML = "<a href='#' id='Breaktijiao" + i + "' onclick='BreakUpdateRow(" + i + ")'>提交</a><a href='#' id='BreakApproveYes" + i + "' onclick='ApproveBreak(" + i + ",\"Yes\")'>通过</a>";
+        td7.innerHTML = "<a href='#' id='BreakApproveNo" + i + "' onclick='ApproveBreak(" + i +",\"No\")'>回退</a>";
+    }
+
+    function addonecost(i)
+    {
+        var tab = document.getElementById('CostForm');
+        var rowIndex = tab.rows.length + 1;
+        if (i == 999)
+        {
+            //999表示是新增，-3表示减去3行标题
+            i = rowIndex-3;
+        }
+
+
+        //添加一行;
+        var tr = tab.insertRow();
+        //tr.onmouseover = tr.className = "displayStyle";
+        //tr.onmouseout = tr.className = "hideStyle";
+        //tr.onclick = function () { this.className = "onClickChangeStyle(this)"; }
+
+        var td1 = tr.insertCell();
+        var td2 = tr.insertCell();
+        var td3 = tr.insertCell();
+        var td4 = tr.insertCell();
+        var td5 = tr.insertCell();
+        var td6 = tr.insertCell();
+        var td7 = tr.insertCell();
+        var td8 = tr.insertCell();
+
+        td1.innerHTML = "<input  id=\"CostType➩" + i + "\" type=\"text\" class=\"txt\"><input readonly id=\"CostID➩" + i + "\" type=\"hidden\" class=\"txt\">";
+        td2.innerHTML = "<input  id='CostNum➩" + i + "' type=\"text\" class=\"txt\">";
+        td3.innerHTML = "<input  id='CostCurrency➩" + i + "' type=\"text\" class=\"txt\">";
+        td4.innerHTML = "<input  id='ChargedWith➩" + i + "' type=\"text\" class=\"txt\">";
+        td5.innerHTML = "<input id='PayWith➩" + i + "' type=\"text\" class=\"txt\">";
+        td6.innerHTML = "<input id='PayDt➩" + i + "' type=\"text\" class=\"txt\" onfocus=\"WdatePicker()\" >";
+        td7.innerHTML = "<input id='Remark➩" + i + "' type=\"text\" class=\"txt\">";
+        //td8.innerHTML = "<a href='#' id='Delete➩" + i + "' onclick='alert(" + i + ")'>删除</a>";
+        td8.innerHTML = "";
+    }
+
+    //责任人提交评审
+    function UpdateRow(i)
+    {
+        var ChangeReviewID = $("#ChangeReviewID➩" + i).val();
+        var Result = $("#Result➩" + i).val();
+        var Measures = $("#Measures➩" + i).val();
+        var PlanDate = $("#PlanDate➩" + i).val();
+        //alert(ChangeReviewID);
+        //alert(Measures);
+        var DetailForm = GetTableDataJson("#AuditForm");
+        var postData = { ChangeReviewID: ChangeReviewID, Measures: Measures, PlanDate: PlanDate, Result: Result, DetailForm: DetailForm }
+        AjaxJson("/FYModule/Change/SubmitReview", postData, function (data) {
+            //Loading(false);
+            GetReviewData();
+            alert("提交评审成功");
+            top.frames[tabiframeId()].windowload();
+        });
+    }
+
+    //断点评审
+    function BreakUpdateRow(i)
+    {
+        var ChangeBreakID = $("#ChangeBreakID➩" + i).val();
+        var StockMessage = $("#StockMessage➩" + i).val();
+        var DetailForm = GetTableDataJson("#StockForm");
+        var postData = { ChangeBreakID: ChangeBreakID, StockMessage: StockMessage, DetailForm: DetailForm }
+        AjaxJson("/FYModule/Change/SubmitBreak", postData, function (data) {
+            //Loading(false);
+            GetBreakData();
+            alert("提交评审成功");
+            top.frames[tabiframeId()].windowload();
+        });
+    }
+
+    //部门负责人评审
+    function ApproveReview(i,tag)
+    {
+        //alert("测试是否进入");
+        var ChangeReviewID = $("#ChangeReviewID➩" + i).val();
+        var postData = { ChangeReviewID: ChangeReviewID, tag: tag }
+        AjaxJson("/FYModule/Change/ApproveReview", postData, function (data) {
+            //Loading(false);
+            GetReviewData();
+            alert("单据已更新");
+            top.frames[tabiframeId()].windowload();
+        });
+    }
+
+    //断点部门负责人审批
+    function ApproveBreak(i, tag)
+    {
+        var ChangeBreakID = $("#ChangeBreakID➩" + i).val();
+        var postData = { ChangeBreakID: ChangeBreakID, tag: tag }
+        AjaxJson("/FYModule/Change/ApproveBreak", postData, function (data) {
+            //Loading(false);
+            GetBreakData();
+            alert("单据已更新");
+            top.frames[tabiframeId()].windowload();
+        });
+    }
+
+    //提交给总经理评审，权限交给发起人控制
+    function SendTopManager()
+    {
+        if ($("#Approve1By").val() == "" || $("#Approve1By").val() == undefined || $("#Approve1By").val() == null)
+        var content = "";
+
+        var reValue = window.showModalDialog('TopManagerForm?id=' + event.id, window, 'dialogWidth=400px;dialogHeight=200px;status:1;title:0;');
+        //var reValue = Dialog('UpdatePlan?id=' + event.id, "test", "test", 400, 200)
+        //alert(reValue);
+        if (reValue != undefined) {
+            content = reValue;
+        }
+        var postData = { ChangeID: GetQueryNew('KeyValue'), content: content }
+        AjaxJson("/FYModule/Change/SendTopManagerAudit", postData, function (data) {
+            //Loading(false);
+            alert("单据已更新");
+            top.frames[tabiframeId()].windowload();
+        });
+    }
+
+    //为了提供给ajax调用，单独独立出来的明细数据加载方法
+    function GetReviewData()
+    {
+        //先把原有的table内容都删掉，再附加一次，可能还有更好的办法，以后优化
+        var tb = document.getElementById('AuditForm');
+        var rowNum = tb.rows.length;
+        for (i = rowNum - 1; i > 1; i--) {
+            tb.deleteRow(i);
+            //rowNum = rowNum - 1;
+            //i = i - 1;
+        }
+
+            var rowindex = 1;
+            //明细信息
+            AjaxJson("/FYModule/Change/GetChangeReviewList", { ChangeID: GetQueryNew('KeyValue') }, function (data) {
+                var JsonData = data.rows;
+                $.each(JsonData, function (i) {
+
+                    addone(rowindex);
+                    var rowData = JsonData[i];
+                    //alert(rowData.ReviewDepart);ChangeReviewState
+                    $("#ChangeReviewState➩" + rowindex).val(rowData.ChangeReviewState);
+                    $("#ChangeReviewID➩" + rowindex).val(rowData.ChangeReviewID);
+                    $("#ReviewDepart➩" + rowindex).val(rowData.ReviewDepart);
+                    $("#ReviewDepartName➩" + rowindex).val(rowData.FullName);
+                    $("#ReviewBy➩" + rowindex).val(rowData.ReviewBy);
+                    $("#ReviewByName➩" + rowindex).val(rowData.RealName);
+                    $("#ReviewContent➩" + rowindex).val(rowData.ReviewContent);
+                    $("#Measures➩" + rowindex).val(rowData.Measures);
+                    $("#PlanDate➩" + rowindex).val(rowData.PlanDate);
+                    $("#Result➩" + rowindex).val(rowData.Result);
+                    $("#FllowStatus➩" + rowindex).val(rowData.FllowStatus);
+                    $("#IsEnd➩" + rowindex).val(rowData.IsEnd);
+                    //ApproveYes
+                    $("#ApproveYes" + rowindex).css("display", "none");
+                    $("#ApproveNo" + rowindex).css("display", "none");
+                    if (rowData.ChangeReviewState == "进行中" || rowData.ChangeReviewState == "已完成")
+                    {
+
+                        $("#Measures➩" + rowindex).prop("readonly", true);
+                        $("#PlanDate➩" + rowindex).prop("disabled", true);
+                        $("#tijiao" + rowindex).css("display", "none");
+                        $("#Result➩" + rowindex).prop("disabled", true);
+                        //alert()
+                        if (rowData.ChangeReviewState == "进行中" && rowData.ReviewDepart == '@ViewData["IsManager"]')
+                        {
+                            $("#ApproveYes" + rowindex).css("display", "block");
+                            $("#ApproveNo" + rowindex).css("display", "block");
+                        }
+                    }
+                    if ('@ViewData["UserID"]' != rowData.ReviewBy)
+                    {
+                        //alert(11);
+                        $("#Measures➩" + rowindex).prop("readonly", true);
+                        $("#PlanDate➩" + rowindex).prop("disabled", true);
+                        $("#Result➩" + rowindex).prop("disabled", true);
+                        $("#tijiao" + rowindex).css("display", "none");
+
+                        $("#EndIt" + rowindex).css('display', 'none');
+                        $("#FllowStatus➩" + rowindex).prop("disabled", true);
+
+                    }
+                    else
+                    {
+                        //alert(22);
+                        $("#EndIt" + rowindex).css('display', 'block');
+                        //alert(22);
+
+                    }
+
+                    if ($("#ChangeReviewState➩" + rowindex).val() == "未提交" || $("#ChangeReviewState➩" + rowindex).val() == "进行中") {
+                        //alert("测试是否进入");
+                        $("#ChangeReviewState➩" + rowindex).css('background-color', 'yellow');
+                    }
+                    else if ($("#ChangeReviewState➩" + rowindex).val() == "已完成") {
+                        $("#ChangeReviewState➩" + rowindex).css('background-color', 'green');
+                    }
+                    else {
+                        $("#ChangeReviewState➩" + rowindex).css('background-color', 'red');
+                    }
+
+                    if (rowData.IsEnd == "1") {
+                        $("#FllowStatus➩" + rowindex).prop("readonly", true);
+                        $("#EndIt" + rowindex).css('display', 'none');
+                    }
+
+                    rowindex++;
+
+                });
+                $('input[id^="PlanDate"]').each(function () {
+                    var w = this.value.indexOf("T");
+                    //alert(this.value);
+                    if (w > 0) {
+
+                        this.value = this.value.substring(0, w);
+                        //alert(this.value);
+                    }
+                });
+            });
+    }
+
+    function GetBreakData()
+    {
+        //先把原有的table内容都删掉，再附加一次，可能还有更好的办法，以后优化
+        var tb = document.getElementById('StockForm');
+        var rowNum = tb.rows.length;
+        for (i = rowNum-1; i >2; i--) {
+            tb.deleteRow(i);
+            //rowNum = rowNum - 1;
+            //i = i - 1;
+        }
+
+                        rowindex = 1;
+            //断点明细信息
+            AjaxJson("/FYModule/Change/GetChangeBreakList", { ChangeID: GetQueryNew('KeyValue') }, function (data) {
+                var JsonData = data.rows;
+                //var colorState = "";
+                $.each(JsonData, function (i) {
+                    addonebreak(rowindex);
+                    var rowData = JsonData[i];
+                    //alert(rowData.ReviewDepart);ChangeReviewState ChangeBreakID
+                    $("#ChangeBreakID➩" + rowindex).val(rowData.ChangeBreakID);
+                    $("#BreakState➩" + rowindex).val(rowData.BreakState);
+                    $("#ChangeBreakDeptID➩" + rowindex).val(rowData.ChangeBreakDeptID);
+                    $("#ChangeBreakName➩" + rowindex).val(rowData.ChangeBreakName);
+                    $("#ChangeBreakBy➩" + rowindex).val(rowData.ChangeBreakBy);
+                    $("#ChangeBreakByID➩" + rowindex).val(rowData.ChangeBreakByID);
+                    $("#StockMessage➩" + rowindex).val(rowData.StockMessage);
+                    $("#CreateOpinion➩" + rowindex).val(rowData.CreateOpinion);
+                    if ('@ViewData["UserID"]' != $("#CreateByID").val())
+                    {
+                        $("#CreateOpinion➩" + rowindex).prop("disabled", true);
+                    }
+                    if ('@ViewData["UserID"]' != rowData.ChangeBreakByID)
+                    {
+                        $("#StockMessage➩" + rowindex).prop("disabled", true);
+                    }
+                    if (rowData.BreakState == "进行中" || rowData.BreakState == "已完成")
+                    {
+                        $("#Breaktijiao" + rowindex).css("display", "none");
+                        if (rowData.BreakState == "已完成") {
+                            $("#BreakApproveNo" + rowindex).css("display", "none");
+                            $("#BreakApproveYes" + rowindex).css("display", "none");
+                        }
+                        $("#StockMessage➩" + rowindex).prop("disabled", true);
+                        //$("#CreateOpinion➩" + rowindex).prop("disabled", true);
+                    }
+                    if (rowData.BreakState == "未提交" || rowData.BreakState == "退回")
+                    {
+                        $("#BreakApproveNo" + rowindex).css("display", "none");
+                        $("#BreakApproveYes" + rowindex).css("display", "none");
+                        if ('@ViewData["UserID"]' != rowData.ChangeBreakByID)
+                        {
+                            $("#Breaktijiao" + rowindex).css("display", "none");
+                            //$("#BreakApproveYes" + rowindex).css("display", "none");
+                        }
+                    }
+                    if ($("#BreakState➩" + rowindex).val() == "未提交" || $("#BreakState➩" + rowindex).val() == "进行中") {
+                        //alert("测试是否进入");
+                        $("#BreakState➩" + rowindex).css('background-color', 'yellow');
+                    }
+                    else if ($("#BreakState➩" + rowindex).val() == "已完成") {
+                        $("#BreakState➩" + rowindex).css('background-color', 'green');
+                    }
+                    else {
+                        $("#BreakState➩" + rowindex).css('background-color', 'red');
+                    }
+
+                    //ApproveYes
+                    rowindex++;
+
+                });
+
+
+            });
+    }
+
+    function ManagerApprove(tag)
+    {
+        var content = "";
+
+            var reValue = window.showModalDialog('TopManagerForm?id=' + event.id, window, 'dialogWidth=400px;dialogHeight=200px;status:1;title:0;');
+            //var reValue = Dialog('UpdatePlan?id=' + event.id, "test", "test", 400, 200)
+            //alert(reValue);
+            if (reValue != undefined) {
+                content = reValue;
+            }
+
+
+        var postData = { ChangeID: GetQueryNew('KeyValue'), tag: tag, content: content }
+        AjaxJson("/FYModule/Change/TopManagerAudit", postData, function (data) {
+            //Loading(false);
+            alert("单据已更新");
+
+            top.frames[tabiframeId()].windowload();
+            closeDialog();
+        });
+    }
+
+    function ManagerApprove1(tag)
+    {
+        var content = "";
+
+        var reValue = window.showModalDialog('TopManagerForm', window, 'dialogWidth=400px;dialogHeight=200px;status:1;title:0;');
+        //var reValue = Dialog('UpdatePlan?id=' + event.id, "test", "test", 400, 200)
+        //alert(reValue);
+        if (reValue != undefined) {
+            content = reValue;
+        }
+
+
+        var postData = { ChangeID: GetQueryNew('KeyValue'), tag: tag, content: content }
+        AjaxJson("/FYModule/Change/TopManagerAudit1", postData, function (data) {
+            //Loading(false);
+            alert("单据已更新");
+
+            top.frames[tabiframeId()].windowload();
+            closeDialog();
+        });
+    }
+
+    function CreateApprove(tag)
+    {
+        var postData = { ChangeID: GetQueryNew('KeyValue'), tag: tag, content: $("#CreateRemark").val() }
+        AjaxJson("/FYModule/Change/CreateApprove", postData, function (data) {
+            //Loading(false);
+            alert("单据已更新");
+
+            top.frames[tabiframeId()].windowload();
+            //closeDialog();
+        });
+    }
+
+    function SubmitCostDetail()
+    {
+        var DetailForm = GetTableDataJson("#CostForm");
+        var postData = { ChangeID: GetQueryNew('KeyValue'), DetailForm: DetailForm }
+        AjaxJson("/FYModule/Change/SaveCostDetail", postData, function (data) {
+            //Loading(false);
+            alert("单据已更新");
+            top.frames[tabiframeId()].windowload();
+            //top.frames[tabiframeId()].windowload();
+            //closeDialog();
+        });
+    }
+
+    function SubmitBreakDetail() {
+        var DetailForm = GetTableDataJson("#StockForm");
+        var postData = { ChangeID: GetQueryNew('KeyValue'), DetailForm: DetailForm }
+        AjaxJson("/FYModule/Change/SaveBreakDetail", postData, function (data) {
+            //Loading(false);
+            alert("单据已更新");
+            top.frames[tabiframeId()].windowload();
+            //top.frames[tabiframeId()].windowload();
+            //closeDialog();
+        });
+    }
+
+    function AddCost()
+    {
+        var postData = { ChangeID: GetQueryNew('KeyValue') }
+        AjaxJson("/FYModule/Change/InsertCost", postData, function (data) {
+            //Loading(false);
+            alert("单据已更新");
+            top.frames[tabiframeId()].windowload();
+            //top.frames[tabiframeId()].windowload();
+            //closeDialog();
+        });
+    }
+
+    function AddBreak()
+    {
+        var postData = { ChangeID: GetQueryNew('KeyValue') }
+        AjaxJson("/FYModule/Change/InsertBreak", postData, function (data) {
+            //Loading(false);
+            alert("单据已更新");
+            top.frames[tabiframeId()].windowload();
+            //top.frames[tabiframeId()].windowload();
+            //closeDialog();
+        });
+    }
+
+    function EndNote()
+    {
+        var postData = { ChangeID: GetQueryNew('KeyValue') }
+        AjaxJson("/FYModule/Change/EndNote", postData, function (data) {
+            //Loading(false);
+            alert("单据已更新");
+            top.frames[tabiframeId()].windowload();
+            //top.frames[tabiframeId()].windowload();
+            //closeDialog();
+        });
+    }
+
+
+    function FiConfirm()
+    {
+        var postData = {
+            ChangeID: GetQueryNew('KeyValue'), ScrappeGlass: $("#ScrappeGlass").val(),
+            ScrappeMaterial: $("#ScrappeMaterial").val(), ScrappeAll: $("#ScrappeAll").val(),
+            FiRemark: $("#FiRemark").val()
+        }
+        AjaxJson("/FYModule/Change/FiConfirm", postData, function (data) {
+            //Loading(false);
+            alert("单据已更新");
+            top.frames[tabiframeId()].windowload();
+            //top.frames[tabiframeId()].windowload();
+            //closeDialog();
+        });
+    }
+
+    function ProjectApprove(tag)
+    {
+        var postData = { ChangeID: GetQueryNew('KeyValue'), tag: tag }
+        AjaxJson("/FYModule/Change/ProjectApprove", postData, function (data) {
+            //Loading(false);
+            alert("单据已更新");
+            top.frames[tabiframeId()].windowload();
+            //top.frames[tabiframeId()].windowload();
+            //closeDialog();
+        });
+    }
+
+    function EndIt(i)
+    {
+        var ChangeReviewID = $("#ChangeReviewID➩" + i).val();
+        var FllowStatus = $("#FllowStatus➩" + i).val();
+
+        //alert(ChangeReviewID);
+        //alert(Measures);
+        var postData = { ChangeReviewID: ChangeReviewID, FllowStatus: FllowStatus }
+        AjaxJson("/FYModule/Change/EndReview", postData, function (data) {
+            //Loading(false);
+            GetReviewData();
+            alert("提交进度成功");
+            top.frames[tabiframeId()].windowload();
+        });
+    }
+
+</script>
+
+
+<form id="form1">
+    <div class="leftline rightline" style="margin-left: 1px; margin-right: 1px;">
+        
+        <table id="tb_POOrderFrom" class="form-bill">
+            <tr><td colspan="8"><strong>主表内容</strong></td></tr>
+            <tr>
+                <th>
+                    变更序号：
+                </th>
+                <td>
+                    <input readonly id="ChangeNO" type="text" class="txt" value="@ViewBag.BillNo" style="width: 95%"  />
+                </td>
+                <th>
+                    项目名称：
+                </th>
+                <td>
+                    <input id="ProjectName" type="text" class="txt" datacol="yes" err="项目名称" checkexpession="NotNull" style="width: 95%" />
+                </td>
+                <th>
+                    变更来源：
+                </th>
+                <td>
+                    @*<input id="ChangeSource" type="text" class="txt" datacol="yes" err="ChangeSource" checkexpession="NotNull"  style="width: 95%" />*@
+                    <select id="ChangeSource" class="select" datacol="yes" err="变更来源" checkexpession="NotNull" style="width: 96%">
+                        <option value="">==请选择==</option>
+                        <option value="客户">客户</option>
+                        <option value="内部顾客">内部顾客</option>
+                        <option value="供应商">供应商</option>
+                    </select>
+                </td>
+                <th>
+                    变更类型：
+                </th>
+                <td>
+                    <select id="ChangeType" class="select" datacol="yes" err="变更类型" checkexpession="NotNull" style="width: 96%">
+                        <option value="">==请选择==</option>
+                        <option value="设计变更">设计变更</option>
+                        <option value="工程变更">工程变更</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    提出更改日期：
+                </th>
+                <td>
+                    <input id="ChangeStartDt" type="text" class="txt" datacol="yes" err="提出更改日期" checkexpession="NotNull"  onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd' })" style="width: 95%" />
+                </td>
+                <th>
+                    更改完成日期：
+                </th>
+                <td>
+                    <input id="ChangePutDt" type="text" class="txt" datacol="yes" err="更改完成日期" checkexpession="NotNull" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd' })" style="width: 95%" />
+                </td>
+                <th>
+                    零件号：
+                </th>
+                <td>
+                    <input id="ComponentNO" type="text" class="txt" datacol="yes" err="零件号" checkexpession="NotNull"  style="width: 95%" />
+                    
+                </td>
+                <th>
+                    车型：
+                </th>
+                <td>
+                    <input id="CarType" type="text" class="txt" datacol="yes" err="车型" checkexpession="NotNull" style="width: 95%" />
+                </td>
+            </tr>
+            <tr>
+                <th>更改原因：</th>
+                <td colspan="7">
+                    <input id="ChangeReson" type="text" class="txt" datacol="yes" err="更改原因" checkexpession="NotNull" style="width: 99%" />
+                </td>
+            </tr>
+            <tr>
+                <th>更改内容：</th>
+                <td colspan="7">
+                    <input id="ChangeBasis" type="text" class="txt" datacol="yes" err="更改内容" checkexpession="NotNull" style="width: 99%" />
+                </td>
+            </tr>
+
+            <tr style="display:none">
+                <td colspan="8">
+                    <input readonly id="CreateByID" type="text" class="txt"/>
+                    @*<input readonly id="CreateBy" type="text" class="txt" />*@
+                    <input readonly id="CreateDept" type="text" class="txt" />
+                    @*<input readonly id="CreateDt" type="text" class="txt" />*@
+                    <input readonly id="ChangeState" type="text" class="txt" />
+                </td>
+            </tr>
+            <tr id="button-flow">
+               
+                <td colspan="8">
+                    <button class="button button-caution button-small" id="btn_SendAudit" onclick="SendAudit()">发送评审</button> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <button class="button button-caution button-small"  id="btn_Cost" onclick="AddCost()">费用统计</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                 <button class="button button-caution button-small" id="btn_Break" onclick="AddBreak()">断点信息</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                 <button class="button button-caution button-small" id="btn_SendTopManager" onclick="SendTopManager()">提交总经理</button> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <button class="button button-caution button-small" id="btn_EndNote" onclick="EndNote()">结单</button> 
+                </td>
+            </tr>
+            <tr id="button-approve">
+                <td colspan="8">
+                    <button class="button button-caution button-small" id="btn_SubmitProject" onclick="ProjectApprove('Submit')">重新提交</button> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <button class="button button-caution button-small" id="btn_ProjectApproveYes" onclick="ProjectApprove('Yes')">通过</button> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <button class="button button-caution button-small" id="btn_ProjectApproveNo" onclick="ProjectApprove('No')">退回</button>
+                    </td>
+                </tr>
+<tr style="height:30px"></tr>
+            
+        </table>
+        <table id="AuditForm" class="form-bill">
+            <tr><td colspan="9"><strong>评审部分</strong></td></tr>
+            <tr>
+                <th style="width:3%">状态</th>
+                <th style="width:10%">评审部门</th>
+                <th style="width:10%">评审人</th>
+                <th style="width:20%">评审内容</th>
+                <th style="width:5%">结果</th>
+                <th style="width:12%">措施意见</th>
+                <th style="width:10%">计划日期</th>
+                <th style="width:10%">目前进度</th>
+                <th style="width:10%"></th>
+                <th style="width:10%"></th>
+            </tr>
+            
+         </table>
+        <table id="FlowStatus1" class="form-bill">
+            <tr style="height:30px"></tr>
+            <tr>
+
+                <th style="width:10%">
+                    申请人：
+                </th>
+                <td style="width:40%">
+                    <input readonly id="CreateOpinion" type="text" class="txt" /> </br>
+                    <input readonly id="CreateBy" type="text" class="txt" /> &nbsp;<input readonly id="CreateDt" type="text" class="txt" />
+                </td>
+                <th style="width:10%">
+                    总经理：
+                </th>
+                <td style="width:40%">
+                    <input readonly id="TopManager1Remark" type="text" class="txt" /> </br>
+                    <input readonly id="Approve1By" type="text" class="txt" /> &nbsp;<input readonly id="Approve1Dt" type="text" class="txt" />
+                </td>
+            </tr>
+
+        </table>
+        @**总经理审批的按钮*@
+        <table id="botton-button1">
+            <tr><td><button class="button button-primary button-small" id="btn_ManagerApprove1Yes" onclick="ManagerApprove1('Yes')">批准</button>&nbsp;&nbsp;<button class="button button-caution button-small" id="btn_ManagerApprove1No" onclick="ManagerApprove1('No')">退回</button> </td></tr>
+        </table>
+        
+        <table id="CostForm" class="form-bill">
+            <tr style="height:30px"></tr>
+            <tr>
+            <td colspan="8">
+                <strong>成本统计和承担方式</strong>
+            </td>
+            </tr>
+
+            <tr>
+                <th style="width:10%">费用类别</th>
+                <th style="width:10%">金额</th>
+                <th style="width:10%">币种</th>
+                <th style="width:10%">承担方式</th>
+                <th style="width:10%">支付方式</th>
+                <th style="width:10%">支付日期</th>
+                <th style="width:30%">备注</th>
+                <th style="width:10%">
+                    @*<a href='#' id='costAdd' onclick='addonecost(999)'>新增</a>*@
+                    <button class="button button-square button-tiny" id="saveCost" onclick="SubmitCostDetail()">保存</button>
+                </th>
+            </tr>
+        </table>
+
+        <table id="StockForm" class="form-bill">
+            <tr style="height:30px"></tr>
+            <tr>
+                <td colspan="6">
+    <strong>断点管理项目</strong>
+                </td>
+            </tr>
+            <tr>
+                <th style="width:1%">状态</th>
+                <th style="width:10%">项目内容</th>
+                <th style="width:10%">确认人</th>
+                <th style="width:10%">库存信息</th>
+                <th style="width:10%">发起人意见</th>
+                <th style="width:10%">
+                    <button class="button button-square button-tiny" id="saveBreak" onclick="SubmitBreakDetail()">保存</button>
+                </th>
+                
+            </tr>
+</table>
+        <table id="FiConfirm" class="form-bill">
+            <tr>
+            <td colspan="6">
+                <strong>财务确认(<input readonly id="CreateState" type="text" class="txt" />)</strong>
+            </td>
+                </tr>
+            <tr>
+                <th>
+                    需要报废的玻璃总成本：
+                </th>
+                <td>
+                    <input id="ScrappeGlass" type="text" class="txt" />
+                </td>
+                <th>
+                    需要报废的材料总成本：
+                </th>
+                <td>
+                    <input id="ScrappeMaterial" type="text" class="txt" />
+                </td>
+                <th>
+                    需要报废的总成本：
+                </th>
+                <td>
+                    <input id="ScrappeAll" type="text" class="txt" />
+                </td>
+            </tr>
+            <tr>
+                <th>
+                    财务确认：
+                </th>
+                <td colspan="5"><input id="FiRemark" type="text" class="txt" style="width: 40%"/>
+                <input readonly id="FiBy" type="text" class="txt"  />
+                <input readonly id="FyDt" type="text" class="txt" />
+                </td>
+            </tr>
+            <tr>
+                <th>发起人意见</th>
+                <td colspan="5">
+                    <input id="CreateRemark" type="text" class="txt" style="width: 90%" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="6">
+                    <button class="button button-primary button-small" id="btn_FiConfirm" onclick="FiConfirm()">确认</button>
+                    <button class="button button-primary button-small" id="btn_CreateSubmit" onclick="CreateApprove('Submit')">提交</button>&nbsp;&nbsp;
+                    <button class="button button-primary button-small" id="btn_CreateYes" onclick="CreateApprove('Yes')">批准</button>&nbsp;&nbsp;
+                    <button class="button button-caution button-small" id="btn_CreateNo" onclick="CreateApprove('No')">退回</button>
+                </td>
+            </tr>
+        </table>
+            <table id="FlowStatus" class="form-bill">
+                <tr style="height:30px"></tr>
+                <tr>
+                    
+                    <th style="width:10%">
+                        部门负责人：
+                    </th>
+                    <td style="width:40%">
+                        <input readonly id="ManagerRemark" type="text" class="txt" /> </br>
+                        <input readonly id="Manager" type="text" class="txt" /> &nbsp;<input readonly id="ManagerDt" type="text" class="txt" />
+                    </td>
+                    <th style="width:10%">
+                        总经理：
+                    </th>
+                    <td style="width:40%">
+                        <input readonly id="TopManagerRemark" type="text" class="txt" /> </br>
+                        <input readonly id="ApproveBy" type="text" class="txt" /> &nbsp;<input readonly id="ApproveDt" type="text" class="txt" />
+                    </td>
+                </tr>
+                
+            </table>
+            @**总经理审批的按钮*@
+            <table id="botton-button">
+                <tr><td><button class="button button-primary button-small" id="btn_ManagerApproveYes" onclick="ManagerApprove('Yes')">批准</button>&nbsp;&nbsp;<button class="button button-caution button-small" id="btn_ManagerApproveNo" onclick="ManagerApprove('No')">退回</button> </td></tr>
+            </table>
+
+</div>
+
+</form>

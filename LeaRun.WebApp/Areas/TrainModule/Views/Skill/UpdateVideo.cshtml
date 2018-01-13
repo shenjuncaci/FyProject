@@ -1,0 +1,48 @@
+﻿@{
+    ViewBag.Title = "InsertPlan";
+    Layout = null;
+}
+
+<link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+<link href="~/Content/Styles/learunui-accordion.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+<script src="~/Content/Scripts/learunui-framework.js"></script>
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+
+视频名称：<input id="VideoSrc" />
+
+<table align=center valign=middle>
+    <tr style="display:none">
+        <td>视频名称</td>
+        <td>
+            <input id="VideoSrc" class="text" />
+        </td>
+    </tr>
+
+    
+</table>
+
+<div align=center valign=middle>
+    <button class="button button-primary button-square button-small" onclick="cancel()">取消</button>
+    <button class="button button-primary button-square button-small" onclick="confirm()">确认</button>
+
+</div>
+
+<script>
+    function cancel() {
+        self.close();
+    }
+    function confirm() {
+        var _VideoSrc = String($("#VideoSrc").val());
+       
+
+        if (_VideoSrc == "" || _VideoSrc == undefined || _VideoSrc == null) {
+            alert("请填写完整再提交");
+            return false;
+        }
+
+        
+        window.returnValue = _VideoSrc;
+        window.close();
+    }
+</script>

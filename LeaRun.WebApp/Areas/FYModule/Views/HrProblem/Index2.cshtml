@@ -1,0 +1,324 @@
+﻿@{
+    ViewBag.Title = "事物跟踪信息";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<style>
+    .ui-jqgrid tr.jqgrow td {
+        white-space: normal !important;
+        height: auto;
+        vertical-align: text-top;
+        padding-top: 2px;
+    }
+</style>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        GetGrid();
+
+        //绑定键盘按下事件
+        $(document).keypress(function (e) {
+            //回车键事件
+            if (e.which == 13) {
+                $("#keywords").focus();
+                $("#keywords").select();
+                $("#btnSearch").click();
+            }
+        });
+    });
+
+    var CompanyId = "", DepartmentId = "", DepartmentName = "";
+
+
+    Date.prototype.pattern = function (fmt) {
+        var o = {
+            "M+": this.getMonth() + 1, //月份
+            "d+": this.getDate(), //日
+            "h+": this.getHours() % 12 == 0 ? 12 : this.getHours() % 12, //小时
+            "H+": this.getHours(), //小时
+            "m+": this.getMinutes(), //分
+            "s+": this.getSeconds(), //秒
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+            "S": this.getMilliseconds() //毫秒
+        };
+        var week = {
+            "0": "/u65e5",
+            "1": "/u4e00",
+            "2": "/u4e8c",
+            "3": "/u4e09",
+            "4": "/u56db",
+            "5": "/u4e94",
+            "6": "/u516d"
+        };
+        if (/(y+)/.test(fmt)) {
+            fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        }
+        if (/(E+)/.test(fmt)) {
+            fmt = fmt.replace(RegExp.$1, ((RegExp.$1.length > 1) ? (RegExp.$1.length > 2 ? "/u661f/u671f" : "/u5468") : "") + week[this.getDay() + ""]);
+        }
+        for (var k in o) {
+            if (new RegExp("(" + k + ")").test(fmt)) {
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+            }
+        }
+        return fmt;
+    }
+
+    //搜索
+    function btn_Search() {
+        var keywords = $("#keywords").val();
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "@Url.Content("~/FYModule/HrProblem/GridPageListJson")?keywords=" + escape(keywords) +"&type=2", page: 1
+        }).trigger('reloadGrid');
+    }
+
+
+    //加载表格
+    function GetGrid() {
+        var SelectRowIndx;
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/FYModule/HrProblem/GridPageListJson?type=2")",
+            datatype: "json",
+            height: $(window).height() - 178,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'problemid', index: 'problemid', width: 80, align: 'left', hidden: true },
+                { label: '状态', name: 'detailstate', index: 'detailstate', width: 150, align: 'left', formatter: stateFormat },
+                { label: '回复及时率', name: 'replycompleterate', index: 'replycompleterate', width: 80, align: 'left' },
+                { label: '完成率', name: 'completerate', index: 'completerate', width: 80, align: 'left' },
+                { label: '问题大类', name: 'problemtype', index: 'problemtype', width: 80, align: 'left'  },
+                { label: '问题小类', name: 'problemtyped', index: 'problemtyped', width: 100, align: 'left' },
+                { label: '问题描述', name: 'problemdescripe', index: 'problemdescripe', width: 200, align: 'left', formatter: LengthSub },
+                { label: '对策措施', name: 'problemaction', index: 'problemaction', width: 150, align: 'left', formatter: LengthSub },
+                { label: '责任人', name: 'realname', index: 'realname', width: 80, align: 'left' },
+                { label: '责任人部门', name: 'responsedepart', index: 'responsedepart', width: 80, align: 'left' },
+                { label: '提出人', name: 'proposeman', index: 'proposeman', width: 80, align: 'left' },
+                { label: '提出人部门', name: 'proposedept', index: 'proposedept', width: 80, align: 'left' },
+                { label: '计划完成日期', name: 'plandt', index: 'plandt', width: 150, align: 'left', formatter: dateFormat },
+                { label: '实际完成日期', name: 'realdt', index: 'realdt', width: 150, align: 'left', formatter: dateFormat },
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 1000],
+            pager: "#gridPager",
+            sortname: 'createdt',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            multiselect: false,
+            //cellattr: addCellAttr,
+
+            // useColSpanStyle:true,
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            },
+            gridComplete: function () {
+                //LoadViewList();
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            }
+        });
+        columnModelData("#gridTable");
+        //自应高度
+        $(window).resize(function () {
+            $("#gridTable").setGridHeight($(window).height() - 178);
+        });
+
+    }
+
+
+    //高级查询
+    var QueryParamJson = "";
+    function btn_query() {
+        QueryDialog("/Utility/QueryPage", "QueryPage", "查询过滤", 770, 395, function (iframe) {
+            top.frames[iframe].QueryClick(function (JsonData) {
+                QueryParamJson = JsonData;
+                $("#gridTable").jqGrid('setGridParam', {
+                    url: "@Url.Content("~/FYModule/HrProblem/GridPageListJson")?ParameterJson=" + escape(JsonData), page: 1
+                }).trigger('reloadGrid');
+            });
+        });
+    }
+
+    //新增
+    function btn_add() {
+        var url = "/FYModule/HrProblem/FormNew?type=2"
+        openDialog(url, "Form", "新增", 650, 350, function (iframe) {
+            top.frames[iframe].AcceptClick();
+        });
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "problemid");
+        if (IsChecked(KeyValue)) {
+            var url = "/FYModule/HrProblem/Form?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑", 650, 350, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+
+        }
+    }
+     //替换责任人
+    function btn_changerespo() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "problemid");
+
+        var url = "/FYModule/HrProblem/UserList?KeyValue=" + KeyValue;
+
+        openDialog(url, "UserList", "选择责任人", 625, 350, function (iframe) {
+            top.frames[iframe].AcceptClick();
+        });
+    }
+    //添加检查明细
+    function btn_AddItem()
+    {
+        var KeyValue = GetJqGridRowValue("#gridTable", "problemid");
+        if (IsChecked(KeyValue)) {
+            var url = "/FYModule/HrProblem/FormAddItem?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑", 650, 350, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "problemid");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/FYModule/HrProblem/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+
+
+
+
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+    }
+
+
+    //特定单元格添加超链接，可以实现附件下载，后台要把地址传过来
+    function HyperLink() {
+        var data = $("#gridTable").jqGrid("getRowData");
+        for (var i = 0; i < data.length; i++) {
+            data[i].res_ms;
+        }
+    }
+
+    function dateFormat(cellvalue, options, rowObject) {
+        //alert(cellvalue);
+        if (cellvalue == "0001-01-01T00:00:00" || cellvalue == null) {
+            return "";
+        }
+        else {
+            return String(cellvalue).substring(0, 10);
+        }
+    }
+
+    function stateFormat(cellvalue, options, rowObject) {
+        var DateNow = new Date();//取今天的日期
+        //alert(rowObject.decidedate);
+        var PlanDate = new Date(Date.parse(rowObject.PlanDt));
+        if (cellvalue == "已完成") {
+            return "<div style='background-color: Green; color:black;text-align:center; width:150px'>" + cellvalue + "</div>";
+        }
+        else if (cellvalue == "等待审核方案" || cellvalue == "等待实施解决方案") {
+            return "<div style='background-color: Yellow; color:black;text-align:center; width:150px'>" + cellvalue + "</div>";
+        }
+        else if (cellvalue == "超过1天方案未通过" || cellvalue == "超过期限未解决问题") {
+            //if (DateNow.pattern("yyyy-MM-dd") > PlanDate.pattern("yyyy-MM-dd")) {
+            return "<div style='background-color: Red; color:black;text-align:center; width:150px'>" + cellvalue  + "</div>";
+            //}
+            //else {
+            return "<div style='background-color: Yellow; color:black;text-align:center; width:150px'>" + cellvalue + "</div>";
+            //}
+        }
+        else if (cellvalue == "回退") {
+            return "<div style='background-color: Red; color:black;text-align:center; width:150px'>" + cellvalue + "</div>";
+        }
+        else {
+            if (cellvalue.indexOf("超过") > -1) {
+                return "<div style='background-color: Red; color:black;text-align:center; width:150px'>" + cellvalue + "</div>";
+            }
+            else {
+                return "<div style='background-color: Yellow; color:black;text-align:center; width:150px'>" + cellvalue + "</div>";
+            }
+        }
+    }
+
+
+
+    function LengthSub(cellvalue, options, rowObject) {
+        var temp = "";
+
+        //var address = String(data["NotCompleteReasonfj"]).replace('~', '../../../../')
+        //document.getElementById("uploadifyNotCompleteReasontxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+        //alert(rowObject.res_msfj);
+        if (rowObject.res_msfj != "" && rowObject.res_msfj != null && rowObject.res_msfj != undefined) {
+            //alert(11);
+            temp = temp + "<a href=\"" + rowObject.res_msfj.replace('~', '../../../../') + "\" download=\"附件下载\">" + "<img src=\"../../../../Content/Images/fileType/application_put.png\" />" + "</a>";
+        }
+        if (cellvalue.length > 20) {
+            return temp + cellvalue.substring(0, 20) + "....";
+        }
+        else {
+            return temp + cellvalue;
+        }
+    }
+
+    function Mydo()
+    {
+        var keywords = $("#keywords").val();
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "@Url.Content("~/FYModule/HrProblem/GridPageListJson")?keywords=" + escape(keywords) +"&type=2&IsMy=1", page: 1
+        }).trigger('reloadGrid');
+    }
+
+    function btn_derive() {
+        //SetDeriveExcel("#gridTable", "快速反应");
+        //openDialog("/CommonModule/Rapid/ExcelExport", "DeriveDialog", "快速反应导出", 600, 300, function (iframe) {
+        //    top.frames[iframe].AcceptClick();
+        //});
+        window.open(encodeURI("ExcelExport?type=2"));
+
+    }
+</script>
+
+<!--左边-->
+<!--中间-->
+<div>
+    <div class="btnbartitle">
+        <div>
+            问题列表 <span id="CenterTitle"></span>
+        </div>
+    </div>
+    <!--工具栏-->
+    <div class="tools_bar" style="border-top: none; margin-bottom: 0px;">
+        <div class="PartialButton">
+            @Html.Partial("_PartialButton")
+        </div>
+
+    </div>
+    <!--列表-->
+    <div id="grid_List">
+        <div class="bottomline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+            <table border="0" class="form-find" style="height: 45px;">
+                <tr>
+                    <th>
+                        关键字：
+                    </th>
+                    <td>
+                        <input id="keywords" type="text" class="txt" style="width: 200px" />
+                    </td>
+                    <td>
+                        <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <table id="gridTable"></table>
+        <div id="gridPager"></div>
+    </div>
+    <!--视图-->
+
+</div>
+

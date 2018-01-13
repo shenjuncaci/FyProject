@@ -1,0 +1,120 @@
+﻿@{
+    ViewBag.Title = "工序明细";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+
+
+
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
+
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+
+        input { background:#E0FFFF;}
+    textarea {background:#E0FFFF;}
+    select {background:#E0FFFF;}
+</style>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+       
+        
+    });
+    $(function () {
+    })
+   
+    //得到一个对象实体
+    //function InitControl() {
+    //    if (!!GetQuery('KeyValue')) {
+    //        AjaxJson("/FYModule/Process/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+    //            SetWebControls(data);
+                
+    //        });
+    //    }
+    //}
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            AjaxJson("/FYModule/Process/SubmitFormAddItem?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+
+
+
+</script>
+
+
+<form id="form1">
+    <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">基本信息</div>
+                
+                
+            </div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+        <!--基本信息-->
+        <div id="basic" class="tabPanel">
+            <table class="form">
+                 <tr>
+                    <th class="formTitle">检查项名称：</th>
+                    <td class="formValue">
+                        <input id="CheckName" type="text" class="txt" />
+                    </td>
+                    <th class="formTitle">排序号</th>
+                    <td class="formValue">
+                        <input id="SortNO" type="text" class="txt" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+        
+       
+    </div>
+
+</form>

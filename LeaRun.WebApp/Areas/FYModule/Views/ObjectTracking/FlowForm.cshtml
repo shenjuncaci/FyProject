@@ -1,0 +1,101 @@
+﻿@using LeaRun.Entity;
+@using LeaRun.Utilities;
+@{
+    ViewBag.Title = "FlowForm";
+    FlowDisplay flow = ViewData["flow"] as FlowDisplay;
+
+}
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+<link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+<script src="~/Content/Scripts/learunui-framework.js"></script>
+
+
+<h2>流程模板:   @flow.FlowNo   &nbsp;&nbsp;&nbsp;&nbsp; 状态:@flow.Approvestatus  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;当前审批人: @flow.RealName</h2>
+</br>
+<table>
+@for(int i=0;i<flow.LogList.Count;i++)
+{
+    <tr>
+    <td width="10%"><b>节点岗位:</b></td>  
+    <td width="20%">@flow.LogList[i].FullName </td>    
+    <td width="10%"><b>节点操作者：</b></td> 
+    <td width="25%">@flow.LogList[i].RealName </td>   
+    <td width="10%"><b>状态:</b></td> 
+    <td width="25%">@flow.LogList[i].Approvestatus</td>
+    </tr>
+    
+}
+</table>
+ 
+@if (flow.Approvestatus == 0)
+{
+    <button class="button button-caution button-square button-small" onclick="submit(0)">提交</button>
+}
+else if (flow.Approvestatus == 7 && flow.CurrentPerson == ManageProvider.Provider.Current().UserId)
+{
+    <button class="button button-caution button-square button-small" onclick="submit(1)">审批</button>
+    <button class="button button-caution button-square button-small" onclick="submit(-1)">退回</button>
+}
+else if(flow.Approvestatus == 7 && ManageProvider.Provider.Current().ObjectId.IndexOf(flow.CurrentPost) > 0)
+{
+    <button class="button button-caution button-square button-small" onclick="submit(2)">（代）审批</button>
+    <button class="button button-caution button-square button-small" onclick="submit(-2)">（代）退回</button>
+}
+</br>
+</br>
+
+
+@if (flow.Approvestatus == 0)
+{
+    <a class="button button-glow button-rounded button-raised button-small">发起人提交</a>    <a>--></a>
+}
+else
+{
+<a class="button button-glow button-border button-rounded button-small">发起人提交</a>    <a>--></a>
+}
+@for (int i = 0; i < flow.LogList.Count; i++)
+{
+    if (flow.LogList[i].FullName == flow.FullName)
+    {
+        <a class="button button-glow button-rounded button-raised button-small">@flow.LogList[i].FullName</a> <a>--></a>
+    }
+    else
+    {
+    <a class="button button-glow button-border button-rounded button-small">@flow.LogList[i].FullName</a> <a>--></a>
+    }
+}
+@if (flow.Approvestatus == 9)
+{
+    <a class="button button-glow button-rounded button-raised button-small">结束</a>
+}
+else
+{
+<a class="button button-glow button-border button-rounded button-small">结束</a> 
+}
+
+<script>
+    function submit(number)
+    {
+        var durl = encodeURI('@Url.Action("submit", "ObjectTracking")?KeyValue=' + '@flow.FlowID' + '&type=' + number);
+        $.ajax({
+            type: "post",
+            url: durl,
+            async: false,
+            success: function (msg) {
+                if (msg >= 0) {
+                    
+                    alert("成功");
+
+                    closeDialog();
+                }
+                else {
+                    alert("出错了！");
+                }
+            },
+            error: function () {
+                alert("出错了");
+            }
+        });
+    }
+</script>

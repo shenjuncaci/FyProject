@@ -1,0 +1,151 @@
+﻿@{
+    ViewBag.Title = "图形报表";
+}
+
+
+ <link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+    <link href="~/Content/Styles/learunui-accordion.css" rel="stylesheet" />
+    <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+    <script src="~/Content/Scripts/learunui-framework.js"></script>
+<script src="~/Content/Scripts/jquery.echarts/echarts.js"></script>
+<div><table><tr> <th class="formTitle">年份：</th>
+                    <td class="formValue">
+                         <select id="year" class="txtselect" onchange="onChange()">
+                            <option value="2017">2017</option>
+                            <option value="2016">2016</option>
+                            <option value="2018">2018</option>
+                        </select>
+                    </td></tr></table></div>
+<div id="main" style="width: auto;height:400px"></div>
+<div id="main2" style="width: auto;height:400px"></div>
+    <script type="text/javascript">
+       
+
+
+        
+        $(document).ready(function () {
+            onChange();
+        });
+
+        //把加载数据单独放到一个function中，供selectchange事件调用
+        function onChange()
+        {
+            var year = $("#year").val();
+            var X = new Array();
+            var Y = new Array();
+            var Y2 = new Array();
+            var durl = encodeURI('@Url.Action("GetPictueData", "Rapid")?year='+year);
+        $.ajax({
+            type: "post",
+            url: durl,
+            async: false,
+            success: function (data) {
+                var dataA = new Array();
+                dataA = data.split("|");
+
+                X = dataA[2].split(",");
+                Y2 = dataA[1].split(",");
+                Y = dataA[0].split(",");
+                for(var i=0;i<X.length;i++)
+                {
+                    X[i] = X[i] + "月份";
+                }
+            }
+
+        });
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+        // 指定图表的配置项和数据
+        var option = {
+            color: ['#3398DB','green'],
+            title: {
+                text: '问题次数柱状图'
+            },
+            tooltip: {},
+            legend: {
+                data: ['问题次数','已完成数']
+            },
+            xAxis: {
+                data: X
+            },
+            yAxis: {
+                //type: 'value',
+                //boundaryGap: [0, 0.01]
+            },
+            series: [{
+                name: '问题次数',
+                type: 'bar',
+                data: Y,
+                itemStyle: { normal: { label: { show: true, position: 'top' } } }
+            },
+                {
+                    name: '已完成数',
+                    type: 'bar',
+                    data: Y2,
+                    itemStyle: { normal: { label: { show: true, position: 'top' } } }
+                }
+            //{
+
+            //    name: '已完成问题数',
+            //    type: 'bar',
+            //    data: Y
+            //},
+            ]
+        };
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+
+
+
+
+        var DataForMyChart2 = new Array();
+
+        var c1=new Array();
+        var c2=new Array();
+        var durl = encodeURI('@Url.Action("GetPieData", "Rapid")?year='+year);
+        $.ajax({
+            type: "post",
+            url: durl,
+            async: false,
+            success: function (data) {
+                var xx;
+                var dataA = new Array();
+                //var i = 0;
+                dataA = data.split("|");
+
+
+                c1 = dataA[0].split(",");
+                c2 = dataA[1].split(",");
+                c3 = dataA[2].split(",");
+                for (var i = 0; i < c1.length; i++)
+                {
+                    var TempObject = {};
+                    TempObject["value"] = parseInt(c1[i]);
+
+                    TempObject["name"] = c3[i]+"(总共:"+c1[i]+"单,已超期:"+c2[i]+"单)";
+
+                    DataForMyChart2.push(TempObject);
+                }
+            }
+        });
+
+        var myChart2 = echarts.init(document.getElementById('main2'));
+        //饼图
+        myChart2.setOption({
+            title: {
+                text: '各部门问题次数'
+            },
+            roseType: 'angle',
+            series: [
+                {
+                    name: '访问来源',
+                    type: 'pie',
+                    radius: '55%',
+                    data: DataForMyChart2
+                }
+            ]
+        })
+        }
+
+    </script>

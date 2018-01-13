@@ -1,0 +1,60 @@
+﻿
+@{
+    ViewBag.Title = "FirstPage";
+}
+
+<body>
+    <div data-role="page">
+
+        <div data-role="header">
+            <h1>考试列表</h1>
+        </div>
+
+        <div data-role="content">
+            <a href="SpecialExam" data-transition="slide">
+                <img src="~/Content/Images/appIcon/special.png" /></a></br>
+            <a href="SkillExam" data-transition="slide">
+                <img src="~/Content/Images/appIcon/Skill.png" /></a>
+        </div>
+
+        <div data-role="footer">
+            <h1>develop by--shenjun</h1>
+        </div>
+
+    </div>
+</body>
+<script>
+    function examinfo(id,type) {
+        //if (type == "0")
+        //{
+        //    alert("技能");
+        //}
+        //if (type == "1")
+        //{
+        //    alert("专项");
+        //}
+        $.ajax({
+            type: "post",
+            url: "/home/IsApply?Type=" + type + "&ID=" + id,
+            async: false,
+            success: function (msg) {
+                if (msg == "可以参加考试")
+                {
+                    window.location.href = '@Url.Content("~/Home/ExamPage")?ID=' + id + '&Type=' + type;
+
+                    return false;
+                }
+                else
+                {
+                    alert(msg);
+                }
+            },
+            error: function () {
+                alert("出错了");
+            }
+        });
+    }
+</script>
+
+
+

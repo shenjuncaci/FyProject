@@ -1,0 +1,224 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+
+<style>
+    #Fixed {
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        bottom: 0px;
+        right: 0px;
+        overflow-x: auto;
+        overflow-y: auto;
+        height: 30px;
+    }
+</style>
+<script type="text/javascript">
+    var array = new Array();
+
+    $(function () {
+        InitControl();
+
+        //日期格式化
+
+        $('input[id$="Dt"]').each(function () {
+            var w = this.value.indexOf("T");
+            if (w > 0) {
+                this.value = this.value.substring(0, w);
+            }
+        });
+        //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
+        //BindResponseBy();
+    })
+
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            //AjaxJson("/TrainModule/PostDepartmentRelation/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+            //    SetWebControls(data);
+
+            //});
+
+
+            var rowindex = 1;
+            //评审明细信息
+            AjaxJson("/TrainModule/PostDepartmentRelation/GetEvaluateDetailList", { RelationID: GetQueryNew('KeyValue') }, function (data) {
+                var JsonData = data.rows;
+                //var colorState = "";
+                $.each(JsonData, function (i) {
+
+                    addone(rowindex);
+                    var rowData = JsonData[i];
+                    //alert(rowData.FllowStatus);
+                    //alert(rowData.ReviewDepart);ChangeReviewState
+                    $("#SkillName➩" + rowindex).val(rowData.SkillName);
+                    $("#EvaluateID➩" + rowindex).val(rowData.EvaluateID);
+                    $("#SkillID➩" + rowindex).val(rowData.SkillID);
+
+                   
+                    $("#SkillWeight➩" + rowindex).val(rowData.SkillWeight);
+                    $("#EvaluateScore➩" + rowindex).val(rowData.EvaluateScore);
+                    
+
+
+                    rowindex++;
+
+                });
+            });
+        }
+    }
+
+
+    function addone(i) {
+        //alert(i);
+        var tab = document.getElementById('DetailForm');
+        var rowIndex = tab.rows.length + 1;
+        if (i == 999) {
+            //999表示是新增，-3表示减去3行标题
+            i = rowIndex - 2;
+        }
+        //添加一行;
+        var tr = tab.insertRow();
+        //tr.onmouseover = tr.className = "displayStyle";
+        //tr.onmouseout = tr.className = "hideStyle";
+        //tr.onclick = function () { this.className = "onClickChangeStyle(this)"; }
+
+        var td1 = tr.insertCell();
+        var td2 = tr.insertCell();
+        var td3 = tr.insertCell();
+       
+
+
+        td1.innerHTML = "<input style=\"width:95%\" readonly  id='SkillName➩" + i + "' type=\"text\" class=\"txt\"><input readonly id=\"SkillID➩" + i + "\" type=\"hidden\" class=\"txt\"><input readonly id=\"EvaluateID➩" + i + "\" type=\"hidden\" class=\"txt\">";
+        td2.innerHTML = "<input style=\"width:95%\" readonly  id='SkillWeight➩" + i + "' type=\"text\" class=\"txt\">";
+        td3.innerHTML = "<input style=\"width:95%\"  id='EvaluateScore➩" + i + "' type=\"text\" class=\"txt\" onchange=\"ReduceTo100(" + i + ")\">";
+       
+
+        //初始化行;
+        //initRows(tab);
+    }
+
+    function ReduceTo100(i)
+    {
+        if ($("#EvaluateScore➩" + i).val() > 100)
+        {
+            alert("评审最高分为100，请注意");
+            $("#EvaluateScore➩" + i).val(100);
+        }
+    }
+
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var DetailForm = GetTableDataJson("#DetailForm");
+            var postData = { RelationID: GetQueryNew('KeyValue'), DetailForm: DetailForm }
+
+            AjaxJson("/TrainModule/PostDepartmentRelation/SubmitEvaluateForm?KeyValue=" + GetQueryNew('KeyValue'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+
+    function ChooseSkill(i)
+    {
+        //alert(i);
+        //var url = "/TrainModule/PostDepartmentRelation/SkillList?index=" + i;
+        //Dialog(url, "SkillList", "选取技能信息（双击表格添加）", 900, 400);
+        var reValue = window.showModalDialog('SkillList', window, 'dialogWidth=800px;dialogHeight=500px;status:1;title:0;');
+        if (reValue == undefined)
+        {
+            return false;
+        }
+
+        if (!IsExistItem(i, reValue[0])) {
+            $("#SkillName➩" + i).val(reValue[1]);
+            $("#SkillID➩" + i).val(reValue[0]);
+        }
+        else {
+            top.TipMsg("该技能已存在,不能重复添加", 4000, "error");
+        }
+
+    }
+
+
+    function IsExistItem(index, code) {
+        if (!ArrayExists(array, code)) {
+            array[index] = code;
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    function addbatch()
+    {
+        var reValue = window.showModalDialog('SkillListBatch', window, 'dialogWidth=800px;dialogHeight=600px;status:1;title:0;');
+        if (reValue == undefined) {
+            return false;
+        }
+        console.log(reValue);
+
+        for (var i = 0; i < reValue.length; i++)
+        {
+            if (!IsExistItem(i, reValue[i].SkillID)) {
+
+                var tab = document.getElementById('DetailForm');
+                var rowIndex = tab.rows.length + 1;
+                var j = rowIndex - 2;
+                addone(999);
+                $("#SkillName➩" + j).val(reValue[i].SkillName);
+                $("#SkillID➩" + j).val(reValue[i].SkillID);
+            }
+            else
+            {
+                top.TipMsg("该技能已存在,不能重复添加", 4000, "error");
+            }
+        }
+
+        //if (!IsExistItem(i, reValue[0])) {
+        //    $("#SkillName➩" + i).val(reValue[1]);
+        //    $("#SkillID➩" + i).val(reValue[0]);
+        //}
+        //else {
+        //    top.TipMsg("该技能已存在,不能重复添加", 4000, "error");
+        //}
+    }
+</script>
+
+<form id="form1">
+    <div class="leftline rightline" style="margin-left: 1px; margin-right: 1px;">
+        <table id="tb_POOrderFrom" class="form-bill">
+            <tr style="display:none">
+                <td>
+                    <input readonly id="RelationID" type="text" class="txt" style="width: 95%" />
+                </td>
+            </tr>
+        </table>
+        <div id="Fixed">
+            @*<a class="button button-caution button-square button-small" onclick="addone(999)">添加</a>
+            <a class="button button-caution button-square button-small" onclick="addbatch()">批量</a>*@
+        </div>
+        <div style="height:20px">
+        </div>
+        <table id="DetailForm" class="form-bill">
+            <tr><td colspan="3"><strong><font size="5" color="red">评审得分<br />(1.≥90分，指导他人工作；2.≥80，＜90分，独立胜任工作；3.≥60，＜80分，需要他人指导；4.＜60分，学习阶段)</font></strong></td></tr>
+            <tr>
+                <th style="width:60%">技能名称</th>
+                <th style="width:10%">技能权重</th>
+                <th style="width:30%">评价得分</th>
+                
+            </tr>
+        </table>
+    </div>
+
+</form>
+
+

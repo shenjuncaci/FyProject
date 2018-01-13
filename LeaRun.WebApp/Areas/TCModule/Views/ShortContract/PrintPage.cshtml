@@ -1,0 +1,88 @@
+﻿@using System.Data
+@{
+    ViewBag.Title = "PrintPage";
+    DataTable dt = ViewData["dt"] as DataTable;
+    DataTable dtDetail = ViewData["dtDetail"] as DataTable;
+}
+
+<link href="~/Content/Scripts/jqprint/PrintCss.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+<script src="~/Content/Scripts/learunui-framework.js"></script>
+<script src="~/Content/Scripts/jqprint/jquery.jqprint-0.3.js"></script>
+
+
+<div id="my_area">
+    <div class="logo" style="text-align:center">
+        <img src="~/Content/福耀集团(上海)汽车玻璃有限公司.png" height="50" width="500" style="text-align:center;vertical-align:middle">
+        </br>
+        <h2>@dt.Rows[0]["ContractName"]</h2>
+
+    </div>
+    <div style="text-align:right">
+        合同编号：@dt.Rows[0]["ContractNo"]
+    </div>
+
+    <table class="gridtable">
+        <tr>
+            <th rowspan="2">生产基地</th>
+            <th rowspan="2">物料</th>
+            <th rowspan="2">车型</th>
+            <th rowspan="2">零件号</th>
+            <th rowspan="2">产品名称</th>
+            <th colspan="3">箱子尺寸</th>
+            <th rowspan="2">上线料架装箱片数</th>
+            <th rowspan="2">9.6米可装片数</th>
+            <th rowspan="2">玻璃运费（单片）（元）</th>
+            <th rowspan="2">铁箱返回费用（单片）元</th>
+            <th rowspan="2">合计运费（元）</th>
+            <th rowspan="2">元/每车玻璃</th>
+            <th rowspan="2">元/每车铁箱</th>
+            <th rowspan="2">备注</th>
+        </tr>
+        <tr>
+            <th>长</th>
+            <th>宽</th>
+            <th>高</th>
+        </tr>
+        <tr>
+            <td>@dt.Rows[0]["ProduceBase"]</td>
+            <td>@dt.Rows[0]["MaterialNO"]</td>
+            <td>@dt.Rows[0]["CarType"]</td>
+            <td>@dt.Rows[0]["PartNO"]</td>
+            <td>@dt.Rows[0]["ProductName"]</td>
+            <td>@dt.Rows[0]["length"]</td>
+            <td>@dt.Rows[0]["width"]</td>
+            <td>@dt.Rows[0]["height"]</td>
+
+            <td>@dt.Rows[0]["EveryShelfAmount"]</td>
+            <td>@dt.Rows[0]["AveriableAmount"]</td>
+            <td>@dt.Rows[0]["GlassFare"]</td>
+            <td>@dt.Rows[0]["IronBoxReturnCost"]</td>
+            <td>@dt.Rows[0]["AllFare"]</td>
+            <td>@dt.Rows[0]["EveryCarGlassCost"]</td>
+            <td>@dt.Rows[0]["EveryCarIronBoxCost"]</td>
+            <td>Remark</td>
+        </tr>
+       
+        <tr>
+            <td colspan="16" id="printRemark">@dt.Rows[0]["PrintRemark"]</td>
+        </tr>
+    </table>
+</div>
+
+<script>
+    function SubmitPrint() {
+        $("#my_area").jqprint();
+    }
+
+     $(document).ready(function () {
+
+         var reg = new RegExp('↵', "g");
+         //var temp = document.getElementById("printRemark").value;
+         //alert(temp);
+         document.getElementById("printRemark").innerHTML = document.getElementById("printRemark").innerHTML.replace(reg, '</br>');
+         //$("#printRemark").val($("#printRemark").val().replace(reg, '</br>'));
+         //alert(11);
+         //value = value.replace(reg, '\r\n');
+    });
+</script>

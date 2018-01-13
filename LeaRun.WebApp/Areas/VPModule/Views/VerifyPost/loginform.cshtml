@@ -1,0 +1,199 @@
+﻿@{
+    ViewBag.Title = "loginform";
+    Layout = null;
+}
+
+<link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+<link href="~/Content/Styles/learunui-accordion.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+<script src="~/Content/Scripts/learunui-framework.js"></script>
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+<script src="~/Content/Scripts/datepicker/WdatePicker.js"></script>
+<link href="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.css" rel="stylesheet" />
+<script src="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.js"></script>
+<script src="~/Content/Scripts/jquery/jQuery.md5.js"></script>
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
+
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+
+    input {
+        background: #E0FFFF;
+    }
+
+    textarea {
+        background: #E0FFFF;
+    }
+
+    select {
+        background: #E0FFFF;
+    }
+</style>
+
+<table align=center valign=middle>
+    <tr>
+        <td>用户名：</td>
+        <td>
+            <input type="text" id="txtaccount">
+        </td>
+    </tr>
+    <tr>
+        <td>密码：</td>
+        <td>
+            <input type="password" id="txtpassword">
+        </td>
+        
+    </tr>
+
+</table>
+
+<div align=center valign=middle>
+    <button class="button button-primary button-square button-small" onclick="cancel()">取消</button>
+    <button class="button button-primary button-square button-small" onclick="confirm()">确认</button>
+
+
+</div>
+<script>
+    function del()
+    {
+        window.returnValue = "del";
+        window.close();
+    }
+    function cancel() {
+        self.close();
+    }
+    function confirm() {
+        var _Descripe = String($("#txtaccount").val());
+        var _ResponseBy = String($("#txtpassword").val());
+
+        var txtaccount = $("#txtaccount").val();
+        var txtpassword = $("#txtpassword").val();
+        if (txtaccount == "") {
+            $("#txtaccount").focus();
+            alert("登录账户不能为空");
+
+            return false;
+        } else if (txtpassword == "") {
+            $("#txtpassword").focus();
+            alert("登录密码不能为空");
+
+            return false;
+        } else {
+
+            window.setTimeout(function () {
+                var postData = {
+                    Account: escape(txtaccount),
+                    Password: escape($.md5(txtpassword)),
+                    Type: GetQuery('Type')
+                }
+                //getAjax('/Home/CheckLogin', postData, function (rs) {
+                //    if (parseInt(rs) == -1) {
+                //        $("#txtaccount").focus();
+                //        alert("登录账户不存在");
+
+                //    } else if (parseInt(rs) == 2) {
+                //        $("#txtaccount").focus();
+                //        alert("登录账户被系统锁定");
+
+                //    } else if (parseInt(rs) == 4) {
+                //        $("#txtaccount").focus();
+                //        $("#txtpassword").val("");
+                //        alert("登录密码错误");
+
+                //    } else if (parseInt(rs) == 3) {
+
+
+                //        Load();
+                //    } else {
+                //        alert(rs);
+                //    }
+                //});
+                $.ajax({
+                    type: "post",
+                    url: "/VerifyPost/CheckLogin",
+                    data: postData,
+                    async: false,
+                    success: function (rs) {
+                        if (parseInt(rs) == -1) {
+                            $("#txtaccount").focus();
+                            alert("登录账户不存在");
+                            return false;
+
+                        } else if (parseInt(rs) == 2) {
+                            $("#txtaccount").focus();
+                            alert("登录账户被系统锁定");
+                            return false;
+
+                        } else if (parseInt(rs) == 4) {
+                            $("#txtaccount").focus();
+                            $("#txtpassword").val("");
+                            alert("登录密码错误");
+                            return false;
+
+                        } else if (parseInt(rs) == 3) {
+                            alert("你没有权限操作");
+                            return false;
+                            
+                        }
+                        else if (parseInt(rs) == 5)
+                        {
+                            alert("身份验证成功");
+                            window.returnValue = 1;
+                            window.close();
+                        }
+                        else {
+                            alert(rs);
+                            return false;
+                        }
+                    },
+                    error: function () {
+                        alert("出错了");
+                    }
+                });
+            }, 500);
+        }
+       
+
+       
+        
+
+        
+    }
+   
+
+    $(document).ready(function () {
+      
+    })
+   //window.onload = BindEvent();
+</script>

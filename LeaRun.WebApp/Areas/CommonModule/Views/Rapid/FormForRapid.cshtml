@@ -1,0 +1,173 @@
+﻿@{
+    ViewBag.Title = "FormForRapid";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+
+
+<script type="text/javascript">
+    //$(document).ready(function () {
+
+    //    uploadify();
+    //});
+    $(function () {
+        BindData();
+        InitControl();
+        //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
+        //BindResponseBy();
+
+
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        //alert("@ViewData["tag"]");
+        if ("@ViewData["tag"]"=="edit") {
+            AjaxJson("/FYModule/Process/SetForm", { KeyValue: "@ViewData["ProcessID"]" }, function (data) {
+                SetWebControls(data);
+                if ("@ViewData["CanEdit"]" == "0")
+                {
+                    var t = document.getElementById("table1");
+                    var a = t.getElementsByTagName("input");
+                    var b = t.getElementsByTagName("select");
+                    var c = t.getElementsByTagName("textarea");
+                    for (var i = 0; i < a.length; i++) {
+                        a[i].setAttribute("disabled", "true");
+                    }
+                    for (var i = 0; i < b.length; i++) {
+                        b[i].setAttribute("disabled", "true");
+                    }
+                    for (var i = 0; i < c.length; i++) {
+                        c[i].setAttribute("disabled", "true");
+                    }
+                }
+
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            AjaxJson("/FYModule/Process/SubmitRapidForm?KeyValue=" + "@ViewData["ProcessID"]"+"&rapidID="+"@ViewData["rapidID"]", postData, function (data) {
+                //tipDialog(data.Message, 3, data.Code);
+                //top.frames[tabiframeId()].windowload();
+                alert("新增成功");
+                window.close();
+            });
+        }, 200);
+    }
+
+    function BindData()
+    {
+        
+
+
+        $("#DepartmentID").html("");
+
+        $("#DepartmentID").append("<option value=''>==请选择==</option>");
+        AjaxJson("/CommonModule/Rapid/DepartmentJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#DepartmentID").append($("<option></option>").val(DataJson[i].DepartmentID).html(DataJson[i].FullName));
+            });
+        })
+
+        $("#ProcessName").html("");
+
+        $("#ProcessName").append("<option value=''>==请选择==</option>");
+        AjaxJson("/CommonModule/Rapid/EventAllJson", { }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#ProcessName").append($("<option></option>").val(DataJson[i].postname).html(DataJson[i].postname));
+            });
+        })
+    }
+
+    function BindProcess()
+    {
+        $("#ProcessName").html("");
+
+        $("#ProcessName").append("<option value=''>==请选择==</option>");
+        AjaxJson("/CommonModule/Rapid/EventJson", { DepartmentID: $("#DepartmentID").val() }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#ProcessName").append($("<option></option>").val(DataJson[i].postname).html(DataJson[i].postname));
+            });
+        })
+    }
+
+</script>
+
+
+<form id="form1">
+    <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">基本信息</div>
+
+
+            </div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+        <!--基本信息-->
+        <div id="basic" class="tabPanel">
+            <table class="form" id="table1">
+                <tr>
+                    <th class="formTitle">车间名称：</th>
+                    <td class="formValue" colspan="3">
+                        <select id="DepartmentID" onchange="BindProcess()" class="txtselect" datacol="yes" err="车间名称" checkexpession="NotNull"></select>
+                        @*<input id="ProcessName" type="text" class="txt" />*@
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">岗位名称：</th>
+                    <td class="formValue">
+                        <select id="ProcessName" class="txtselect" datacol="yes" err="岗位名称" checkexpession="NotNull"></select>
+                        @*<input id="ProcessName" type="text" class="txt" />*@
+                    </td>
+                    <th class="formTitle">适用过程</th>
+                    <td class="formValue">
+                        <select id="AbleProcess" class="txtselect" datacol="yes" err="适用过程" checkexpession="NotNull">
+                            <option value="过程流程">过程流程</option>
+                            <option value="过程输入">过程输入</option>
+                            <option value="过程效果">过程效果</option>
+                            <option value="过程输出">过程输出</option>
+                            <option value="人力资源">人力资源</option>
+                            <option value="物资资源">物资资源</option>
+                        </select>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th class="formTitle">审核内容：</th>
+                    <td class="formValue" colspan="3">
+                        <textarea id="AuditContent" class="txt" style="width:500px;height:80px;" /></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">失效后果：</th>
+                    <td class="formValue" colspan="3">
+                        <textarea id="FailureEffect" class="txt" style="width:500px;height:80px;" /></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">反应计划：</th>
+                    <td class="formValue" colspan="3">
+                        <textarea id="ReactionPlan" class="txt" style="width:500px;height:80px;" /></textarea>
+                    </td>
+
+                </tr>
+            </table>
+        </div>
+
+
+    </div>
+
+</form>
+<button onclick="AcceptClick()">确认</button>
+
+

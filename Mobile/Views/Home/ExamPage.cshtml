@@ -1,0 +1,292 @@
+﻿
+@{
+    ViewBag.Title = "ExamPage";
+}
+
+<div data-role="page">
+
+    <div data-role="header">
+        <h1><div style='position:fixed; z-index:999; top:0;' id="renderTime"></div></h1>
+    </div>
+
+    <div data-role="content" id="examForm">
+       
+    </div>
+
+    <div data-role="footer">
+        <h1><button id="SubmitExam">提交考试</button></h1>
+    </div>
+
+</div>
+
+<script>
+    //用来记录总数，判断用户是否做了所有的题目
+    var tempNum = 0;
+    $(document).ready(function () {
+        //开始倒计时
+        $("#renderTime").countDown(@(Convert.ToDouble(ViewData["ExamTime"]) * 60));
+
+        AjaxJson("/Home/GetPaper", { KeyValue: GetQuery('ID'), Type: GetQuery('Type') }, function (data) {
+            var i = 0;
+            var iSingle = 0;
+            var iMulit = 0;
+            var Single = "<h2>单选题</h2>";
+            var MultiSelect = "<h2>多选题</h2>";
+            var Paper = document.getElementById('examForm');
+            if (GetQuery('Type') == "0")
+            {
+                for (var o in data) {
+                    i = i + 1;
+                    if (data[o].QuestionType == "单选题") {
+                        iSingle = iSingle + 1;
+                        Single += "<h5>第" + iSingle + "题." + data[o].QuestionDescripe + "</h5>" +
+                            "<input id=A name='" + data[o].QuestionID + "' type='radio' class='test'/>A." + data[o].Option1 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>" +
+                            "<input id=B name='" + data[o].QuestionID + "' type='radio' class='test'/>B." + data[o].Option2 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+
+                        if (data[o].Option3 != "&nbsp;" && data[o].Option3 != null && data[o].Option3 != undefined && data[o].Option3 != "") {
+                            Single += "<input id=C name='" + data[o].QuestionID + "' type='radio' class='test'/>C." + data[o].Option3 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+                        }
+
+                        if (data[o].Option4 != "&nbsp;" && data[o].Option4 != null && data[o].Option4 != undefined && data[o].Option4 != "") {
+                            Single += "<input id=D name='" + data[o].QuestionID + "' type='radio' class='test'/>D." + data[o].Option4 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+                        }
+                        if (data[o].Option5 != "&nbsp;" && data[o].Option5 != null && data[o].Option5 != undefined && data[o].Option5 != "") {
+                            Single += "<input id=E name='" + data[o].QuestionID + "' type='radio' class='test'/>E." + data[o].Option5 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+                        }
+                        if (data[o].Option6 != "&nbsp;" && data[o].Option6 != null && data[o].Option6 != undefined && data[o].Option6 != "") {
+                            Single += "<input id=F name='" + data[o].QuestionID + "' type='radio' class='test'/>F." + data[o].Option6 + "&nbsp;&nbsp;&nbsp;&nbsp;";
+                        }
+                        Single = Single + "<div style=\"height:30px\"></div>";
+                    }
+
+                    if (data[o].QuestionType == "多选题") {
+                        iMulit = iMulit + 1;
+                        MultiSelect += "<h5>第" + iMulit + "题." + data[o].QuestionDescripe + "</h5>" +
+                            "<input id=A name='" + data[o].QuestionID + "' type='checkbox' class='multi'/>A." + data[o].Option1 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>" +
+                            "<input id=B name='" + data[o].QuestionID + "' type='checkbox' class='multi'/>B." + data[o].Option2 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+
+                        if (data[o].Option3 != "&nbsp;" && data[o].Option3 != null && data[o].Option3 != undefined && data[o].Option3 != "") {
+                            MultiSelect += "<input id=C name='" + data[o].QuestionID + "' type='checkbox' class='multi'/>C." + data[o].Option3 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+                        }
+
+                        if (data[o].Option4 != "&nbsp;" && data[o].Option4 != null && data[o].Option4 != undefined && data[o].Option4 != "") {
+                            MultiSelect += "<input id=D name='" + data[o].QuestionID + "' type='checkbox' class='multi'/>D." + data[o].Option4 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+                        }
+                        if (data[o].Option5 != "&nbsp;" && data[o].Option5 != null && data[o].Option5 != undefined && data[o].Option5 != "") {
+                            MultiSelect += "<input id=E name='" + data[o].QuestionID + "' type='checkbox' class='multi'/>E." + data[o].Option5 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+                        }
+                        if (data[o].Option6 != "&nbsp;" && data[o].Option6 != null && data[o].Option6 != undefined && data[o].Option6 != "") {
+                            MultiSelect += "<input id=F name='" + data[o].QuestionID + "' type='checkbox' class='multi'/>F." + data[o].Option6 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+                        }
+                        MultiSelect = MultiSelect + "<div style=\"height:30px\"></div>";
+                    }
+                }}
+            else {
+                for (var o in data) {
+                    i = i + 1;
+                    if (data[o].QuestionType == "单选题") {
+                        iSingle = iSingle + 1;
+                        Single += "<h5>第" + iSingle + "题." + data[o].QuestionDescripe + "</h5>" +
+                            "<input id=A name='" + data[o].CustomExamChoiceID + "' type='radio' class='test'/>A." + data[o].Option1 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>" +
+                            "<input id=B name='" + data[o].CustomExamChoiceID + "' type='radio' class='test'/>B." + data[o].Option2 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+
+                        if (data[o].Option3 != "&nbsp;" && data[o].Option3 != null && data[o].Option3 != undefined && data[o].Option3 != "") {
+                            Single += "<input id=C name='" + data[o].CustomExamChoiceID + "' type='radio' class='test'/>C." + data[o].Option3 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+                        }
+
+                        if (data[o].Option4 != "&nbsp;" && data[o].Option4 != null && data[o].Option4 != undefined && data[o].Option4 != "") {
+                            Single += "<input id=D name='" + data[o].CustomExamChoiceID + "' type='radio' class='test'/>D." + data[o].Option4 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+                        }
+                        if (data[o].Option5 != "&nbsp;" && data[o].Option5 != null && data[o].Option5 != undefined && data[o].Option5 != "") {
+                            Single += "<input id=E name='" + data[o].CustomExamChoiceID + "' type='radio' class='test'/>E." + data[o].Option5 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+                        }
+                        if (data[o].Option6 != "&nbsp;" && data[o].Option6 != null && data[o].Option6 != undefined && data[o].Option6 != "") {
+                            Single += "<input id=F name='" + data[o].CustomExamChoiceID + "' type='radio' class='test'/>F." + data[o].Option6 + "&nbsp;&nbsp;&nbsp;&nbsp;";
+                        }
+                        Single = Single + "<div style=\"height:30px\"></div>";
+                    }
+
+                    if (data[o].QuestionType == "多选题") {
+                        iMulit = iMulit + 1;
+                        MultiSelect += "<h5>第" + iMulit + "题." + data[o].QuestionDescripe + "</h5>" +
+                            "<input id=A name='" + data[o].CustomExamChoiceID + "' type='checkbox' class='multi'/>A." + data[o].Option1 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>" +
+                            "<input id=B name='" + data[o].CustomExamChoiceID + "' type='checkbox' class='multi'/>B." + data[o].Option2 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+
+                        if (data[o].Option3 != "&nbsp;" && data[o].Option3 != null && data[o].Option3 != undefined && data[o].Option3 != "") {
+                            MultiSelect += "<input id=C name='" + data[o].CustomExamChoiceID + "' type='checkbox' class='multi'/>C." + data[o].Option3 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+                        }
+
+                        if (data[o].Option4 != "&nbsp;" && data[o].Option4 != null && data[o].Option4 != undefined && data[o].Option4 != "") {
+                            MultiSelect += "<input id=D name='" + data[o].CustomExamChoiceID + "' type='checkbox' class='multi'/>D." + data[o].Option4 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+                        }
+                        if (data[o].Option5 != "&nbsp;" && data[o].Option5 != null && data[o].Option5 != undefined && data[o].Option5 != "") {
+                            MultiSelect += "<input id=E name='" + data[o].CustomExamChoiceID + "' type='checkbox' class='multi'/>E." + data[o].Option5 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+                        }
+                        if (data[o].Option6 != "&nbsp;" && data[o].Option6 != null && data[o].Option6 != undefined && data[o].Option6 != "") {
+                            MultiSelect += "<input id=F name='" + data[o].CustomExamChoiceID + "' type='checkbox' class='multi'/>F." + data[o].Option6 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+                        }
+                        MultiSelect = MultiSelect + "<div style=\"height:30px\"></div>";
+                    }
+                }
+            }
+
+            Paper.innerHTML += Single;
+            Paper.innerHTML += MultiSelect;
+            tempNum = i;
+        });
+    });
+
+    function getData() {
+        //var result = "";
+        //$("select.examselect").each(function (r) {
+        //    //alert($(this).attr('id'));
+        //    // alert($(this).val());
+        //    result = result + "{\"QuestionID\":\"" + $(this).attr('id') + "\",\"Answer\":\"" + $(this).val() + "\"},";
+        //})
+
+        //result = result.substring(0, result.length - 1);
+        //return '[' + result + ']';
+
+        //修改为点选的形式
+        var QuestionCount = 0;
+        var result = "";
+
+        var radio = document.getElementsByClassName("test");
+
+        if (radio.length > 0) {
+            for (var i = 0; i < radio.length; i++) {
+                if (radio[i].checked == true) {
+                    result = result + "{\"QuestionID\":\"" + radio[i].name + "\",\"Answer\":\"" + radio[i].id + "\"},";
+                    QuestionCount = QuestionCount + 1;
+                }
+            }
+        }
+
+
+        var multi = document.getElementsByClassName("multi");
+
+        if (multi.length > 0) {
+
+            var tempQuestionID = "";
+            var tempAnswer = "";
+            for (var j = 0; j < multi.length; j++) {
+                if (multi[j].checked == true) {
+                    if (tempQuestionID == multi[j].name) {
+                        //alert(121);
+                        tempAnswer = tempAnswer + multi[j].id;
+                    }
+                    else {
+                        if (tempQuestionID != "") {
+                            result = result + "{\"QuestionID\":\"" + tempQuestionID + "\",\"Answer\":\"" + tempAnswer + "\"},";
+                            QuestionCount = QuestionCount + 1;
+                            tempQuestionID = multi[j].name;
+                            tempAnswer = multi[j].id;
+                        }
+                        else {
+                            tempQuestionID = multi[j].name;
+                            tempAnswer = multi[j].id;
+                        }
+                    }
+
+
+                }
+            }
+            result = result + "{\"QuestionID\":\"" + tempQuestionID + "\",\"Answer\":\"" + tempAnswer + "\"},";
+            QuestionCount = QuestionCount + 1;
+        }
+        result = result.substring(0, result.length - 1);
+        //alert(QuestionCount);
+        //alert(tempNum);
+        if (QuestionCount == tempNum)
+        {
+            return '[' + result + ']';
+        }
+        
+        else if (QuestionCount < tempNum)
+        {
+            alert("请答完所有题目再提交");
+            return false;
+        }
+        else
+        {
+            alerrt("出现异常了，请联系管理员");
+            return false;
+        }
+
+    }
+
+    $("#SubmitExam").on("tap", function () {
+        var DetailForm = getData();
+        if (DetailForm == false)
+        {
+            return false;
+        }
+        $.ajax({
+            type: "post",
+            url: "/Home/SubmitExam",
+            data: { KeyValue: GetQuery('ID'), DetailForm: DetailForm,Type: GetQuery('Type') },
+            async: false,
+            success: function (msg) {
+                if (msg == "-1") {
+                    alert("你不允许提交考试，请和监考员联系");
+                    return false;
+                }
+                else {
+                    alert(msg);
+                    window.location.href = '@Url.Content("~/Home/FirstPage")';
+                    return false;
+                }
+            },
+            error: function () {
+                alert("出错了");
+            }
+        });
+    });
+
+
+    //增加倒计时的功能
+    (function ($) {
+        $.fn.countDown = function (secs) {
+            secs = parseInt(secs);
+            var timeId,
+                me = $(this),
+                HMSObj,
+                HMSHtml = '<span><span class="time-border">#HH#</span></span>' +
+                    '<span>：</span>' +
+                    '<span><span class="time-border">#MM#</span></span>' +
+                    '<span>：</span>' +
+                    '<span><span class="time-border">#SS#</span></span>';
+            var timeId = setInterval(function () {
+                HMSObj = $.secsToHMS(secs);
+                me.html(HMSHtml.replace('#HH#', HMSObj.H).replace('#MM#', HMSObj.M).replace('#SS#', HMSObj.S));
+                secs--;
+                if (secs < 0) {
+                    clearInterval(timeId);
+                }
+            }, 1000);
+
+        };
+        $.extend({
+            secsToHMS: function (secs) {
+                var H = '00',
+                    M = '00',
+                    S = '00';
+                H = $.formatTimeDouble(parseInt(secs / 3600));
+                secs %= 3600;
+                M = $.formatTimeDouble(parseInt(secs / 60));
+                secs %= 60;
+                S = $.formatTimeDouble(parseInt(secs));
+                return {
+                    H: H,
+                    M: M,
+                    S: S
+                }
+            },
+            formatTimeDouble: function (time) {
+                return 10 <= time ? time :
+                    time > 0 ? '0' + time : '00';
+            }
+        });
+    })($);
+</script>
+

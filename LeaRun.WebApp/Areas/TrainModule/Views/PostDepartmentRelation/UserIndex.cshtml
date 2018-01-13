@@ -1,0 +1,241 @@
+﻿@{
+    ViewBag.Title = "工序信息";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<style>
+    .ui-jqgrid tr.jqgrow td {
+        white-space: normal !important;
+        height: auto;
+        vertical-align: text-top;
+        padding-top: 2px;
+    }
+</style>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        GetGrid();
+
+        //绑定键盘按下事件
+        $(document).keypress(function (e) {
+            //回车键事件
+            if (e.which == 13) {
+                $("#keywords").focus();
+                $("#keywords").select();
+                $("#btnSearch").click();
+            }
+        });
+    });
+
+    var CompanyId = "", DepartmentId = "", DepartmentName = "";
+
+
+    Date.prototype.pattern = function (fmt) {
+        var o = {
+            "M+": this.getMonth() + 1, //月份
+            "d+": this.getDate(), //日
+            "h+": this.getHours() % 12 == 0 ? 12 : this.getHours() % 12, //小时
+            "H+": this.getHours(), //小时
+            "m+": this.getMinutes(), //分
+            "s+": this.getSeconds(), //秒
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+            "S": this.getMilliseconds() //毫秒
+        };
+        var week = {
+            "0": "/u65e5",
+            "1": "/u4e00",
+            "2": "/u4e8c",
+            "3": "/u4e09",
+            "4": "/u56db",
+            "5": "/u4e94",
+            "6": "/u516d"
+        };
+        if (/(y+)/.test(fmt)) {
+            fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        }
+        if (/(E+)/.test(fmt)) {
+            fmt = fmt.replace(RegExp.$1, ((RegExp.$1.length > 1) ? (RegExp.$1.length > 2 ? "/u661f/u671f" : "/u5468") : "") + week[this.getDay() + ""]);
+        }
+        for (var k in o) {
+            if (new RegExp("(" + k + ")").test(fmt)) {
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+            }
+        }
+        return fmt;
+    }
+
+    //搜索
+    function btn_Search() {
+        var keywords = $("#keywords").val();
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "@Url.Content("~/TrainModule/PostDepartmentRelation/GetUserListJson")?keywords=" + escape(keywords), page: 1
+        }).trigger('reloadGrid');
+    }
+
+
+    //加载表格
+    function GetGrid() {
+        var SelectRowIndx;
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/TrainModule/PostDepartmentRelation/GetUserListJson")",
+            datatype: "json",
+            height: $(window).height() - 178,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'userid', index: 'userid', width: 80, align: 'left', hidden: true },
+                { label: '工号', name: 'code', index: 'code', width: 150, align: 'left' },
+                { label: '姓名', name: 'realname', index: 'realname', width: 150, align: 'left' },
+                { label: '现岗位', name: 'mainpost', index: 'mainpost', width: 150, align: 'left' },
+                { label: '储备岗位', name: 'postlist', index: 'postlist', width: 250, align: 'left' },
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 1000],
+            pager: "#gridPager",
+            sortname: 'userid',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            multiselect: false,
+            //cellattr: addCellAttr,
+
+            // useColSpanStyle:true,
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            },
+            gridComplete: function () {
+                //LoadViewList();
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            }
+        });
+        columnModelData("#gridTable");
+        //自应高度
+        $(window).resize(function () {
+            $("#gridTable").setGridHeight($(window).height() - 178);
+        });
+
+    }
+
+
+    //高级查询
+    var QueryParamJson = "";
+    function btn_query() {
+        QueryDialog("/Utility/QueryPage", "QueryPage", "查询过滤", 770, 395, function (iframe) {
+            top.frames[iframe].QueryClick(function (JsonData) {
+                QueryParamJson = JsonData;
+                $("#gridTable").jqGrid('setGridParam', {
+                    url: "@Url.Content("~/TrainModule/PostDepartmentRelation/GetUserListJson")?ParameterJson=" + escape(JsonData), page: 1
+                }).trigger('reloadGrid');
+            });
+        });
+    }
+
+    function btn_add() {
+
+        if ('@ViewData["Isdept"]' == "1")
+        {
+            if (!confirm("部门负责人一般只需要管理科长，如确认需要管理一般员工，请点击确认继续！！"))
+            {
+                return false;
+            }
+
+        }
+
+        var KeyValue = GetJqGridRowValue("#gridTable", "userid");
+
+
+        var url = "/TrainModule/PostDepartmentRelation/UserList?KeyValue=" + KeyValue;
+
+        openDialog(url, "UserList", "添加岗位", 625, 350, function (iframe) {
+            top.frames[iframe].AcceptClick();
+        });
+    }
+
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "userid");
+
+
+        var url = "/TrainModule/PostDepartmentRelation/DepartPostList?KeyValue=" + KeyValue+"&IsMain=0";
+
+        openDialog(url, "UserList", "岗位编辑", 625, 350, function (iframe) {
+            top.frames[iframe].AcceptClick();
+        });
+    }
+
+    function btn_editM() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "userid");
+
+
+        var url = "/TrainModule/PostDepartmentRelation/DepartPostList?KeyValue=" + KeyValue+"&IsMain=1";
+
+        openDialog(url, "UserList", "岗位编辑", 625, 350, function (iframe) {
+            top.frames[iframe].AcceptClick();
+        });
+    }
+   
+
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+    }
+
+
+    //特定单元格添加超链接，可以实现附件下载，后台要把地址传过来
+    function HyperLink() {
+        var data = $("#gridTable").jqGrid("getRowData");
+        for (var i = 0; i < data.length; i++) {
+            data[i].res_ms;
+        }
+    }
+
+    function dateFormat(cellvalue, options, rowObject) {
+        //alert(cellvalue);
+        if (cellvalue == "0001-01-01T00:00:00" || cellvalue == null) {
+            return "";
+        }
+        else {
+            return String(cellvalue).substring(0, 10);
+        }
+    }
+
+</script>
+
+<!--左边-->
+<!--中间-->
+<div>
+    <div class="btnbartitle">
+        <div>
+            您正在查看 @ViewData["Department"] 的人员列表 <span id="CenterTitle"></span>
+        </div>
+    </div>
+    <!--工具栏-->
+    <div class="tools_bar" style="border-top: none; margin-bottom: 0px;">
+        <div class="PartialButton">
+            @Html.Partial("_PartialButton")
+        </div>
+
+    </div>
+    <!--列表-->
+    <div id="grid_List">
+        <div class="bottomline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+            <table border="0" class="form-find" style="height: 45px;">
+                <tr>
+                    <th>
+                        关键字：
+                    </th>
+                    <td>
+                        <input id="keywords" type="text" class="txt" style="width: 200px" />
+                    </td>
+                    <td>
+                        <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <table id="gridTable"></table>
+        <div id="gridPager"></div>
+    </div>
+    <!--视图-->
+
+</div>
+

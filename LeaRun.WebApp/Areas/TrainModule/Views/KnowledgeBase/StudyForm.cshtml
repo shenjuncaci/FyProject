@@ -1,0 +1,114 @@
+﻿@{
+    ViewBag.Title = "学习页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+    string UserName = ViewData["UserName"] as string;
+}
+
+<link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
+<script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>
+<script src="~/Content/Scripts/jquey.media/jquery.media.js"></script>
+
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
+
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+
+    input {
+        background: #E0FFFF;
+    }
+
+    textarea {
+        background: #E0FFFF;
+    }
+
+    select {
+        background: #E0FFFF;
+    }
+</style>
+
+
+<script type="text/javascript">
+    //$(document).ready(function () {
+
+    //    uploadify();
+    //});
+    
+    $(function () {
+
+       
+        InitControl();
+        
+        
+
+        
+
+
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/TrainModule/KnowledgeBase/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+                if (String(data["Attach"]) != "" && String(data["Attach"]) != "null" && data["Attach"] != undefined) {
+
+                    //document.getElementById("uploadify").style.display = "none";
+
+                    var address = String(data["Attach"]).replace('~', '../../../../');
+                    //address = "'" + address + "'";
+
+                    $('.media').media({
+                        width: 800,
+                        height: 500,
+                        autoplay: true,
+                        src: address,
+                        //toolbar=0,
+                        attrs: { attr1: 'attrValue1', attr2: 'attrValue2' },  // object/embed attrs
+                        params: { param1: 'paramValue1', param2: 'paramValue2' }, // object params/embed attrs
+                        caption: false // supress caption text
+                    });
+                    //var ke = document.getElementById("plugin");
+                    //ke.onClick = "alert('plugin')";
+                    
+                }
+            });
+        }
+    }
+
+
+</script>
+
+
+<div class="media"></div>
+

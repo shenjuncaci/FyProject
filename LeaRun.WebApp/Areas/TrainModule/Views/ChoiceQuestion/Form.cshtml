@@ -1,0 +1,209 @@
+﻿@{
+    ViewBag.Title = "判断题";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+    string UserName = ViewData["UserName"] as string;
+}
+
+<link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
+<script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>
+
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
+
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+
+    input {
+        background: #E0FFFF;
+    }
+
+    textarea {
+        background: #E0FFFF;
+    }
+
+    select {
+        background: #E0FFFF;
+    }
+</style>
+
+
+<script type="text/javascript">
+    //$(document).ready(function () {
+
+    //    uploadify();
+    //});
+    $(function () {
+        BindSkill();
+        InitControl();
+        //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
+        //BindResponseBy();
+
+
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/TrainModule/ChoiceQuestion/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            AjaxJson("/TrainModule/ChoiceQuestion/SubmitForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+
+    function BindSkill() {
+        $("#SkillID").html("");
+        $("#SkillID").append("<option value=''>==请选择==</option>");
+        AjaxJson("/TrainModule/ChoiceQuestion/SkillJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#SkillID").append($("<option></option>").val(DataJson[i].SkillID).html(DataJson[i].SkillName));
+            });
+        })
+
+    }
+
+</script>
+
+
+<form id="form1">
+    <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">基本信息</div>
+
+
+            </div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+        <!--基本信息-->
+        <div id="basic" class="tabPanel">
+            <table class="form">
+
+                <tr>
+                    <th class="formTitle">题目类型：</th>
+                    <td class="formValue">
+
+                        
+                        <select id="QuestionType" class="select" datacol="yes" err="题目类型" checkexpession="NotNull">
+
+                    <option value="">==请选择==</option>
+                    <option value="单选题">单选题</option>
+                    <option value="多选题">多选题</option>
+                    
+                </select>
+                    </td>
+
+                    <th class="formTitle"></th>
+                    <td class="formValue">
+                       
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">答案：</th>
+                    <td class="formValue">
+                        
+                        <input id="Answer" type="text" class="txt" datacol="yes" err="答案" checkexpession="NotNull" />
+                        @*<select id="Answer" class="select" datacol="yes" err="答案" checkexpession="NotNull">
+
+                            <option value="">==请选择==</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>*@
+                    </td>
+
+                    <th class="formTitle">对应技能：</th>
+                    <td class="formValue">
+                        <select id="SkillID" class="select" datacol="yes" err="对应技能" checkexpession="NotNull"></select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">问题描述：</th>
+                    <td class="formValue" colspan="3">
+                        <textarea id="QuestionDescripe" class="txt" style="width:500px;height:80px;" /></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">选项A：</th>
+                    <td class="formValue">
+                        <input id="Option1" type="text" class="txt" datacol="yes" err="选项1" checkexpession="NotNull" />
+                    </td>
+                    <th class="formTitle">选项B：</th>
+                    <td class="formValue">
+                        <input id="Option2"  type="text" class="txt" datacol="yes" err="选项2" checkexpession="NotNull">
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">选项C：</th>
+                    <td class="formValue">
+                        <input id="Option3"  type="text" class="txt" datacol="yes">
+                    <th class="formTitle">选项D：</th>
+                    <td class="formValue">
+                        <input id="Option4"  type="text" class="txt" datacol="yes">
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">选项E：</th>
+                    <td class="formValue">
+                        <input id="Option5" type="text" class="txt" datacol="yes">
+                    <th class="formTitle">选项F：</th>
+                    <td class="formValue">
+                        <input id="Option6" type="text" class="txt" datacol="yes">
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+
+    </div>
+
+</form>

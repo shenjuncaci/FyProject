@@ -1,0 +1,110 @@
+﻿@{
+    ViewBag.Title = "选择教材（双击确认）";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script>
+    $(function () {
+        
+        
+        GetGrid();
+        //绑定键盘按下事件
+        
+    });
+    
+    //显示物料
+    function GetGrid() {
+        var index = GetQuery('index');
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/TrainModule/Skill/GetFileList")?SkillID=" + GetQuery('SkillID'),
+            datatype: "json",
+            height: $(window).height(),
+            autowidth: true,
+            colModel: [
+                { label: '文件主键', name: 'fileid', hidden: true },
+                { label: '文件名称', name: "filename", width: 250, sortable: false },
+                { label: '文件路径', name: "filepath", width: 450, sortable: false,hidden: true }
+
+            ],
+            pager: false,
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            //双击事件
+
+            ondblClickRow: function (RowIndx) {
+                var rowData = $(this).jqGrid('getRowData', RowIndx);
+                
+
+                window.returnValue = rowData.filepath;
+                window.close();
+            }
+        });
+    }
+
+    //function BindSkill() {
+    //    $("#SkillType").html("");
+    //    $("#SkillType").append("<option value=''>==请选择==</option>");
+    //    AjaxJson("/TrainModule/PostDepartmentRelation/SkillTypeJson", {}, function (DataJson) {
+    //        $.each(DataJson, function (i) {
+    //            $("#SkillType").append($("<option></option>").val(DataJson[i].SkillType).html(DataJson[i].SkillType));
+    //        });
+    //    })
+
+    //}
+
+    //function btn_Confirm()
+    //{
+
+    //    var ResultArr = new Array();
+    //    ResultArr[0] = GetJqGridRowValue("#gridTable", "skillid");
+    //    ResultArr[1] = GetJqGridRowValue("#gridTable", "skillname");
+    //    ResultArr[2] = GetJqGridRowValue("#gridTable", "skilldescripe");
+
+    //    if (ResultArr[0] == undefined)
+    //    {
+    //        alert("请先选中技能");
+    //        return false;
+    //    }
+
+    //    //alert(ResultArr[0] + ',' + ResultArr[1] + ',' + ResultArr[2])
+    //    window.returnValue = ResultArr;
+    //    window.close();
+    //}
+</script>
+<div class="border" style="margin: 1px; border-bottom: none; margin-bottom: 0px;">
+    <div class="QueryArea" style="display:none">
+        <table border="0" class="form-find" style="height: 45px;">
+            <tr>
+                <th>
+                    技能名称：
+                </th>
+                <td>
+                    <input id="SkillName" type="text" class="txt" style="width: 50px" />
+                </td>
+                <th>
+                    技能类型：
+                </th>
+                <td>
+                    <select id="SkillType"></select>
+                </td>
+                <td>
+                    <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                </td>
+                <td>
+                    <input id="btnSearch" type="button" class="btnSearch" value="确 认" onclick="btn_Confirm()" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="line"></div>
+    <table id="gridTable"></table>
+    <style>
+        .ui-widget-content {
+            border-left: none;
+        }
+
+        .ui-th-column, .ui-jqgrid .ui-jqgrid-htable th.ui-th-column {
+            background: none;
+        }
+    </style>
+</div>

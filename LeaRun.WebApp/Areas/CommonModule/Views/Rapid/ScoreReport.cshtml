@@ -1,0 +1,159 @@
+﻿@{
+    ViewBag.Title = "ScoreReport";
+    //Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+<link href="~/Content/Styles/learunui-accordion.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+<script src="~/Content/Scripts/learunui-framework.js"></script>
+
+<script src="~/Content/Scripts/jquery.echarts/echarts.js"></script>
+
+<script src="~/Content/Scripts/datepicker/WdatePicker.js"></script>
+
+<div id="grid_List">
+    <div class="bottomline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px">
+        <table>
+            <tr>
+                <th>
+                    开始日期：
+                </th>
+                <td>
+                    <input id="txtStartDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="width: 200px;border:1px,solid" />
+                </td>
+                <th>
+                    结束日期：
+                </th>
+                <td>
+                    <input id="txtEndDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="width: 200px;border:1px,solid" />
+                </td>
+                <th>
+                    数据类型：
+                </th>
+                <td>
+                    <select id="datatype" class="txtselect">
+                        <option value="">请选择</option>
+                        <option value="出勤">出勤</option>
+                        <option value="回复质量">回复质量</option>
+                    </select>
+                </td>
+                <th>
+                    人员范围：
+                </th>
+                <td>
+                    <select id="person" class="txtselect">
+                        <option value="">请选择</option>
+                        <option value="责任人">责任人</option>
+                        <option value="常委">常委</option>
+                    </select>
+                </td>
+                <td>
+                    <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+    <!--视图-->
+    <div id="main" style="width: auto;height:400px"></div>
+</br>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 扣分规则：迟到每次扣-1，早退每次-1分，缺席每次-3分； 提交的方案被回退每次-1分，超过时限没有通过的方案每天-2分</div>
+
+    <script>
+
+    $(document).ready(function () {
+        btn_Search();
+    });
+
+    function btn_Search()
+    {
+        var X;
+        var Y;
+        var startDate = $("#txtStartDate").val();
+        var endDate = $("#txtEndDate").val();
+        var dataType = $("#datatype").val();
+        var person = $("#person").val();
+        var durl = encodeURI('@Url.Action("GetScoreData", "Rapid")?startDate=' + startDate + '&endDate=' + endDate + '&dataType=' + dataType + '&person=' + person);
+        $.ajax({
+            type: "post",
+            url: durl,
+            async: false,
+            success: function (data) {
+                var dataA = new Array();
+                dataA = data.split("|");
+
+                X = dataA[0].split(",");
+
+                Y = dataA[1].split(",");
+                
+            }
+
+        });
+        var myChart = echarts.init(document.getElementById('main'));
+
+        option = {
+            color: ['#3398DB'],
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                    type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    data: X,
+                    axisTick: {
+                        alignWithLabel: true
+                    }
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value'
+                }
+            ],
+            series: [
+                {
+                    name: '扣分合计',
+                    type: 'bar',
+                    barWidth: '60%',
+                    data: Y
+                }
+            ]
+        };
+
+        myChart.setOption(option);
+
+
+        myChart.on('click', function (params) {
+            //alert(params.name);
+            var startDate = $("#txtStartDate").val();
+            var endDate = $("#txtEndDate").val();
+            var dataType = $("#datatype").val();
+            var url = "/CommonModule/Rapid/DetialForm?Name=" + params.name + "&startDate=" + startDate + "&endDate=" + endDate + "&dataType=" + dataType;
+            Dialog(url, "Form", "明细情况", 350, 350);
+        });
+        
+        //var ecConfig = echarts.config;
+        
+        
+
+        //function eConsole(param) {
+        //    alert(11);
+        //    if (typeof param.seriesIndex == 'undefined') {
+        //        return;
+        //    }
+        //    if (param.type == 'click') {
+        //        alert(param.name);
+        //    }
+        //}  
+        //myChart.on(ecConfig.EVENT.CLICK, eConsole);
+    }
+    </script>

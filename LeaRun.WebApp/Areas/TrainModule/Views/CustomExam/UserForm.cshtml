@@ -1,0 +1,205 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+
+<style>
+    #Fixed {
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        bottom: 0px;
+        right: 0px;
+        overflow-x: auto;
+        overflow-y: auto;
+        height: 30px;
+    }
+</style>
+<script type="text/javascript">
+    var array = new Array();
+
+    $(function () {
+        InitControl();
+
+        //日期格式化
+
+        $('input[id$="Dt"]').each(function () {
+            var w = this.value.indexOf("T");
+            if (w > 0) {
+                this.value = this.value.substring(0, w);
+            }
+        });
+        //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
+        //BindResponseBy();
+    })
+
+    function InitControl() {
+        if (!!GetQueryNew('KeyValue')) {
+            //AjaxJson("/TrainModule/PostDepartmentRelation/SetForm", { KeyValue: GetQueryNew('KeyValue') }, function (data) {
+            //    SetWebControls(data);
+
+            //});
+
+
+            var rowindex = 1;
+            //评审明细信息
+            AjaxJson("/TrainModule/CustomExam/GeUserList", { KeyValue: GetQueryNew('KeyValue') }, function (data) {
+                var JsonData = data.rows;
+                //var colorState = "";
+                $.each(JsonData, function (i) {
+
+                    addone(rowindex);
+                    var rowData = JsonData[i];
+                    //alert(rowData.FllowStatus);
+                    //alert(rowData.ReviewDepart);ChangeReviewState
+                    $("#UserID➩" + rowindex).val(rowData.UserID);
+                    $("#Code➩" + rowindex).val(rowData.Code);
+
+                    
+                    
+                    $("#RealName➩" + rowindex).val(rowData.RealName);
+                    $("#FullName➩" + rowindex).val(rowData.FullName);
+                   
+
+
+                    rowindex++;
+
+                });
+            });
+        }
+    }
+
+
+    function addone(i) {
+        //alert(i);
+        var tab = document.getElementById('DetailForm');
+        var rowIndex = tab.rows.length + 1;
+        if (i == 999) {
+            //999表示是新增，-3表示减去3行标题
+            i = rowIndex - 2;
+        }
+        //添加一行;
+        var tr = tab.insertRow();
+        //tr.onmouseover = tr.className = "displayStyle";
+        //tr.onmouseout = tr.className = "hideStyle";
+        //tr.onclick = function () { this.className = "onClickChangeStyle(this)"; }
+
+        var td1 = tr.insertCell();
+        var td2 = tr.insertCell();
+        var td3 = tr.insertCell();
+        var td4 = tr.insertCell();
+
+
+        td1.innerHTML = "<input style=\"width:95%\" readonly  id='Code➩" + i + "' type=\"text\" class=\"txt\"><input readonly id=\"UserID➩" + i + "\" type=\"hidden\" class=\"txt\">";
+        td2.innerHTML = "<input style=\"width:95%\" id='RealName➩" + i + "' type=\"text\" class=\"txt\">";
+        td3.innerHTML = "<input  id=\"FullName➩" + i + "\" type=\"text\" class=\"txt\" value=0>";
+        td4.innerHTML = "<button id=\"delete\" onclick=\"del("+i+")\">删除</button>";
+
+        //初始化行;
+        //initRows(tab);
+    }
+
+
+    function AcceptClick() {
+        top.frames[tabiframeId()].windowload();
+        closeDialog();
+    }
+
+    function IsExistItem(index, code) {
+        if (!ArrayExists(array, code)) {
+            array[index] = code;
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    function del(i)
+    {
+        //alert("#UserID➩" + i);
+        //alert($("#UserID➩"+i).val())
+        var postData = { UserID: $("#UserID➩"+i).val() };
+        AjaxJson("/TrainModule/CustomExam/DeleteUser?KeyValue=" + GetQueryNew('KeyValue'), postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            //closeDialog();
+        });
+    }
+
+    function addbatch()
+    {
+        var reValue = window.showModalDialog('UserListBatch', window, 'dialogWidth=800px;dialogHeight=500px;status:1;title:0;');
+        if (reValue == undefined) {
+            return false;
+        }
+        var postData = { UserID: reValue };
+        AjaxJson("/TrainModule/CustomExam/InsertUser?KeyValue=" + GetQueryNew('KeyValue'), postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            //closeDialog();
+        });
+    }
+
+    function addOnDept()
+    {
+        var reValue = window.showModalDialog('DeptListBatch', window, 'dialogWidth=800px;dialogHeight=500px;status:1;title:0;');
+        if (reValue == undefined) {
+            return false;
+        }
+        var postData = { DepartID: reValue };
+        AjaxJson("/TrainModule/CustomExam/InsertUserOnDept?KeyValue=" + GetQueryNew('KeyValue'), postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            //closeDialog();
+        });
+    }
+
+    function addOnCode()
+    {
+        var reValue = window.showModalDialog('CodeForm', window, 'dialogWidth=800px;dialogHeight=500px;status:1;title:0;');
+        if (reValue == undefined) {
+            return false;
+        }
+        var postData = { StartCode: reValue[0], EndCode: reValue[1] };
+        AjaxJson("/TrainModule/CustomExam/InsertUserOnCode?KeyValue=" + GetQueryNew('KeyValue'), postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            //closeDialog();
+        });
+    }
+
+</script>
+
+<form id="form1">
+    <div class="leftline rightline" style="margin-left: 1px; margin-right: 1px;">
+        <table id="tb_POOrderFrom" class="form-bill">
+            <tr style="display:none">
+                <td>
+                    <input readonly id="RelationID" type="text" class="txt" style="width: 95%" />
+                </td>
+            </tr>
+        </table>
+        <div id="Fixed">
+            <button onclick="addbatch()">添加</button>
+            <button onclick="addOnDept()">按部门添加</button>
+            <button onclick="addOnCode()">按工号段添加</button>
+            @*<a class="button button-caution button-square button-small" onclick="addone(999)">添加</a>
+            <a class="button button-caution button-square button-small" onclick="addbatch()">批量</a>*@
+        </div>
+        <div style="height:20px">
+        </div>
+        <table id="DetailForm" class="form-bill">
+            <tr><td colspan="3"><strong>岗位包含技能</strong></td></tr>
+            <tr>
+                <th style="width:20%">工号</th>
+                <th style="width:30%">姓名</th>
+                <th style="width:30%">部门</th>
+                <th style="width:20%">操作</th>
+            </tr>
+        </table>
+    </div>
+
+</form>
+

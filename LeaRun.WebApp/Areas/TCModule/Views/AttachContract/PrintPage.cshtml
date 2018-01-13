@@ -1,0 +1,98 @@
+﻿@using System.Data
+@{
+    ViewBag.Title = "PrintPage";
+    DataTable dt = ViewData["dt"] as DataTable;
+    DataTable dtDetail = ViewData["dtDetail"] as DataTable;
+}
+
+<link href="~/Content/Scripts/jqprint/PrintCss.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+<script src="~/Content/Scripts/learunui-framework.js"></script>
+<script src="~/Content/Scripts/jqprint/jquery.jqprint-0.3.js"></script>
+
+
+<div id="my_area">
+    <div class="logo" style="text-align:center">
+    <img src="~/Content/福耀集团(上海)汽车玻璃有限公司.png" height="50" width="500" style="text-align:center;vertical-align:middle" >
+        </br>
+        <h2>@dt.Rows[0]["ContractName"]</h2>
+        
+    </div>
+    <div style="text-align:right">
+        合同编号：@dt.Rows[0]["ContractNo"]
+    </div>
+
+<table class="gridtable">
+    <tr>
+        <th>物料</th>
+        <th>车型</th>
+        <th>零件号</th>
+        <th>产品名称</th>
+        <th>附件安装类型</th>
+        <th>附件数量</th>
+        <th>单个附件成本</th>
+        <th>测算附件费用</th>
+        <th>损耗比例</th>
+        <th>结算附件成本</th>
+        <th>人工费</th>
+        <th>辅料补贴费</th>
+        <th>管理费</th>
+        <th>最终定额</th>
+    </tr>
+    <tr>
+        <td>@dt.Rows[0]["MaterialNO"]</td>
+        <td>@dt.Rows[0]["CarType"]</td>
+        <td>@dt.Rows[0]["PartNO"]</td>
+        <td>@dt.Rows[0]["ProductName"]</td>
+        <td>@dt.Rows[0]["InstallType"]</td>
+        <td></td>
+        <td></td>
+        <td>@dt.Rows[0]["PlanCost"]</td>
+        <td>@dt.Rows[0]["LossRate"]</td>
+        <td>@dt.Rows[0]["EndCost"]</td>
+        <td>@dt.Rows[0]["LaborCostAll"]</td>
+        <td>@dt.Rows[0]["Subsidy"]</td>
+        <td>@dt.Rows[0]["ManageExpense"]</td>
+        <td>@(Math.Round(Convert.ToDecimal(@dt.Rows[0]["EndCost"])+ Convert.ToDecimal(@dt.Rows[0]["LaborCostAll"]) + Convert.ToDecimal(@dt.Rows[0]["Subsidy"])+ Convert.ToDecimal(@dt.Rows[0]["ManageExpense"]),2))</td>
+    </tr>
+    @for(int i=0;i<dtDetail.Rows.Count;i++)
+    {
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>@dtDetail.Rows[i]["InstallType"]</td>
+            <td>@dtDetail.Rows[i]["AttachNum"]</td>
+            <td>@dtDetail.Rows[i]["AttachCost"]</td>
+            <td>@dtDetail.Rows[i]["PlanCost"]</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+    }
+    <tr>
+        <td colspan="14" id="printRemark">@dt.Rows[0]["PrintRemark"]</td>
+    </tr>
+</table>
+</div>
+
+<script>
+    function SubmitPrint() {
+        $("#my_area").jqprint();
+    }
+
+     $(document).ready(function () {
+
+         var reg = new RegExp('↵', "g");
+         //var temp = document.getElementById("printRemark").value;
+         //alert(temp);
+         document.getElementById("printRemark").innerHTML = document.getElementById("printRemark").innerHTML.replace(reg, '</br>');
+         //$("#printRemark").val($("#printRemark").val().replace(reg, '</br>'));
+         //alert(11);
+         //value = value.replace(reg, '\r\n');
+    });
+</script>

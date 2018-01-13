@@ -1,0 +1,114 @@
+﻿@{
+    ViewBag.Title = "InsertPlan";
+    Layout = null;
+    //DataTable dt = ViewData["dt"] as DataTable;
+}
+
+
+<link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+<link href="~/Content/Styles/learunui-accordion.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+<script src="~/Content/Scripts/learunui-framework.js"></script>
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+
+<table align=center valign=middle onblur="self.focus()">
+    <tr style="display:none">
+        <td>审查人</td>
+        <td>
+            <select id="ResponseBy" class="txtselect"></select>
+        </td>
+    </tr>
+    <tr>
+        <td>岗位名称</td>
+        <td>
+            <select id="EventName" class="txtselect"></select>
+        </td>
+    </tr>
+    <tr>
+        <td>生产线</td>
+        <td>
+            <select id="Line" class="txtselect">
+                <option value=''>==请选择==</option>
+                <option value='1'>1</option>
+                <option value='2'>2</option>
+                <option value='3'>3</option>
+                <option value='4'>4</option>
+            </select>
+
+        </td>
+    </tr>
+</table>
+
+<div align=center valign=middle>
+    <button class="button button-primary button-square button-small" onclick="cancel()">取消</button>
+    <button class="button button-primary button-square button-small" onclick="confirm()">确认</button>
+    <button class="button button-caution button-square button-small" onclick="leave()">休息</button>
+    <button class="button button-caution button-square button-small" onclick="del()">删除</button>
+</div>
+<script>
+    function del() {
+        window.returnValue = "del";
+        window.close();
+    }
+    function leave()
+    {
+        window.returnValue = "leave";
+        window.close();
+    }
+
+    function cancel() {
+        self.close();
+    }
+    function confirm() {
+        var _EventName = String($("#EventName").val());
+        var _Line = String($("#Line").val());
+
+        if (_EventName == "" || _Line == "") {
+            alert("请填写完整项目再提交");
+            return false;
+        }
+
+        var ResultArr = new Array();
+        ResultArr[0] = _EventName;
+        ResultArr[1] = _Line;
+        window.returnValue = ResultArr;
+        window.close();
+    }
+    function BindEvent() {
+
+        $("#EventName").html("");
+
+        $("#EventName").append("<option value=''>==请选择==</option>");
+        AjaxJson("/FYModule/Plan/EventJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#EventName").append($("<option></option>").val(DataJson[i].ProcessName).html(DataJson[i].ProcessName));
+            });
+        })
+
+        $("#Line").html("");
+
+        $("#Line").append("<option value=''>==请选择==</option>");
+        AjaxJson("/FYModule/Plan/LineJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#Line").append($("<option></option>").val(DataJson[i].LineName).html(DataJson[i].LineName));
+            });
+        })
+
+        $("#Line").val('@ViewData["Line"]');
+        $("#EventName").val('@ViewData["post"]')
+
+        //$("#ResponseBy").html("");
+
+        //$("#ResponseBy").append("<option value=''>==请选择==</option>");
+        //AjaxJson("/FYModule/Plan/ResponseJson", {}, function (DataJson) {
+        //    $.each(DataJson, function (i) {
+        //        $("#ResponseBy").append($("<option></option>").val(DataJson[i].UserId).html(DataJson[i].RealName));
+        //    });
+        //})
+    }
+
+    //$(document).ready(function () {
+    //    BindEvent();
+    //})
+    window.onload = BindEvent();
+</script>

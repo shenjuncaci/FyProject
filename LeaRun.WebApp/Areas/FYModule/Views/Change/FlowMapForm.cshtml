@@ -1,0 +1,89 @@
+﻿@{
+    ViewBag.Title = "FlowMapForm";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+
+
+@if (ViewData["ChangeState"].ToString() == "项目主管退回")
+{
+    <a class="button button-glow button-rounded button-raised button-small">发起人提交</a>    <a>--></a>
+}
+else
+{
+    <a class="button button-glow button-border button-rounded button-small">发起人提交</a>    <a>--></a>
+}
+
+@if (ViewData["ChangeState"].ToString() == "等待项目主管评审")
+{
+    <a class="button button-glow button-rounded button-raised button-small">项目主管审批</a>    <a>--></a>
+}
+else
+{
+    <a class="button button-glow button-border button-rounded button-small">项目主管审批</a>    <a>--></a>
+}
+@if (ViewData["ChangeState"].ToString() == "等待评审" || ViewData["ChangeState"].ToString() == "评审完成")
+{
+    <a class="button button-glow button-rounded button-raised button-small">评审人评审</a>    <a>--></a>
+}
+else
+{
+    <a class="button button-glow button-border button-rounded button-small">评审人评审</a>    <a>--></a>
+}
+@if (ViewData["ChangeState"].ToString() == "总经理审批通过" || ViewData["ChangeState"].ToString() == "总经理回退" || ViewData["ChangeState"].ToString() == "等待总经理批准")
+{
+    <a class="button button-glow button-rounded button-raised button-small">总经理审批</a>    <a>--></a>
+}
+else
+{
+    <a class="button button-glow button-border button-rounded button-small">总经理审批</a>    <a>--></a>
+}
+@if (ViewData["ChangeState"].ToString() == "等待库存确认")
+{
+    <a class="button button-glow button-rounded button-raised button-small">断点库存确认</a>    <a>--></a>
+}
+else
+{
+    <a class="button button-glow button-border button-rounded button-small">断点库存确认</a>    <a>--></a>
+}
+@if (ViewData["ChangeState"].ToString() == "等待财务确认" || ViewData["ChangeState"].ToString() == "财务确认完成")
+{
+    <a class="button button-glow button-rounded button-raised button-small">财务确认</a>    <a>--></a>
+}
+else
+{
+    <a class="button button-glow button-border button-rounded button-small">财务确认</a>    <a>--></a>
+}
+@if (ViewData["CreateState"].ToString() == "等待发起人填写意见")
+{
+    <a class="button button-glow button-rounded button-raised button-small">断点发起人填写意见</a>    <a>--></a>
+}
+else
+{
+    <a class="button button-glow button-border button-rounded button-small">断点发起人填写意见</a>    <a>--></a>
+}
+@if (ViewData["CreateState"].ToString() == "等待部门负责人审核")
+{
+    <a class="button button-glow button-rounded button-raised button-small">等待部门负责人审批断点</a>    <a>--></a>
+}
+else
+{
+    <a class="button button-glow button-border button-rounded button-small">等待部门负责人审批断点</a>    <a>--></a>
+}
+@if (ViewData["CreateState"].ToString() == "部门负责人审核通过" && ViewData["ChangeState"].ToString() == "等待总经理批准")
+{
+    <a class="button button-glow button-rounded button-raised button-small">总经理审批断点</a>    <a>--></a>
+}
+else
+{
+    <a class="button button-glow button-border button-rounded button-small">总经理审批断点</a>    <a>--></a>
+}
+@if (ViewData["ChangeState"].ToString() == "已完成")
+{
+    <a class="button button-glow button-rounded button-raised button-small">已完成</a>
+}
+else
+{
+    <a class="button button-glow button-border button-rounded button-small">已完成</a>
+}
+

@@ -1,0 +1,190 @@
+﻿@{
+    ViewBag.Title = "用户组管理》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script src="~/Content/Scripts/jquery.time/jquery-clock-timepicker.js"></script>
+
+<script type="text/javascript">
+    $(function () {
+        BindDropData();
+        BindTime();
+        InitControl();
+        
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            getAjax("/CommonModule/GroupUser/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                var data = eval("(" + data + ")");
+                SetWebControls(data);
+            });
+        } else {
+            //显示顺序
+            AjaxJson("/CommonModule/GroupUser/SortCode", {}, function (Data) {
+                $("#SortCode").val(Data);
+                $("#Code").val(Data);
+            })
+            $("#CompanyId").val(GetQuery('CompanyId'));
+            $("#DepartmentId").val(GetQuery('DepartmentId'));
+            $("#DepartmentName").val(GetQuery('DepartmentName'));
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false; 
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            AjaxJson("/CommonModule/GroupUser/SubmitFormNew?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+
+    //绑定下拉框
+    function BindDropData()
+    {
+        $("#GroupLeader").html("");
+        $("#GroupLeader").append("<option value=''>==请选择==</option>");
+        AjaxJson("/FYModule/Plan/ResponseJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#GroupLeader").append($("<option></option>").val(DataJson[i].UserId).html(DataJson[i].RealName));
+            });
+        })
+    }
+
+    //绑定时间控件
+    function BindTime()
+    {
+        $('#StartTime').clockTimePicker({});
+        $('#EndTime').clockTimePicker({});
+    }
+
+    //修改班组以后自动绑定颜色数据
+    function BindColor()
+    {
+        var GroupName = $('#FullName').val();
+        //alert(GroupName);
+        if (GroupName == "早班")
+        {
+            //alert("A班数据");
+            $('#BackColor').val('#36648B');
+        }
+        else if (GroupName == "中班")
+        {
+           
+            $('#BackColor').val('#388E8E');
+        }
+        else
+        {
+            
+            $('#BackColor').val('#8B2252');
+        }
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr style="display:none">
+            <th class="formTitle">组编码*</font>：
+            </th>
+            <td class="formValue">
+                <input id="CompanyId" type="hidden" />
+                <input id="DepartmentId" type="hidden" />
+                <input id="Code" onblur="FieldExist(this.id,'Base_GroupUser','PostId','组编码')" type="text" class="txt required" datacol="yes" err="组编码" checkexpession="NotNull" />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">用户组：
+            </th>
+            <td class="formValue">
+                @*<input id="FullName" type="text" class="txt required" datacol="yes" err="部门名称" checkexpession="NotNull" />*@
+                <select id="FullName" class="txtselect" onchange="BindColor()">
+                    <option value="早班">早班</option>
+                    <option value="中班">中班</option>
+                    <option value="夜班">夜班</option>
+
+                </select>
+            </td>
+            
+        </tr>
+        <tr style="display:none">
+            <th class="formTitle">显示顺序：</th>
+            <td class="formValue">
+                <input id="SortCode" type="text" onkeyup="IsNumber(this.id)" class="txt required" datacol="yes" err="显示顺序" checkexpession="Num" />
+            </td>
+        </tr>
+        <tr style="display:none">
+            <th class="formTitle">选项：</th>
+            <td class="formValue">
+                <span class="item">
+                    <input type="checkbox" name="checkbox" checked="checked" id="Enabled" />
+                    <label for="Enabled">有效</label>
+                </span>
+            </td>
+        </tr>
+        <tr style="display:none">
+            <th class="formTitle">描述：
+            </th>
+            <td class="formValue">
+                <textarea id="Remark" name="Description" maxlength="200" class="txtArea"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">
+                班次开始时间：
+            </th>
+            <td class="formValue">
+                <input id="StartTime" type="text" class="txt required" datacol="yes" err="开始时间" checkexpession="NotNull" />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">
+                班次结束时间：
+            </th>
+            <td class="formValue">
+                <input id="EndTime" type="text" class="txt required" datacol="yes" err="结束时间" checkexpession="NotNull" />
+            </td>
+        </tr>
+        <tr style="display:none">
+            <th class="formTitle">
+                班长：
+            </th>
+            <td class="formValue">
+
+                <select id="GroupLeader" class="txtselect"> </select>
+            </td>
+        </tr>
+        <tr style="display:none">
+            <th class="formTitle">
+                班次：
+            </th>
+            <td class="formValue">
+
+                <select id="Duty" class="txtselect">
+                    <option value="夜班">夜班</option>
+                    <option value="白班">白班</option>
+                </select>
+            </td>
+        </tr>
+
+        <tr style="display:none">
+            <th class="formTitle">
+                背景颜色：
+            </th>
+            <td class="formValue">
+                
+                <select id="BackColor" class="txtselect">
+                    <option value="#36648B">#36648B</option>
+                    <option value="#388E8E">#388E8E</option>
+                    <option value="#8B2252">#8B2252</option>
+                   
+                </select>
+            </td>
+        </tr>
+    </table>
+</form>

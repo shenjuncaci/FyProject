@@ -1,0 +1,452 @@
+﻿@{
+    ViewBag.Title = "工序明细";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+    string UserName = ViewData["UserName"] as string;
+}
+
+<link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
+<script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery.xlsx/xlsx.full.min.js"></script>
+
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
+
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+
+    input {
+        background: #E0FFFF;
+    }
+
+    textarea {
+        background: #E0FFFF;
+    }
+
+    select {
+        background: #E0FFFF;
+    }
+</style>
+
+
+<script type="text/javascript">
+    //$(document).ready(function () {
+
+    //    uploadify();
+    //});
+    $(function () {
+       
+        InitControl();
+        //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
+        //BindResponseBy();
+
+
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQueryNew('KeyValue')) {
+            AjaxJson("/TrainModule/CustomExam/SetForm", { KeyValue: GetQueryNew('KeyValue') }, function (data) {
+                SetWebControls(data);
+
+            });
+
+            AjaxJson("/TrainModule/CustomExam/SetExamUser", { KeyValue: GetQueryNew('KeyValue') }, function (data) {
+                $("#ExamUser").val(data.Content);
+
+            });
+
+            AjaxJson("/TrainModule/CustomExam/SetExamSkill", { KeyValue: GetQueryNew('KeyValue') }, function (data) {
+                $("#SkillList").val(data.Content);
+
+            });
+
+            var rowindex = 1;
+            //题目信息
+            AjaxJson("/TrainModule/CustomExam/GetDetailList", { KeyValue: GetQueryNew('KeyValue') }, function (data) {
+                var JsonData = data.rows;
+                //var colorState = "";
+                $.each(JsonData, function (i) {
+
+                    addone(rowindex);
+                    var rowData = JsonData[i];
+                    //alert(rowData.FllowStatus);
+                    //alert(rowData.ReviewDepart);ChangeReviewState
+                    $("#CustomExamChoiceID➩" + rowindex).val(rowData.CustomExamChoiceID);
+                    $("#QuestionType➩" + rowindex).val(rowData.QuestionType);
+                    $("#QuestionDescripe➩" + rowindex).val(rowData.QuestionDescripe);
+                    $("#Option1➩" + rowindex).val(rowData.Option1);
+                    $("#Option2➩" + rowindex).val(rowData.Option2);
+                    $("#Option3➩" + rowindex).val(rowData.Option3);
+                    $("#Option4➩" + rowindex).val(rowData.Option4);
+
+
+                    $("#Answer➩" + rowindex).val(rowData.Answer);
+                    $("#SortNO➩" + rowindex).val(rowData.SortNO);
+                    
+                    //$("#RelationDID➩" + rowindex).val(rowData.RelationDID);
+
+
+                    rowindex++;
+
+                });
+            });
+            //SkillList
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        $("#filePath").remove();
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        var DetailForm = GetTableDataJson("#DetailForm");
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            postData["DetailForm"] = DetailForm;
+            AjaxJson("/TrainModule/CustomExam/SubmitForm?KeyValue=" + GetQueryNew('KeyValue'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+
+    ////绑定数据
+    //function BindData() {
+
+    //    $("#CustomExamType").html("");
+
+    //    $("#CustomExamType").append("<option value=''>==请选择==</option>");
+    //    AjaxJson("/TrainModule/Post/TypeJson", {}, function (DataJson) {
+    //        $.each(DataJson, function (i) {
+    //            $("#CustomExamType").append($("<option></option>").val(DataJson[i].Code).html(DataJson[i].FullName));
+    //        });
+    //    });
+    //}
+
+
+    function AddExamUser()
+    {
+        var obj = new Array();
+        var reValue = window.showModalDialog('AddExamUser?CustomExamID=' + GetQueryNew('KeyValue'), obj, 'dialogWidth=800px;dialogHeight=400px;');
+    }
+
+    function AddExamSkill()
+    {
+        var obj = new Array();
+        var reValue = window.showModalDialog('AddExamSkill?CustomExamID=' + GetQueryNew('KeyValue'), obj, 'dialogWidth=800px;dialogHeight=400px;');
+    }
+
+
+    function addone(i) {
+        //alert(i);
+        var tab = document.getElementById('DetailForm');
+        var rowIndex = tab.rows.length + 1;
+        if (i == 999) {
+            //999表示是新增，-3表示减去3行标题
+            i = rowIndex - 2;
+        }
+        //添加一行;
+        var tr = tab.insertRow();
+        //tr.onmouseover = tr.className = "displayStyle";
+        //tr.onmouseout = tr.className = "hideStyle";
+        //tr.onclick = function () { this.className = "onClickChangeStyle(this)"; }
+
+        var td1 = tr.insertCell();
+        var td2 = tr.insertCell();
+        var td3 = tr.insertCell();
+        var td4 = tr.insertCell();
+        var td5 = tr.insertCell();
+        var td6 = tr.insertCell();
+        var td7 = tr.insertCell();
+        var td8 = tr.insertCell();
+
+        td1.innerHTML = "<input readonly  id=\"SortNO➩" + i + "\" class=\"txt\" style=\"width:95%\">";
+        td2.innerHTML = "<input  id=\"QuestionDescripe➩" + i + "\" class=\"txt\" style=\"width:95%\">";
+        td3.innerHTML = "<input  id=\"QuestionType➩" + i + "\" class=\"txt\" style=\"width:95%\">";
+        td4.innerHTML = "<input  id=\"Option1➩" + i + "\" class=\"txt\" style=\"width:95%\">";
+        td5.innerHTML = "<input  id=\"Option2➩" + i + "\" class=\"txt\" style=\"width:95%\">";
+        td6.innerHTML = "<input  id=\"Option3➩" + i + "\" class=\"txt\" style=\"width:95%\">";
+        td7.innerHTML = "<input  id=\"Option4➩" + i + "\" class=\"txt\" style=\"width:95%\">";
+        td8.innerHTML = "<input  id=\"Answer➩" + i + "\" class=\"txt\" style=\"width:95%\"><input  id=\"CustomExamChoiceID➩" + i + "\" class=\"txt\" hidden>";
+
+        //初始化行;
+        //initRows(tab);
+    }
+
+    //从excel导入,纯前端js读取数据，赋值到明细表
+    function ImportExcel() {
+        //1.删除所有行
+        //var tb = document.getElementById('DetailForm');
+        //var rowNum = tb.rows.length;
+        //for (i = 2; i < rowNum; i++) {
+        //    tb.deleteRow(i);
+        //    rowNum = rowNum - 1;
+        //    i = i - 1;
+        //}
+
+
+
+        var files = $('input[name="filePath"]').prop('files');//获取到文件列表
+
+        var fileReader = new FileReader();
+        fileReader.onload = function (ev) {
+            try {
+                var data = ev.target.result,
+                    workbook = XLSX.read(data, {
+                        type: 'binary'
+                    }), // 以二进制流方式读取得到整份excel表格对象
+                    persons = []; // 存储获取到的数据
+            } catch (e) {
+                console.log('文件类型不正确');
+                return;
+            }
+
+            // 表格的表格范围，可用于判断表头是否数量是否正确
+            var fromTo = '';
+            // 遍历每张表读取
+            for (var sheet in workbook.Sheets) {
+                if (workbook.Sheets.hasOwnProperty(sheet)) {
+                    fromTo = workbook.Sheets[sheet]['!ref'];
+                    //excel中有数据的范围
+                    //console.log(fromTo);
+                    persons = persons.concat(XLSX.utils.sheet_to_json(workbook.Sheets[sheet]));
+                    // break; // 如果只取第一张表，就取消注释这行
+                }
+            }
+            var tab = document.getElementById('DetailForm');
+            var rowIndex = tab.rows.length + 1;
+            //if (i == 999) {
+            //    //999表示是新增，-3表示减去3行标题
+            //    i = rowIndex - 2;
+            //}
+            //console.log(persons);
+            var errorNum = 0;
+            for (var i = 0; i < persons.length; i++) {
+                if (persons[i].问题类型 == "单选题")
+                {
+                    if (persons[i].正确答案 != "A" && persons[i].正确答案 != "B" && persons[i].正确答案 != "C" && persons[i].正确答案 != "D")
+                    {
+                        errorNum = i + 2;
+                        alert("第" + errorNum+"行，单选题的答案格式错误");
+                        return false;
+                    }
+
+                }
+                else if (persons[i].问题类型 == "多选题")
+                {
+                    errorNum = i + 2;
+                    if (persons[i].正确答案 != "A" && persons[i].正确答案 != "B" && persons[i].正确答案 != "C" && persons[i].正确答案 != "D" && persons[i].正确答案 != "AB" && persons[i].正确答案 != "AC" && persons[i].正确答案 != "AD" && persons[i].正确答案 != "BC" && persons[i].正确答案 != "BD" && persons[i].正确答案 != "ABC" && persons[i].正确答案 != "ABD" && persons[i].正确答案 != "BCD" && persons[i].正确答案 != "ABCD" && persons[i].正确答案 != "CD" && persons[i].正确答案 != "ACD") {
+                        alert("第" + errorNum + "行，多选题的答案格式错误");
+                        return false;
+                    }
+                }
+                else
+                {
+                    errorNum = i + 2;
+                    alert("第" + errorNum + "行，问题类型格式错误");
+                    return false;
+                }
+                tab = document.getElementById('DetailForm');
+                rowIndex = tab.rows.length + 1;
+                j = rowIndex - 2;
+                addone(j);
+                // alert(persons[i].费用1);
+                //$("#TrueMaterialNO➩" + i).val(persons[i].物料编码);
+                //$("#InstallType➩" + i).val(persons[i].附件安装类型);
+                //$("#AttachNum➩" + i).val(persons[i].附件数量);
+
+
+                //$("#AttachCost➩" + i).val(persons[i].单个附件成本);
+                //$("#PlanCost➩" + i).val(persons[i].测算附件费用);
+                //$("#SortNO➩" + i).val(i);
+                //$("#CustomExamChoiceID➩" + rowindex).val(rowData.CustomExamChoiceID);
+                $("#QuestionDescripe➩" + j).val(persons[i].题目);
+                $("#QuestionType➩" + j).val(persons[i].问题类型);
+                $("#Option1➩" + j).val(persons[i].A);
+                $("#Option2➩" + j).val(persons[i].B);
+                $("#Option3➩" + j).val(persons[i].C);
+                $("#Option4➩" + j).val(persons[i].D);
+
+
+                $("#Answer➩" + j).val(persons[i].正确答案);
+                $("#SortNO➩" + j).val(i+1);
+            }
+
+            //console.log(persons);
+
+            //var headStr = '费用1,费用2,费用3,费用4,费用5';
+            //for (var i = 0; i < persons.length; i++) {
+            //    if (Object.keys(persons[i]).join(',') !== headStr) {
+            //        persons.splice(i, 1);
+            //    }
+            //}
+
+            //console.log(persons);
+        };
+
+        // 以二进制方式打开文件
+        fileReader.readAsBinaryString(files[0]);
+
+
+    }
+</script>
+
+
+<form id="form1">
+    <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">基本信息</div>
+
+
+            </div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+        <!--基本信息-->
+        <div id="basic" class="tabPanel">
+            <table class="form">
+
+                <tr>
+                    <th class="formTitle">考试名称：</th>
+                    <td class="formValue">
+                        @*<input id="PostName" type="text" class="txt" />*@
+                        <input id="CustomeExamName" type="text" class="txt" datacol="yes" err="考试名称" checkexpession="NotNull" />
+                    </td>
+                    <th class="formTitle">题目数量</th>
+                    <td class="formValue">
+                        <input id="ChoiceQuestion" type="text" class="txt" datacol="yes" err="选择题数量" checkexpession="NumOrNull" onfocus="IsNumber(this.id)" />
+                    </td>
+                </tr>
+                @*<tr>
+                    <th class="formTitle">判断题数量：</th>
+                    <td class="formValue">
+                        <input id="JudgmentQuestion" type="text" class="txt" datacol="yes" err="判断题数量" checkexpession="NumOrNull" onfocus="IsNumber(this.id)" />
+                    </td>
+                    <th class="formTitle">选择题数量</th>
+                    <td class="formValue">
+                        <input id="ChoiceQuestion" type="text" class="txt" datacol="yes" err="选择题数量" checkexpession="NumOrNull" onfocus="IsNumber(this.id)" />
+                    </td>
+                </tr>*@
+                <tr>
+                    <th class="formTitle">考试时间(min)</th>
+                    <td class="formValue">
+                        <input id="ExamMinutes" type="text" class="txt" datacol="yes" err="考试时间" checkexpession="NumOrNull" onfocus="IsNumber(this.id)" />
+                    </td>
+                    <th class="formTitle"></th>
+                    <td class="formValue"></td>
+
+                </tr>
+                <tr style="display:none">
+                    <th class="formTitle">开始时间：</th>
+                    <td class="formValue">
+                        <input id="StartTime" type="text" class="txt Wdate" onfocus="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm:ss' })" style="background:#E0FFFF" />
+                    </td>
+                    <th class="formTitle">结束时间</th>
+                    
+                    <td class="formValue">
+                        <input id="EndTime" type="text" class="txt Wdate" onfocus="WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm:ss' })" style="background:#E0FFFF" />
+                    </td>
+                </tr>
+                <tr style="display:none">
+                    <th class="formTitle">参考人员</th>
+                    <td class="formValue" colspan="2">
+                        <input readonly id="ExamUser" type="text" class="txt"/>
+                    </td>
+                    <td class="formValue"><button class="button button-primary button-circle button-tiny" onclick="AddExamUser()">+</button></td>
+                </tr>
+                @*<tr>
+                    <th class="formTitle">包括技能</th>
+                    <td class="formValue" colspan="2">
+                        <input readonly id="SkillList" type="text" class="txt" />
+                    </td>
+                    <td class="formValue"><button class="button button-primary button-circle button-tiny" onclick="AddExamSkill()">+</button></td>
+                </tr>*@
+
+            </table>
+
+           
+        </div>
+        <div id="Detail" class="tabPanel">
+            <div style="text-align:right">
+                <table>
+                    <tr>
+                        <td style="width:10%">
+                            <a href="../../../../Template/问题导入模板.xlsx" download="模板下载" \>模板下载</a>
+                        </td>
+                        <td style="width:89%"></td>
+                        <td style="width:1%">
+            <a class="button button-caution button-square button-small" onclick="addone(999)">添加</a>
+                            </td>
+                       
+                        </tr>
+                    </table>
+                <table>
+                    <tr>
+                        <th style="width: 60px;">
+                            导入文件：
+                        </th>
+                        <td>
+                            <input type="file" id="filePath" class="keyword" style="width: 494px; border-radius: 0px;" name="filePath" />
+                        </td>
+                        <td>
+                            <input type="button" class="btnSearch" value="导入" onclick="ImportExcel()" />
+                        </td>
+                    </tr>
+                </table>
+                </div>
+            <table id="DetailForm" class="form-bill">
+                <tr><td colspan="3"><strong>题目数据</strong></td></tr>
+                <tr>
+                    @*<th style="width:5%;display:none">题目ID</th>*@
+                    <th style="width:5%">序号</th>
+                    <th style="width:35%">题目</th>
+                    <th style="width:10%">题目类型</th>
+                    <th style="width:10%">A</th>
+                    <th style="width:10%">B</th>
+                    <th style="width:10%">C</th>
+                    <th style="width:10%">D</th>
+                    <th style="width:5%">正确答案</th>
+                </tr>
+            </table>
+        </div>
+
+
+    </div>
+
+</form>

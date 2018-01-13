@@ -1,0 +1,715 @@
+﻿@{
+    ViewBag.Title = "岗位验证信息";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<style>
+    .ui-jqgrid tr.jqgrow td {
+        white-space: normal !important;
+        height: auto;
+        vertical-align: text-top;
+        padding-top: 2px;
+    }
+</style>
+<script type="text/javascript">
+    $(document).ready(function () {
+        BindData();
+        GetGrid();
+
+        //绑定键盘按下事件
+        $(document).keypress(function (e) {
+            //回车键事件
+            if (e.which == 13) {
+                $("#keywords").focus();
+                $("#keywords").select();
+                $("#btnSearch").click();
+            }
+        });
+    });
+
+    var CompanyId = "", DepartmentId = "", DepartmentName = "";
+
+
+    Date.prototype.pattern = function (fmt) {
+        var o = {
+            "M+": this.getMonth() + 1, //月份
+            "d+": this.getDate(), //日
+            "h+": this.getHours() % 12 == 0 ? 12 : this.getHours() % 12, //小时
+            "H+": this.getHours(), //小时
+            "m+": this.getMinutes(), //分
+            "s+": this.getSeconds(), //秒
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+            "S": this.getMilliseconds() //毫秒
+        };
+        var week = {
+            "0": "/u65e5",
+            "1": "/u4e00",
+            "2": "/u4e8c",
+            "3": "/u4e09",
+            "4": "/u56db",
+            "5": "/u4e94",
+            "6": "/u516d"
+        };
+        if (/(y+)/.test(fmt)) {
+            fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        }
+        if (/(E+)/.test(fmt)) {
+            fmt = fmt.replace(RegExp.$1, ((RegExp.$1.length > 1) ? (RegExp.$1.length > 2 ? "/u661f/u671f" : "/u5468") : "") + week[this.getDay() + ""]);
+        }
+        for (var k in o) {
+            if (new RegExp("(" + k + ")").test(fmt)) {
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+            }
+        }
+        return fmt;
+    }
+
+    //搜索
+    function btn_Search() {
+        var keywords = "";
+
+        var Status = $("#Status").val();
+        var SetReason = $("#SetReason").val();
+        if (CheckIsNull(Status)) {
+            keywords += " and Status='" + Status + "' ";
+        }
+        if (CheckIsNull(SetReason)) {
+            keywords += " and SetReason='" + SetReason + "' ";
+        }
+
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "@Url.Content("~/VPModule/VerifyPost/GridPageDetailListJson")?keywords=" + escape(keywords), page: 1
+        }).trigger('reloadGrid');
+    }
+
+
+    //加载表格
+    function GetGrid() {
+        var keywords = "";
+
+        var Status = $("#Status").val();
+        var SetReason = $("#SetReason").val();
+        if (CheckIsNullNoTip(Status))
+        {
+            keywords += " and Status='" + Status + "' ";
+        }
+        if (CheckIsNullNoTip(SetReason))
+        {
+            keywords += " and SetReason='" + SetReason + "' ";
+        }
+
+        var SelectRowIndx;
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/VPModule/VerifyPost/GridPageDetailListJson")?keywords=" + escape(keywords),
+            datatype: "json",
+            height: $(window).height() - 178,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'verifypostdid', index: 'verifypostdid', width: 80, align: 'left', hidden: true },
+                { label: '验证区域', name: 'fullname', index: 'fullname', width: 80, align: 'left' },
+                { label: '验证工位', name: 'setprocess', index: 'setprocess', width: 60, align: 'left' },
+                { label: '验证产品', name: 'verifyproduct', index: 'verifyproduct', width: 60, align: 'left' },
+                { label: '验证缺陷', name: 'verifydefect', index: 'verifydefect', width: 100, align: 'left'},
+                { label: '验证日期', name: 'verifydate', index: 'verifydate', width: 80, align: 'left', formatter: dateFormat },
+                { label: '缺陷数量', name: 'defectnumall', index: 'defectnumall', width: 50, align: 'left' },
+                { label: '检验数量', name: 'checknumall', index: 'trend', width: 50, align: 'left' },
+                { label: '不良率', name: 'defectrate', index: 'defectnum', width: 50, align: 'left', formatter: SpecialFormat },
+                { label: '00:00~04:00', name: 'defectnum1', index: 'defectnum1', width: 80, align: 'left', formatter: showdetail1 },
+                { label: '04:00~08:00', name: 'defectnum2', index: 'defectnum2', width: 80, align: 'left', formatter: showdetail2 },
+                { label: '08:00~12:00', name: 'defectnum3', index: 'defectnum3', width: 80, align: 'left', formatter: showdetail3 },
+                { label: '12:00~16:00', name: 'defectnum4', index: 'defectnum4', width: 80, align: 'left', formatter: showdetail4},
+                { label: '16:00~20:00', name: 'defectnum5', index: 'defectnum5', width: 80, align: 'left', formatter: showdetail5 },
+                { label: '20:00~24:00', name: 'defectnum6', index: 'defectnum6', width: 80, align: 'left', formatter: showdetail6 },
+                { label: '质保经理', name: 'qualityapprove', index: 'qualityapprove', width: 100, align: 'left', formatter: showdetailQA, hidden: true},
+                { label: '厂长', name: 'factorymanager', index: 'factorymanager', width: 50, align: 'left', formatter: showdetailFM },
+                { label: '车间主任', name: 'workshopmanager', index: 'workshopmanager', width: 50, align: 'left', formatter: showdetailWM },
+                { label: '班长', name: 'groupmanager', index: 'groupmanager', width: 50, align: 'left', formatter: showdetailGM },
+                { label: '状态1', name: 'status1', index: 'status1', width: 80, align: 'left', hidden: true },
+                { label: '状态2', name: 'status2', index: 'status2', width: 80, align: 'left', hidden: true },
+                { label: '状态3', name: 'status3', index: 'status3', width: 80, align: 'left', hidden: true },
+                { label: '状态4', name: 'status4', index: 'status4', width: 80, align: 'left', hidden: true },
+                { label: '状态5', name: 'status5', index: 'status5', width: 80, align: 'left', hidden: true },
+                { label: '状态6', name: 'status6', index: 'status6', width: 80, align: 'left', hidden: true },
+                { label: '质保次数', name: 'qacount', index: 'qacount', width: 80, align: 'left', hidden: true },
+                { label: '车间主任次数', name: 'wmcount', index: 'wmcount', width: 80, align: 'left', hidden: true },
+                { label: '厂长次数', name: 'fmcount', index: 'fmcount', width: 80, align: 'left', hidden: true },
+                { label: '班长次数', name: 'gmcount', index: 'gmcount', width: 80, align: 'left', hidden: true },
+                { label: 'checknum1', name: 'checknum1', index: 'checknum1', width: 80, align: 'left', hidden: true },
+                { label: 'checknum2', name: 'checknum2', index: 'checknum2', width: 80, align: 'left', hidden: true },
+                { label: 'checknum3', name: 'checknum3', index: 'checknum3', width: 80, align: 'left', hidden: true },
+                { label: 'checknum4', name: 'checknum4', index: 'checknum4', width: 80, align: 'left', hidden: true },
+                { label: 'checknum5', name: 'checknum5', index: 'checknum5', width: 80, align: 'left', hidden: true },
+                { label: 'checknum5', name: 'checknum5', index: 'checknum6', width: 80, align: 'left', hidden: true },
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 1000],
+            pager: "#gridPager",
+            sortname: 'verifydate',
+            sortorder: 'asc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            multiselect: false,
+            //cellattr: addCellAttr,
+
+            // useColSpanStyle:true,
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            },
+            gridComplete: function () {
+                //LoadViewList();
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            }
+
+
+        });
+        columnModelData("#gridTable");
+        //自应高度
+        $(window).resize(function () {
+            $("#gridTable").setGridHeight($(window).height() - 178);
+        });
+
+        $("#gridTable").jqGrid('setGroupHeaders', {
+            useColSpanStyle: false,
+            groupHeaders: [
+                { startColumnName: 'fullname', numberOfColumns: 8, titleText: '' },
+                { startColumnName: 'defectnum1', numberOfColumns: 6, titleText: '缺陷数量（分时段）' },
+                { startColumnName: 'qualityapprove', numberOfColumns: 4, titleText: '管理层评审' },
+
+
+            ]
+        })
+
+    }
+
+
+    //高级查询
+    var QueryParamJson = "";
+    function btn_query() {
+        QueryDialog("/Utility/QueryPage", "QueryPage", "查询过滤", 770, 395, function (iframe) {
+            top.frames[iframe].QueryClick(function (JsonData) {
+                QueryParamJson = JsonData;
+                $("#gridTable").jqGrid('setGridParam', {
+                    url: "@Url.Content("~/TrainModule/post/GridPageDetailListJson")?ParameterJson=" + escape(JsonData), page: 1
+                }).trigger('reloadGrid');
+            });
+        });
+    }
+
+    //新增
+    function btn_add() {
+        var url = "/VPModule/VerifyPost/Form"
+        openDialog(url, "Form", "新增", 650, 350, function (iframe) {
+            top.frames[iframe].AcceptClick();
+        });
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "verifypostid");
+        if (IsChecked(KeyValue)) {
+            var url = "/VPModule/VerifyPost/Form?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑", 650, 350, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+
+        }
+    }
+
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "verifypostid");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/VPModule/VerifyPost/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+
+
+
+
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+    }
+
+
+    //特定单元格添加超链接，可以实现附件下载，后台要把地址传过来
+    function HyperLink() {
+        var data = $("#gridTable").jqGrid("getRowData");
+        for (var i = 0; i < data.length; i++) {
+            data[i].res_ms;
+        }
+    }
+    function showdetail(cellvalue, options, rowObject) {
+        return "<a href=\"#\" onclick=\"showtend('" + rowObject.verifypostdid + "','00:00-04:00','" + rowObject.verifydate + "')\">" + cellvalue + "</a>";
+    }
+
+    function showdetail1(cellvalue, options, rowObject)
+    {
+        if (rowObject.status1 == "未生产")
+        {
+            cellvalue = "未生产";
+        }
+        else
+        {
+            var NowDate = new Date();
+            NowDate.toLocaleDateString();
+            gridDate = new Date(Date.parse(rowObject.verifydate));
+            if (NowDate.pattern("yyyy-MM-dd") > gridDate.pattern("yyyy-MM-dd")) {
+                if (Number(rowObject.checknum1) == 0)
+                {
+                    cellvalue = "未录入";
+                }
+            }
+        }
+        return "<a href=\"#\" onclick=\"showtend('" + rowObject.verifypostdid + "','00:00-04:00','" + rowObject.verifydate + "')\">" + cellvalue + "</a>";
+    }
+    function showdetail2(cellvalue, options, rowObject) {
+        if (rowObject.status2 == "未生产") {
+            cellvalue = "未生产";
+        }
+        else {
+            var NowDate = new Date();
+            NowDate.toLocaleDateString();
+            gridDate = new Date(Date.parse(rowObject.verifydate));
+            if (NowDate.pattern("yyyy-MM-dd") > gridDate.pattern("yyyy-MM-dd")) {
+                if (Number(rowObject.checknum2) == 0) {
+                    cellvalue = "未录入";
+                }
+            }
+        }
+        return "<a href=\"#\" onclick=\"showtend('" + rowObject.verifypostdid + "','04:00-08:00','" + rowObject.verifydate + "')\">" + cellvalue + "</a>";
+    }
+    function showdetail3(cellvalue, options, rowObject) {
+        if (rowObject.status3 == "未生产") {
+            cellvalue = "未生产";
+        }
+        else {
+            var NowDate = new Date();
+            NowDate.toLocaleDateString();
+            gridDate = new Date(Date.parse(rowObject.verifydate));
+            if (NowDate.pattern("yyyy-MM-dd") > gridDate.pattern("yyyy-MM-dd")) {
+                if (Number(rowObject.checknum3) == 0) {
+                    cellvalue = "未录入";
+                }
+            }
+        }
+        return "<a href=\"#\" onclick=\"showtend('" + rowObject.verifypostdid + "','08:00-12:00','" + rowObject.verifydate + "')\">" + cellvalue + "</a>";
+    }
+    function showdetail4(cellvalue, options, rowObject) {
+        if (rowObject.status4 == "未生产") {
+            cellvalue = "未生产";
+        }
+        else {
+            var NowDate = new Date();
+            NowDate.toLocaleDateString();
+            gridDate = new Date(Date.parse(rowObject.verifydate));
+            if (NowDate.pattern("yyyy-MM-dd") > gridDate.pattern("yyyy-MM-dd")) {
+
+                if (Number(rowObject.checknum4) == 0) {
+                    cellvalue = "未录入";
+                }
+            }
+        }
+        return "<a href=\"#\" onclick=\"showtend('" + rowObject.verifypostdid + "','12:00-16:00','" + rowObject.verifydate + "')\">" + cellvalue + "</a>";
+    }
+    function showdetail5(cellvalue, options, rowObject) {
+        if (rowObject.status5 == "未生产") {
+            cellvalue = "未生产";
+        }
+        else {
+            var NowDate = new Date();
+            NowDate.toLocaleDateString();
+            gridDate = new Date(Date.parse(rowObject.verifydate));
+            if (NowDate.pattern("yyyy-MM-dd") > gridDate.pattern("yyyy-MM-dd")) {
+                if (Number(rowObject.checknum5) == 0) {
+                    cellvalue = "未录入";
+                }
+            }
+        }
+        return "<a href=\"#\" onclick=\"showtend('" + rowObject.verifypostdid + "','16:00-20:00','" + rowObject.verifydate + "')\">" + cellvalue + "</a>";
+    }
+    function showdetail6(cellvalue, options, rowObject) {
+        if (rowObject.status6 == "未生产") {
+            cellvalue = "未生产";
+        }
+        else {
+            var NowDate = new Date();
+            NowDate.toLocaleDateString();
+            gridDate = new Date(Date.parse(rowObject.verifydate));
+            if (NowDate.pattern("yyyy-MM-dd") > gridDate.pattern("yyyy-MM-dd")) {
+                if (Number(rowObject.checknum6) == 0) {
+                    cellvalue = "未录入";
+                }
+            }
+        }
+        return "<a href=\"#\" onclick=\"showtend('" + rowObject.verifypostdid + "','20:00-24:00','" + rowObject.verifydate + "')\">" + cellvalue + "</a>";
+    }
+    function showaudit(verifypostdid, tag,verifydate)
+    {
+        
+
+
+        var NowDate = new Date();
+        NowDate.toLocaleDateString();
+        gridDate = new Date(Date.parse(verifydate));
+        if (NowDate.pattern("yyyy-MM-dd") < gridDate.pattern("yyyy-MM-dd")) {
+            alert("还没到时间的数据不能操作");
+            return false;
+        }
+
+        //首先验证登录账号，看下是否可以操作
+        var obj = new Array();
+        var reValue = window.showModalDialog('loginform?Type=' + tag, obj, 'dialogWidth=400px;dialogHeight=200px;');
+        if (reValue != "1")
+        {
+            alert("身份验证失败");
+            return false;
+        }
+
+        if (confirm("是否确认今天生产")) {
+
+            if (IsChecked(verifypostdid)) {
+                var url = "/VPModule/VerifyPost/AuditForm?KeyValue=" + verifypostdid + "&Type=" + tag;
+                Dialog(url, "Form", "编辑", 350, 650);
+            }
+        }
+        else
+        {
+            $.ajax({
+                type: "post",
+                url: "/VPModule/VerifyPost/AuditIsProduce",
+                data: {
+                    VerifyPostDID: verifypostdid,
+                    Type: tag
+                },
+                async: false,
+                success: function (msg) {
+                    if (msg > 0) {
+                        windowload();
+                    }
+                    else
+                    {
+                        alert("更新错误，请联系管理员");
+                        return false;
+                    }
+                },
+                error: function () {
+                    alert("出错了");
+                }
+            });
+           
+        }
+    }
+
+    function showaudit1(verifypostdid, tag) {
+
+
+            if (IsChecked(verifypostdid)) {
+                var url = "/VPModule/VerifyPost/AuditForm?KeyValue=" + verifypostdid + "&Type=" + tag;
+                Dialog(url, "Form", "编辑", 350, 650);
+            }
+
+    }
+    function showdetailQA(cellvalue, options, rowObject)
+    {
+        if (cellvalue == "未生产")
+        {
+            return cellvalue;
+        }
+        else if (Number(rowObject.qacount)>0)
+        {
+            return "<a href=\"#\" onclick=\"showaudit1('" + rowObject.verifypostdid + "','QA')\">已完成</a>";
+        }
+        else
+        {
+            return "<a href=\"#\" onclick=\"showaudit('" + rowObject.verifypostdid + "','QA','" + rowObject.verifydate + "')\">未完成</a>";
+
+
+        }
+    }
+    function showdetailFM(cellvalue, options, rowObject) {
+        if (cellvalue == "未生产") {
+            return cellvalue;
+        }
+        else if (Number(rowObject.fmcount) > 0) {
+            return "<a href=\"#\" onclick=\"showaudit1('" + rowObject.verifypostdid + "','FM')\">已完成</a>";
+        }
+        else {
+            var NowDate = new Date();
+            NowDate.toLocaleDateString();
+            gridDate = new Date(Date.parse(rowObject.verifydate));
+            if (NowDate.pattern("yyyy-MM-dd") < gridDate.pattern("yyyy-MM-dd")) {
+
+                return "";
+            }
+
+            return "<a href=\"#\" onclick=\"showaudit('" + rowObject.verifypostdid + "','FM','" + rowObject.verifydate + "')\">未完成</a>";
+
+
+        }
+    }
+    function showdetailWM(cellvalue, options, rowObject) {
+        if (cellvalue == "未生产") {
+            return cellvalue;
+        }
+        else if (Number(rowObject.wmcount) > 0) {
+            return "<a href=\"#\" onclick=\"showaudit1('" + rowObject.verifypostdid + "','WM')\">已完成</a>";
+        }
+        else {
+            var NowDate = new Date();
+            NowDate.toLocaleDateString();
+            gridDate = new Date(Date.parse(rowObject.verifydate));
+            if (NowDate.pattern("yyyy-MM-dd") < gridDate.pattern("yyyy-MM-dd")) {
+
+                return "";
+            }
+            return "<a href=\"#\" onclick=\"showaudit('" + rowObject.verifypostdid + "','WM','" + rowObject.verifydate + "')\">未完成</a>";
+
+
+        }
+    }
+    function showdetailGM(cellvalue, options, rowObject) {
+        if (cellvalue == "未生产") {
+            return cellvalue;
+        }
+        else if (Number(rowObject.gmcount) > 0) {
+            return "<a href=\"#\" onclick=\"showaudit1('" + rowObject.verifypostdid + "','GM')\">已完成</a>";
+        }
+        else {
+            var NowDate = new Date();
+            NowDate.toLocaleDateString();
+            gridDate = new Date(Date.parse(rowObject.verifydate));
+            if (NowDate.pattern("yyyy-MM-dd") < gridDate.pattern("yyyy-MM-dd")) {
+
+                return "";
+            }
+            return "<a href=\"#\" onclick=\"showaudit('" + rowObject.verifypostdid + "','GM','" + rowObject.verifydate + "')\">未完成</a>";
+        }
+    }
+
+
+    // 对Date的扩展，将 Date 转化为指定格式的String
+    // 月(M)、日(d)、小时(h)、分(m)、秒(s)、季度(q) 可以用 1-2 个占位符，
+    // 年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字)
+    // 例子：
+    // (new Date()).Format("yyyy-MM-dd hh:mm:ss.S") ==> 2006-07-02 08:09:04.423
+    // (new Date()).Format("yyyy-M-d h:m:s.S")      ==> 2006-7-2 8:9:4.18
+    Date.prototype.pattern = function (fmt) {
+        var o = {
+            "M+": this.getMonth() + 1, //月份
+            "d+": this.getDate(), //日
+            "h+": this.getHours() % 12 == 0 ? 12 : this.getHours() % 12, //小时
+            "H+": this.getHours(), //小时
+            "m+": this.getMinutes(), //分
+            "s+": this.getSeconds(), //秒
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+            "S": this.getMilliseconds() //毫秒
+        };
+        var week = {
+            "0": "/u65e5",
+            "1": "/u4e00",
+            "2": "/u4e8c",
+            "3": "/u4e09",
+            "4": "/u56db",
+            "5": "/u4e94",
+            "6": "/u516d"
+        };
+        if (/(y+)/.test(fmt)) {
+            fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        }
+        if (/(E+)/.test(fmt)) {
+            fmt = fmt.replace(RegExp.$1, ((RegExp.$1.length > 1) ? (RegExp.$1.length > 2 ? "/u661f/u671f" : "/u5468") : "") + week[this.getDay() + ""]);
+        }
+        for (var k in o) {
+            if (new RegExp("(" + k + ")").test(fmt)) {
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+            }
+        }
+        return fmt;
+    }
+
+    function showtend(verifypostdid,timespan,verifydate)
+    {
+        //alert(verifydate.substring(0, 10));
+        //var dateArrNew = verifydate.substring(0, 10).split('-');
+
+        //var gridMonth = dateArrNew[1];
+        //var gridDay = dateArrNew[2];
+
+        ////是否当天判断
+        //var NowMonth = new Date().getMonth();
+        //var NowDay = new Date().getDay();
+        //alert(NowMonth + " " + gridMonth);
+        //alert(NowDay + " " + gridDay);
+        //if (gridDay != NowDay || gridMonth != NowMonth)
+        //{
+        //    alert("不能更新除今天以外的数据");
+        //    return false;
+        //}
+        var NowDate = new Date();
+        NowDate.toLocaleDateString();
+        gridDate = new Date(Date.parse(verifydate));
+        if (NowDate.pattern("yyyy-MM-dd") < gridDate.pattern("yyyy-MM-dd"))
+        {
+            alert("不能操作还没到时间数据");
+            return false;
+        }
+
+        if (NowDate.pattern("yyyy-MM-dd") == gridDate.pattern("yyyy-MM-dd")) {
+            var TimeStart = timespan.substring(0, 2);
+            var TimeEnd = timespan.substring(timespan.length - 5, timespan.length - 3);
+
+            var TimeNow = new Date().getHours();
+
+            if (TimeNow < TimeStart) {
+                alert("请到时间以后再来更新数据");
+                return false;
+            }
+        }
+        var reValue = window.showModalDialog('InputDetail?id=' + verifypostdid + '&timespan=' + timespan, window, 'dialogWidth=400px;dialogHeight=200px;status:1;title:0;');
+        if (reValue == undefined) {
+            return false;
+        }
+        else {
+            if (reValue == "del") {
+                $.ajax({
+                    type: "post",
+                    url: "/VPModule/VerifyPost/UpdateDetail",
+                    data: {
+                        verifypostdid: verifypostdid,
+                        timespan: timespan,
+                        tag:"未生产"
+                    },
+                    async: false,
+                    success: function (msg) {
+                        windowload();
+                    },
+                    error: function () {
+                        alert("出错了");
+                    }
+                });
+            }
+            else
+            {
+                $.ajax({
+                    type: "post",
+                    url: "/VPModule/VerifyPost/UpdateDetail",
+                    data: {
+                        verifypostdid: verifypostdid,
+                        timespan: timespan,
+                        tag: "生产",
+                        defectNum: reValue[0],
+                        checkNum: reValue[1]
+                    },
+                    async: false,
+                    success: function (msg) {
+                        windowload();
+                    },
+                    error: function () {
+                        alert("出错了");
+                    }
+                });
+            }
+        }
+    }
+
+    function dateFormat(cellvalue, options, rowObject) {
+        //alert(cellvalue);
+        if (cellvalue == "0001-01-01T00:00:00" || cellvalue == null) {
+            return "";
+        }
+        else {
+            return String(cellvalue).substring(0, 10);
+        }
+    }
+
+    function SpecialFormat(cellvalue, options, rowObject) {
+        //alert(cellvalue);
+        return cellvalue + "%";
+    }
+
+    //根据日期判断，文本显示红色
+    function LengthSub(cellvalue, options, rowObject) {
+        var DateNow = new Date();//取今天的日期
+        //alert(rowObject.decidedate);
+        var DecideDate = new Date(Date.parse(rowObject.decidedate));
+
+        if (cellvalue.length > 20) {
+            cellvalue = cellvalue.substring(0, 20) + "....";
+        }
+
+
+        if (DateNow.pattern("yyyy-MM-dd") > DecideDate.pattern("yyyy-MM-dd"))
+        {
+            cellvalue = "<font color=\"red\">" + cellvalue + "</font>";
+        }
+
+        return cellvalue;
+    }
+
+    function BindData() {
+
+        $("#SetReason").html("");
+
+        $("#SetReason").append("<option value=''>==请选择==</option>");
+        AjaxJson("/VPModule/VerifyPost/ReasonJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#SetReason").append($("<option></option>").val(DataJson[i].SetReason).html(DataJson[i].SetReason));
+            });
+        });
+    }
+
+</script>
+
+<!--左边-->
+<!--中间-->
+<div>
+    <div class="btnbartitle">
+        <div>
+           检查列表 <span id="CenterTitle"></span>
+        </div>
+    </div>
+    <!--工具栏-->
+    <div class="tools_bar" style="border-top: none; margin-bottom: 0px;display:none">
+        <div class="PartialButton">
+            @Html.Partial("_PartialButton")
+        </div>
+
+    </div>
+    <!--列表-->
+    <div id="grid_List">
+        <div class="bottomline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+            <table border="0" class="form-find" style="height: 45px;">
+                <tr>
+                    <th>
+                        状态：
+                    </th>
+                    <td>
+                        <select id="Status" class="select">
+                            <option value="">==请选择==</option>
+                            <option value="进行中">进行中</option>
+                            <option value="已完成">已完成</option>
+                        </select>
+                    </td>
+                    
+                    <th>
+                        设置原因：
+                    </th>
+                    <td>
+                        <select id="SetReason" class="select">
+                            </select>
+                    </td>
+                    <td>
+                        <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <table id="gridTable"></table>
+        <div id="gridPager"></div>
+    </div>
+    <!--视图-->
+
+</div>
+

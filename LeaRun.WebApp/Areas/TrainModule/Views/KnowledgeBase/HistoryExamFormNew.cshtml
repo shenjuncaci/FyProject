@@ -1,0 +1,176 @@
+﻿@using LeaRun.Entity;
+@{
+    ViewBag.Title = "HistoryExamFormNew";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+    TR_PersonalInfo info = ViewData["Info"] as TR_PersonalInfo;
+}
+<style>
+    input.text {
+        background-color: red
+    }
+</style>
+<h2>HistoryExamFormNew</h2>
+<div id="info" style="float:left;width:20%">
+    <h2>@info.ExamName 考试</h2>
+    </br>
+    <table>
+        <tr>
+            <td>工号:</td>
+            <td>@info.UserCode</td>
+        </tr>
+        <tr>
+            <td>姓名:</td>
+            <td>@info.UserName</td>
+        </tr>
+
+        <tr>
+            <td>考试成绩:</td>
+            <td>@info.Score </td>
+        </tr>
+        <tr></tr>
+        <tr>
+            <td colspan="2">说明：红色背景的表示答案错误，请重新学习</td>
+        </tr>
+
+    </table>
+</div>
+<div id="detail" style="float:right;width:80%">
+    <form id="examForm">
+       
+    </form>
+</div>
+
+<script>
+    $(document).ready(function () {
+        AjaxJson("/TrainModule/KnowledgeBase/GetHistoryExam", { KeyValue: GetQuery('KeyValue'), Source: GetQuery('Source') }, function (data) {
+            var i = 0;
+            var iSingle = 0;
+            var iMulit = 0;
+            var Single = "<h2>单选题</h2>";
+            var MultiSelect = "<h2>多选题</h2>";
+            var Paper = document.getElementById('examForm');
+            for (var o in data) {
+                i = i + 1;
+                //alert(data[o].QuestionType);
+                if (data[o].IsTrue == "0")
+                {
+                    if (data[o].QuestionType == "单选题") {
+                        iSingle = iSingle + 1;
+                        Single += "<h5>第" + iSingle + "题." + data[o].QuestionDescripe + "</h5>";
+                        if (data[o].Answer == "A")
+                        {
+                            Single += "<label id=A style=\"background-color:red\" name='" + data[o].CustomExamChoiceID + "'  class='test'/>A." + data[o].Option1 + "</label>&nbsp;&nbsp;&nbsp;&nbsp;<br/>";
+                        }
+                        else
+                        {
+                            Single += "<label id=A name='" + data[o].CustomExamChoiceID + "'  class='test'/>A." + data[o].Option1 + "</label>&nbsp;&nbsp;&nbsp;&nbsp;<br/>";
+                        }
+                        if (data[o].Answer == "B") {
+                            
+                            Single += "<label id=B style='background-color:red' name='" + data[o].CustomExamChoiceID + "'  class='test'/>B." + data[o].Option2 + "</label>&nbsp;&nbsp;&nbsp;&nbsp;<br/>";
+                        }
+                        else {
+                            Single += "<label id=B name='" + data[o].CustomExamChoiceID + "'  class='test'/>B." + data[o].Option2 + "</label>&nbsp;&nbsp;&nbsp;&nbsp;<br/>";
+                        }
+
+                        if (data[o].Option3 != "&nbsp;" && data[o].Option3 != null && data[o].Option3 != undefined && data[o].Option3 != "") {
+                            if (data[o].Answer == "C") {
+                                Single += "<label id=C  style='background-color:red' name='" + data[o].CustomExamChoiceID + "'  class='test'/>C." + data[o].Option3 + "</label>&nbsp;&nbsp;&nbsp;&nbsp;<br/>";
+                            }
+                            else {
+                                Single += "<label id=C name='" + data[o].CustomExamChoiceID + "'  class='test'/>C." + data[o].Option3 + "</label>&nbsp;&nbsp;&nbsp;&nbsp;<br/>";
+                            }
+                        }
+
+                        if (data[o].Option4 != "&nbsp;" && data[o].Option4 != null && data[o].Option4 != undefined && data[o].Option4 != "") {
+                            if (data[o].Answer == "D") {
+                                Single += "<label id=D style='background-color:red' name='" + data[o].CustomExamChoiceID + "'  class='test'/>D." + data[o].Option4 + "</label>&nbsp;&nbsp;&nbsp;&nbsp;<br/>";
+                            }
+                            else {
+                                Single += "<label id=D name='" + data[o].CustomExamChoiceID + "'  class='test'/>D." + data[o].Option4 + "</label>&nbsp;&nbsp;&nbsp;&nbsp;<br/>";
+                            }
+                        }
+
+                        if (data[o].Option5 != "&nbsp;" && data[o].Option5 != null && data[o].Option5 != undefined && data[o].Option5 != "") {
+                            if (data[o].Answer == "E") {
+                                Single += "<label id=E style='background-color:red' name='" + data[o].CustomExamChoiceID + "'  class='test'/>E." + data[o].Option5 + "</label>&nbsp;&nbsp;&nbsp;&nbsp;<br/>";
+                            }
+                            else {
+                                Single += "<label id=E name='" + data[o].CustomExamChoiceID + "'  class='test'/>E." + data[o].Option5 + "</label>&nbsp;&nbsp;&nbsp;&nbsp;<br/>";
+                            }
+                        }
+                        if (data[o].Option6 != "&nbsp;" && data[o].Option6 != null && data[o].Option6 != undefined && data[o].Option6 != "") {
+                            if (data[o].Answer == "F") {
+                                Single += "<label id=F style='background-color:red' name='" + data[o].CustomExamChoiceID + "'  class='test'/>F." + data[o].Option6 + "</label>&nbsp;&nbsp;&nbsp;&nbsp;<br/>";
+                            }
+                            else {
+                                Single += "<label id=F name='" + data[o].CustomExamChoiceID + "'  class='test'/>F." + data[o].Option5 + "</label>&nbsp;&nbsp;&nbsp;&nbsp;<br/>";
+                            }
+                        }
+                        Single = Single + "<div style=\"height:30px\"></div>";
+                    }
+
+                    if (data[o].QuestionType == "多选题") {
+                        iMulit = iMulit + 1;
+                        MultiSelect += "<h5>第" + iMulit + "题." + data[o].QuestionDescripe + "</h5>";
+                        if (data[o].Answer.indexOf("A") > -1) {
+                            MultiSelect += "<label id=A style='background-color:red' name='" + data[o].CustomExamChoiceID + "'  class='multi'/>A." + data[o].Option1 + "</label>&nbsp;&nbsp;&nbsp;&nbsp;<br/>";
+                        }
+                        else {
+                            MultiSelect += "<label id=A name='" + data[o].CustomExamChoiceID + "'  class='multi'/>A." + data[o].Option1 + "</label>&nbsp;&nbsp;&nbsp;&nbsp;<br/>";
+                        }
+                        if (data[o].Answer.indexOf("B") > -1) {
+                            MultiSelect += "<label id=B  style='background-color:red' name='" + data[o].CustomExamChoiceID + "'  class='multi'/>B." + data[o].Option2 + "</label>&nbsp;&nbsp;&nbsp;&nbsp;<br/>";
+                        }
+                        else {
+                            MultiSelect += "<label id=B name='" + data[o].CustomExamChoiceID + "'  class='multi'/>B." + data[o].Option2 + "</label>&nbsp;&nbsp;&nbsp;&nbsp;<br/>";
+                        }
+
+                        if (data[o].Option3 != "&nbsp;" && data[o].Option3 != null && data[o].Option3 != undefined && data[o].Option3 != "") {
+                            if (data[o].Answer.indexOf("C") > -1) {
+                                MultiSelect += "<label id=C  style='background-color:red' name='" + data[o].CustomExamChoiceID + "'  class='multi'/>C." + data[o].Option3 + "</label>&nbsp;&nbsp;&nbsp;&nbsp;<br/>";
+                            }
+                            else {
+                                MultiSelect += "<label id=C name='" + data[o].CustomExamChoiceID + "'  class='multi'/>C." + data[o].Option3 + "</label>&nbsp;&nbsp;&nbsp;&nbsp;<br/>";
+                            }
+                        }
+
+                        if (data[o].Option4 != "&nbsp;" && data[o].Option4 != null && data[o].Option4 != undefined && data[o].Option4 != "") {
+                            if (data[o].Answer.indexOf("D") > -1) {
+                                MultiSelect += "<label id=D style='background-color:red' name='" + data[o].CustomExamChoiceID + "'  class='multi'/>D." + data[o].Option4 + "</label>&nbsp;&nbsp;&nbsp;&nbsp;<br/>";
+                            }
+                            else {
+                                MultiSelect += "<label id=D name='" + data[o].CustomExamChoiceID + "'  class='multi'/>D." + data[o].Option4 + "</label>&nbsp;&nbsp;&nbsp;&nbsp;<br/>";
+                            }
+                        }
+
+                        if (data[o].Option5 != "&nbsp;" && data[o].Option5 != null && data[o].Option5 != undefined && data[o].Option5 != "") {
+                            if (data[o].Answer.indexOf("E") > -1) {
+                                MultiSelect += "<label id=E style='background-color:red' name='" + data[o].CustomExamChoiceID + "'  class='multi'/>E." + data[o].Option5 + "</label>&nbsp;&nbsp;&nbsp;&nbsp;<br/>";
+                            }
+                            else {
+                                MultiSelect += "<label id=E name='" + data[o].CustomExamChoiceID + "'  class='multi'/>E." + data[o].Option5 + "</label>&nbsp;&nbsp;&nbsp;&nbsp;<br/>";
+                            }
+                        }
+
+                        if (data[o].Option6 != "&nbsp;" && data[o].Option6 != null && data[o].Option6 != undefined && data[o].Option6 != "") {
+                            if (data[o].Answer.indexOf("F") > -1) {
+                                MultiSelect += "<label id=F style='background-color:red' name='" + data[o].CustomExamChoiceID + "'  class='multi'/>F." + data[o].Option6 + "</label>&nbsp;&nbsp;&nbsp;&nbsp;<br/>";
+                            }
+                            else {
+                                MultiSelect += "<label id=F name='" + data[o].CustomExamChoiceID + "'  class='multi'/>F." + data[o].Option6 + "</label>&nbsp;&nbsp;&nbsp;&nbsp;<br/>";
+                            }
+                        }
+
+                        MultiSelect = MultiSelect + "<div style=\"height:30px\"></div>";
+                    }
+                }
+                
+            }
+
+            Paper.innerHTML += Single;
+            Paper.innerHTML += MultiSelect;
+
+        });
+    })
+</script>

@@ -1,0 +1,164 @@
+﻿@{
+    ViewBag.Title = "SkillMatrix";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+<link href="~/Content/Styles/learunui-accordion.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+<script src="~/Content/Scripts/learunui-framework.js"></script>
+<script src="~/Content/Scripts/jquery.freeze/jquery-freeze-1.0.js"></script>
+
+<style type="text/css">
+    table.gridtable {
+        font-family: verdana,arial,sans-serif;
+        font-size: 11px;
+        color: #333333;
+        border-width: 1px;
+        border-color: #666666;
+        border-collapse: collapse;
+    }
+
+        table.gridtable th {
+            border-width: 1px;
+            padding: 8px;
+            border-style: solid;
+            border-color: #666666;
+            background-color: #dedede;
+            
+        }
+
+        table.gridtable td {
+            border-width: 1px;
+            padding: 8px;
+            border-style: solid;
+            border-color: #666666;
+            
+            /*background-color: #ffffff;*/
+        }
+
+    h4 {
+        width: 36px;
+        font-size: 8px;
+        word-wrap: break-word;
+    }
+
+
+</style>
+<div class="bottomline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px">
+    <table>
+        <tr>
+            <th>
+                车间/部门：
+            </th>
+            <td>
+                <select id="datatype" class="txtselect"></select>
+            </td>
+            
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="tableDiv" style="width:98%;height:600px;overflow-x:auto;">
+    @*@Html.Raw(ViewData["table"].ToString())*@
+</div>
+
+    <script>
+        $(document).ready(function () {
+            $("#datatype").html("");
+
+            $("#datatype").append("<option value=''>==请选择==</option>");
+            AjaxJson("/TrainModule/Skill/DepartmentJson", {}, function (DataJson) {
+                $.each(DataJson, function (i) {
+                    $("#datatype").append($("<option></option>").val(DataJson[i].DepartmentId).html(DataJson[i].FullName));
+                });
+            })
+            Get_data();
+
+
+        });
+
+        function btn_Search() {
+            ////var DepartmentID = document.getElementById("datatype").value;
+            ////alert(DepartmentID);
+            ////return false;
+            //var URL = "/TrainModule/Skill/SkillMatrix?DepartmentID=" + $("#datatype").val();
+            ////alert(URL);
+            //location.replace(URL);
+            ////alert(11);
+            Get_data();
+        }
+
+
+        function Get_data() {
+            //AjaxJson("/TrainModule/skill/SkillMatrixData", { DepartmentID: $("#datatype").val() }, function (data) {
+            //    document.getElementById("tableDiv").innerHTML = data;
+            //})
+
+            $.ajax({
+                type: "post",
+                url: "/TrainModule/skill/SkillMatrixData?DepartmentID=" + $("#datatype").val(),
+                async: false,
+                success: function (msg) {
+                    document.getElementById("tableDiv").innerHTML = msg;
+                },
+                error: function () {
+                    alert("出错了");
+                }
+            });
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </script>
+    <script>
+        $("#tableDiv").scroll(function () {//给table外面的div滚动事件绑定一个函数
+            var left = $("#tableDiv").scrollLeft();//获取滚动的距离
+            var top = $("#tableDiv").scrollTop();//获取上下滚动的距离
+            var trs = $("#tableDiv table tr");//获取表格的所有tr
+            var tab = document.getElementById("mytable");  
+            var cells = tab.rows.item(0).cells.length;  
+            
+            trs.each(function (i) {//对每一个tr（每一行）进行处理
+                //获得每一行下面的所有的td，然后选中下标为0的，即第一列，设置position为相对定位
+                //相对于父div左边的距离为滑动的距离，然后设置个背景颜色，覆盖住后面几列数据滑动到第一列下面的情况
+                //如果有必要也可以设置一个z-index属性
+                if (i == 0)
+                {
+                    $(this).children().eq(0).css({ "position": "relative", "top": "0px", "left": left, "bgcolor":"dedede", "z-index": "200" });
+                    $(this).children().eq(1).css({ "position": "relative", "top": "0px", "left": left, "bgcolor":"dedede", "z-index": "200" });
+                    $(this).children().eq(2).css({ "position": "relative", "top": "0px", "left": left, "bgcolor":"dedede", "z-index": "200" });
+                    $(this).children().eq(3).css({ "position": "relative", "top": "0px", "left": left,  "z-index": "200" });
+                    for (var i = 0; i < cells; i++) {
+                        $(this).children().eq(i).css({ "position": "relative", "top": top, "background-color": "dedede" });
+                    }
+                    //$(this).children().eq(5).css({ "position": "relative", "top": top,  "background-color": "white" });
+                    //$(this).children().eq(6).css({ "position": "relative", "top": top,  "background-color": "white" });
+                    //$(this).children().eq(7).css({ "position": "relative", "top": top,  "background-color": "white" });
+                }
+                else
+                {
+                    $(this).children().eq(0).css({ "position": "relative", "top": "0px", "left": left, "bgcolor": "dedede", "z-index": "100" });
+                    $(this).children().eq(1).css({ "position": "relative", "top": "0px", "left": left, "bgcolor": "dedede", "z-index": "100" });
+                    $(this).children().eq(2).css({ "position": "relative", "top": "0px", "left": left, "bgcolor": "dedede", "z-index": "100" });
+                    $(this).children().eq(3).css({ "position": "relative", "top": "0px", "left": left, "bgcolor": "dedede", "z-index": "100" });
+                }
+            });
+        });
+    </script>

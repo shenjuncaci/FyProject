@@ -1,0 +1,286 @@
+﻿@{
+    ViewBag.Title = "岗位验证明细";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+    //string UserName = ViewData["UserName"] as string;
+}
+
+
+
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
+
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+
+    input {
+        background: #E0FFFF;
+    }
+
+    textarea {
+        background: #E0FFFF;
+    }
+
+    select {
+        background: #E0FFFF;
+    }
+</style>
+
+
+<script type="text/javascript">
+    //$(document).ready(function () {
+
+    //    uploadify();
+    //});
+    $(function () {
+        BindData();
+        InitControl();
+        //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
+        //BindResponseBy();
+
+
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/VPModule/VerifyPost/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        if ($("#OneLevelAlarm").val() == "0")
+        {
+            alert("请填写一级预警的数量");
+            return false;
+        }
+        if ($("#TwoLevelAlarm").val() == "0") {
+            alert("请填写二级预警的数量");
+            return false;
+        }
+        if ($("#ThreeLevelAlarm").val() == "0") {
+            alert("请填写三级预警的数量");
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            AjaxJson("/VPModule/VerifyPost/SubmitForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+
+
+    function BindData() {
+        $("#SetDepart").html("");
+
+        $("#SetDepart").append("<option value=''>==请选择==</option>");
+        AjaxJson("/VPModule/VerifyPost/DepartJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#SetDepart").append($("<option></option>").val(DataJson[i].DepartmentId).html(DataJson[i].FullName));
+            });
+        })
+
+        
+    }
+
+</script>
+
+
+<form id="form1">
+    <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">基本信息</div>
+                <div id="TabOneLevel" class="tab_list bd" onclick="Tabchange('OneLevel')">一级报警设置</div>
+                <div id="TabTwoLevel" class="tab_list bd" onclick="Tabchange('TwoLevel')">二级报警设置</div>
+                <div id="TabThreeLevel" class="tab_list bd" onclick="Tabchange('ThreeLevel')">三级报警设置</div>
+
+            </div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+        <!--基本信息-->
+        <div id="basic" class="tabPanel">
+            <table class="form">
+
+                <tr>
+                    <th class="formTitle">设置原因：</th>
+                    <td class="formValue" colspan="3">
+                       
+                        <input id="SetReason" type="text" class="txt" datacol="yes" err="设置原因" checkexpession="NotNull" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">设置区域：</th>
+                    <td class="formValue">
+                       
+                        <select id="SetDepart" class="select" datacol="yes" err="设置区域" checkexpession="NotNull">
+
+                        </select>    
+                    </td>
+                    <th class="formTitle">设置工位：</th>
+                    <td class="formValue">
+                       
+                        <input id="SetProcess" type="text" class="txt" datacol="yes" err="设置工位" checkexpession="NotNull" />
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">验证产品：</th>
+                    <td class="formValue">
+
+                       
+                        <input id="VerifyProduct" type="text" class="txt" datacol="yes" err="验证产品" checkexpession="NotNull" />
+                    </td>
+                    <th class="formTitle">验证缺陷：</th>
+                    <td class="formValue">
+
+                        <input id="VerifyDefect" type="text" class="txt" datacol="yes" err="验证缺陷" checkexpession="NotNull" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">开始时间：</th>
+                    <td class="formValue">
+
+                        <input readonly placeholder="系统自动生成" id="StartDate" type="text" class="txt" datacol="yes" />
+                    </td>
+                    <th class="formTitle">验证周期(天)：</th>
+                    <td class="formValue">
+
+                        <input id="VerifyCycle" type="text" class="txt" datacol="yes" err="验证周期" checkexpession="NumOrNull" onfocus="IsNumber(this.id)" />
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">验证方法：</th>
+                    <td class="formValue" colspan="3">
+
+                        <input id="VerifyMethod" type="text" class="txt" datacol="yes" err="验证方法" checkexpession="NotNull" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">退出标准：</th>
+                    <td class="formValue" colspan="3">
+                        在验证周期内未重复发生典型缺陷。
+                    </td>
+                </tr>
+
+            </table>
+        </div>
+        <div id="OneLevel" class="tabPanel" style="display:none">
+            <table class="form">
+                <tr>
+                    <th class="formTitle">触发条件：</th>
+                    <td class="formValue" colspan="3">
+                        <table>
+                            <tr>
+                                <td><input id="OneLevelAlarm" type="text" class="txt" datacol="yes" err="一级报警设置" checkexpession="NumOrNull" onfocus="IsNumber(this.id)" /></td>
+                                <td>个投诉缺陷/天</td>
+                            </tr>
+                        </table>
+
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">响应人员：</th>
+                    <td class="formValue" colspan="3">通知车间主任、班长</td>
+                </tr>
+                <tr>
+                    <th class="formTitle">响应类型：</th>
+                    <td class="formValue" colspan="3">进入普通问题跟踪流程</td>
+                </tr>
+            </table>
+        </div>
+        <div id="TwoLevel" class="tabPanel" style="display:none">
+            <table class="form">
+                <tr>
+                    <th class="formTitle">触发条件：</th>
+                    <td class="formValue" colspan="3">
+                        <table>
+                            <tr>
+                                <td><input id="TwoLevelAlarm" type="text" class="txt" datacol="yes" err="二级报警设置" checkexpession="NumOrNull" onfocus="IsNumber(this.id)" /></td>
+                                <td>个投诉缺陷/天</td>
+                            </tr>
+                        </table>
+
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">响应人员：</th>
+                    <td class="formValue" colspan="3">通知质量经理、厂长、车间主任、班长</td>
+                </tr>
+                <tr>
+                    <th class="formTitle">响应类型：</th>
+                    <td class="formValue" colspan="3">进入快速反应流程</td>
+                </tr>
+            </table>
+        </div>
+        <div id="ThreeLevel" class="tabPanel" style="display:none">
+            <table class="form">
+                <tr>
+                    <th class="formTitle">触发条件：</th>
+                    <td class="formValue" colspan="3">
+                        <table>
+                            <tr>
+                                <td><input id="ThreeLevelAlarm" type="text" class="txt" datacol="yes" err="三级报警设置" checkexpession="NumOrNull" onfocus="IsNumber(this.id)" /></td>
+                                <td>个投诉缺陷/天</td>
+                            </tr>
+                        </table>
+
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">响应人员：</th>
+                    <td class="formValue" colspan="3">通知总经理、生产副总、质量副总、质量经理、厂长、车间主任、班长</td>
+                </tr>
+                <tr>
+                    <th class="formTitle">响应类型：</th>
+                    <td class="formValue" colspan="3">进入快速反应流程</td>
+                </tr>
+            </table>
+        </div>
+
+    </div>
+
+</form>

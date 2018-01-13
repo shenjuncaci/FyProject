@@ -1,0 +1,613 @@
+﻿@{
+    ViewBag.Title = "附件安装合同";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+    
+}
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery.xlsx/xlsx.full.min.js"></script>
+
+@*<link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
+<script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>*@
+
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
+
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+
+    input {
+        background: #E0FFFF;
+    }
+
+    textarea {
+        background: #E0FFFF;
+    }
+
+    select {
+        background: #E0FFFF;
+    }
+</style>
+
+
+<script type="text/javascript">
+    //$(document).ready(function () {
+
+    //    uploadify();
+    //});
+    $(function () {
+        
+        InitControl();
+        //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
+        //BindResponseBy();
+
+
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/TCModule/AttachContract/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+
+                
+                if (String(data["Attachment"]) != "" && String(data["Attachment"]) != "null" && data["Attachment"] != undefined && String(data["Attachment"]) != "&nbsp;") {
+
+                    //document.getElementById("uploadify").style.display = "none";
+
+                    var address = String(data["Attachment"]).replace('~', '../../../../')
+                    document.getElementById("attach").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                    document.getElementById("attach").style.display = "block";
+                }
+            });
+
+            var rowindex = 1;
+            //评审明细信息
+            AjaxJson("/TCModule/AttachContract/GetDetailList", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                var JsonData = data.rows;
+                //var colorState = "";
+                $.each(JsonData, function (i) {
+
+                    addone(rowindex);
+                    var rowData = JsonData[i];
+                    //alert(rowData.FllowStatus);
+                    //alert(rowData.ReviewDepart);ChangeReviewState
+                    $("#TrueMaterialNO➩" + rowindex).val(rowData.TrueMaterialNO);
+                    $("#InstallType➩" + rowindex).val(rowData.InstallType);
+                    $("#AttachNum➩" + rowindex).val(rowData.AttachNum);
+
+                    
+                    $("#AttachCost➩" + rowindex).val(rowData.AttachCost);
+                    $("#PlanCost➩" + rowindex).val(rowData.PlanCost);
+                    $("#SortNO➩" + rowindex).val(rowData.SortNO);
+                    //$("#RelationDID➩" + rowindex).val(rowData.RelationDID);
+
+
+                    rowindex++;
+
+                });
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        $("#filePath").remove();
+        var IsNew = 0;
+        if (confirm("是否要保存为新版本？")) {
+            IsNew = 1;
+        }
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        var DetailForm = GetTableDataJson("#DetailForm");
+        //alert(DetailForm);
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var AttachContractData = GetWebControls("#form1");
+            AttachContractData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            //数据传输都改成post的，太长的话用get会报错！！！
+            AttachContractData["DetailForm"] = DetailForm;
+            AjaxJson("/TCModule/AttachContract/SubmitForm?KeyValue=" + GetQuery('KeyValue') + "&IsNew=" + IsNew, AttachContractData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+
+    //绑定数据
+    //function BindData() {
+
+    //    $("#AttachContractType").html("");
+
+    //    $("#AttachContractType").append("<option value=''>==请选择==</option>");
+    //    AjaxJson("/TCModule/AttachContract/TypeJson", {}, function (DataJson) {
+    //        $.each(DataJson, function (i) {
+    //            $("#AttachContractType").append($("<option></option>").val(DataJson[i].Code).html(DataJson[i].FullName));
+    //        });
+    //    });
+    //}
+
+    function addone(i) {
+        //alert(i);
+        var tab = document.getElementById('DetailForm');
+        var rowIndex = tab.rows.length + 1;
+        if (i == 999) {
+            //999表示是新增，-3表示减去3行标题
+            i = rowIndex - 2;
+        }
+        //添加一行;
+        var tr = tab.insertRow();
+        //tr.onmouseover = tr.className = "displayStyle";
+        //tr.onmouseout = tr.className = "hideStyle";
+        //tr.onclick = function () { this.className = "onClickChangeStyle(this)"; }
+
+        var td1 = tr.insertCell();
+        var td2 = tr.insertCell();
+        var td3 = tr.insertCell();
+        var td4 = tr.insertCell();
+        var td5 = tr.insertCell();
+
+        td1.innerHTML = "<input  id=\"TrueMaterialNO➩" + i + "\" class=\"txt\"><input  id=\"SortNO➩" + i + "\" class=\"txt\" value=" + i + " hidden>";
+        td2.innerHTML = "<input  id=\"InstallType➩" + i + "\" class=\"txt\">";
+        td3.innerHTML = "<input  id=\"AttachNum➩" + i + "\" class=\"txt\" value=0>";
+        td4.innerHTML = "<input  id=\"AttachCost➩" + i + "\" class=\"txt\" value=0>";
+        td5.innerHTML = "<input  id=\"PlanCost➩" + i + "\" class=\"txt\" value=0>";
+
+        //初始化行;
+        //initRows(tab);
+    }
+
+    //从excel导入
+    function ImportExcel()
+    {
+        //1.删除所有行
+        var tb = document.getElementById('DetailForm');
+        var rowNum = tb.rows.length;
+        for (i = 2; i < rowNum; i++) {
+            tb.deleteRow(i);
+            rowNum = rowNum - 1;
+            i = i - 1;
+        }
+
+        
+
+        var files = $('input[name="filePath"]').prop('files');//获取到文件列表
+
+        var fileReader = new FileReader();
+        fileReader.onload = function (ev) {
+            try {
+                var data = ev.target.result,
+                    workbook = XLSX.read(data, {
+                        type: 'binary'
+                    }), // 以二进制流方式读取得到整份excel表格对象
+                    persons = []; // 存储获取到的数据
+            } catch (e) {
+                console.log('文件类型不正确');
+                return;
+            }
+
+            // 表格的表格范围，可用于判断表头是否数量是否正确
+            var fromTo = '';
+            // 遍历每张表读取
+            for (var sheet in workbook.Sheets) {
+                if (workbook.Sheets.hasOwnProperty(sheet)) {
+                    fromTo = workbook.Sheets[sheet]['!ref'];
+                    //excel中有数据的范围
+                    //console.log(fromTo);
+                    persons = persons.concat(XLSX.utils.sheet_to_json(workbook.Sheets[sheet]));
+                    // break; // 如果只取第一张表，就取消注释这行
+                }
+            }
+
+            //console.log(persons);
+            for (var i = 0; i < persons.length;i++)
+            {
+                addone(i);
+               // alert(persons[i].费用1);
+                $("#TrueMaterialNO➩" + i).val(persons[i].物料编码);
+                $("#InstallType➩" + i).val(persons[i].附件安装类型);
+                $("#AttachNum➩" + i).val(persons[i].附件数量);
+
+
+                $("#AttachCost➩" + i).val(persons[i].单个附件成本);
+                $("#PlanCost➩" + i).val(persons[i].测算附件费用);
+                $("#SortNO➩" + i).val(i);
+            }
+
+            //console.log(persons);
+
+            //var headStr = '费用1,费用2,费用3,费用4,费用5';
+            //for (var i = 0; i < persons.length; i++) {
+            //    if (Object.keys(persons[i]).join(',') !== headStr) {
+            //        persons.splice(i, 1);
+            //    }
+            //}
+
+            //console.log(persons);
+        };
+
+        // 以二进制方式打开文件
+        fileReader.readAsBinaryString(files[0]);
+
+        
+    }
+
+   
+
+
+</script>
+
+
+<form id="form1">
+    <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">基本信息</div>
+                <div id="Tabinstall" class="tab_list bd" onclick="Tabchange('install')">安装</div>
+                <div id="Tabwelding" class="tab_list bd" onclick="Tabchange('welding')">焊接</div>
+                <div id="TabClearGlue" class="tab_list bd" onclick="Tabchange('ClearGlue')">清胶</div>
+                <div id="TabDetail" class="tab_list bd" onclick="Tabchange('Detail')">明细数据</div>
+            </div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+        <!--基本信息-->
+        <div id="basic" class="tabPanel">
+            <table class="form">
+                <tr>
+                    <th class="formTitle">合同名称：</th>
+                    <td class="formValue">
+
+                        <input id="ContractName" type="text" class="txt" datacol="yes" err="合同名称" checkexpession="NotNull" />
+                    </td>
+
+                    <th class="formTitle">合同编码：</th>
+                    <td class="formValue">
+
+                        <input id="ContractNo" type="text" class="txt" datacol="yes" err="合同编码" checkexpession="NotNull" />
+                    </td>
+
+                    <th class="formTitle"></th>
+                    <td class="formValue">
+
+                        @*<input id="TrueMaterialNO" type="text" class="txt" datacol="yes" err="物料编码" checkexpession="NotNull" />*@
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">物料名称：</th>
+                    <td class="formValue">
+                        
+                        <input id="MaterialNO" type="text" class="txt" datacol="yes" err="物料名称" checkexpession="NotNull" />
+                    </td>
+
+                    <th class="formTitle">车型：</th>
+                    <td class="formValue">
+
+                        <input id="CarType" type="text" class="txt" datacol="yes" err="车型" checkexpession="NotNull" />
+                    </td>
+
+                    <th class="formTitle">零件号：</th>
+                    <td class="formValue">
+
+                        <input id="PartNO" type="text" class="txt" datacol="yes" err="零件号" checkexpession="NotNull" />
+                    </td>
+                   
+
+                </tr>
+                <tr>
+                    <th class="formTitle">产品名称：</th>
+                    <td class="formValue" colspan="1">
+
+                        <input id="ProductName" type="text" class="txt" datacol="yes" err="产品名称" checkexpession="NotNull" />
+                    </td>
+                    <th class="formTitle">安装类型：</th>
+                    <td class="formValue" colspan="3">
+
+                        <input id="InstallType" type="text" class="txt" datacol="yes" err="安装类型" checkexpession="NotNull" />
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">测算附件费用：</th>
+                    <td class="formValue">
+
+                        <input id="PlanCost" type="text" class="txt" datacol="yes" />
+                    </td>
+                    <th class="formTitle"></th>
+                    <td class="formValue">
+
+                        
+                    </td>
+
+                    <th class="formTitle"></th>
+                    <td class="formValue">
+
+                        
+                    </td>
+
+                   
+
+
+                </tr>
+
+                <tr>
+                    <th class="formTitle">损耗比例：</th>
+                    <td class="formValue">
+
+                        <input id="LossRate" type="text" class="txt" datacol="yes" err="损耗比例" checkexpession="NotNull" value="0.02" />
+                    </td>
+
+                    <th class="formTitle">结算附件成本：</th>
+                    <td class="formValue">
+
+                        <input id="EndCost" type="text" class="txt" datacol="yes" />
+                    </td>
+
+                    <th class="formTitle">人工费合计：</th>
+                    <td class="formValue">
+                        <input id="LaborCostAll" type="text" class="txt" datacol="yes" />
+                       
+                    </td>
+
+
+                </tr>
+
+                <tr>
+                    <th class="formTitle">面积：</th>
+                    <td class="formValue">
+
+                        <input id="Areas" type="text" class="txt" datacol="yes" err="面积" checkexpession="NotNull" />
+                    </td>
+
+                    <th class="formTitle">电力/物耗劳保：</th>
+                    <td class="formValue">
+
+                        <input id="Power" type="text" class="txt" datacol="yes" err="电力" checkexpession="NotNull" />
+                    </td>
+
+                    <th class="formTitle">辅料补贴：</th>
+                    <td class="formValue">
+                        <input id="Subsidy" type="text" class="txt" datacol="yes" />
+
+                    </td>
+
+
+                </tr>
+
+                <tr>
+                    <th class="formTitle">管理费：</th>
+                    <td class="formValue">
+
+                        <input id="ManageExpense" type="text" class="txt" datacol="yes"/>
+                    </td>
+
+                    <th class="formTitle">单片结算价格：</th>
+                    <td class="formValue">
+
+                        <input id="SingleEndCost" type="text" class="txt" datacol="yes" />
+                    </td>
+
+                    <th class="formTitle"></th>
+                    <td class="formValue">
+                        
+                    </td>
+
+
+                </tr>
+                <tr>
+                    <th class="formTitle">附件下载：</th>
+                    <td class="formValue" colspan="5">
+
+                        <table>
+                            <tr>
+                                
+                                <td>
+                                    <label id="attach"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+
+                </tr>
+                <tr>
+                    <th class="formTitle">备注：</th>
+                    <td class="formValue" colspan="5">
+                        @*<input id="Remark" type="text" class="txt" />*@
+                        <textarea id="Remark" class="txt" style="width:540px;height:80px;" /></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">打印备注：</th>
+                    <td class="formValue" colspan="5">
+                        @*<input id="PrintRemark" type="text" class="txt" />*@
+                        <textarea id="PrintRemark" class="txt" style="width:540px;height:80px;" /></textarea>
+
+                    </td>
+                </tr>
+
+            </table>
+        </div>
+        <div id="install" style="display:none" class="tabPanel">
+            <table class="form">
+
+                <tr>
+                    <th class="formTitle">工资：</th>
+                    <td class="formValue">
+
+                        <input id="Wages1" type="text" class="txt" datacol="yes" err="安装工资" checkexpession="NotNull" value="5000" />
+                    </td>
+                    <th class="formTitle">出勤天数：</th>
+                    <td class="formValue">
+
+                        <input id="AttendanceDays1" type="text" class="txt" datacol="yes" err="安装出勤天数" checkexpession="NotNull" value="21.75" />
+                    </td>
+                 </tr>
+                <tr>
+                    <th class="formTitle">定员：</th>
+                    <td class="formValue">
+
+                        <input id="Employes1" type="text" class="txt" datacol="yes" err="安装定员" checkexpession="NotNull" />
+                    </td>
+                    <th class="formTitle">台班：</th>
+                    <td class="formValue">
+
+                        <input id="Shift1" type="text" class="txt" datacol="yes" err="安装台班" checkexpession="NotNull" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">人工费：</th>
+                    <td class="formValue">
+
+                        <input id="LaborCost1" type="text" class="txt" datacol="yes"/>
+                    </td>
+                    <th class="formTitle"></th>
+                    <td class="formValue">
+
+                        
+                    </td>
+                </tr>
+             </table>
+
+        </div>
+        <div id="welding" style="display:none" class="tabPanel">
+            <table class="form">
+
+                <tr>
+                    <th class="formTitle">工资：</th>
+                    <td class="formValue">
+
+                        <input id="Wages2" type="text" class="txt" datacol="yes"/>
+                    </td>
+                    <th class="formTitle">出勤天数：</th>
+                    <td class="formValue">
+
+                        <input id="AttendanceDays2" type="text" class="txt" datacol="yes"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">定员：</th>
+                    <td class="formValue">
+
+                        <input id="Employes2" type="text" class="txt" datacol="yes"/>
+                    </td>
+                    <th class="formTitle">台班：</th>
+                    <td class="formValue">
+
+                        <input id="Shift2" type="text" class="txt" datacol="yes"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">人工费：</th>
+                    <td class="formValue">
+
+                        <input id="LaborCost2" type="text" class="txt" datacol="yes"/>
+                    </td>
+                    <th class="formTitle"></th>
+                    <td class="formValue"></td>
+                </tr>
+            </table>
+
+        </div>
+        <div id="ClearGlue" style="display:none" class="tabPanel">
+            <table class="form">
+
+                <tr>
+                    <th class="formTitle">工资：</th>
+                    <td class="formValue">
+
+                        <input id="Wages3" type="text" class="txt" datacol="yes"/>
+                    </td>
+                    <th class="formTitle">出勤天数：</th>
+                    <td class="formValue">
+
+                        <input id="AttendanceDays3" type="text" class="txt"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">定员：</th>
+                    <td class="formValue">
+
+                        <input id="Employes3" type="text" class="txt" datacol="yes"/>
+                    </td>
+                    <th class="formTitle">台班：</th>
+                    <td class="formValue">
+
+                        <input id="Shift3" type="text" class="txt" datacol="yes"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">人工费：</th>
+                    <td class="formValue">
+
+                        <input id="LaborCost3" type="text" class="txt" datacol="yes"/>
+                    </td>
+                    <th class="formTitle"></th>
+                    <td class="formValue"></td>
+                </tr>
+            </table>
+
+        </div>
+        <div id="Detail" style="display:none" class="tabPanel">
+            <a class="button button-caution button-square button-small" onclick="addone(999)">添加</a>
+            <a href="../../../../Template/附件安装合同导入模板.xlsx" download="模板下载" \>模板下载</a>
+                <table>
+                    <tr>
+                        <th style="width: 60px;">
+                            导入文件：
+                        </th>
+                        <td>
+                            <input  type="file" id="filePath" class="keyword" style="width: 494px; border-radius: 0px;" name="filePath" />
+                        </td>
+                        <td>
+                            <input type="button" class="btnSearch" value="导入" onclick="ImportExcel()" />
+                        </td>
+                    </tr>
+                </table>
+                
+                <table id="DetailForm" class="form-bill">
+                    <tr><td colspan="3"><strong>明细数据</strong></td></tr>
+                    <tr>
+                        <th style="width:10%">物料编码</th>
+                        <th style="width:10%">附件安装类型</th>
+                        <th style="width:10%">附件数量</th>
+                        <th style="width:10%">单个附件成本</th>
+                        <th style="width:10%">测算附件费用</th>
+                    </tr>
+                </table>
+        </div>
+
+        </div>
+
+
+</form>

@@ -1,0 +1,191 @@
+﻿@{
+
+    ViewBag.Title = "AuditForm";
+    Layout = null;
+    DataTable dt = ViewData["dt"] as DataTable;
+
+}
+@using System;
+@using System.Data;
+<link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+<link href="~/Content/Styles/learunui-accordion.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+<script src="~/Content/Scripts/learunui-framework.js"></script>
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+
+
+<style type="text/css">
+    table.gridtable {
+        font-family: verdana,arial,sans-serif;
+        font-size: 11px;
+        color: #333333;
+        border-width: 1px;
+        border-color: #666666;
+        border-collapse: collapse;
+    }
+
+        table.gridtable th {
+            border-width: 1px;
+            padding: 8px;
+            border-style: solid;
+            border-color: #666666;
+            background-color: #dedede;
+        }
+
+        table.gridtable td {
+            border-width: 1px;
+            padding: 8px;
+            border-style: solid;
+            border-color: #666666;
+            background-color: #ffffff;
+        }
+</style>
+
+<table class="gridtable" border="1" bordercolor="#000000" style="border-collapse: collapse;">
+
+    <tr>
+        <th style="border: solid 1px #000000; display:none">
+            ID
+        </th>
+        <th style="border: solid 1px #000000 ;width:20px">
+            评审内容
+        </th>
+        
+        <th style="border: solid 1px #000000;width:20px">
+            检查后果
+        </th>
+        
+    </tr>
+    @for (int i = 0; i < dt.Rows.Count; i++)
+    {
+        string IDs = "ID" + i;
+        <tr>
+            <td style="border: solid 1px #000000;display:none" id="@IDs">
+                @dt.Rows[i]["ReviewID"]
+            </td>
+            <td style="border: solid 1px #000000;">
+                @dt.Rows[i]["ReviewContent"]
+            </td>
+            
+            <td style="border: solid 1px #000000; ">
+                @if (@dt.Rows[i]["Result"].ToString() != "")
+                {
+                    @dt.Rows[i]["Result"]
+                }
+                else
+                {
+                    <select id="@i" class="txtselect" onchange="inputCs(@i)">
+                        <option value=""></option>
+                        <option value="Y">Y</option>
+                        <option value="N">N</option>
+                    </select>
+                }
+            </td>
+            
+        </tr>
+
+    }
+</table>
+
+<div style="text-align:left">
+    <button class="button button-primary button-square button-small" style="float:left" onclick="confirmAll('@dt.Rows.Count')">确认</button>
+</div>
+<script>
+   
+    //批量审批
+    function confirmAll(i)
+    {
+        var Result = "";
+        var ID = "";
+        var checkResult = "";
+         //循环获取值拼接传递到后台的字符串
+        for (var j = 0; j < i; j++) {
+            ID = document.getElementById("ID" + j).innerText;
+
+            //ID1 = document.getElementById("ID" + j).innerHTML;
+            //alert(ID1);
+
+             checkResult = $("#" + j).val();
+
+             if (checkResult != "" && checkResult != undefined) {
+                 Result += ID + ":" + checkResult + ";";
+             }
+             else
+             {
+                 alert("请填写完整数据！");
+                 return false;
+             }
+        }
+        Result = Result.substring(0, Result.length - 1);
+
+        Result = Result.replace(/[ ]/g, "");    //去掉空格
+        Result = Result.replace(/[\r\n]/g, ""); //去掉回车换行
+        if (Result == "")
+        {
+
+            alert("没有需要更新的内容");
+            return false;
+        }
+
+
+
+        var durl = encodeURI('@Url.Action("UpdateResultAll", "VerifyPost")?result=' + Result);
+        $.ajax({
+            type: "post",
+            url: durl,
+            async: false,
+            success: function (msg) {
+                if (msg > 0) {
+                    alert("更新成功");
+                    //alert(checkResult);
+                    //alert(Result);
+                    //if (Result.indexOf(":N")>0)
+                    //{
+                    //    //alert(11);
+                    //    var obj = new Array();
+                    //    var reValue = window.showModalDialog('ProblemResponse', obj, 'dialogWidth=400px;dialogHeight=200px;');
+                    //    if (reValue == undefined)
+                    //    {
+                    //        alert("未填写解决措施，请去相应的模块填写");
+                    //    }
+                    //    else
+                    //    {
+                    //        alert("填写成功");
+                    //    }
+                    //}
+                    top.frames[tabiframeId()].windowload();
+                    closeDialog();
+                }
+                else {
+                    alert("出错了！");
+                }
+            },
+            error: function () {
+                alert("出错了");
+            }
+        });
+        }
+
+        function inputCs(i)
+        {
+            var checkResult = $("#" + i).val();
+            var ID = $("#ID" + i).val();
+            //alert(checkResult);
+            if (checkResult == "N")
+            {
+                var obj = new Array();
+                var reValue = window.showModalDialog('GeneralProblem', obj, 'dialogWidth=400px;dialogHeight=200px;');
+                if (reValue == undefined) {
+                    alert("未填写解决措施，不能保存该条数据");
+                    $("#" + i).val("");
+                }
+                else {
+                    alert("填写成功");
+                }
+            }
+            //alert(i);
+        }
+</script>
+
+
+

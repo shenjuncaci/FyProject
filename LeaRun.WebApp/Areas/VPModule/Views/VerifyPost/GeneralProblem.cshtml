@@ -1,0 +1,224 @@
+﻿@{
+    ViewBag.Title = "InsertPlan";
+    Layout = null;
+}
+
+<link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+<link href="~/Content/Styles/learunui-accordion.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+<script src="~/Content/Scripts/learunui-framework.js"></script>
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+<script src="~/Content/Scripts/datepicker/WdatePicker.js"></script>
+<link href="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.css" rel="stylesheet" />
+<script src="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.js"></script>
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
+
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+
+    input {
+        background: #E0FFFF;
+    }
+
+    textarea {
+        background: #E0FFFF;
+    }
+
+    select {
+        background: #E0FFFF;
+    }
+</style>
+
+<table align=center valign=middle>
+    <tr>
+        <td>问题责任人</td>
+        <td>
+            <select id="ResponseBy" class="txtselect"></select>
+        </td>
+        <td>问题类型</td>
+        <td>
+            <select id="ProblemType" class="txtselect">
+                <option value="内部">内部</option>
+                <option value="外部">外部</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>产品区域</td>
+        <td>
+            <select id="Area" class="txtselect">
+                <option value="国内">国内</option>
+                <option value="国外">国外</option>
+            </select>
+        </td>
+        <td>问题类别</td>
+        <td>
+            <select id="ProblemType2" class="txtselect">
+                <option value="外观">外观</option>
+                <option value="印刷">印刷</option>
+                <option value="装配">装配</option>
+                <option value="性能">性能</option>
+                <option value="附属件">附属件</option>
+                <option value="附件材料">附件材料</option>
+                <option value="包装">包装</option>
+                <option value="产品错误">产品错误</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>是否重复发生</td>
+        <td>
+            <select id="IsAgain" class="txtselect">
+                <option value="是">是</option>
+                <option value="否">否</option>
+            </select>
+        </td>
+        <td>客户</td>
+        <td>
+            <select id="Customer" class="txtselect">
+               
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>问题描述</td>
+        <td colspan="3">
+            <input id="Descripe" type="text" class="txt" />
+        </td>
+    </tr>
+    <tr>
+        <td>计划完成时间</td>
+        <td>
+            <input id="PlanDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF;" />
+        </td>
+    </tr>
+</table>
+
+<div align=center valign=middle>
+    <button class="button button-primary button-square button-small" onclick="cancel()">取消</button>
+    <button class="button button-primary button-square button-small" onclick="confirm()">确认</button>
+
+
+</div>
+<script>
+    function del()
+    {
+        window.returnValue = "del";
+        window.close();
+    }
+    function cancel() {
+        self.close();
+    }
+    function confirm() {
+        var _Descripe = String($("#Descripe").val());
+        var _ResponseBy = String($("#ResponseBy").val());
+       
+        var _PlanDate = String($("#PlanDate").val());
+
+        var _ProblemType = String($("#ProblemType").val());
+        var _ProblemType2 = String($("#ProblemType2").val());
+        var _Area = String($("#Area").val());
+        var _IsAgain = String($("#IsAgain").val());
+        var _Customer = String($("#Customer").val());
+
+        if (_Descripe == "" || _ResponseBy == "" || _PlanDate == "" || _ProblemType == ""
+            || _ProblemType2 == "" || _Area == "" || _IsAgain == "" || _Customer == "")
+        {
+            alert("请填写完整项目再提交");
+            return false;
+        }
+        var durl = encodeURI('@Url.Action("InsertGeneralProblem", "VerifyPost")');
+        $.ajax({
+            type: "post",
+            url: durl,
+            data: {
+                _Descripe: _Descripe,
+                _ResponseBy: _ResponseBy,
+                _PlanDate: _PlanDate,
+                _ProblemType: _ProblemType,
+                _ProblemType2: _ProblemType2,
+                _Area: _Area,
+                _IsAgain: _IsAgain,
+                _Customer: _Customer
+            },
+            async: false,
+            success: function (msg) {
+                if (msg > 0) {
+                    alert("更新成功");
+                    //alert(checkResult);
+
+                }
+                else {
+                    alert("出错了！");
+                }
+            },
+            error: function () {
+                alert("出错了");
+            }
+        });
+
+        window.returnValue = 1;
+        window.close();
+    }
+    function BindEvent()
+    {
+
+
+
+        $("#ResponseBy").html("");
+
+        $("#ResponseBy").append("<option value=''>==请选择==</option>");
+        AjaxJson("/VPModule/VerifyPost/ResponseJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#ResponseBy").append($("<option></option>").val(DataJson[i].code).html(DataJson[i].name));
+            });
+        })
+
+        //Customer
+        $("#Customer").html("");
+
+        $("#Customer").append("<option value=''>==请选择==</option>");
+        AjaxJson("/VPModule/VerifyPost/CustomerJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#Customer").append($("<option></option>").val(DataJson[i].fy_cus_name).html(DataJson[i].fy_cus_name));
+            });
+        })
+    }
+
+    $(document).ready(function () {
+        BindEvent();
+        $("#ResponseBy").searchableSelect();
+    })
+   //window.onload = BindEvent();
+</script>

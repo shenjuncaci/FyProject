@@ -1,0 +1,159 @@
+﻿@{
+    ViewBag.Title = "ScoreReport";
+    //Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+<link href="~/Content/Styles/learunui-accordion.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+<script src="~/Content/Scripts/learunui-framework.js"></script>
+
+<script src="~/Content/Scripts/jquery.echarts/echarts.js"></script>
+
+<script src="~/Content/Scripts/datepicker/WdatePicker.js"></script>
+
+<div id="grid_List">
+    <div class="bottomline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px">
+        <table>
+            <tr>
+                <th>
+                    开始日期：
+                </th>
+                <td>
+                    <input id="txtStartDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="width: 200px;border:1px,solid" />
+                </td>
+                <th>
+                    结束日期：
+                </th>
+                <td>
+                    <input id="txtEndDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="width: 200px;border:1px,solid" />
+                </td>
+               
+                <td>
+                    <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<!--视图-->
+<div id="main" style="width: auto;height:500px"></div>
+
+@*<div id="main2" style="width: auto;height:400px"></div>*@
+<script>
+
+    $(document).ready(function () {
+        btn_Search();
+    });
+
+    function btn_Search()
+    {
+        var X;
+        var Y;
+        var startDate = $("#txtStartDate").val();
+        var endDate = $("#txtEndDate").val();
+        
+        var durl = encodeURI('@Url.Action("GetSperateReport", "Plan")?startDate=' + startDate + '&endDate=' + endDate );
+        $.ajax({
+            type: "post",
+            url: durl,
+            async: false,
+            success: function (data) {
+                var dataA = new Array();
+                dataA = data.split("|");
+
+                X = dataA[0].split(",");
+
+                Y1 = dataA[1].split(",");
+
+                Y2 = dataA[2].split(",");
+
+                Y3 = dataA[3].split(",");
+
+                Y4 = dataA[4].split(",");
+
+            }
+
+        });
+        var myChart = echarts.init(document.getElementById('main'));
+
+        option = {
+           // color: ['#3398DB', '#66CDAA', '#B22222', '#A020F0'],
+            color: ['#A020F0'],
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                    type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                }
+            },
+            legend: {
+                //data: ['班长完成率', '车间主任完成率', '厂长完成率', '车间完成率']
+                data: ['车间完成率']
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '30%',
+                containLabel: true
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    data: X,
+                    axisTick: {
+                        alignWithLabel: true
+                    },
+                    axisLabel: {
+                        
+                        interval: 0,
+                        rotate: 90,
+                        margin:8
+                    }
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value',
+                    
+                    axisLabel: {
+                        show: true,
+                        interval: 'auto',
+                        
+                        formatter: '{value} %'
+
+                    },
+                    show: true  
+                }
+            ],
+            series: [
+                //{
+                //    name: '班长完成率',
+                //    type: 'bar',
+                //    data: Y1,
+                //    itemStyle: { normal: { label: { show: true, position: 'top', formatter: '{c}%' } } }
+                //},
+                //{
+                //    name: '车间主任完成率',
+                //    type: 'bar',
+                //    data: Y2,
+                //    itemStyle: { normal: { label: { show: true, position: 'top', formatter: '{b}\n{c}%' } } }
+                //},
+                //{
+                //    name: '厂长完成率',
+                //    type: 'bar',
+                //    data: Y3,
+                //    itemStyle: { normal: { label: { show: true, position: 'top', formatter: '{b}\n{c}%' } } }
+                //},
+                {
+                    name: '车间完成率',
+                    type: 'bar',
+                    data: Y4,
+                    itemStyle: { normal: { label: { show: true, position: 'top', formatter: '{c}%' } } }
+                },
+            ]
+        };
+
+        myChart.setOption(option);
+
+
+    }
+</script>

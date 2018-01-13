@@ -1,0 +1,532 @@
+﻿@{
+    ViewBag.Title = "一般问题信息";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<style>
+ .ui-jqgrid tr.jqgrow td {
+        white-space: normal !important;
+        height: auto;
+        vertical-align: text-top;
+        padding-top: 2px;
+        border-bottom: 1px solid #E8E8E8;
+        border-top: 1px solid #E8E8E8;
+    }
+</style>
+<script type="text/javascript">
+
+    // 对Date的扩展，将 Date 转化为指定格式的String
+    // 月(M)、日(d)、小时(h)、分(m)、秒(s)、季度(q) 可以用 1-2 个占位符，
+    // 年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字)
+    // 例子：
+    // (new Date()).Format("yyyy-MM-dd hh:mm:ss.S") ==> 2006-07-02 08:09:04.423
+    // (new Date()).Format("yyyy-M-d h:m:s.S")      ==> 2006-7-2 8:9:4.18
+    Date.prototype.pattern = function (fmt) {
+        var o = {
+            "M+": this.getMonth() + 1, //月份
+            "d+": this.getDate(), //日
+            "h+": this.getHours() % 12 == 0 ? 12 : this.getHours() % 12, //小时
+            "H+": this.getHours(), //小时
+            "m+": this.getMinutes(), //分
+            "s+": this.getSeconds(), //秒
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+            "S": this.getMilliseconds() //毫秒
+        };
+        var week = {
+            "0": "/u65e5",
+            "1": "/u4e00",
+            "2": "/u4e8c",
+            "3": "/u4e09",
+            "4": "/u56db",
+            "5": "/u4e94",
+            "6": "/u516d"
+        };
+        if (/(y+)/.test(fmt)) {
+            fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        }
+        if (/(E+)/.test(fmt)) {
+            fmt = fmt.replace(RegExp.$1, ((RegExp.$1.length > 1) ? (RegExp.$1.length > 2 ? "/u661f/u671f" : "/u5468") : "") + week[this.getDay() + ""]);
+        }
+        for (var k in o) {
+            if (new RegExp("(" + k + ")").test(fmt)) {
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+            }
+        }
+        return fmt;
+    }
+
+    $(document).ready(function () {
+
+        GetGrid();
+
+        //绑定键盘按下事件
+        $(document).keypress(function (e) {
+            //回车键事件
+            if (e.which == 13) {
+                $("#keywords").focus();
+                $("#keywords").select();
+                $("#btnSearch").click();
+            }
+        });
+    });
+
+    var CompanyId = "", DepartmentId = "", DepartmentName = "";
+
+
+    Date.prototype.pattern = function (fmt) {
+        var o = {
+            "M+": this.getMonth() + 1, //月份
+            "d+": this.getDate(), //日
+            "h+": this.getHours() % 12 == 0 ? 12 : this.getHours() % 12, //小时
+            "H+": this.getHours(), //小时
+            "m+": this.getMinutes(), //分
+            "s+": this.getSeconds(), //秒
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+            "S": this.getMilliseconds() //毫秒
+        };
+        var week = {
+            "0": "/u65e5",
+            "1": "/u4e00",
+            "2": "/u4e8c",
+            "3": "/u4e09",
+            "4": "/u56db",
+            "5": "/u4e94",
+            "6": "/u516d"
+        };
+        if (/(y+)/.test(fmt)) {
+            fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        }
+        if (/(E+)/.test(fmt)) {
+            fmt = fmt.replace(RegExp.$1, ((RegExp.$1.length > 1) ? (RegExp.$1.length > 2 ? "/u661f/u671f" : "/u5468") : "") + week[this.getDay() + ""]);
+        }
+        for (var k in o) {
+            if (new RegExp("(" + k + ")").test(fmt)) {
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+            }
+        }
+        return fmt;
+    }
+
+    //搜索
+    function btn_Search() {
+        var StartDt = $("#StartDt").val();
+        var EndDt = $("#EndDt").val();
+        var Content = $("#Content").val();
+        var ResponseBy = $("#ResponseBy").val();
+        var ResponseDept = $("#ResponseDept").val();
+        var keywords = "";
+        if (IsNullOrEmpty(StartDt)) {
+            keywords += " and cast(HappenDate as date)>=cast('" + StartDt + "' as date) ";
+        }
+        if (IsNullOrEmpty(EndDt)) {
+            keywords += " and cast(HappenDate as date)<=cast('" + EndDt + "' as date) ";
+        }
+        if (IsNullOrEmpty(Content)) {
+            keywords += " and ProblemDescripe like '%" + Content + "%' ";
+        }
+        if (IsNullOrEmpty(ResponseBy)) {
+            keywords += " and realname like '%" + ResponseBy + "%' ";
+        }
+        if (IsNullOrEmpty(ResponseDept)) {
+            keywords += " and fullname like '%" + ResponseDept + "%' ";
+        }
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "@Url.Content("~/FYModule/GeneralProblem/GridPageListJson")?keywords=" + escape(keywords), page: 1
+        }).trigger('reloadGrid');
+    }
+
+
+    //加载表格
+    function GetGrid() {
+        var SelectRowIndx;
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/FYModule/GeneralProblem/GridPageListJson")",
+            datatype: "json",
+            height: $(window).height() - 178,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'generalproblemid', index: 'generalproblemid', width: 80, align: 'left', hidden: true },
+                { label: '状态', name: 'finishstatus', index: 'finishstatus', width: 80, align: 'left', formatter: colorChange },
+                { label: '产品区域', name: 'productarea', index: 'productarea', width: 50, align: 'left' },
+                { label: '问题类型', name: 'problemtype', index: 'problemtype', width: 50, align: 'left' },
+                { label: '是否重复发生', name: 'isagain', index: 'isagain', width: 50, align: 'left' },
+                { label: '问题类别', name: 'problemtype2', index: 'problemtype2', width: 50, align: 'left'},
+                { label: '责任人', name: 'realname', index: 'realname', width: 50, align: 'left' },
+                { label: '责任部门', name: 'fullname', index: 'fullname', width: 80, align: 'left' },
+                { label: '客户', name: 'customer', index: 'customer', width: 100, align: 'left' },
+                { label: '问题描述', name: 'problemdescripe', index: 'problemdescripe', width: 200, align: 'left', formatter: LengthSubFj },
+                { label: '发生日期', name: 'happendate', index: 'happendate', width: 100, align: 'left', formatter: dateFormat },
+                { label: '根本原因分析', name: 'causeanalysis', index: 'causeanalysis', width: 200, align: 'left', formatter: LengthSubFj_CA },
+                { label: '纠正措施', name: 'correctmeasures', index: 'correctmeasures', width: 200, align: 'left', formatter: LengthSubFj_CM },
+                
+                { label: '计划完成日期', name: 'planfinishdt', index: 'planfinishdt', width: 100, align: 'left', formatter: dateFormat },
+                { label: '实际完成日期', name: 'realfinshdt', index: 'realfinshdt', width: 100, align: 'left', formatter: dateFormat },
+                { label: '问题附件', name: 'problemattach', index: 'problemattach', width: 80, align: 'left', hidden: true },
+                { label: '问题附件', name: 'measureattach', index: 'measureattach', width: 80, align: 'left', hidden: true },
+                { label: '问题附件', name: 'causeanalysisattach', index: 'causeanalysisattach', width: 80, align: 'left', hidden: true },
+
+
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 1000],
+            pager: "#gridPager",
+            sortname: 'happendate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            multiselect: false,
+            //cellattr: addCellAttr,
+
+            // useColSpanStyle:true,
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            },
+            gridComplete: function () {
+                //LoadViewList();
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            }
+        });
+        columnModelData("#gridTable");
+        //自应高度
+        $(window).resize(function () {
+            $("#gridTable").setGridHeight($(window).height() - 178);
+        });
+
+    }
+
+
+    //高级查询
+    var QueryParamJson = "";
+    function btn_query() {
+        QueryDialog("/Utility/QueryPage", "QueryPage", "查询过滤", 770, 395, function (iframe) {
+            top.frames[iframe].QueryClick(function (JsonData) {
+                QueryParamJson = JsonData;
+                $("#gridTable").jqGrid('setGridParam', {
+                    url: "@Url.Content("~/FYModule/GeneralProblem/GridPageListJson")?ParameterJson=" + escape(JsonData), page: 1
+                }).trigger('reloadGrid');
+            });
+        });
+    }
+
+    //新增
+    function btn_add() {
+        var url = "/FYModule/GeneralProblem/Form"
+        openDialog(url, "Form", "新增", 650, 350, function (iframe) {
+            top.frames[iframe].AcceptClick();
+        });
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "generalproblemid");
+        if (IsChecked(KeyValue)) {
+            var url = "/FYModule/GeneralProblem/Form?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑", 650, 350, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+
+        }
+    }
+    //添加检查明细
+    function btn_AddItem()
+    {
+        var KeyValue = GetJqGridRowValue("#gridTable", "generalproblemid");
+        if (IsChecked(KeyValue)) {
+            var url = "/FYModule/GeneralProblem/FormAddItem?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑", 650, 350, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "generalproblemid");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/FYModule/GeneralProblem/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+
+    //导出Excel
+   
+        function btn_derive() {
+            //SetDeriveExcel("#gridTable", "快速反应");
+            //openDialog("/CommonModule/Rapid/ExcelExport", "DeriveDialog", "快速反应导出", 600, 300, function (iframe) {
+            //    top.frames[iframe].AcceptClick();
+            //});
+            var StartDt = $("#StartDt").val();
+            var EndDt = $("#EndDt").val();
+            var Content = $("#Content").val();
+            var ResponseBy = $("#ResponseBy").val();
+            var ResponseDept = $("#ResponseDept").val();
+            var keywords = "";
+            if (IsNullOrEmpty(StartDt)) {
+                keywords += " and cast(HappenDate as date)>=cast('" + StartDt + "' as date) ";
+            }
+            if (IsNullOrEmpty(EndDt)) {
+                keywords += " and cast(HappenDate as date)<=cast('" + EndDt + "' as date) ";
+            }
+            if (IsNullOrEmpty(Content)) {
+                keywords += " and ProblemDescripe like '%" + Content + "%' ";
+            }
+            if (IsNullOrEmpty(ResponseBy)) {
+                keywords += " and realname like '%" + ResponseBy + "%' ";
+            }
+            if (IsNullOrEmpty(ResponseDept)) {
+                keywords += " and fullname like '%" + ResponseDept + "%' ";
+            }
+            window.open(encodeURI("ExcelExport?condition=" + keywords));
+
+        }
+
+    
+
+    function btn_Done()
+    {
+        var KeyValue = GetJqGridRowValue("#gridTable", "generalproblemid");
+        if (IsChecked(KeyValue)) {
+            $.ajax({
+                type: "post",
+                url: "/FYModule/GeneralProblem/FinishIt",
+                data: { GeneralProblemID: KeyValue },
+                async: false,
+                success: function (msg) {
+                    windowload();
+                },
+                error: function () {
+                    alert("出错了");
+                }
+            });
+        }
+    }
+
+    function btn_back() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "generalproblemid");
+        if (IsChecked(KeyValue)) {
+            $.ajax({
+                type: "post",
+                url: "/FYModule/GeneralProblem/RejectIt",
+                data: { GeneralProblemID: KeyValue },
+                async: false,
+                success: function (msg) {
+                    windowload();
+                },
+                error: function () {
+                    alert("出错了");
+                }
+            });
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+    }
+
+
+    //特定单元格添加超链接，可以实现附件下载，后台要把地址传过来
+    function HyperLink() {
+        var data = $("#gridTable").jqGrid("getRowData");
+        for (var i = 0; i < data.length; i++) {
+            data[i].res_ms;
+        }
+    }
+
+    function dateFormat(cellvalue, options, rowObject) {
+        //alert(cellvalue);
+        if (cellvalue == "0001-01-01T00:00:00" || cellvalue == null) {
+            return "";
+        }
+        else {
+            return String(cellvalue).substring(0, 10);
+        }
+    }
+
+    ////根据日期判断，文本显示红色
+    //function LengthSub(cellvalue, options, rowObject) {
+    //    var DateNow = new Date();//取今天的日期
+    //    //alert(rowObject.decidedate);
+    //    var DecideDate = new Date(Date.parse(rowObject.decidedate));
+
+    //    if (cellvalue.length > 20) {
+    //        cellvalue = cellvalue.substring(0, 20) + "....";
+    //    }
+
+
+    //    if (DateNow.pattern("yyyy-MM-dd") > DecideDate.pattern("yyyy-MM-dd"))
+    //    {
+    //        cellvalue = "<font color=\"red\">" + cellvalue + "</font>";
+    //    }
+
+    //    return cellvalue;
+    //}
+
+    function LengthSubFj(cellvalue, options, rowObject) {
+        var temp = "";
+
+        //var address = String(data["NotCompleteReasonfj"]).replace('~', '../../../../')
+        //document.getElementById("uploadifyNotCompleteReasontxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+        //alert(rowObject.res_msfj);
+
+        if (rowObject.problemattach != "" && rowObject.problemattach != null && rowObject.problemattach != undefined && rowObject.problemattach != "&nbsp;") {
+            //alert(11);
+            temp = temp + "<a href=\"" + rowObject.problemattach.replace('~', '../../../../') + "\" download=\"附件下载\">" + "<img src=\"../../../../Content/Images/fileType/application_put.png\" />" + "</a>";
+        }
+        if (cellvalue.length > 20) {
+            return temp + cellvalue.substring(0, 20) + "....";
+        }
+        else {
+            return temp + cellvalue;
+        }
+    }
+
+    function LengthSubFj_CA(cellvalue, options, rowObject) {
+        var temp = "";
+
+        //var address = String(data["NotCompleteReasonfj"]).replace('~', '../../../../')
+        //document.getElementById("uploadifyNotCompleteReasontxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+        //alert(rowObject.res_msfj);
+
+        if (rowObject.causeanalysisattach != "" && rowObject.causeanalysisattach != null && rowObject.causeanalysisattach != undefined && rowObject.causeanalysisattach != "&nbsp;") {
+            //alert(11);
+            temp = temp + "<a href=\"" + rowObject.causeanalysisattach.replace('~', '../../../../') + "\" download=\"附件下载\">" + "<img src=\"../../../../Content/Images/fileType/application_put.png\" />" + "</a>";
+        }
+        if (cellvalue.length > 20) {
+            return temp + cellvalue.substring(0, 20) + "....";
+        }
+        else {
+            return temp + cellvalue;
+        }
+    }
+
+    function LengthSubFj_CM(cellvalue, options, rowObject) {
+        var temp = "";
+
+        //var address = String(data["NotCompleteReasonfj"]).replace('~', '../../../../')
+        //document.getElementById("uploadifyNotCompleteReasontxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+        //alert(rowObject.res_msfj);
+
+        if (rowObject.measureattach != "" && rowObject.measureattach != null && rowObject.measureattach != undefined && rowObject.measureattach != "&nbsp;") {
+            //alert(11);
+            temp = temp + "<a href=\"" + rowObject.measureattach.replace('~', '../../../../') + "\" download=\"附件下载\">" + "<img src=\"../../../../Content/Images/fileType/application_put.png\" />" + "</a>";
+        }
+        if (cellvalue.length > 20) {
+            return temp + cellvalue.substring(0, 20) + "....";
+        }
+        else {
+            return temp + cellvalue;
+        }
+    }
+
+    function colorChange(cellvalue, options, rowObject)
+    {
+        
+        if (cellvalue == "进行中" || cellvalue == "回退")
+        {
+            var myDate = new Date();
+            myDate.toLocaleDateString();
+            var PlanDate = new Date(rowObject.planfinishdt);
+            if (myDate.pattern("yyyy-MM-dd") > PlanDate.pattern("yyyy-MM-dd")) {
+                return "<div style=\"background-color:red;\">" + cellvalue + "</div>"
+            }
+            else {
+                return "<div style=\"background-color:yellow;\">" + cellvalue + "</div>"
+            }
+        }
+        //else if ()
+        //{
+        //    return "<div style=\"background-color:red;\">" + cellvalue + "</div>"
+        //}
+        else if (cellvalue == "已完成")
+        {
+            return "<div style=\"background-color:green;\">" + cellvalue + "</div>"
+        }
+        else
+        {
+            return cellvalue;
+        }
+    }
+
+    function btn_transtorapid() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "generalproblemid");
+        if (IsChecked(KeyValue)) {
+            if (confirm("此操作不可逆，是否确定执行")) {
+                $.ajax({
+                    type: "post",
+                    url: "/FYModule/GeneralProblem/TransToRapid",
+                    data: { ID: KeyValue },
+                    async: false,
+                    success: function (msg) {
+                        windowload();
+                    },
+                    error: function () {
+                        alert("出错了");
+                    }
+                });
+            }
+        }
+    }
+</script>
+
+<!--左边-->
+<!--中间-->
+<div>
+    <div class="btnbartitle">
+        <div>
+            一般问题列表 <span id="CenterTitle"></span>
+        </div>
+    </div>
+    <!--工具栏-->
+    <div class="tools_bar" style="border-top: none; margin-bottom: 0px;">
+        <div class="PartialButton">
+            @Html.Partial("_PartialButton")
+        </div>
+
+    </div>
+    <!--列表-->
+    <div id="grid_List">
+        <div class="bottomline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+            <table border="0" class="form-find" style="height: 45px;">
+                <tr>
+                    <th>
+                        发生日期：
+                    </th>
+                    <td>
+                        <input id="StartDt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="width: 150px" />
+                    </td>
+                    <th>
+                        至：
+                    </th>
+                    <td>
+                        <input id="EndDt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="width: 150px" />
+                    </td>
+                    <th>
+                        问题内容描述：
+                    </th>
+                    <td>
+                        <input id="Content" type="text" class="txt" style="width: 150px" />
+                    </td>
+                    <th>
+                        责任人：
+                    </th>
+                    <td>
+                        <input id="ResponseBy" type="text" class="txt" style="width: 150px" />
+                    </td>
+                    <th>
+                        部门：
+                    </th>
+                    <td>
+                        <input id="ResponseDept" type="text" class="txt" style="width: 150px" />
+                    </td>
+                    <td>
+                        <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <table id="gridTable"></table>
+        <div id="gridPager"></div>
+    </div>
+    <!--视图-->
+
+</div>
+

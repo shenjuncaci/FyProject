@@ -1,0 +1,312 @@
+﻿@{
+    ViewBag.Title = "问题跟踪明细";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+    string UserID = ViewData["UserID"] as string;
+}
+<link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
+<script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>
+<link href="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.css" rel="stylesheet" />
+<script src="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.js"></script>
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
+
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+
+    input {
+        background: #E0FFFF;
+    }
+
+    textarea {
+        background: #E0FFFF;
+    }
+
+    select {
+        background: #E0FFFF;
+    }
+</style>
+
+
+<script type="text/javascript">
+    //$(document).ready(function () {
+
+    //    uploadify();
+    //});
+    $(function () {
+        BindData();
+        
+        InitControl();
+        //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
+        //BindResponseBy();
+        Controleditable();
+
+        $('input[id$="date"]').each(function () {
+
+            var w = this.value.indexOf("T");
+            if (w > 0) {
+                this.value = this.value.substring(0, w);
+            }
+            //this.disabled = true;
+            //this.readOnly = true;
+        });
+
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQueryNew('KeyValue')) {
+            AjaxJson("/FYModule/ProblemAction/SetForm", { KeyValue: GetQueryNew('KeyValue') }, function (data) {
+                SetWebControls(data);
+                
+                uploadify();
+                if (String(data["AttachPath"]) != "" && String(data["AttachPath"]) != "null" && data["AttachPath"] != undefined) {
+
+                    //document.getElementById("uploadify").style.display = "none";
+                    
+                    var address = String(data["AttachPath"]).replace('~', '../../../../')
+                    document.getElementById("tt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                    document.getElementById("tt").style.display = "block";
+                }
+                else { uploadify(); }
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            AjaxJson("/FYModule/ProblemAction/SubmitForm?KeyValue=" + GetQueryNew('KeyValue'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+
+    function BindData()
+    {
+        $("#ResponseBy").html("");
+
+        $("#ResponseBy").append("<option value=''>==请选择==</option>");
+        AjaxJson("/FYModule/Plan/ResponseAllJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#ResponseBy").append($("<option></option>").val(DataJson[i].UserId).html(DataJson[i].RealName));
+            });
+        })
+    }
+
+
+    var index_uploadify = 1;
+    function uploadify() {
+        //if (!!GetQueryNewNew('KeyValue'))
+        //{ alert(11)};
+        $("#uploadify").uploadify({
+            uploader: '/FYModule/ProblemAction/SubmitUploadify?FolderId=' + GetQueryNew('KeyValue'),
+            swf: '/Content/Scripts/uploadify/uploadify.swf',
+            buttonText: "添加文件",
+            height: 24,
+            width: 70,
+            fileSizeLimit: 4096,
+            onFallback: function () {
+                alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+            },
+            onUploadSuccess: function (file, data, response) {
+                alert("上传成功");
+
+                var DataJson = JSON.parse(data);
+                var address = DataJson.NetworkFile.AttachPath;
+                address = address.replace('~', '../../../../');
+                document.getElementById("tt").style.display = "block";
+                document.getElementById("tt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                
+            },
+            onUploadError: function () { alert("发生错误") }
+        });
+    }
+
+    function Controleditable()
+    {
+        var OrderState = $("#ProblemState").val();
+        var ResponseBy = $("#ResponseBy").val();
+        var CreateBy = $("#CreateBy").val();
+
+        if (OrderState == "已完成") {
+            $("form input").prop("readonly", true);
+            $("form input").prop("disabled", true);
+            $("form textarea").prop("readonly", true);
+            $("form select").prop("disabled", true);
+            document.getElementById("tijiao").style.display = "none";
+            document.getElementById("tuihui").style.display = "none";
+            document.getElementById("uploadify").style.display = "none";
+        }
+        else
+        {
+            if ('@UserID' == ResponseBy)
+            {
+                $("form select").prop("disabled", true);
+                document.getElementById("tuihui").style.display = "none";
+                if (OrderState != "进行中" && OrderState!="退回")
+                {
+                    document.getElementById("tijiao").style.display = "none";
+                }
+                $("#Plandate").prop("disabled", true);
+                $("#ProblemDescripe").prop("disabled", true);
+            }
+            else if ('@UserID' == CreateBy)
+            {
+                $("#ResponseBy").searchableSelect();
+                document.getElementsByClassName("searchable-select-holder")[0].innerHTML = $("#ResponseBy").find("option:selected").text();
+                $("#ProblemDescripe").prop("disabled", true);
+                if (OrderState != "待审")
+                {
+                    document.getElementById("tijiao").style.display = "none";
+                    document.getElementById("tuihui").style.display = "none";
+                    document.getElementById("uploadify").style.display = "none";
+                }
+            }
+            else
+            {
+                $("form input").prop("readonly", true);
+                $("form input").prop("disabled", true);
+                $("form textarea").prop("readonly", true);
+                $("form select").prop("disabled", true);
+                document.getElementById("tijiao").style.display = "none";
+                document.getElementById("tuihui").style.display = "none";
+                document.getElementById("uploadify").style.display = "none";
+            }
+        }
+        
+    }
+
+
+    function Approve(tag)
+    {
+        Loading(true, "正在提交数据...");
+
+        var postData = { ActionID: GetQueryNew('KeyValue'), Tag: tag, ActionContent: $("#ActionContent").val() }
+        AjaxJson("/FYModule/ProblemAction/Approve", postData, function (data) {
+            //Loading(false);
+            //window.close();
+        });
+    }
+
+
+</script>
+
+
+<form id="form1">
+    <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">基本信息</div>
+
+
+            </div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+        <!--基本信息-->
+        <div id="basic" class="tabPanel">
+            <table class="form">
+                <tr>
+                    <th class="formTitle">负责人：</th>
+                    <td class="formValue">
+                        <select id="ResponseBy" class="txtselect">
+
+                        </select>
+
+                    </td>
+
+                </tr>
+                <tr>
+                    <th class="formTitle">问题描述：</th>
+                    <td class="formValue">
+                        <input id="ProblemDescripe" type="text" class="txt" />
+                    </td>
+
+                </tr>
+                <tr>
+                    <th class="formTitle">对应措施：</th>
+                    <td class="formValue">
+                        <input id="ActionContent" type="text" class="txt" />
+                    </td>
+
+                </tr>
+               
+                <tr>
+                    <th class="formTitle">计划完成日期：</th>
+                    <td class="formValue">
+                        <input id="Plandate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF;" />
+                    </td>
+
+                </tr>
+                <tr>
+                    <th class="formTitle">实际完成日期：</th>
+                    <td class="formValue">
+                        <input readonly id="RealCompletedate" type="text" class="txt Wdate" style="background:#E0FFFF;" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">附件上传：</th>
+                    <td class="formValue">
+                        <input id="uploadify" name="uploadify" type="file" />
+                        <label id="tt" style="display:none" />
+                    </td>
+
+                 </tr>
+                <tr style="display:none">
+                    <td colspan="2">
+                        <input id="ProblemState" type="text" class="txt" />
+                        <input id="CreateBy" type="text" class="txt" />
+                        <input id="CreateByDept" type="text" class="txt" />
+                    </td>
+                </tr>
+                <tr>
+                    <td><button class="button button-primary button-primary  button-small" id="tijiao" onclick="Approve('Yes')">提交</button></td>
+                    <td><button class="button button-primary button-caution button-small" id="tuihui" onclick="Approve('No')">退回</button></td>
+                </tr>
+            </table>
+        </div>
+
+
+    </div>
+
+</form>

@@ -1,0 +1,302 @@
+﻿@{
+    ViewBag.Title = "工序明细";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+    string UserName = ViewData["UserName"] as string;
+}
+
+<link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
+<script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>
+<script src="~/Content/Scripts/jquey.media/jquery.media.js"></script>
+<link href="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.css" rel="stylesheet" />
+<script src="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.js"></script>
+<link href="~/Content/Scripts/jquery.select2/css/select2.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery.select2/js/select2.js"></script>
+
+
+
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
+
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+
+    input {
+        background: #E0FFFF;
+    }
+
+    textarea {
+        background: #E0FFFF;
+    }
+
+    select {
+        background: #E0FFFF;
+    }
+</style>
+
+
+<script type="text/javascript">
+    //$(document).ready(function () {
+
+    //    uploadify();
+    //});
+    $(function () {
+      
+        BindData();
+        
+        InitControl();
+        //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
+        //BindResponseBy();
+        $('input[id$="Dt"]').each(function () {
+
+            var w = this.value.indexOf("T");
+            if (w > 0) {
+                this.value = this.value.substring(0, w);
+            }
+            //this.disabled = true;
+            //this.readOnly = true;
+        });
+
+        uploadify();
+        
+
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/TrainModule/KnowledgeBase/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+                if (String(data["Attach"]) != "" && String(data["Attach"]) != "null" && data["Attach"] != undefined) {
+
+                    //document.getElementById("uploadify").style.display = "none";
+                    //document.getElementById("select2-SkillID-container")[0].innerHTML = $("#SkillID").find("option:selected").text();
+                    //$("#select2-SkillID-container").text($("#SkillID").find("option:selected").text());
+                    $("#SkillID").prop("disabled", true);
+                    var address = String(data["Attach"]).replace('~', '../../../../');
+                    //address = "'" + address + "'";
+
+                    $('.media').media({
+                        width: 650,
+                        height: 450,
+                        autoplay: true,
+                        src: address,
+                        attrs: { attr1: 'attrValue1', attr2: 'attrValue2' },  // object/embed attrs 
+                        params: { param1: 'paramValue1', param2: 'paramValue2' }, // object params/embed attrs 
+                        caption: false // supress caption text 
+                    }); 
+                }
+            });
+        }
+        else
+        {
+            $("#SkillID").select2();
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            AjaxJson("/TrainModule/KnowledgeBase/SubmitForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+
+    function BindData()
+    {
+        
+        $("#SkillID").html("");
+
+        $("#SkillID").append("<option value=''>==请选择==</option>");
+        AjaxJson("/TrainModule/KnowledgeBase/SkillJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#SkillID").append($("<option></option>").val(DataJson[i].SkillID).html(DataJson[i].SkillName));
+            });
+        });
+    }
+
+
+    var index_uploadify = 1;
+    function uploadify() {
+        //if (!!GetQueryNewNew('KeyValue'))
+        //{ alert(11)};
+        $("#uploadify").uploadify({
+            uploader: '/TrainModule/KnowledgeBase/SubmitUploadify?FolderId=' + GetQueryNew('KeyValue'),
+            swf: '/Content/Scripts/uploadify/uploadify.swf',
+            buttonText: "上传PDF课件",
+            fileTypeExts:"*.pdf",
+            height: 24,
+            width: 70,
+            fileSizeLimit: 140960,
+            onFallback: function () {
+                alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+            },
+            onUploadSuccess: function (file, data, response) {
+                alert("上传成功");
+
+                var DataJson = JSON.parse(data);
+                var address = DataJson.NetworkFile.Attach;
+                $("#Attach").val(address);
+                $("#AttachName").val(DataJson.NetworkFile.AttachName);
+                //alert(DataJson.NetworkFile.AttachName);
+                address = address.replace('~', '../../../../');
+                $('.media').media({
+                    width: 650,
+                    height: 250,
+                    autoplay: true,
+                    src: address,
+                    attrs: { attr1: 'attrValue1', attr2: 'attrValue2' },  // object/embed attrs 
+                    params: { param1: 'paramValue1', param2: 'paramValue2' }, // object params/embed attrs 
+                    caption: false // supress caption text 
+                }); 
+
+            },
+            onUploadError: function () { alert("发生错误") }
+        });
+    }
+
+    //function uploadify_video() {
+    //    //if (!!GetQueryNewNew('KeyValue'))
+    //    //{ alert(11)};
+    //    var FolderID = GetQueryNew('KeyValue');
+    //    $("#uploadify_viedo").uploadify({
+    //        uploader: '/TrainModule/KnowledgeBase/SubmitVideo?FolderId=' + FolderID,
+    //        swf: '/Content/Scripts/uploadify/uploadify.swf',
+    //        buttonText: "上传视频",
+    //        fileTypeExts: "*.mp4",
+    //        height: 24,
+    //        width: 70,
+    //        fileSizeLimit: 204800,
+    //        onFallback: function () {
+    //            alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+    //        },
+    //        onUploadSuccess: function (file, data, response) {
+    //            alert("上传成功");
+
+                
+
+    //        },
+    //        onUploadError: function () { alert("发生错误") }
+    //    });
+    //}
+
+</script>
+
+
+<form id="form1">
+    <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">基本信息</div>
+                
+
+            </div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+        <!--基本信息-->
+        <div id="basic" class="tabPanel">
+            <table class="form">
+
+                <tr>
+                    <th class="formTitle">对应技能：</th>
+                    <td class="formValue" colspan="3">
+                        <select id="SkillID" class="select" datacol="yes" err="对应技能" checkexpession="NotNull"></select>
+
+                    </td>
+
+
+                    
+                </tr>
+                <tr>
+
+                    <th class="formTitle">教材名称</th>
+                    <td class="formValue">
+                        <input id="KnowledgeName" type="text" class="txt" datacol="yes" err="教材名称" checkexpession="NotNull" />
+                    </td>
+                    <th class="formTitle">创建人</th>
+                    <td class="formValue"><input id="CreateName" type="text" class="txt" datacol="yes" readonly /></td>
+                </tr>
+                <tr>
+                    <th class="formTitle">题目数量：</th>
+                    <td class="formValue">
+                        <input id="ChoiceQuestion" type="text" class="txt" datacol="yes" err="题目数量" checkexpession="NumOrNull" onfocus="IsNumber(this.id)" />
+                    </td>
+
+                    <th class="formTitle">考试时间（min）</th>
+                    <td class="formValue">
+                        <input id="ExamMinutes" type="text" class="txt" datacol="yes" err="考试时间" checkexpession="NumOrNull" onfocus="IsNumber(this.id)" />
+
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">课件资料：</th>
+                    <td class="formValue">
+                        <input id="uploadify" name="uploadify" type="file" />
+
+                    </td>
+                    <th class="formTitle">课件视频</th>
+                    <td class="formValue">
+                        <input id="VideoSrc" type="text" class="txt" datacol="yes" />
+
+                    </td>
+
+
+                </tr>
+                <tr style="display:none">
+                    <th class="formTitle" style="display:none"></th>
+                    <td>
+                        <input id="Attach" type="text" class="txt" />
+                        <input id="AttachName" type="text" class="txt" />
+                    </td>
+                    <th class="formTitle" style="display:none"></th>
+                    <td class="formValue" style="display:none">
+                        <input id="JudgmentQuestion" type="text" class="txt" datacol="yes" err="判断题数量" checkexpession="NumOrNull" onfocus="IsNumber(this.id)" value="0" hidden />
+                    </td>
+                </tr>
+            </table>
+        </div>
+       
+
+        </div>
+
+</form>
+<div class="media"></div>

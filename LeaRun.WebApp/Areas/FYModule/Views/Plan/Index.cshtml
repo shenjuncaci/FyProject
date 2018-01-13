@@ -1,0 +1,1044 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = null;
+}
+<link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+<link href="~/Content/Styles/learunui-accordion.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+<script src="~/Content/Scripts/learunui-framework.js"></script>
+<script src="~/Content/Scripts/jquery.fullcalendar/lib/moment.min.js"></script>
+<link href="~/Content/Scripts/jquery.fullcalendar/fullcalendar.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery.fullcalendar/fullcalendar.js"></script>
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+<script src="~/Content/Scripts/datepicker/WdatePicker.js"></script>
+<style>
+    /*div {
+        display: inline
+    }*/
+</style>
+
+
+<script>
+    // 对Date的扩展，将 Date 转化为指定格式的String
+    // 月(M)、日(d)、小时(h)、分(m)、秒(s)、季度(q) 可以用 1-2 个占位符，
+    // 年(y)可以用 1-4 个占位符，毫秒(S)只能用 1 个占位符(是 1-3 位的数字)
+    // 例子：
+    // (new Date()).Format("yyyy-MM-dd hh:mm:ss.S") ==> 2006-07-02 08:09:04.423
+    // (new Date()).Format("yyyy-M-d h:m:s.S")      ==> 2006-7-2 8:9:4.18
+    Date.prototype.pattern = function (fmt) {
+        var o = {
+            "M+": this.getMonth() + 1, //月份
+            "d+": this.getDate(), //日
+            "h+": this.getHours() % 12 == 0 ? 12 : this.getHours() % 12, //小时
+            "H+": this.getHours(), //小时
+            "m+": this.getMinutes(), //分
+            "s+": this.getSeconds(), //秒
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+            "S": this.getMilliseconds() //毫秒
+        };
+        var week = {
+            "0": "/u65e5",
+            "1": "/u4e00",
+            "2": "/u4e8c",
+            "3": "/u4e09",
+            "4": "/u56db",
+            "5": "/u4e94",
+            "6": "/u516d"
+        };
+        if (/(y+)/.test(fmt)) {
+            fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        }
+        if (/(E+)/.test(fmt)) {
+            fmt = fmt.replace(RegExp.$1, ((RegExp.$1.length > 1) ? (RegExp.$1.length > 2 ? "/u661f/u671f" : "/u5468") : "") + week[this.getDay() + ""]);
+        }
+        for (var k in o) {
+            if (new RegExp("(" + k + ")").test(fmt)) {
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+            }
+        }
+        return fmt;
+    }
+
+
+    function calender(date) {
+        var myDate = new Date();
+        myDate.toLocaleDateString();
+
+        var eventData = new Array();
+        var id = new Array();
+        var start = new Array();
+        var content = new Array();
+        var color = new Array();
+        //ajax 获取ecevnt数据
+        var durl = encodeURI('@Url.Action("GetEventData", "Plan")?Date=' + date);
+        $.ajax({
+            type: "post",
+            url: durl,
+            async: false,
+            success: function (msg) {
+                if (msg == "|||") {
+                    //没有数据的时候不做处理，不然分割的时候js会报错
+                }
+                else {
+                    var nowDate;
+                    var temp = msg.split("|");
+                    id = temp[0].split(",");
+                    start = temp[1].split(",");
+                    content = temp[2].split(",");
+                    color = temp[3].split(",");
+                    for (var i = 0; i < id.length; i++) {
+                        var TempObject = {};
+                        TempObject["id"] = id[i];
+                        nowDate = new Date(Date.parse(start[i]));
+                        if (nowDate.pattern("yyyy-MM-dd") < myDate.pattern("yyyy-MM-dd")) {
+                            
+                            if (content[i] != "休息" && content[i] != "已完成") {
+                                //color[i] = "red";
+                                content[i] = "未完成";
+                            }
+                        }
+
+                        if (color[i] == "#36648B") {
+                            TempObject["title"] = "1.早班 "+content[i];
+                        }
+                        else if (color[i] =="#388E8E")
+                        {
+                            TempObject["title"] = "2.中班 " + content[i];
+
+                        }
+                        else if (color[i] == "#8B2252")
+                        {
+                            TempObject["title"] = "3.夜班 " + content[i];
+                        }
+                        else if (color[i] == "grey") {
+                            TempObject["title"] = "4.车间主任 " + content[i];
+                        }
+                        else
+                        {
+                            TempObject["title"] = content[i];
+                        }
+                        TempObject["start"] = start[i];
+                        TempObject["allDay"] = true;
+                        if (content[i] == "休息" || content[i] == "已完成") {
+                            TempObject["backgroundColor"] = "green";
+                        }
+                        else if (content[i] == "未完成")
+                        {
+                            TempObject["backgroundColor"] = "red";
+                        }
+                        else {
+                            //alert(content[i]);
+                            TempObject["backgroundColor"] = color[i];
+                        }
+
+                        
+
+                        eventData.push(TempObject);
+                        //alert(eventData[i].title);
+                        //DataForMyChart2[i] = TempObject;
+                        //TempObject = null;
+                        //alert(DataForMyChart2[i].name);
+                        //i++;
+                    }
+                }
+            },
+            error: function () {
+                alert("出错了");
+            }
+        });
+
+
+
+        $('#calendar').fullCalendar({
+            header: {
+                left: 'prev,next ',
+                center: 'title',
+                right: 'month'
+            },
+
+            //defaultDate: '2017-05-12',
+            navLinks: true, // can click day/week names to navigate views
+            editable: true,
+            eventLimit: true, // allow "more" link when too many events
+            monthNames: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+            monthNamesShort: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+            dayNames: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
+            dayNamesShort: ["周日", "周一", "周二", "周三", "周四", "周五", "周六"],
+            //today: ["今天"],
+            buttonText: {
+                //today: '今天',
+                month: '月',
+                //week: '周',
+                //day: '日',
+                prev: '上一月',
+                next: '下一月'
+            },
+
+            events: eventData,
+
+            @*dayClick: function (date, allDay, jsEvent, view) {
+                //alert(date);
+                //新加event
+                var myDate = new Date();
+                myDate.toLocaleDateString();
+
+                //1号的话允许用户修改所有的数据 ，其余时间不能够修改之前的数据
+                //if (myDate.getDate() != 1) {
+                //    //document.getElementById("SetPlan").style.display = none;
+                //    if (date < myDate) {
+                //        alert("不允许修改当前日期之前的数据");
+                //        return false;
+                //    }
+
+                //}
+
+                var obj = new Array();
+                var reValue = window.showModalDialog('InsertPlan', obj, 'dialogWidth=400px;dialogHeight=200px;');
+
+                if (reValue == undefined) {
+                    return false;
+                }
+
+                //alert(moment(date).format('YYYY-MM-DD'));
+                //alert($.fullCalendar.formatDate(date, "yyyy-MM-dd"));
+                //event.start.format('YYYY-MM-DD')
+                var durl = encodeURI('@Url.Action("InsertEventData", "Plan")?PlanContent=' + reValue[0] + '&ResponseBy=' + reValue[1] + '&PlanDate=' + moment(date).format('YYYY-MM-DD') + '&Line=' + reValue[2] + '&banzu=' + reValue[3]);
+                $.ajax({
+                    type: "post",
+                    url: durl,
+                    async: false,
+                    success: function (msg) {
+                        if (msg > 0) {
+                            //var tempcon = document.getElementById("tempcon").value;
+                            //top.frames[tabiframeId()].windowload();
+                            //alert("成功添加" + msg + "条记录");
+                            //calender();
+                            top.frames[tabiframeId()].Replace()
+                            //closeDialog();
+                            //SettagValue();
+                            //alert("成功");
+                        }
+                        else {
+                            alert("出错了！");
+                        }
+                    },
+                    error: function () {
+                        alert("出错了");
+                    }
+                });
+            },*@
+            eventClick: function (event, jsEvent, view) {
+                var myDate = new Date();
+                myDate.setDate(myDate.getDate() - 1);  
+                //myDate.toLocaleDateString();
+                //alert(myDate.getDate());
+                var plandate = new Date(Date.parse(event.start));
+
+                if (plandate.pattern("yyyy-MM-dd") < myDate.pattern("yyyy-MM-dd")) {
+                        alert("不允许修改当前日期之前的数据");
+                        return false;
+                    }
+                    // 1号
+                
+
+                var obj = new Array();
+                var reValue = window.showModalDialog('UpdatePlan?id=' + event.id, window, 'dialogWidth=400px;dialogHeight=200px;status:1;title:0;');
+                //var reValue = Dialog('UpdatePlan?id=' + event.id, "test", "test", 400, 200)
+                //alert(reValue);
+                if (reValue == undefined) {
+                    return false;
+                }
+                if (reValue == "del") {
+                    if (confirm("确认要删除？")) {
+                        var durl = encodeURI('@Url.Action("DeleteEventData", "Plan")?id=' + event.id);
+                        $.ajax({
+                            type: "post",
+                            url: durl,
+                            async: false,
+                            success: function (msg) {
+                                if (msg > 0) {
+                                    alert("删除成功");
+                                    //top.frames[tabiframeId()].Replace();
+                                    AjaxLoadData(document.getElementsByTagName('h2')[0].innerHTML);
+                                }
+                                else if (msg == -2)
+                                {
+                                    alert("本条记录已经审核过，不能删除");
+
+                                }
+                                else {
+                                    alert("出错了！");
+                                }
+                            },
+                            error: function () {
+                                alert("出错了");
+                            }
+                        });
+                    }
+                }
+                else if (reValue == "leave")
+                {
+                    if (confirm("是否确认休息？")) {
+                        var durl = encodeURI('@Url.Action("LeaveEventData", "Plan")?id=' + event.id);
+                        $.ajax({
+                            type: "post",
+                            url: durl,
+                            async: false,
+                            success: function (msg) {
+                                if (msg > 0) {
+                                    alert("休息成功");
+                                    //top.frames[tabiframeId()].Replace();
+                                    AjaxLoadData(document.getElementsByTagName('h2')[0].innerHTML);
+                                }
+                                else if (msg == -2)
+                                {
+                                    alert("本条记录已经有审核记录，不能休息");
+
+                                }
+                                else {
+                                    alert("出错了！");
+                                }
+                            },
+                            error: function () {
+                                alert("出错了");
+                            }
+                        });
+                    }
+
+                }
+                else
+                {
+
+                    var durl = encodeURI('@Url.Action("UpdateEventData", "Plan")?PlanContent=' + reValue[0] + '&PlanID=' + event.id + '&Line=' + reValue[1]);
+                $.ajax({
+                    type: "post",
+                    url: durl,
+                    async: false,
+                    success: function (msg) {
+                        if (msg > 0) {
+                            //top.frames[tabiframeId()].Replace()
+                            AjaxLoadData(document.getElementsByTagName('h2')[0].innerHTML);
+                        }
+                        else if (msg == -2)
+                        {
+                            alert("本条记录已经审核过，不能删除");
+                        }
+                        else {
+                            alert("出错了！");
+                        }
+                    },
+                    error: function () {
+                        alert("出错了");
+                    }
+                });
+
+                }
+            }
+        });
+
+        //alert(eventData);
+    }
+
+
+    //点击下个月后绑定数据
+    function ChangMonth(date)
+    {
+        var myDate = new Date();
+        myDate.setDate(myDate.getDate());  
+        //alert(11);
+        var eventData = new Array();
+        var id = new Array();
+        var start = new Array();
+        var content = new Array();
+        var color = new Array();
+        //ajax 获取ecevnt数据
+        var durl = encodeURI('@Url.Action("GetEventData", "Plan")?Date=' + date);
+        $.ajax({
+            type: "post",
+            url: durl,
+            async: false,
+            success: function (msg) {
+                if (msg == "|||") {
+                    //没有数据的时候不做处理，不然分割的时候js会报错
+                }
+                else {
+                    var nowDate;
+                    var temp = msg.split("|");
+                    id = temp[0].split(",");
+                    start = temp[1].split(",");
+                    content = temp[2].split(",");
+                    color = temp[3].split(",");
+                    for (var i = 0; i < id.length; i++) {
+                        var TempObject = {};
+                        TempObject["id"] = id[i];
+
+                        nowDate = new Date(Date.parse(start[i]));
+                        if (nowDate.pattern("yyyy-MM-dd") < myDate.pattern("yyyy-MM-dd")) {
+
+                            if (content[i] != "休息" && content[i] != "已完成") {
+                                //color[i] = "red";
+                                content[i] = "未完成";
+                            }
+                        }
+
+                        if (color[i] == "#36648B") {
+                            TempObject["title"] = "1.早班 " + content[i];
+                        }
+                        else if (color[i] == "#388E8E") {
+                            TempObject["title"] = "2.中班 " + content[i];
+
+                        }
+                        else if (color[i] == "#8B2252") {
+                            TempObject["title"] = "3.夜班 " + content[i];
+                        }
+                        else if (color[i] == "grey") {
+                            TempObject["title"] = "4.车间主任 " + content[i];
+                        }
+                        else {
+                            TempObject["title"] = content[i];
+                        }
+                        TempObject["start"] = start[i];
+                        TempObject["allDay"] = true;
+                        if (content[i] == "休息" || content[i] == "已完成") {
+                            TempObject["backgroundColor"] = "green";
+                        }
+                        else if (content[i] == "未完成") {
+                            TempObject["backgroundColor"] = "red";
+                        }
+                        else {
+                            TempObject["backgroundColor"] = color[i];
+                        }
+                        eventData.push(TempObject);
+                        //alert(eventData[i].title);
+                        //DataForMyChart2[i] = TempObject;
+                        //TempObject = null;
+                        //alert(DataForMyChart2[i].name);
+                        //i++;
+                    }
+                }
+            },
+            error: function () {
+                alert("出错了");
+            }
+        });
+        //fullcalendart
+        $('#calendar').fullCalendar('removeEvents');
+        $('#calendar').fullCalendar('renderEvents', eventData, true);
+        loadData();
+    }
+
+    ///ajax获取左侧明细信息显示
+    function info()
+    {
+         var durl = encodeURI('@Url.Action("GetInfo", "Plan")');
+                $.ajax({
+                    type: "post",
+                    url: durl,
+                    async: false,
+                    success: function (msg) {
+                        if (msg != "") {
+                            document.getElementById("info").innerHTML = msg + document.getElementById("info").innerHTML;
+                        }
+                        else {
+                            alert("出错了！");
+                        }
+                    },
+                    error: function () {
+                        alert("出错了");
+                    }
+                });
+    }
+
+
+    function Geshi()
+    {
+        //alert(11);
+        $('input[id^="Date"]').each(function () {
+
+                this.value = this.value.substring(0, 9);
+
+        });
+    }
+
+	$(document).ready(function() {
+        var myDate = new Date();
+        myDate.toLocaleDateString();
+        calender(myDate);
+        info();
+        BindData();
+        loadData();
+        //HideButton();
+        
+
+    });
+
+
+    function BatchPlan()
+    {
+        //alert(document.getElementsByTagName('h2')[0].innerHTML);
+        //return false;
+        //alert("11");
+        if (confirm('批量排产会删除该车间本月的计划数据，是否确认继续？'))
+        {
+            var durl = encodeURI('@Url.Action("BatchPlan", "Plan")?date=' + document.getElementsByTagName('h2')[0].innerHTML);
+            $.ajax({
+                type: "post",
+                url: durl,
+                async: false,
+                success: function (msg) {
+                    if (msg > 0) {
+
+                        //top.frames[tabiframeId()].Replace();
+                        AjaxLoadData(document.getElementsByTagName('h2')[0].innerHTML);
+                    }
+                    else {
+                        alert("出错了！");
+                    }
+                },
+                error: function () {
+                    alert("出错了");
+                }
+            });
+        }
+        else
+        {
+            //alert("22");
+            return false;
+        }
+
+    }
+
+    //绑定下拉框
+    function BindData()
+    {
+        $("#Name1").html("");
+
+        $("#Name1").append("<option value=''>==请选择==</option>");
+        AjaxJson("/FYModule/Plan/ChangZhangJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#Name1").append($("<option></option>").val(DataJson[i].UserId).html(DataJson[i].RealName));
+            });
+        });
+
+        //$("#Name2").html("");
+
+        //$("#Name2").append("<option value=''>==请选择==</option>");
+        //AjaxJson("/FYModule/Plan/ChejianzhurenJson", {}, function (DataJson) {
+        //    $.each(DataJson, function (i) {
+        //        $("#Name2").append($("<option></option>").val(DataJson[i].UserId).html(DataJson[i].RealName));
+        //    });
+        //});
+        //$("#Name3").html("");
+
+        //$("#Name3").append("<option value=''>==请选择==</option>");
+        //AjaxJson("/FYModule/Plan/ChejianzhurenJson", {}, function (DataJson) {
+        //    $.each(DataJson, function (i) {
+        //        $("#Name3").append($("<option></option>").val(DataJson[i].UserId).html(DataJson[i].RealName));
+        //    });
+        //});
+        //$("#Name4").html("");
+
+        //$("#Name4").append("<option value=''>==请选择==</option>");
+        //AjaxJson("/FYModule/Plan/ChejianzhurenJson", {}, function (DataJson) {
+        //    $.each(DataJson, function (i) {
+        //        $("#Name4").append($("<option></option>").val(DataJson[i].UserId).html(DataJson[i].RealName));
+        //    });
+        //});
+
+        //$("#Name5").html("");
+
+        //$("#Name5").append("<option value=''>==请选择==</option>");
+        //AjaxJson("/FYModule/Plan/ChejianzhurenJson", {}, function (DataJson) {
+        //    $.each(DataJson, function (i) {
+        //        $("#Name5").append($("<option></option>").val(DataJson[i].UserId).html(DataJson[i].RealName));
+        //    });
+        //});
+
+        //$("input[id^='Name']").each(function () {
+        //    this.value = "11";
+        //});
+
+        $("#Line1").html("");
+
+        $("#Line1").append("<option value=''>==请选择==</option>");
+        AjaxJson("/FYModule/Plan/LineJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#Line1").append($("<option></option>").val(DataJson[i].LineName).html(DataJson[i].LineName));
+            });
+        });
+
+        //$("#Line2").html("");
+
+        //$("#Line2").append("<option value=''>==请选择==</option>");
+        //AjaxJson("/FYModule/Plan/LineJson", {}, function (DataJson) {
+        //    $.each(DataJson, function (i) {
+        //        $("#Line2").append($("<option></option>").val(DataJson[i].LineName).html(DataJson[i].LineName));
+        //    });
+        //});
+
+        //$("#Line3").html("");
+
+        //$("#Line3").append("<option value=''>==请选择==</option>");
+        //AjaxJson("/FYModule/Plan/LineJson", {}, function (DataJson) {
+        //    $.each(DataJson, function (i) {
+        //        $("#Line3").append($("<option></option>").val(DataJson[i].LineName).html(DataJson[i].LineName));
+        //    });
+        //});
+
+
+        //$("#Line4").html("");
+
+        //$("#Line4").append("<option value=''>==请选择==</option>");
+        //AjaxJson("/FYModule/Plan/LineJson", {}, function (DataJson) {
+        //    $.each(DataJson, function (i) {
+        //        $("#Line4").append($("<option></option>").val(DataJson[i].LineName).html(DataJson[i].LineName));
+        //    });
+        //});
+
+        //$("#Line5").html("");
+
+        //$("#Line5").append("<option value=''>==请选择==</option>");
+        //AjaxJson("/FYModule/Plan/LineJson", {}, function (DataJson) {
+        //    $.each(DataJson, function (i) {
+        //        $("#Line5").append($("<option></option>").val(DataJson[i].LineName).html(DataJson[i].LineName));
+        //    });
+        //});
+
+        $("#Audit1").html("");
+
+        $("#Audit1").append("<option value=''>==请选择==</option>");
+        AjaxJson("/FYModule/Plan/EventJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#Audit1").append($("<option></option>").val(DataJson[i].ProcessName).html(DataJson[i].ProcessName));
+            });
+        });
+
+        //$("#Audit2").html("");
+        //$("#Audit2").append("<option value=''>==请选择==</option>");
+        //AjaxJson("/FYModule/Plan/EventJson", {}, function (DataJson) {
+        //    $.each(DataJson, function (i) {
+        //        $("#Audit2").append($("<option></option>").val(DataJson[i].ProcessName).html(DataJson[i].ProcessName));
+        //    });
+        //});
+
+        //$("#Audit3").html("");
+        //$("#Audit3").append("<option value=''>==请选择==</option>");
+        //AjaxJson("/FYModule/Plan/EventJson", {}, function (DataJson) {
+        //    $.each(DataJson, function (i) {
+        //        $("#Audit3").append($("<option></option>").val(DataJson[i].ProcessName).html(DataJson[i].ProcessName));
+        //    });
+        //});
+
+        //$("#Audit4").html("");
+        //$("#Audit4").append("<option value=''>==请选择==</option>");
+        //AjaxJson("/FYModule/Plan/EventJson", {}, function (DataJson) {
+        //    $.each(DataJson, function (i) {
+        //        $("#Audit4").append($("<option></option>").val(DataJson[i].ProcessName).html(DataJson[i].ProcessName));
+        //    });
+        //});
+
+        //$("#Audit5").html("");
+        //$("#Audit5").append("<option value=''>==请选择==</option>");
+        //AjaxJson("/FYModule/Plan/EventJson", {}, function (DataJson) {
+        //    $.each(DataJson, function (i) {
+        //        $("#Audit5").append($("<option></option>").val(DataJson[i].ProcessName).html(DataJson[i].ProcessName));
+        //    });
+        //});
+    }
+
+    //拼接字符串，提交数据，卧槽不能用confirm，和系统自带的confirm冲突，查了一天，(⊙﹏⊙)b
+    function confirmall()
+    {
+
+        var DataChangzhang = "";
+        var DataChejianzhuren1 = "";
+        var DataChejianzhuren2 = "";
+        var DataChejianzhuren3 = "";
+        var DataChejianzhuren4 = "";
+
+        if ($("#Name1").val() == undefined || $("#Name1").val() == "" || $("#Name1").val() == null)
+        {
+            alert("请选择厂长");
+            return false;
+        }
+        if ($("#Audit1").val() == undefined || $("#Audit1").val() == "" || $("#Audit1").val() == null) {
+            alert("请填写厂长的审批内容");
+            return false;
+        }
+        if ($("#Line1").val() == undefined || $("#Line1").val() == "" || $("#Line1").val() == null) {
+            alert("请填写厂长需要审批的生产线");
+            return false;
+        }
+        if ($("#Date1").val() == undefined || $("#Date1").val() == "" || $("#Date1").val() == null) {
+            alert("请填写厂长的审批日期");
+            return false;
+        }
+        //alert($("#Date1").val());
+        //第一步，厂长数据
+        DataChangzhang += "" + $("#ID1").val() + "," + "" + $("#Name1").val() + "," + "" + $("#Audit1").val() + "," + "" + $("#Line1").val() + "," + "" + $("#Date1").val();
+        //车间主任第一条数据
+        //DataChejianzhuren1 += "" + $("#ID2").val() + "," + "" + $("#Name2").val() + "," + "" + $("#Audit2").val() + "," + "" + $("#Line2").val() + "," + "" + $("#Date2").val();
+        ////第二条
+        //DataChejianzhuren2 += "" + $("#ID3").val() + "," + "" + $("#Name3").val() + "," + "" + $("#Audit3").val() + "," + "" + $("#Line3").val() + "," + "" + $("#Date3").val();
+        ////第三条
+        //DataChejianzhuren3 += "" + $("#ID4").val() + "," + "" + $("#Name4").val() + "," + "" + $("#Audit4").val() + "," + "" + $("#Line4").val() + "," + "" + $("#Date4").val();
+        ////第四条
+        //DataChejianzhuren4 += "" + $("#ID5").val() + "," + "" + $("#Name5").val() + "," + "" + $("#Audit5").val() + "," + "" + $("#Line5").val() + "," + "" + $("#Date5").val();
+
+        //最后的结果
+        var result = DataChangzhang;
+        //有#的时候会报错，先替换，后台再替换回来
+        result = result.replace('#', '|');
+        
+        //alert(result);
+        //ajax提交
+        var durl = encodeURI('@Url.Action("SubmitOtherData", "Plan")?result=' + result);
+            $.ajax({
+                type: "post",
+                url: durl,
+                async: false,
+                success: function (msg) {
+                    if (msg > 0) {
+
+                        //top.frames[tabiframeId()].Replace();
+                        loadData();
+                        alert("保存成功");
+                    }
+                    else {
+                        alert("出错了！");
+                    }
+                },
+                error: function () {
+                    alert("出错了");
+                }
+            });
+    }
+
+    function loadData()
+    {
+        var durl = encodeURI('@Url.Action("SetOtherData", "Plan")?date=' + document.getElementsByTagName('h2')[0].innerHTML);
+
+            $.ajax({
+                type: "post",
+                url: durl,
+                async: false,
+                success: function (msg) {
+                    if (msg != ",,,,") {
+                        var arr = new Array();
+                        var splitarr = new Array();
+                        //防止异常数据的报错，增加一个冗余
+                        var temp = 4;
+
+                        arr = msg.split(',');
+                        //if (arr.length < 4)
+                        //{
+                        //    temp = arr.length;
+                        //}
+                        //alert(arr.length);
+                        //for (var i = 0; i < arr.length; i++)
+                        //{
+                        //    //因为ID是从0开始的，所以增加一个j来匹配ID
+                        //    j = i + 1;
+                        //    splitarr = arr[i].split(',');
+                        //    $("#ID" + 1).val(arr[0]);
+                        //    $("#Name" + 1).val(arr[1]);
+                        //    $("#Audit" + 1).val(arr[2]);
+                        //    $("#Line" + 1).val(arr[3]);
+                        //    $("#Date" + 1).val(arr[4]);
+                        //}
+                        $("#ID" + 1).val(arr[0]);
+                        $("#Name" + 1).val(arr[1]);
+                        $("#Audit" + 1).val(arr[2]);
+                        $("#Line" + 1).val(arr[3]);
+                        $("#Date" + 1).val(arr[4]);
+
+
+                    }
+                    else {
+                        //alert("厂长车间主任数据未排，请尽快完善");
+                        var arr = new Array();
+                        var splitarr = new Array();
+                        //防止异常数据的报错，增加一个冗余
+                        var temp = 4;
+
+                        arr = msg.split(',');
+                        //if (arr.length < 4)
+                        //{
+                        //    temp = arr.length;
+                        //}
+                        //alert(arr.length);
+                        $("#ID" + 1).val(splitarr[0]);
+                        $("#Name" + 1).val(splitarr[1]);
+                        $("#Audit" + 1).val(splitarr[2]);
+                        $("#Line" + 1).val(splitarr[3]);
+                        $("#Date" + 1).val(splitarr[4]);
+                    }
+                    Geshi();
+                },
+                error: function () {
+                    alert("出错了");
+                }
+            });
+    }
+
+    function HideButton()
+    {
+        var myDate = new Date();
+        myDate.toLocaleDateString();
+
+        //1号的话允许用户修改所有的数据 ，其余时间不能够修改之前的数据
+        if (myDate.getDate() != 1) {
+            document.getElementById("SetPlan").style.display = "none";
+        }
+    }
+
+
+    //以下方法是为了不刷新页面显示数据做的，通过ajax以及重新绑定数据，来达到不刷新的操作，提升用户体验
+    function AjaxLoadData(date)
+    {
+        var myDate = new Date();
+        myDate.setDate(myDate.getDate());  
+        //alert(11);
+        var eventData = new Array();
+        var id = new Array();
+        var start = new Array();
+        var content = new Array();
+        var color = new Array();
+        //ajax 获取ecevnt数据
+        var durl = encodeURI('@Url.Action("GetAjaxEventData", "Plan")?Date=' + date);
+        $.ajax({
+            type: "post",
+            url: durl,
+            async: false,
+            success: function (msg) {
+                if (msg == "|||") {
+                    //没有数据的时候不做处理，不然分割的时候js会报错
+                }
+                else {
+                    var nowDate;
+                    var temp = msg.split("|");
+                    id = temp[0].split(",");
+                    start = temp[1].split(",");
+                    content = temp[2].split(",");
+                    color = temp[3].split(",");
+                    for (var i = 0; i < id.length; i++) {
+                        var TempObject = {};
+                        TempObject["id"] = id[i];
+
+                        nowDate = new Date(Date.parse(start[i]));
+                        if (nowDate.pattern("yyyy-MM-dd") < myDate.pattern("yyyy-MM-dd")) {
+
+                            if (content[i] != "休息" && content[i] != "已完成") {
+                                //color[i] = "red";
+                                content[i] = "未完成";
+                            }
+                        }
+
+                        if (color[i] == "#36648B") {
+                            TempObject["title"] = "1.早班 " + content[i];
+                        }
+                        else if (color[i] == "#388E8E") {
+                            TempObject["title"] = "2.中班 " + content[i];
+
+                        }
+                        else if (color[i] == "#8B2252") {
+                            TempObject["title"] = "3.夜班 " + content[i];
+                        }
+                        else if (color[i] == "grey") {
+                            TempObject["title"] = "4.车间主任 " + content[i];
+                        }
+                        else
+                        {
+                            TempObject["title"] = content[i];
+                        }
+                        TempObject["start"] = start[i];
+                        TempObject["allDay"] = true;
+                        if (content[i] == "休息" || content[i] == "已完成") {
+                            TempObject["backgroundColor"] = "green";
+                        }
+                        else if (content[i] == "未完成") {
+                            TempObject["backgroundColor"] = "red";
+                        }
+                        else {
+                            TempObject["backgroundColor"] = color[i];
+                        }
+                        eventData.push(TempObject);
+                        //alert(eventData[i].title);
+                        //DataForMyChart2[i] = TempObject;
+                        //TempObject = null;
+                        //alert(DataForMyChart2[i].name);
+                        //i++;
+                    }
+                }
+            },
+            error: function () {
+                alert("出错了");
+            }
+        });
+        //fullcalendart
+        $('#calendar').fullCalendar('removeEvents');
+        $('#calendar').fullCalendar('renderEvents', eventData, true);
+        loadData();
+    }
+</script>
+<style>
+
+	body {
+		margin: 40px 10px;
+		padding: 0;
+		font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+		font-size: 14px;
+	}
+
+	#calendar {
+		max-width: 900px;
+		margin: 0 auto;
+	}
+
+</style>
+<body>
+    <div id="info" style="float:left;width:30%">
+        <table class="form">
+
+            <tr style="display:none">
+                <td style="display:none"><input id="ID1" type="text" class="txt" /></td>
+                <th class="formTitle" style="width:25%;text-align:left">厂长：</th>
+               
+                    
+                    
+                <th class="formTitle"  style="width:25%;text-align:left">审核内容：</th>
+                
+                <th class="formTitle"  style="width:25%;text-align:left">生产线：</th>
+                
+                <th class="formTitle" style="width:25%;text-align:left">日期：</th>
+                
+            </tr>
+            <tr style="display:none">
+                <td class="formValue" style="width:15%">
+                   <select id="Name1" class="txtselect"></select>
+             </td>
+                <td class="formValue" style="width:15%">
+
+                    <select id="Audit1" class="txtselect"></select>
+                </td>
+                <td class="formValue" style="width:15%">
+                    <select id="Line1" class="txtselect"></select>
+                </td>
+                <td class="formValue" style="width:15%">
+                    <input id="Date1" type="text" class="txt Wdate" onfocus="WdatePicker()" />
+                </td>
+            </tr>
+            @*<tr style="display:none">
+        <td style="display:none"><input id="ID2" type="text" class="txt" /></td>
+        <th class="formTitle" style="text-align:left">车间主任：</th>
+
+        <th class="formTitle" style="text-align:left">审核内容：</th>
+
+        <th class="formTitle" style="text-align:left">生产线：</th>
+
+        <th class="formTitle" style="text-align:left">日期：</th>
+
+    </tr>
+    <tr style="display:none">
+        <td class="formValue">
+            <select id="Name2" class="txtselect"></select>
+        </td>
+        <td class="formValue">
+            <select id="Audit2" class="txtselect"></select>
+        </td>
+        <td class="formValue">
+            <select id="Line2" class="txtselect"></select>
+        </td>
+        <td class="formValue" style="width:15%">
+            <input id="Date2" type="text" class="txt Wdate" onfocus="WdatePicker()" />
+        </td>
+    </tr>
+    <tr style="display:none">
+        <td style="display:none"><input id="ID3" type="text" class="txt" /></td>
+        <th class="formTitle" style="text-align:left">车间主任：</th>
+
+        <th class="formTitle" style="text-align:left">审核内容：</th>
+
+        <th class="formTitle" style="text-align:left">生产线：</th>
+
+        <th class="formTitle" style="text-align:left">日期：</th>
+
+    </tr>
+    <tr style="display:none">
+        <td class="formValue">
+            <select id="Name3" class="txtselect"></select>
+        </td>
+        <td class="formValue">
+            <select id="Audit3" class="txtselect"></select>
+        </td>
+        <td class="formValue">
+            <select id="Line3" class="txtselect"></select>
+        </td>
+        <td class="formValue" style="width:15%">
+            <input id="Date3" type="text" class="txt Wdate" onfocus="WdatePicker()" />
+        </td>
+    </tr>
+    <tr style="display:none">
+        <td style="display:none"><input id="ID4" type="text" class="txt" /></td>
+        <th class="formTitle" style="text-align:left">车间主任：</th>
+
+        <th class="formTitle" style="text-align:left">审核内容：</th>
+
+        <th class="formTitle" style="text-align:left">生产线：</th>
+
+        <th class="formTitle" style="text-align:left">日期：</th>
+
+    </tr>
+    <tr style="display:none">
+        <td class="formValue">
+            <select id="Name4" class="txtselect"></select>
+        </td>
+        <td class="formValue">
+            <select id="Audit4" class="txtselect"></select>
+        </td>
+        <td class="formValue">
+            <select id="Line4" class="txtselect"></select>
+        </td>
+        <td class="formValue" style="width:15%">
+
+            <input id="Date4" type="text" class="txt Wdate" onfocus="WdatePicker()" />
+        </td>
+    </tr>
+    <tr style="display:none">
+        <td style="display:none"><input id="ID5" type="text" class="txt" /></td>
+        <th class="formTitle" style="text-align:left">车间主任：</th>
+
+        <th class="formTitle" style="text-align:left">审核内容：</th>
+
+        <th class="formTitle" style="text-align:left">生产线：</th>
+
+        <th class="formTitle" style="text-align:left">日期：</th>
+
+    </tr>
+    <tr style="display:none">
+        <td class="formValue">
+            <select id="Name5" class="txtselect"></select>
+        </td>
+        <td class="formValue">
+            <select id="Audit5" class="txtselect"></select>
+        </td>
+        <td class="formValue">
+            <select id="Line5" class="txtselect"></select>
+        </td>
+        <td class="formValue" style="width:15%">
+
+            <input id="Date5" type="text" class="txt Wdate" onfocus="WdatePicker()" />
+        </td>
+    </tr>*@
+
+        </table>
+        @*<button class="button button-primary button-square button-small" onclick="confirmall()">确认</button>*@
+    </div>
+    <div style="float:right;width:70%">
+	     <div id='calendar'>
+       
+         </div>
+    </div>
+
+</body>
+

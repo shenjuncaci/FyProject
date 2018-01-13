@@ -1,0 +1,32 @@
+﻿
+@{
+    ViewBag.Title = "SkillExam";
+}
+
+<body>
+    <div data-role="page">
+
+        <div data-role="header">
+            <a href="#" data-role="button" data-rel="back" data-icon="arrow-l">后退</a><h1>技能考试</h1>
+        </div>
+
+        <div data-role="content">
+            @Html.Raw(ViewData["Content"])
+        </div>
+
+        <div data-role="footer">
+            <h1>develop by--shenjun</h1>
+        </div>
+
+    </div>
+</body>
+<script>
+    //function examinfo(id, type) {
+    //    if (type == "0") {
+    //        alert("技能");
+    //    }
+    //    if (type == "1") {
+    //        alert("专项");
+    //    }
+    //}
+</script>

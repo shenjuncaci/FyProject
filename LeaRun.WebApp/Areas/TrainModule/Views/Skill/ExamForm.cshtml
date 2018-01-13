@@ -1,0 +1,362 @@
+﻿@using LeaRun.Entity;
+@using LeaRun.Utilities;
+@{
+    ViewBag.Title = "ExamForm";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+    //List<TR_ChoiceQuestion> ChoiceList = ViewData["ChoiceList"] as List<TR_ChoiceQuestion>;
+    //List<TR_JudgmentQuestion> JudgmentList = ViewData["JudgmentList"] as List<TR_JudgmentQuestion>;
+
+    TR_PersonalInfo info = ViewData["Info"] as TR_PersonalInfo;
+}
+
+<style>
+    .examselect {
+        border: 1px solid #fff;
+        border-bottom: 1px solid #A8A8A8;
+        height: 22px;
+        line-height: 22px;
+        position: relative;
+    }
+</style>
+<div id="info" style="float:left;width:20%">
+    <h2>@info.ExamName 考试</h2>
+    </br>
+    <table>
+        <tr>
+            <td>工号:</td>
+            <td>@info.UserCode</td>
+        </tr>
+        <tr>
+            <td>姓名:</td>
+            <td>@info.UserName</td>
+        </tr>
+
+        <tr>
+            <td>考试时长:</td>
+            <td>@info.ExamTime (min)</td>
+        </tr>
+        <tr>
+            <td>开始时间:</td>
+            <td>@info.StartTime</td>
+        </tr>
+        <tr>
+            <td>结束时间:</td>
+            <td>@info.EndTime</td>
+        </tr>
+        <tr style="height:30px"></tr>
+        <tr>
+            <td colspan="2">倒计时</td>
+        </tr>
+        <tr>
+            <td colspan="2"><div id="renderTime"></div></td>
+        </tr>
+    </table>
+</div>
+
+<div id="detail" style="float:right;width:80%">
+    <form id="examForm">
+        @*<h2>选择题</h2>
+                    <div>
+                        <table>
+                @for (int i = 0; i < ChoiceList.Count; i++)
+                {
+
+                    <tr>
+                        <td>第@(i + 1)题：@ChoiceList[i].QuestionDescripe &nbsp;&nbsp;&nbsp;&nbsp; </td>
+                        <td>
+                        (<select id="@ChoiceList[i].QuestionID" class="examselect">
+                            <option value=""></option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>)
+                    </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                        A.@ChoiceList[i].Option1 &nbsp;&nbsp;&nbsp;&nbsp;
+                        B.@ChoiceList[i].Option2 &nbsp;&nbsp;&nbsp;&nbsp;
+                        C.@ChoiceList[i].Option3 &nbsp;&nbsp;&nbsp;&nbsp;
+                        D.@ChoiceList[i].Option4 &nbsp;&nbsp;&nbsp;&nbsp;
+                            </td>
+                    </tr>
+
+
+
+                }
+                            </table>
+                        </div>
+                </br></br>
+                <h2>判断题</h2>
+                    <div>
+                        <table>
+
+                        @for (int i = 0; i < JudgmentList.Count; i++)
+                        {
+                            <tr>
+                                <td>
+                                第@(i + 1)题：@JudgmentList[i].QuestionDescripe  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                                    </td>
+                                <td>(
+                                <select id="@JudgmentList[i].QuestionID" class="examselect">
+                                    <option value=""></option>
+                                    <option value="正确">正确</option>
+                                    <option value="错误">错误</option>
+                                </select>)
+                                </td>
+                                </tr >
+
+                        }
+
+            </table>
+                        </div >*@
+    </form>
+</div>
+
+<div id="warn" style="font-size:30px;align-content:center;margin:0 auto;">
+    每次考试需间隔7天时间，目前无法进行考试，离下次考试时间还剩余 @(7 - Convert.ToInt32(ViewData["DateSpan"])) 天
+</div>
+
+
+<script>
+    var tempNum = 0;
+    //利用这个方法在考试时间到了以后强制提交
+    $(document).ready(function () {
+
+        AjaxJson("/TrainModule/skill/GetPaper", { KeyValue: GetQuery('KeyValue') }, function (data) {
+            var i = 0;
+            var iSingle = 0;
+            var iMulit = 0;
+            var Single = "<h2>单选题</h2>";
+            var MultiSelect = "<h2>多选题</h2>";
+            var Paper = document.getElementById('examForm');
+            for (var o in data)
+            {
+                i = i + 1;
+                if (data[o].QuestionType == "单选题") {
+                    iSingle = iSingle + 1;
+                    Single += "<h5>第" + iSingle + "题." + data[o].QuestionDescripe + "</h5>" +
+                        "<input id=A name='" + data[o].QuestionID + "' type='radio' class='test'/>A." + data[o].Option1 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>" +
+                        "<input id=B name='" + data[o].QuestionID + "' type='radio' class='test'/>B." + data[o].Option2 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+
+                    if (data[o].Option3 != "&nbsp;" && data[o].Option3 != null && data[o].Option3 != undefined && data[o].Option3 != "") {
+                        Single += "<input id=C name='" + data[o].QuestionID + "' type='radio' class='test'/>C." + data[o].Option3 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+                    }
+
+                    if (data[o].Option4 != "&nbsp;" && data[o].Option4 != null && data[o].Option4 != undefined && data[o].Option4 != "") {
+                        Single += "<input id=D name='" + data[o].QuestionID + "' type='radio' class='test'/>D." + data[o].Option4 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+                    }
+                    if (data[o].Option5 != "&nbsp;" && data[o].Option5 != null && data[o].Option5 != undefined && data[o].Option5 != "") {
+                        Single += "<input id=E name='" + data[o].QuestionID + "' type='radio' class='test'/>E." + data[o].Option5 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+                    }
+                    if (data[o].Option6 != "&nbsp;" && data[o].Option6 != null && data[o].Option6 != undefined && data[o].Option6 != "") {
+                        Single += "<input id=F name='" + data[o].QuestionID + "' type='radio' class='test'/>F." + data[o].Option6 + "&nbsp;&nbsp;&nbsp;&nbsp;";
+                    }
+                    Single = Single + "<div style=\"height:30px\"></div>";
+                }
+
+                if (data[o].QuestionType == "多选题")
+                {
+                    iMulit = iMulit + 1;
+                    MultiSelect += "<h5>第" + iMulit + "题." + data[o].QuestionDescripe + "</h5>" +
+                        "<input id=A name='" + data[o].QuestionID + "' type='checkbox' class='multi'/>A." + data[o].Option1 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>" +
+                        "<input id=B name='" + data[o].QuestionID + "' type='checkbox' class='multi'/>B." + data[o].Option2 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+
+                    if (data[o].Option3 != "&nbsp;" && data[o].Option3 != null && data[o].Option3 != undefined && data[o].Option3 !="") {
+                        MultiSelect += "<input id=C name='" + data[o].QuestionID + "' type='checkbox' class='multi'/>C." + data[o].Option3 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+                    }
+
+                    if (data[o].Option4 != "&nbsp;" && data[o].Option4 != null && data[o].Option4 != undefined && data[o].Option4 != "") {
+                        MultiSelect += "<input id=D name='" + data[o].QuestionID + "' type='checkbox' class='multi'/>D." + data[o].Option4 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+                    }
+                    if (data[o].Option5 != "&nbsp;" && data[o].Option5 != null && data[o].Option5 != undefined && data[o].Option5 != "") {
+                        MultiSelect += "<input id=E name='" + data[o].QuestionID + "' type='checkbox' class='multi'/>E." + data[o].Option5 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+                    }
+                    if (data[o].Option6 != "&nbsp;" && data[o].Option6 != null && data[o].Option6 != undefined && data[o].Option6 != "") {
+                        MultiSelect += "<input id=F name='" + data[o].QuestionID + "' type='checkbox' class='multi'/>F." + data[o].Option6 + "&nbsp;&nbsp;&nbsp;&nbsp;</br>";
+                    }
+                    MultiSelect = MultiSelect + "<div style=\"height:30px\"></div>";
+                }
+            }
+
+            Paper.innerHTML += Single;
+            Paper.innerHTML += MultiSelect;
+            tempNum = i;
+
+        });
+
+        $("#renderTime").countDown(@(Convert.ToDouble(info.ExamTime)* 60));
+
+        if (Number(@ViewData["DateSpan"]) == -1 || Number(@ViewData["DateSpan"]) >= 7)
+        {
+            $("#warn").css("display", "none");
+        }
+        else
+        {
+            $("#info").css("display", "none");
+            $("#detail").css("display", "none");
+        }
+
+        var t = setTimeout("AcceptClick()", Number(@(Convert.ToDouble(info.ExamTime)* 60000))
+    )
+    });
+
+    function AcceptClick() {
+        //if (!CheckDataValid('#form1')) {
+        //    return false;
+        //}
+        if (Number(@ViewData["DateSpan"]) != -1 && Number(@ViewData["DateSpan"]) < 7)
+        {
+            alert("您目前无法参加考试");
+            return false;
+        }
+
+
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+
+            var DetailForm = getData();
+            var postData = { KeyValue: GetQuery('KeyValue'), DetailForm: DetailForm }
+            //alert(DetailForm);
+            // postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            AjaxJson("/TrainModule/skill/SubmitExam", postData, function (data) {
+                //tipDialog(data.Message, 3, data.Code);
+                //top.frames[tabiframeId()].windowload();
+                alert(data.Content);
+                closeDialog();
+            });
+        }, 200);
+    }
+
+    function getData() {
+        //var result = "";
+        //$("select.examselect").each(function (r) {
+        //    //alert($(this).attr('id'));
+        //    // alert($(this).val());
+        //    result = result + "{\"QuestionID\":\"" + $(this).attr('id') + "\",\"Answer\":\"" + $(this).val() + "\"},";
+        //})
+
+        //result = result.substring(0, result.length - 1);
+        //return '[' + result + ']';
+
+        //修改为点选的形式
+        var QuestionCount = 0;
+        var result = "";
+
+        var radio = document.getElementsByClassName("test");
+
+        if (radio.length > 0) {
+            for (var i = 0; i < radio.length; i++) {
+                if (radio[i].checked == true) {
+                    result = result + "{\"QuestionID\":\"" + radio[i].name + "\",\"Answer\":\"" + radio[i].id + "\"},";
+                }
+            }
+        }
+
+        var multi = document.getElementsByClassName("multi");
+
+        if (multi.length > 0) {
+
+            var tempQuestionID = "";
+            var tempAnswer = "";
+            for (var j = 0; j < multi.length; j++) {
+                if (multi[j].checked == true) {
+                    if (tempQuestionID == multi[j].name) {
+                        //alert(121);
+                        tempAnswer = tempAnswer + multi[j].id;
+                    }
+                    else {
+                        if (tempQuestionID != "") {
+                            result = result + "{\"QuestionID\":\"" + tempQuestionID + "\",\"Answer\":\"" + tempAnswer + "\"},";
+                            QuestionCount = QuestionCount + 1;
+                            tempQuestionID = multi[j].name;
+                            tempAnswer = multi[j].id;
+                        }
+                        else
+                        {
+                            tempQuestionID = multi[j].name;
+                            tempAnswer = multi[j].id;
+                        }
+                    }
+
+
+                }
+            }
+            result = result + "{\"QuestionID\":\"" + tempQuestionID + "\",\"Answer\":\"" + tempAnswer + "\"},";
+            QuestionCount = QuestionCount + 1;
+        }
+        result = result.substring(0, result.length - 1);
+        if (QuestionCount == tempNum) {
+            return '[' + result + ']';
+        }
+        else if (QuestionCount < tempNum) {
+            alert("请答完所有题目再提交");
+            return false;
+        }
+        else {
+            alerrt("出现异常了，请联系管理员");
+            return false;
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //增加倒计时的功能
+    (function ($) {
+        $.fn.countDown = function (secs) {
+            secs = parseInt(secs);
+            var timeId,
+                me = $(this),
+                HMSObj,
+                HMSHtml = '<span><span class="time-border">#HH#</span></span>' +
+                    '<span>：</span>' +
+                    '<span><span class="time-border">#MM#</span></span>' +
+                    '<span>：</span>' +
+                    '<span><span class="time-border">#SS#</span></span>';
+            var timeId = setInterval(function () {
+                HMSObj = $.secsToHMS(secs);
+                me.html(HMSHtml.replace('#HH#', HMSObj.H).replace('#MM#', HMSObj.M).replace('#SS#', HMSObj.S));
+                secs--;
+                if (secs < 0) {
+                    clearInterval(timeId);
+                }
+            }, 1000);
+
+        };
+        $.extend({
+            secsToHMS: function (secs) {
+                var H = '00',
+                    M = '00',
+                    S = '00';
+                H = $.formatTimeDouble(parseInt(secs / 3600));
+                secs %= 3600;
+                M = $.formatTimeDouble(parseInt(secs / 60));
+                secs %= 60;
+                S = $.formatTimeDouble(parseInt(secs));
+                return {
+                    H: H,
+                    M: M,
+                    S: S
+                }
+            },
+            formatTimeDouble: function (time) {
+                return 10 <= time ? time :
+                    time > 0 ? '0' + time : '00';
+            }
+        });
+    })($);
+
+</script>

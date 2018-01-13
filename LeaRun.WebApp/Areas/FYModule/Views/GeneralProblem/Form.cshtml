@@ -1,0 +1,545 @@
+﻿@{
+    ViewBag.Title = "QSB》QSB";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+    string role = ViewData["dt"] as string;
+    string UserName = ViewData["UserName"] as string;
+
+}
+<!--上传文件组件start-->
+<link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
+<script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>
+<link href="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.css" rel="stylesheet" />
+<script src="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.js"></script>
+<script type="text/javascript">
+    $(function () {
+        BindDepartment();
+        InitControl();
+        //js通配符获取所有日期，去掉T后面的内容
+        //测试后效率还可以,如果以后发现效率不行,可以尝试去掉if判断,根据日期格式固定截取字符串
+        
+        $('input[id$="Dt"]').each(function () {
+
+            var w = this.value.indexOf("T");
+            if (w > 0) {
+                this.value=this.value.substring(0, w);
+            }
+            this.disabled = true;
+            this.readOnly=true;
+        });
+        
+
+
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+       // alert(GetQueryNew('KeyValue'));
+
+        if (!!GetQueryNew('KeyValue')) {
+            AjaxJson("/FYModule/GeneralProblem/SetForm", { KeyValue: GetQueryNew('KeyValue') }, function (data) {
+                SetWebControls(data);
+                
+
+                if (String(data["ProblemAttach"]) != "" && String(data["ProblemAttach"]) != "null" && data["ProblemAttach"] != undefined && data["ProblemAttach"] != "&nbsp;") {
+
+                    document.getElementById("uploadify").style.display = "none";
+                    //document.getElementById("uploadify").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                    //~不生效，只能替换相对地址
+                    var address = String(data["ProblemAttach"]).replace('~', '../../../../')
+                    document.getElementById("tt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                    document.getElementById("tt").style.display = "block";
+
+                }
+                //if (String(data["CauseAnalysisAttach"]) != "" && String(data["CauseAnalysisAttach"]) != "null" && data["CauseAnalysisAttach"] != undefined && data["CauseAnalysisAttach"] != "&nbsp;") {
+
+                //    document.getElementById("uploadify_CA").style.display = "none";
+                //    //document.getElementById("uploadify").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                //    //~不生效，只能替换相对地址
+                //    var address = String(data["CauseAnalysisAttach"]).replace('~', '../../../../')
+                //    document.getElementById("tt_CA").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                //    document.getElementById("tt_CA").style.display = "block";
+                //}
+                //if (String(data["MeasureAttach"]) != "" && String(data["MeasureAttach"]) != "null" && data["MeasureAttach"] != undefined && data["MeasureAttach"] != "&nbsp;") {
+
+                //    document.getElementById("uploadify_CM").style.display = "none";
+                //    //document.getElementById("uploadify").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                //    //~不生效，只能替换相对地址
+                //    var address = String(data["MeasureAttach"]).replace('~', '../../../../')
+                //    document.getElementById("tt_CM").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                //    document.getElementById("tt_CM").style.display = "block";
+                //}
+                if (String(data["ImproveReportAttach"]) != "" && String(data["ImproveReportAttach"]) != "null" && data["ImproveReportAttach"] != undefined && data["ImproveReportAttach"] != "&nbsp;") {
+
+                    document.getElementById("uploadify_IR").style.display = "none";
+                    //document.getElementById("uploadify").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                    //~不生效，只能替换相对地址
+                    var address = String(data["ImproveReportAttach"]).replace('~', '../../../../')
+                    document.getElementById("tt_IR").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+                    document.getElementById("tt_IR").style.display = "block";
+                }
+
+                if (String(data["FinishStatus"]) == "已完成")
+                {
+                    $("form input").prop("readonly", true);
+                    $("form input").prop("disabled", true);
+                    $("form textarea").prop("readonly", true);
+                    $("form select").prop("disabled", true);
+
+                    
+                   
+                }
+
+
+                else
+                {
+                    if (String(data["ResponseBy"]) != '@UserName' && '@role' != '质保部审批')
+                    {
+                    $("form input").prop("readonly", true);
+                    $("form input").prop("disabled", true);
+                    $("form textarea").prop("readonly", true);
+                    $("form select").prop("disabled", true);
+
+                    document.getElementById("uploadify").style.display = "none";
+                    //document.getElementById("uploadify_CA").style.display = "none";
+                    //document.getElementById("uploadify_CM").style.display = "none";
+                    document.getElementById("uploadify_IR").style.display = "none";
+                    }
+                    else
+                    {
+                        if (String(data["ResponseBy"]) == '@UserName')
+                        {
+                            var t = document.getElementById("f1");
+                            var a = t.getElementsByTagName("input");
+                            var b = t.getElementsByTagName("select");
+                            for (var i = 0; i < a.length; i++) {
+                                a[i].setAttribute("disabled", "true");
+                            }
+                            for (var i = 0; i < b.length; i++) {
+                                b[i].setAttribute("disabled", "true");
+                            }
+                            document.getElementById("uploadify").style.display = "none";
+                            //uploadify_CA();
+                            //uploadify_CM();
+                            uploadify_IR();
+                        }
+                        else
+                        {
+                            $("#ResponseBy").searchableSelect();
+                            document.getElementsByClassName("searchable-select-holder")[0].innerHTML = $("#ResponseBy").find("option:selected").text();
+                            uploadify();
+                            //uploadify_CA();
+                            //uploadify_CM();
+                            uploadify_IR();
+
+                            //$("#CM_Button").css("display", "block");
+                            //$("#CA_Button").css("display", "block");
+
+                        }
+                    }
+                }
+
+
+
+
+                
+
+            });
+        }
+
+
+    }
+    //保存事件
+    function AcceptClick() {
+        
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            AjaxJson("/FYModule/GeneralProblem/SubmitForm?KeyValue=" + GetQueryNew('KeyValue'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+
+    //人员下拉框
+    function BindDepartment() {
+        $("#ResponseBy").html("");
+        $("#ResponseBy").append("<option value=''>==请选择==</option>");
+        AjaxJson("/CommonModule/Rapid/ListJson", {  }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#ResponseBy").append($("<option></option>").val(DataJson[i].code).html(DataJson[i].RealName));
+            });
+        })
+        $("#Customer").html("");
+        $("#Customer").append("<option value=''>==请选择==</option>");
+        AjaxJson("/CommonModule/Rapid/CustomerJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#Customer").append($("<option></option>").val(DataJson[i].fy_cus_name).html(DataJson[i].fy_cus_name));
+            });
+        })
+        
+    }
+
+    //日期格式重写
+    //function RewriteDate()
+    //{
+    //    //alert(22);
+    //    var eles = document.getElementsByClassName("txt Wdate");
+    //    //alert(eles);
+    //    for (var e in eles)
+    //    {
+    //        alert(e.value);
+    //    }
+    //}
+
+
+
+
+</script>
+
+@*//上传文件js*@
+<script>
+    //$(function () {
+    //    uploadify1();
+    //});
+    //上传文件
+    var index_uploadify = 1;
+    function uploadify() {
+        //if (!!GetQueryNew('KeyValue'))
+        //{ alert(11)};
+        $("#uploadify").uploadify({
+            uploader: '/FYModule/GeneralProblem/SubmitUploadify?FolderId=' + GetQueryNew('KeyValue') + '&type=PD',
+            swf: '/Content/Scripts/uploadify/uploadify.swf',
+            buttonText: "添加文件",
+            height: 24,
+            width: 70,
+            fileSizeLimit: 4096,
+            onFallback: function () {
+                alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+            },
+            onUploadSuccess: function (file, data, response) {
+                alert("上传成功");
+
+                var DataJson = JSON.parse(data);
+                var address = DataJson.NetworkFile.res_msfj;
+                address = address.replace('~', '../../../../');
+                document.getElementById("tt").style.display = "block";
+                document.getElementById("tt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+            },
+            onUploadError: function () { alert("请先保存本单，再上传附件")}
+        });
+    }
+
+    //function uploadify_CA() {
+    //    $("#uploadify_CA").uploadify({
+    //        uploader: '/FYModule/GeneralProblem/SubmitUploadify?FolderId=' + GetQueryNew('KeyValue') + '&type=CA',
+    //        swf: '/Content/Scripts/uploadify/uploadify.swf',
+    //        buttonText: "添加文件",
+    //        height: 24,
+    //        width: 70,
+    //        fileSizeLimit: 4096,
+    //        onFallback: function () {
+    //            alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+    //        },
+    //        onUploadSuccess: function (file, data, response) {
+    //            alert("上传成功");
+    //            //document.getElementById("uploadifyyzb").style.display = "none";
+    //            var DataJson = JSON.parse(data);
+    //            var address = DataJson.NetworkFile.CauseAnalysisAttach;
+    //            address = address.replace('~', '../../../../');
+    //            document.getElementById("tt_CA").style.display = "block";
+    //            document.getElementById("tt_CA").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+    //        }
+    //    });
+    //}
+
+    //function uploadify_CM() {
+    //    $("#uploadify_CM").uploadify({
+    //        uploader: '/FYModule/GeneralProblem/SubmitUploadify?FolderId=' + GetQueryNew('KeyValue') + '&type=CM',
+    //        swf: '/Content/Scripts/uploadify/uploadify.swf',
+    //        buttonText: "添加文件",
+    //        height: 24,
+    //        width: 70,
+    //        fileSizeLimit: 4096,
+    //        onFallback: function () {
+    //            alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+    //        },
+    //        onUploadSuccess: function (file, data, response) {
+    //            alert("上传成功");
+    //            //document.getElementById("uploadifyyzb").style.display = "none";
+    //            var DataJson = JSON.parse(data);
+    //            var address = DataJson.NetworkFile.MeasureAttach;
+    //            address = address.replace('~', '../../../../');
+    //            document.getElementById("tt_CM").style.display = "block";
+    //            document.getElementById("tt_CM").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+    //        }
+    //    });
+    //}
+
+    function uploadify_IR() {
+        $("#uploadify_IR").uploadify({
+            uploader: '/FYModule/GeneralProblem/SubmitUploadify?FolderId=' + GetQueryNew('KeyValue') + '&type=IR',
+            swf: '/Content/Scripts/uploadify/uploadify.swf',
+            buttonText: "添加文件",
+            height: 24,
+            width: 70,
+            fileSizeLimit: 4096,
+            onFallback: function () {
+                alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+            },
+            onUploadSuccess: function (file, data, response) {
+                alert("上传成功");
+                //document.getElementById("uploadifyyzb").style.display = "none";
+                var DataJson = JSON.parse(data);
+                var address = DataJson.NetworkFile.MeasureAttach;
+                address = address.replace('~', '../../../../');
+                document.getElementById("tt_IR").style.display = "block";
+                document.getElementById("tt_IR").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+            }
+        });
+    }
+
+
+
+
+
+    
+
+
+    //uploadifybzgx
+</script>
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
+
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+
+    input {
+        background: #E0FFFF;
+    }
+
+    textarea {
+        background: #E0FFFF;
+    }
+
+    select {
+        background: #E0FFFF;
+    }
+</style>
+
+
+<form id="form1">
+    <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="Tabbasic" class="tab_list bd" onclick="Tabchange('basic')">问题描述</div>
+                <div id="Tabwork" class="tab_list bd actived" onclick="Tabchange('work')">进度跟踪</div>
+            </div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+        <!--基本信息-->
+        <div id="basic" class="tabPanel" style="display:none">
+            <table class="form" id="f1">
+
+                <tr>
+                    <th class="formTitle">客户：</th>
+                    <td class="formValue">
+                        <select id="Customer" class="txtselect"></select>
+                    </td>
+                    <th class="formTitle">重复发生：</th>
+                    <td class="formValue">
+                        <select id="IsAgain" class="txtselect">
+                            <option value="是">是</option>
+                            <option value="否">否</option>
+
+                        </select>
+                    </td>
+                       
+                    
+                </tr>
+
+                <tr>
+                    <th class="formTitle">负责人：</th>
+                    <td class="formValue">
+                        <select id="ResponseBy" class="txtselect"></select>
+                    </td>
+                    <th class="formTitle">问题类别：</th>
+                    <td class="formValue">
+                        <select id="ProblemType" class="txtselect">
+                            <option value="外部">外部</option>
+                            <option value="内部">内部</option>
+
+                        </select>
+                    </td>
+                </tr>
+               
+                <tr>
+                    <th class="formTitle">发生日期：</th>
+                    <td class="formValue">
+                        <input id="HappenDate" type="text" class="txt Wdate" onfocus="WdatePicker({maxDate:'%y-%M-%d'})" style="background:#E0FFFF" />
+                    </td>
+                    <th class="formTitle" >计划完成日期：</th>
+                    <td class="formValue" >
+
+                        <input id="PlanFinishDt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" />
+
+
+                    </td>
+
+                </tr>
+                <tr>
+                    <th class="formTitle">产品区域：</th>
+                    <td class="formValue">
+                        <select id="ProductArea" class="txtselect">
+                            <option value="国内">国内</option>
+                            <option value="国外">国外</option>
+
+                        </select>
+                    </td>
+                    <th class="formTitle">问题类型：</th>
+                    <td class="formValue">
+
+                        <select id="ProblemType2" class="txtselect">
+                            <option value="外观">外观</option>
+                            <option value="印刷">印刷</option>
+                            <option value="装配">装配</option>
+                            <option value="性能">性能</option>
+                            <option value="附属件">附属件</option>
+                            <option value="附件材料">附件材料</option>
+                            <option value="包装">包装</option>
+                            <option value="产品错误">产品错误</option>
+
+                        </select>
+
+
+                    </td>
+
+                </tr>
+                <tr>
+                    <th class="formTitle">问题内容描述：</th>
+                    <td class="formValue" colspan="2">
+                        <textarea id="ProblemDescripe" class="txt" style="width:320px;height:80px;" /></textarea>
+                    </td>
+                    <td>
+                        <table>
+                            <tr>
+                                <td>
+                                    <input id="uploadify" name="uploadify" type="file" />
+                                </td>
+                                <td>
+                                    <label id="tt" style="display:none" />
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+
+            </table>
+        </div>
+        <!--进度跟踪-->
+        <div id="work" class="tabPanel">
+            <table class="form" style="table-layout:fixed;" id="f2">
+                <tr>
+                    <th class="formTitle">根本原因分析：</th>
+                    <td class="formValue" colspan="2">
+                        <textarea id="CauseAnalysis" class="txt" style="width:320px;height:80px;" /></textarea>
+                    </td>
+                    <td id="CA_Button" style="display:none">
+                        <button id="CA_Approve">通过</button>
+                        <button id="CA_Reject">回退</button>
+                        @*<table>
+                            <tr>
+                                <td>
+                                    <input id="uploadify_CA" name="uploadify" type="file" />
+                                </td>
+                                <td>
+                                    <label id="tt_CA" style="display:none" />
+                                </td>
+                            </tr>
+                        </table>*@
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">纠正措施：</th>
+                    <td class="formValue" colspan="2">
+                        <textarea id="CorrectMeasures" class="txt" style="width:320px;height:80px;" /></textarea>
+                    </td>
+                    <td id="CM_Button" style="display:none">
+                        <button id="CM_Approve">通过</button>
+                        <button id="CM_Reject">回退</button>
+                        @*<table>
+                            <tr>
+                                <td>
+                                    <input id="uploadify_CM" name="uploadify" type="file" />
+                                </td>
+                                <td>
+                                    <label id="tt_CM" style="display:none" />
+                                </td>
+                            </tr>
+                        </table>*@
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">改善报告：</th>
+                    @*<td class="formValue" colspan="2">
+                        <textarea id="ImproveReport" class="txt" style="width:320px;height:80px;" /></textarea>
+                    </td>*@
+                    <td colspan="2" class="formValue">
+                        <table>
+                            <tr>
+                                <td>
+                                    <input id="uploadify_IR" name="uploadify" type="file" />
+                                </td>
+                                <td>
+                                    <label id="tt_IR" style="display:none" />
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td>
+                        </td>
+                </tr>
+            </table>
+        </div>
+
+    </div>
+
+</form>
