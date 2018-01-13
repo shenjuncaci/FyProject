@@ -14,7 +14,7 @@ using System.Web.Mvc;
 
 namespace LeaRun.WebApp.Controllers
 {
-    //测试同步
+    //测试同步，测试另一台电脑
     public class HomeController : Controller
     {
         public Base_ModuleBll base_modulebll = new Base_ModuleBll();
