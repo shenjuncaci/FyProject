@@ -434,7 +434,7 @@ RelationID);
 
         public ActionResult UserIndex()
         {
-            string sql = @" select FullName,case when ParentId='0' then '' else (select FullName Base_Department where DepartmentId=a.ParentId) end 
+            string sql = @" select FullName,case when ParentId='0' then '' else (select FullName from Base_Department where DepartmentId=a.ParentId) end 
 from Base_Department a where DepartmentId='{0}' ";
             sql = string.Format(sql, ManageProvider.Provider.Current().DepartmentId);
             DataTable dt = PostDepartRelationBll.GetDataTable(sql);
@@ -445,8 +445,12 @@ from Base_Department a where DepartmentId='{0}' ";
 
             if (dt.Rows[0][1].ToString() == "")
             {
-                ViewData["Department"] = dt.Rows[0][1].ToString() + "-" + dt.Rows[0][0].ToString();
+                
                 Isdept = "1";
+            }
+            else
+            {
+                ViewData["Department"] = dt.Rows[0][1].ToString() + "-" + dt.Rows[0][0].ToString();
             }
             ViewData["Isdept"] = Isdept;
 

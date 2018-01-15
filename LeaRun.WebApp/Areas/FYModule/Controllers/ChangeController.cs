@@ -774,6 +774,23 @@ from fy_breakpoint a left join Base_User b on a.ResponseBy=b.UserId where
             strSql.AppendFormat(@"update fy_change set changeState='已完成' where changeid='{0}' ",ChangeID);
             strSql.AppendFormat(@"insert into fy_changelog values (newid(),'结单',getdate(),'{0}','{1}') ", ManageProvider.Provider.Current().UserId,ChangeID);
             ChangeBll.ExecuteSql(strSql);
+            //给知会人员发送邮件
+            string reciver = "";
+            string content = "您好，有一个新的变更单已走完，请知悉！";
+            string sql = " select b.Email from fy_changeNoticeUser a left join base_user b on a.ChangeNoticeUserCode=b.Code ";
+            DataTable dt = ChangeBll.GetDataTable(sql);
+            if (dt.Rows.Count > 0)
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    reciver = reciver + dt.Rows[i][0].ToString() + ",";
+
+                }
+                reciver = reciver.Substring(0, reciver.Length - 1);
+            }
+            SendEmailByAccount(reciver, content);
+
+
             return Content(new JsonMessage { Success = true, Code = 1.ToString(), Message = "操作成功。" }.ToString());
         }
 
