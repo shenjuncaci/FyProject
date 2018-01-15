@@ -54,7 +54,7 @@ where 1=1  ");
 
             if(ManageProvider.Provider.Current().ObjectId.IndexOf("a69ae568-3aa4-4024-8120-9cf7527902ae")<0)
             {
-                strSql.AppendFormat(@" and a.CreateBy='{0}' ",ManageProvider.Provider.Current().UserId);
+                strSql.AppendFormat(@" and (a.CreateBy='{0}' or  a.ResponseBy='{0}')  ", ManageProvider.Provider.Current().UserId);
             }
 
             if (!string.IsNullOrEmpty(ParameterJson) && ParameterJson.Length > 2)
