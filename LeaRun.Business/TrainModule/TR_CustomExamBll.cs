@@ -95,7 +95,7 @@ order by c.FullName ");
             StringBuilder strSql = new StringBuilder();
             List<DbParameter> parameter = new List<DbParameter>();
             strSql.Append(@" select a.UserID,a.Code,a.RealName,b.FullName from
-Base_User a left join Base_Department b on a.DepartmentId=b.DepartmentId where 1=1  ");
+Base_User a left join Base_Department b on a.DepartmentId=b.DepartmentId where 1=1 and a.Enabled=1  ");
             //if (!string.IsNullOrEmpty(keyword))
             //{
             //    strSql.Append(@" AND (SkillName LIKE @keyword or SkillType like @keyword

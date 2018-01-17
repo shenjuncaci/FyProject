@@ -92,13 +92,13 @@ where PlanContent!='' and  IsLeave=0  and a.BackColor!='' and a.BackColor!='grey
 
         public DataTable GetResponseByList()
         {
-            string sql = " select distinct a.UserId,a.RealName+'('+a.Code+')' as RealName from Base_User a  where a.DepartmentId='" + ManageProvider.Provider.Current().DepartmentId+"'";
+            string sql = " select distinct a.UserId,a.RealName+'('+a.Code+')' as RealName from Base_User a  where a.DepartmentId='" + ManageProvider.Provider.Current().DepartmentId+ "' and Enabled=1 ";
             return Repository().FindDataSetBySql(sql).Tables[0];
         }
 
         public DataTable GetResponseAllByList()
         {
-            string sql = " select distinct a.UserId,a.RealName+'('+a.Code+')' as RealName from Base_User a  where 1=1 ";
+            string sql = " select distinct a.UserId,a.RealName+'('+a.Code+')' as RealName from Base_User a  where 1=1 and Enabled=1 ";
             return Repository().FindDataSetBySql(sql).Tables[0];
         }
 

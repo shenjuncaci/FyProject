@@ -94,7 +94,7 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
                 }
                 else
                 {
-                    string GetReciverSql = " select Email from base_user where userid='" + entity.ResponseBy + "' ";
+                    string GetReciverSql = " select Email from base_user where userid='" + entity.ResponseBy + "'  ";
                     DataTable dt = PostBll.GetDataTable(GetReciverSql);
                     if (dt.Rows.Count > 0)
                     {

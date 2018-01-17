@@ -67,7 +67,7 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Web.Mvc, Version=4.0.0.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\WorkSpace\Artron\ArteaSrcNew\ARTEASRC\PODMES\PODMES.Web\bin\System.Web.Mvc.dll</HintPath>
+      <HintPath>bin\System.Web.Mvc.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Web" />
@@ -9290,6 +9290,8 @@
     <Content Include="Areas\VPModule\Views\VerifyPost\AuditForm.cshtml" />
     <Content Include="Areas\VPModule\Views\VerifyPost\GeneralProblem.cshtml" />
     <Content Include="Areas\VPModule\Views\VerifyPost\loginform.cshtml" />
+    <Content Include="Areas\VPModule\Views\VerifyPost\UserIndex.cshtml" />
+    <Content Include="Areas\VPModule\Views\VerifyPost\UserList.cshtml" />
     <None Include="Properties\PublishProfiles\LR-FDMS.pubxml" />
     <Content Include="Views\Home\SkinIndex.cshtml" />
     <Content Include="Views\Login\Default.cshtml" />

@@ -201,7 +201,7 @@ from Base_Department a where DepartmentId='{0}' ";
         public ActionResult GetUserList()
         {
             StringBuilder sb = new StringBuilder();
-            string sql = "select a.UserID,a.RealName+'('+Code+')' as Name from Base_user a  ";
+            string sql = "select a.UserID,a.RealName+'('+Code+')' as Name from Base_user a where Enabled=1 ";
             DataTable dt = PostDepartRelationBll.GetDataTable(sql);
             foreach (DataRow dr in dt.Rows)
             {
@@ -283,7 +283,7 @@ values(NEWID(),'{0}','{1}') ", array[i], ManageProvider.Provider.Current().Depar
                     //删除了该员工原来的岗位以及主管评定
                     strSql.AppendFormat(@" delete from TR_EvaluateDetail 
 where UserPostRelationID in (select UserPostRelationID from TR_UserPost where UserID='{0}') ",array[i]);
-
+                     
                     strSql.AppendFormat(@" update tr_userpost set IsEnable=0 where userid='{0}' ", array[i]);
                 }
                 PostDepartRelationBll.ExecuteSql(strSql);
@@ -615,9 +615,23 @@ values(NEWID(),'{0}','{1}','{2}') ", UserID, array[i],IsMain);
         {
             return View();
         }
-        
 
-        
+        public int QuitOne(string UserID)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendFormat(@" update Base_User set  Enabled=0 where UserID='{0}' ", UserID);
+                return PostDepartRelationBll.ExecuteSql(strSql);
+            }
+            catch
+            {
+                return -1;
+            }
+
+
+        }
+
 
     }
 }

@@ -67,7 +67,7 @@
     function btn_Search() {
         var keywords = $("#keywords").val();
         $("#gridTable").jqGrid('setGridParam', {
-            url: "@Url.Content("~/TrainModule/PostDepartmentRelation/GetUserListJson")?keywords=" + escape(keywords), page: 1
+            url: "@Url.Content("~/VPModule/VerifyPost/GetUserListJson")?keywords=" + escape(keywords), page: 1
         }).trigger('reloadGrid');
     }
 
@@ -76,7 +76,7 @@
     function GetGrid() {
         var SelectRowIndx;
         $("#gridTable").jqGrid({
-            url: "@Url.Content("~/TrainModule/PostDepartmentRelation/GetUserListJson")",
+            url: "@Url.Content("~/VPModule/VerifyPost/GetUserListJson")",
             datatype: "json",
             height: $(window).height() - 178,
             autowidth: true,
@@ -84,8 +84,8 @@
                 { label: '主键', name: 'userid', index: 'userid', width: 80, align: 'left', hidden: true },
                 { label: '工号', name: 'code', index: 'code', width: 150, align: 'left' },
                 { label: '姓名', name: 'realname', index: 'realname', width: 150, align: 'left' },
-                { label: '现岗位', name: 'mainpost', index: 'mainpost', width: 150, align: 'left' },
-                { label: '储备岗位', name: 'postlist', index: 'postlist', width: 250, align: 'left' },
+                { label: '部门', name: 'fullname', index: 'fullname', width: 150, align: 'left' },
+               
             ],
             viewrecords: true,
             rowNum: 30,
@@ -124,44 +124,37 @@
             top.frames[iframe].QueryClick(function (JsonData) {
                 QueryParamJson = JsonData;
                 $("#gridTable").jqGrid('setGridParam', {
-                    url: "@Url.Content("~/TrainModule/PostDepartmentRelation/GetUserListJson")?ParameterJson=" + escape(JsonData), page: 1
+                    url: "@Url.Content("~/VPModule/VerifyPost/GetUserListJson")?ParameterJson=" + escape(JsonData), page: 1
                 }).trigger('reloadGrid');
             });
         });
     }
 
     function btn_add() {
+        var url = "/VPModule/VerifyPost/UserList";
 
-        if ('@ViewData["Isdept"]' == "1")
-        {
-            if (!confirm("部门负责人一般只需要管理科长，如确认需要管理一般员工，请点击确认继续！！"))
-            {
-                return false;
-            }
-
-        }
-
-        var KeyValue = GetJqGridRowValue("#gridTable", "userid");
-
-        
-            var url = "/TrainModule/PostDepartmentRelation/UserList?KeyValue=" + KeyValue;
-
-            openDialog(url, "UserList", "添加岗位", 625, 350, function (iframe) {
-                top.frames[iframe].AcceptClick();
-            });
-        
+        openDialog(url, "UserList", "添加管理员", 625, 350, function (iframe) {
+            top.frames[iframe].AcceptClick();
+        });
     }
 
-    //离职按钮
-    function btn_quit()
-    {
+    function btn_delete() {
         var KeyValue = GetJqGridRowValue("#gridTable", "userid");
+
+
         $.ajax({
             type: "post",
-            url: "/TrainModule/PostDepartmentRelation/QuitOne?UserID="+KeyValue,
+            url: "/VPModule/VerifyPost/DeleteRole?UserID=" + KeyValue,
             async: false,
             success: function (msg) {
-                windowload();
+                if (msg > 0) {
+                    windowload();
+                }
+                else
+                {
+                    alert("出错了，请联系管理员");
+                    return false;
+                }
             },
             error: function () {
                 alert("出错了");
@@ -169,31 +162,17 @@
         });
     }
 
-    function btn_edit() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "userid");
-
-        if (IsChecked(KeyValue)) {
-            var url = "/TrainModule/PostDepartmentRelation/DepartPostList?KeyValue=" + KeyValue + "&IsMain=0";
-
-            openDialog(url, "UserList", "岗位编辑", 625, 350, function (iframe) {
-                top.frames[iframe].AcceptClick();
-            });
-        }
-    }
-
     function btn_editM() {
-
         var KeyValue = GetJqGridRowValue("#gridTable", "userid");
 
-        if (IsChecked(KeyValue)) {
-            var url = "/TrainModule/PostDepartmentRelation/DepartPostList?KeyValue=" + KeyValue + "&IsMain=1";
 
-            openDialog(url, "UserList", "岗位编辑", 625, 350, function (iframe) {
-                top.frames[iframe].AcceptClick();
-            });
-        }
+        var url = "/VPModule/VerifyPost/DepartPostList?KeyValue=" + KeyValue+"&IsMain=1";
+
+        openDialog(url, "UserList", "岗位编辑", 625, 350, function (iframe) {
+            top.frames[iframe].AcceptClick();
+        });
     }
-   
+
 
     //刷新
     function windowload() {
@@ -226,7 +205,7 @@
 <div>
     <div class="btnbartitle">
         <div>
-            您正在查看 @ViewData["Department"] 的人员列表 <span id="CenterTitle"></span>
+            岗位验证管理员列表 <span id="CenterTitle"></span>
         </div>
     </div>
     <!--工具栏-->

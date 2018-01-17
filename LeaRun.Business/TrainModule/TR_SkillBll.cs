@@ -78,7 +78,7 @@ left join TR_Post c on b.PostID=c.PostID
 left join Base_User d on a.UserID=d.UserId
 left join TR_PostDepartmentRelationDetail e on e.RelationID=b.RelationID
 left join tr_skill f on e.SkillID=f.SkillID
-where f.SkillID is not null and d.departmentID='"+DepartmentID+"' ";
+where d.Enabled=1 and f.SkillID is not null and d.departmentID='" + DepartmentID+"' ";
 
             return Repository().FindDataSetBySql(sql).Tables[0];
         }

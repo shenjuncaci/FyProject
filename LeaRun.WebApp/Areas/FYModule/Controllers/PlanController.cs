@@ -738,7 +738,7 @@ where a.DepartmentId='" + ManageProvider.Provider.Current().DepartmentId + "'";
 
         public ActionResult ChangZhangJson()
         {
-            string sql = " select UserId,RealName from Base_User a where exists (select * from Base_ObjectUserRelation where ObjectId='54804f22-89a1-4eee-b257-255deaf4face' and UserId=a.UserId)  ";
+            string sql = " select UserId,RealName from Base_User a where exists (select * from Base_ObjectUserRelation where ObjectId='54804f22-89a1-4eee-b257-255deaf4face' and UserId=a.UserId) and Enabled=1 ";
             DataTable dt = PlanBll.GetDataTable(sql);
             if (dt.Rows.Count > 0)
             {
@@ -792,7 +792,7 @@ where a.DepartmentId='" + ManageProvider.Provider.Current().DepartmentId + "'";
 
         public ActionResult ChejianzhurenJson()
         {
-            string sql = " select UserId,RealName from Base_User a where userid='" + ManageProvider.Provider.Current().UserId + "' ";
+            string sql = " select UserId,RealName from Base_User a where userid='" + ManageProvider.Provider.Current().UserId + "' and Enabled=1 ";
             DataTable dt = PlanBll.GetDataTable(sql);
             if (dt.Rows.Count > 0)
             {

@@ -123,13 +123,14 @@
                 }
             }).hover(function () {
                 if ($(this).hasClass("harvest")) {
-                    $(this).attr('title', '隐藏导航');
-                    $(this).removeClass('harvest');
-                    $(".navigation").animate({ width: 204 }, 100);
-                    $('.accordion').show();
-                    $(this).find('b').hide();
-                    $(this).find('i').show();
-                    $(".navigation").css('position', 'absolute');
+                    //注释掉这部分，鼠标放在上面的时候不会自动弹出
+                    //$(this).attr('title', '隐藏导航');
+                    //$(this).removeClass('harvest');
+                    //$(".navigation").animate({ width: 204 }, 100);
+                    //$('.accordion').show();
+                    //$(this).find('b').hide();
+                    //$(this).find('i').show();
+                    //$(".navigation").css('position', 'absolute');
                 }
             }, function () {
             });

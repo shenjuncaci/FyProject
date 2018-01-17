@@ -419,7 +419,7 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
         public ActionResult ResponseAllJson(string keywords)
         {
             
-            string sql = " select distinct a.UserId,a.RealName from Base_User a  where 1=1 ";
+            string sql = " select distinct a.UserId,a.RealName from Base_User a  where 1=1 and Enabled=1 ";
             if (keywords != null || keywords != "undefined" || keywords != "")
             {
                 sql = sql + " and a.realname like '%"+keywords+"%' ";
@@ -476,7 +476,7 @@ where 1=1 ";
         public ActionResult GetUserList()
         {
             StringBuilder sb = new StringBuilder();
-            string sql = " select UserId,RealName+'('+Code+')' as UserName from Base_User ";
+            string sql = " select UserId,RealName+'('+Code+')' as UserName from Base_User where Enabled=1 ";
             DataTable dt = PostBll.GetDataTable(sql);
             foreach (DataRow dr in dt.Rows)
             {
@@ -516,7 +516,7 @@ where 1=1 ";
                 }
                 else
                 {
-                    string sql = " select * from base_user where userid='"+array[0]+"' ";
+                    string sql = " select * from base_user where userid='"+array[0]+ "' where Enabled=1 ";
                     DataTable dt = PostBll.GetDataTable(sql);
                     
 

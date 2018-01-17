@@ -123,6 +123,14 @@ from Base_Department a where DepartmentId='{0}' ";
                 }
                 else
                 {
+                    string sql = " select * from tr_skill where skillname='{0}' ";
+                    sql = string.Format(sql, entity.SkillName);
+                    DataTable dt = SkillBll.GetDataTable(sql);
+                    if(dt.Rows.Count>0)
+                    {
+                        return Content(new JsonMessage { Success = false, Code = "-1", Message = "已有相同名称的技能，不允许重复添加" }.ToString());
+
+                    }
 
                     entity.Create();
 

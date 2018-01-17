@@ -134,7 +134,7 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
 
         public ActionResult ResponseJson()
         {
-            string sql = " select UserId,RealName from Base_User  where 1=1 ";
+            string sql = " select UserId,RealName from Base_User  where 1=1 and Enabled=1 ";
             DataTable dt = ChangeDataBll.GetDataTable(sql);
             return Content(dt.ToJson());
         }

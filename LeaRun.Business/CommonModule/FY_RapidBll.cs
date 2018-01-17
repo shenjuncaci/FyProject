@@ -149,13 +149,13 @@ namespace LeaRun.Business
 
         public DataTable GetList()
         {
-            string sql = " select code,RealName from Base_User  ";
+            string sql = " select code,RealName from Base_User where Enabled=1 ";
             return Repository().FindDataSetBySql(sql).Tables[0];
         }
 
         public DataTable GetDepartUserList()
         {
-            string sql = " select code,RealName from Base_User where DepartmentId='"+ManageProvider.Provider.Current().DepartmentId+"'  ";
+            string sql = " select code,RealName from Base_User where DepartmentId='"+ManageProvider.Provider.Current().DepartmentId+ "' and Enabled=1  ";
             return Repository().FindDataSetBySql(sql).Tables[0];
         }
 
@@ -194,7 +194,7 @@ namespace LeaRun.Business
         /// <returns>1成功，0失败</returns>
         public int SendEmail(string code, string Content)
         {
-            string sql = " select Email from base_user where code in (select res_cpeo from FY_Rapid where res_id='"+code+"' ) ";
+            string sql = " select Email from base_user where Enabled=1 and code in (select res_cpeo from FY_Rapid where res_id='" + code+"' ) ";
             DataTable dt = GetDataTable(sql);
             if (dt.Rows.Count > 0)
             {
@@ -256,7 +256,9 @@ select distinct code from FY_Attendance aa left join Base_User bb on aa.UserID=b
 where cast(aa.AttendanceDate as date)=cast(GETDATE() as date) 
 ) as a
 left join Base_User b on a.res_cpeo=b.Code 
-left join FY_Attendance c on b.UserId=c.UserId and cast(c.AttendanceDate as date)=cast(GETDATE() as date)  ");
+left join FY_Attendance c on b.UserId=c.UserId and cast(c.AttendanceDate as date)=cast(GETDATE() as date)
+where Enabled=1
+");
             
             return Repository().FindTablePageBySql(strSql.ToString(), parameter.ToArray(), ref jqgridparam);
         }

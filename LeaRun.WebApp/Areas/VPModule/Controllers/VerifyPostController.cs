@@ -336,6 +336,8 @@ and VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where VerifyPo
                         database.Rollback();
                         database.Close();
                     }
+
+                    //此处预计加入，根据报警设置数量来发邮件预警和加入问题到快速反应以及一般问题跟踪
                 }
 
                 if(temp=="6"&&Convert.ToInt32(defectNum)==0)
@@ -457,7 +459,7 @@ from VP_ReviewData where ReviewContent not in
 
         public ActionResult ResponseJson()
         {
-            string sql = " select code,realname+'('+code+')' as name from base_user where 1=1  ";
+            string sql = " select code,realname+'('+code+')' as name from base_user where 1=1 and Enabled=1  ";
             DataTable dt = VerifyPostBll.GetDataTable(sql);
             return Content(dt.ToJson());
         }
@@ -615,6 +617,105 @@ field,VerifyPostDID);
             return View();
         }
 
+
+        public ActionResult UserIndex()
+        {
+            return View();
+        }
+
+        public ActionResult GetUserListJson(string keywords, string CompanyId, string DepartmentId, JqGridParam jqgridparam, string ParameterJson)
+        {
+            try
+            {
+                Stopwatch watch = CommonHelper.TimerStart();
+                DataTable ListData = VerifyPostBll.GetUserList(keywords, ref jqgridparam, ParameterJson);
+                var JsonData = new
+                {
+                    total = jqgridparam.total,
+                    page = jqgridparam.page,
+                    records = jqgridparam.records,
+                    costtime = CommonHelper.TimerEnd(watch),
+                    rows = ListData,
+                };
+                return Content(JsonData.ToJson());
+            }
+            catch (Exception ex)
+            {
+                Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "异常错误：" + ex.Message);
+                return null;
+            }
+        }
+
+        public ActionResult UserList()
+        {
+            return View();
+        }
+
+        public ActionResult GetUserList()
+        {
+            StringBuilder sb = new StringBuilder();
+            string sql = "select a.UserID,a.RealName+'('+Code+')' as Name from Base_user a  where Enabled=1 ";
+            DataTable dt = VerifyPostBll.GetDataTable(sql);
+            foreach (DataRow dr in dt.Rows)
+            {
+                string strchecked = "";
+                //都修改为不要选中的状态
+                //if (!string.IsNullOrEmpty(dr["relationid"].ToString()))//判断是否选中
+                //{
+                //    strchecked = "selected";
+                //}
+                sb.Append("<li title=\"" + dr["Name"] + "\" class=\"" + strchecked + "\">");
+                sb.Append("<a id=\"" + dr["UserID"] + "\"><img src=\"../../Content/Images/Icon16/role.png \">" + dr["Name"] + "</a><i></i>");
+                sb.Append("</li>");
+            }
+            return Content(sb.ToString());
+        }
+
+        public ActionResult UserListSubmit(string DepartmentID, string ObjectId)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                string[] array = ObjectId.Split(',');
+                for (int i = 0; i < array.Length - 1; i++)
+                {
+                    
+
+
+                   
+                    //给新选择的用户添加车间主任的权限
+                    strSql.AppendFormat(@"delete from Base_ObjectUserRelation where  ObjectId='056cfbbc-28bd-42a1-a98a-ace1adce2158' and UserId='{0}' ", array[0]);
+                    strSql.AppendFormat(@"insert into Base_ObjectUserRelation values(NEWID(),2,'056cfbbc-28bd-42a1-a98a-ace1adce2158','{0}',1,GETDATE(),'{1}','{2}') ", array[0], ManageProvider.Provider.Current().UserId, ManageProvider.Provider.Current().UserName);
+                   
+                }
+                VerifyPostBll.ExecuteSql(strSql);
+                return Content(new JsonMessage { Success = true, Code = 1.ToString(), Message = "操作成功。" }.ToString());
+
+
+            }
+            catch (Exception ex)
+            {
+                return Content(new JsonMessage { Success = false, Code = "-1", Message = "操作失败，错误：" + ex.Message }.ToString());
+            }
+
+
+        }
+
+        public int DeleteRole(string UserID)
+        {
+            try
+            {
+                StringBuilder strSql = new StringBuilder();
+
+                strSql.AppendFormat(@"delete from Base_ObjectUserRelation where  ObjectId='056cfbbc-28bd-42a1-a98a-ace1adce2158' and UserId='{0}' ", UserID);
+                return VerifyPostBll.ExecuteSql(strSql);
+            }
+            catch
+            {
+                return -1;
+            }
+        }
 
 
 

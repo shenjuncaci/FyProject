@@ -638,7 +638,7 @@ UserID='{1}' ", KeyValue,UserID);
             for (int i = 0; i < DepartIDArr.Length; i++)
             {
                 strSql.AppendFormat(@" insert into TR_CustomExamUser select newid(),'{0}',userid from 
-base_user where departmentid='{1}' ", KeyValue, DepartIDArr[i]);
+base_user where departmentid='{1}' and Enabled=1 ", KeyValue, DepartIDArr[i]);
             }
             strSql.AppendFormat(@" delete from TR_CustomExamUser where CustomExamID='{0}'
 and UserID in (select UserID from TR_CustomExamUser where CustomExamID='{0}' 
@@ -658,7 +658,7 @@ where CustomExamID='{0}' group by UserID     having count(UserID)>1)  ", KeyValu
         {
             StringBuilder strSql = new StringBuilder();
             strSql.AppendFormat(@" insert into TR_CustomExamUser select newid(),'{0}',userid from 
-base_user where  Code>='{1}' and Code <='{2}' ", KeyValue,StartCode,EndCode);
+base_user where  Code>='{1}' and Code <='{2}' and Enabled=1 ", KeyValue,StartCode,EndCode);
 
             strSql.AppendFormat(@" delete from TR_CustomExamUser where CustomExamID='{0}'
 and UserID in (select UserID from TR_CustomExamUser where CustomExamID='{0}' 

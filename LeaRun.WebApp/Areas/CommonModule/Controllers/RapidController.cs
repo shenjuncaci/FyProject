@@ -727,7 +727,7 @@ left join Base_User b on a.res_cpeo=b.Code left join Base_Department c on b.Depa
         public ActionResult GetChooseUserList()
         {
             StringBuilder sb = new StringBuilder();
-            string sql = " select Code,RealName from Base_User where 1=1 ";
+            string sql = " select Code,RealName from Base_User where 1=1 and Enabled=1 ";
             DataTable dt = rapidbll.GetDataTable(sql);
             foreach (DataRow dr in dt.Rows)
             {

@@ -59,14 +59,42 @@
         background: #E0FFFF;
     }
 </style>
+<style type="text/css">
+    table.gridtable {
+        font-family: verdana,arial,sans-serif;
+        font-size: 11px;
+        color: #333333;
+        border-width: 1px;
+        border-color: #666666;
+        border-collapse: collapse;
+    }
 
-<table align=center valign=middle>
+        table.gridtable th {
+            border-width: 1px;
+            padding: 8px;
+            border-style: solid;
+            border-color: #666666;
+            background-color: #dedede;
+            white-space: nowrap;
+        }
+
+        table.gridtable td {
+            border-width: 1px;
+            padding: 8px;
+            border-style: solid;
+            border-color: #666666;
+            background-color: #ffffff;
+            white-space: nowrap;
+        }
+</style>
+
+<table class="gridtable" border="1" bordercolor="#000000" style="border-collapse: collapse;" align=center valign=middle>
     <tr>
-        <td>问题责任人</td>
+        <th>问题责任人</th>
         <td>
             <select id="ResponseBy" class="txtselect"></select>
         </td>
-        <td>问题类型</td>
+        <th>问题类型</th>
         <td>
             <select id="ProblemType" class="txtselect">
                 <option value="内部">内部</option>
@@ -75,14 +103,14 @@
         </td>
     </tr>
     <tr>
-        <td>产品区域</td>
+        <th>产品区域</th>
         <td>
             <select id="Area" class="txtselect">
                 <option value="国内">国内</option>
                 <option value="国外">国外</option>
             </select>
         </td>
-        <td>问题类别</td>
+        <th>问题类别</th>
         <td>
             <select id="ProblemType2" class="txtselect">
                 <option value="外观">外观</option>
@@ -97,14 +125,14 @@
         </td>
     </tr>
     <tr>
-        <td>是否重复发生</td>
+        <th>是否重复发生</th>
         <td>
             <select id="IsAgain" class="txtselect">
                 <option value="是">是</option>
                 <option value="否">否</option>
             </select>
         </td>
-        <td>客户</td>
+        <th>客户</th>
         <td>
             <select id="Customer" class="txtselect">
                
@@ -112,17 +140,20 @@
         </td>
     </tr>
     <tr>
-        <td>问题描述</td>
-        <td colspan="3">
-            <input id="Descripe" type="text" class="txt" />
-        </td>
-    </tr>
-    <tr>
-        <td>计划完成时间</td>
+        <th>计划完成时间</th>
         <td>
             <input id="PlanDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF;" />
         </td>
+        <th></th>
+        <td></td>
     </tr>
+    <tr>
+        <th>问题描述</th>
+        <td colspan="3">
+            <textarea id="Descripe" type="text" class="txt" style="width:400px;height:80px;" ></textarea>
+        </td>
+    </tr>
+   
 </table>
 
 <div align=center valign=middle>

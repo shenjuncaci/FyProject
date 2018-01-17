@@ -98,7 +98,7 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
         public ActionResult GetUserList()
         {
             StringBuilder sb = new StringBuilder();
-            string sql = "select * from Base_User where Enabled=1";
+            string sql = "select * from Base_User where Enabled=1 ";
             DataTable dt = planbll.GetDataTable(sql);
             foreach (DataRow dr in dt.Rows)
             {

@@ -90,5 +90,26 @@ a.SetDepart='{0}' and a.Status!='已完成' ", ManageProvider.Provider.Current()
             }
             return Repository().FindTablePageBySql(strSql.ToString(), parameter.ToArray(), ref jqgridparam);
         }
+
+        public DataTable GetUserList(string keyword, ref JqGridParam jqgridparam, string ParameterJson)
+        {
+            StringBuilder strSql = new StringBuilder();
+            List<DbParameter> parameter = new List<DbParameter>();
+            strSql.Append(@"  select a.*,b.fullname from Base_User  a left join Base_Department b 
+on a.DepartmentId=b.DepartmentId
+where exists (select * from Base_ObjectUserRelation 
+where ObjectId='056cfbbc-28bd-42a1-a98a-ace1adce2158' and UserId=a.UserId) and a.Enabled=1 ");
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                strSql.Append(@" AND (a.realname LIKE @keyword or a.code like @keyword or b.fullname like @keyword
+                                    )");
+                parameter.Add(DbFactory.CreateDbParameter("@keyword", '%' + keyword + '%'));
+            }
+            if (!string.IsNullOrEmpty(ParameterJson) && ParameterJson.Length > 2)
+            {
+                strSql.Append(ConditionBuilder.GetWhereSql(ParameterJson.JonsToList<Condition>(), out parameter));
+            }
+            return Repository().FindTablePageBySql(strSql.ToString(), parameter.ToArray(), ref jqgridparam);
+        }
     }
 }
