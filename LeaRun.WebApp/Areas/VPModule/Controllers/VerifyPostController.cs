@@ -18,6 +18,8 @@ using System.Web;
 using System.Web.Mvc;
 using System.Net.Mail;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
+using System.Net.Security;
 
 
 //*----------Dragon be here!----------/
@@ -291,67 +293,176 @@ namespace LeaRun.WebApp.Areas.VPModule.Controllers
             }
             else
             {
-
-                strSql.AppendFormat(@" update VP_VerifyPostDetail set DefectNum{3}='{1}',CheckNum{3}='{2}' 
-where VerifyPostDID='{0}' ",verifypostdid,defectNum,checkNum,temp);
+                int OneLevelAlarm = 0;
+                int TwoLevelAlarm = 0;
+                int ThreeLevelAlarm = 0;
+                int DefectNumAll = 0;
+                strSql.AppendFormat(@" update VP_VerifyPostDetail set DefectNum{3}='{1}',CheckNum{3}='{2}',Status{3}='' 
+where VerifyPostDID='{0}' ", verifypostdid,defectNum,checkNum,temp);
                 //当失效数量不是0的时候，重新更新明细表中的数据，在当前日期的后面再增加周期数量的数据
                 if(defectNum!="0")
                 {
-                    //删除今天以后的数据，再按照周期数重新添加
-                    StringBuilder sqlDelete = new StringBuilder();
-                    sqlDelete.AppendFormat(@" delete from VP_VerifyPostDetail where VerifyDate>cast(GETDATE() as date) 
-and VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where VerifyPostDID='{0}') ",verifypostdid);
-                    VerifyPostBll.ExecuteSql(sqlDelete);
-                    //根据周期重新添加数据
-                    IDatabase database = DataFactory.Database();
-                    DbTransaction isOpenTrans = database.BeginTrans();
-                    string sqlGetinfo = @" select * from VP_VerifyPost where VerifyPostID in 
-(select VerifyPostID from VP_VerifyPostDetail where VerifyPostDID='{0}') ";
-                    sqlGetinfo = string.Format(sqlGetinfo, verifypostdid);
-                    DataTable dtGetInfo = VerifyPostBll.GetDataTable(sqlGetinfo);
-                    int C1 = Convert.ToInt32(dtGetInfo.Rows[0]["VerifyCycle"].ToString());
-                    string VerifyPostID = dtGetInfo.Rows[0]["VerifyPostID"].ToString();
-                    try
+                    string sqlIsToday = " select VerifyDate from VP_VerifyPostDetail where VerifyPostDID='{0}' ";
+                    sqlIsToday = string.Format(sqlIsToday, verifypostdid);
+                    DataTable dtIsToday = VerifyPostBll.GetDataTable(sqlIsToday);
+                    if (Convert.ToDateTime(dtIsToday.Rows[0][0].ToString()) ==Convert.ToDateTime(DateTime.Now))
                     {
-                        DateTime mindt = Convert.ToDateTime(DateTime.Now).AddDays(1);
-                        DateTime maxdt = mindt.AddDays(C1);
-                        while (mindt < maxdt)
+                        #region 编辑的数据是今天的数据的情况
+                        //删除今天以后的数据，再按照周期数重新添加
+                        StringBuilder sqlDelete = new StringBuilder();
+                        sqlDelete.AppendFormat(@" delete from VP_VerifyPostDetail where VerifyDate>cast(GETDATE() as date) 
+and VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where VerifyPostDID='{0}') ", verifypostdid);
+                        VerifyPostBll.ExecuteSql(sqlDelete);
+                        //根据周期重新添加数据
+                        IDatabase database = DataFactory.Database();
+                        DbTransaction isOpenTrans = database.BeginTrans();
+                        string sqlGetinfo = @" select a.*,sum(DefectNum1+DefectNum2+DefectNum3+DefectNum4+DefectNum5+DefectNum6) as DefectNumAll
+from VP_VerifyPost a left join VP_VerifyPostDetail b on a.VerifyPostID=b.VerifyPostID 
+where VerifyPostID in 
+(select VerifyPostID from VP_VerifyPostDetail where VerifyPostDID='{0}') ";
+                        sqlGetinfo = string.Format(sqlGetinfo, verifypostdid);
+                        DataTable dtGetInfo = VerifyPostBll.GetDataTable(sqlGetinfo);
+                        int C1 = Convert.ToInt32(dtGetInfo.Rows[0]["VerifyCycle"].ToString());
+                        string VerifyPostID = dtGetInfo.Rows[0]["VerifyPostID"].ToString();
+                        OneLevelAlarm = Convert.ToInt32(dtGetInfo.Rows[0]["OneLevelAlarm"].ToString());
+                        TwoLevelAlarm = Convert.ToInt32(dtGetInfo.Rows[0]["TwoLevelAlarm"].ToString());
+                        ThreeLevelAlarm = Convert.ToInt32(dtGetInfo.Rows[0]["ThreeLevelAlarm"].ToString());
+                        DefectNumAll= Convert.ToInt32(dtGetInfo.Rows[0]["DefectNumAll"].ToString());
+
+                        try
                         {
-                            VP_VerifyPostDetail EntityD = new VP_VerifyPostDetail();
-                            EntityD.Create();
-                            EntityD.VerifyDate = mindt;
-                            EntityD.VerifyPostID = VerifyPostID;
+                            DateTime mindt = Convert.ToDateTime(DateTime.Now).AddDays(1);
+                            DateTime maxdt = mindt.AddDays(C1);
+                            while (mindt < maxdt)
+                            {
+                                VP_VerifyPostDetail EntityD = new VP_VerifyPostDetail();
+                                EntityD.Create();
+                                EntityD.VerifyDate = mindt;
+                                EntityD.VerifyPostID = VerifyPostID;
 
-                            database.Insert(EntityD, isOpenTrans);
+                                database.Insert(EntityD, isOpenTrans);
 
-                            mindt = mindt.AddDays(1);
+                                mindt = mindt.AddDays(1);
 
 
+                            }
+
+                            database.Commit();
+                        }
+                        catch
+                        {
+                            database.Rollback();
+                            database.Close();
+                        }
+                        #endregion
+                    }
+                    //不是当天的数据
+                    else
+                    {
+                        string sqlCount = @" select a.*,b.VerifyCycle,b.OneLevelAlarm,b.TwoLevelAlarm,b.ThreeLevelAlarm,
+sum(DefectNum1+DefectNum2+DefectNum3+DefectNum4+DefectNum5+DefectNum6) as DefectNumAll
+from VP_VerifyPostDetail a left join VP_VerifyPost b on a.VerifyPostID=b.VerifyPostID 
+where a.VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where VerifyPostDID='{0}') and cast(a.VerifyDate as date)>=cast('{1}' as date) ";
+                        sqlCount = string.Format(sqlCount, verifypostdid, dtIsToday.Rows[0][0].ToString());
+                        DataTable dtCount = VerifyPostBll.GetDataTable(sqlCount);
+                        int C1 = Convert.ToInt32(dtCount.Rows[0]["VerifyCycle"].ToString());
+                        string VerifyPostID = dtCount.Rows[0]["VerifyPostID"].ToString();
+                        OneLevelAlarm = Convert.ToInt32(dtCount.Rows[0]["OneLevelAlarm"].ToString());
+                        TwoLevelAlarm = Convert.ToInt32(dtCount.Rows[0]["TwoLevelAlarm"].ToString());
+                        ThreeLevelAlarm = Convert.ToInt32(dtCount.Rows[0]["ThreeLevelAlarm"].ToString());
+                        DefectNumAll= Convert.ToInt32(dtCount.Rows[0]["DefectNumAll"].ToString());
+                        if (C1 - dtCount.Rows.Count-1 > 0)
+                        {
+                            IDatabase database = DataFactory.Database();
+                            DbTransaction isOpenTrans = database.BeginTrans();
+                            try
+                            {
+                                DateTime mindt = Convert.ToDateTime(DateTime.Now).AddDays(1);
+                                DateTime maxdt = mindt.AddDays(C1 - dtCount.Rows.Count+1);
+                                while (mindt < maxdt)
+                                {
+                                    VP_VerifyPostDetail EntityD = new VP_VerifyPostDetail();
+                                    EntityD.Create();
+                                    EntityD.VerifyDate = mindt;
+                                    EntityD.VerifyPostID = VerifyPostID;
+
+                                    database.Insert(EntityD, isOpenTrans);
+
+                                    mindt = mindt.AddDays(1);
+
+
+                                }
+
+                                database.Commit();
+                            }
+                            catch
+                            {
+                                database.Rollback();
+                                database.Close();
+                            }
                         }
 
-                        database.Commit();
                     }
-                    catch
-                    {
-                        database.Rollback();
-                        database.Close();
-                    }
-
                     //此处预计加入，根据报警设置数量来发邮件预警和加入问题到快速反应以及一般问题跟踪
+                    //获取累计的不良数
+                    if(DefectNumAll>=ThreeLevelAlarm)
+                    {
+                        //大于三级警报，将问题加入到快反，并发送邮件给总经理、生产副总、质量副总、质量经理、厂长、车间主任、班长
+                        //获取邮件名单sql
+                        string sqlGetEmail = @" select Email from Base_User  a
+where exists( select * from Base_ObjectUserRelation where UserId=a.UserId and
+ObjectId in ('15f14d9c-e74c-46ac-8641-b3c1bac26940','8431ea77-69c9-484c-a67f-4f3419c0d393') )
+or ( 
+exists ( select * from Base_ObjectUserRelation where UserId=a.UserId and
+ObjectId in ('91c17ca4-0cbf-43fa-829e-3021b055b6c4','f6afd4e4-6fb2-446f-88dd-815ddb91b09d') )
+and (DepartmentId='81b8d368-f4e4-4fd3-be9b-57a679c041b3' or DepartmentId in (select ParentId from Base_Department where DepartmentId='81b8d368-f4e4-4fd3-be9b-57a679c041b3' ) )
+)
+ ";
+                        DataTable dtEmail = VerifyPostBll.GetDataTable(sqlGetEmail);
+                        string EmailList = "";
+                        if(dtEmail.Rows.Count>0)
+                        {
+                            for(int i=0;i<dtEmail.Rows.Count;i++)
+                            {
+                                EmailList += dtEmail.Rows[i][0].ToString() + ",";
+                            }
+                            EmailList = EmailList.Substring(0, EmailList.Length - 1);
+                            SendEmailByAccount(EmailList, " 岗位验证已达到三级预警，请登录系统查看! ");
+                        }
+
+                        //插入问题到快速反应
+                        FY_Rapid rapidentity = new FY_Rapid();
+                        IDatabase database = DataFactory.Database();
+                        DbTransaction isOpenTrans = database.BeginTrans();
+                        try
+                        {
+                            //获取快速反应的数据
+                            string sqlGetRapid = "";
+                            rapidentity.Create();
+                            rapidentity.res_ms = "";
+
+                            database.Insert(rapidentity, isOpenTrans);
+                            database.Commit();
+                        }
+                        catch
+                        {
+                            database.Rollback();
+                            database.Close();
+                        }
+                    }
+                    else
+                    {
+                        if(DefectNumAll>=TwoLevelAlarm)
+                        {
+                            //触发二级警报
+                        }
+                    }
                 }
 
                 if(temp=="6"&&Convert.ToInt32(defectNum)==0)
                 {
                     //当天最后一次，并且失效数量是0的话，检验下是否连续的无失效天数大于等于周期
-                    string sql = @"select max(rn)
-from
-(
-select VerifyPostID, VerifyDate, ROW_NUMBER() OVER(partition by VerifyPostID order by VerifyDate asc) as rn
-from VP_VerifyPostDetail
-where DefectNum1=0 and DefectNum2=0 and DefectNum3=0 
-and DefectNum4=0 and DefectNum5=0 and DefectNum6=0 and VerifyDate<=cast(GETDATE() as date)
-and VerifyDate<=GETDATE() and VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where VerifyPostDID='{0}')
-) as aa";
+                    string sql = @"select dbo.[GetContinuousDayByVeryPostDID]('{0}')";
                     sql = string.Format(sql, verifypostdid);
 
                     DataTable dt = VerifyPostBll.GetDataTable(sql);
@@ -381,6 +492,53 @@ where VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where Verify
                 
             }
             VerifyPostBll.ExecuteSql(strSql);
+            return "0";
+        }
+
+        public string SendEmailByAccount(string reciver, string Content)
+        {
+            var emailAcount = "shfy_it@fuyaogroup.com";
+            var emailPassword = "Sj1234";
+
+            string[] reviverArr = reciver.Split(',');
+
+
+            var content = Content;
+            MailMessage message = new MailMessage();
+            //设置发件人,发件人需要与设置的邮件发送服务器的邮箱一致
+            MailAddress fromAddr = new MailAddress("shfy_it@fuyaogroup.com");
+            message.From = fromAddr;
+            //设置收件人,可添加多个,添加方法与下面的一样
+            for (int i = 0; i < reviverArr.Length; i++)
+            {
+                message.To.Add(reviverArr[i]);
+            }
+            //message.To.Add("yao.sun@fuyaogroup.com");
+
+            //message.To.Add("zhonghua.yan@fuyaogroup.com");
+
+            //message.To.Add("li.wang@fuyaogroup.com");
+
+
+
+            //设置抄送人
+            message.CC.Add("jun.shen@fuyaogroup.com");
+            //设置邮件标题
+            message.Subject = "岗位验证系统邮件";
+            //设置邮件内容
+            message.Body = content;
+            //设置邮件发送服务器,服务器根据你使用的邮箱而不同,可以到相应的 邮箱管理后台查看,下面是QQ的
+            SmtpClient client = new SmtpClient("mail.fuyaogroup.com", 25);
+            //设置发送人的邮箱账号和密码
+            client.Credentials = new NetworkCredential(emailAcount, emailPassword);
+            //启用ssl,也就是安全发送
+            client.EnableSsl = true;
+            //发送邮件
+            //加这段之前用公司邮箱发送报错：根据验证过程，远程证书无效
+            //加上后解决问题
+            ServicePointManager.ServerCertificateValidationCallback =
+delegate (Object obj, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors) { return true; };
+            client.Send(message);
             return "0";
         }
 
@@ -484,9 +642,13 @@ _Area,_ProblemType,_IsAgain,_ProblemType2,_ResponseBy,_Customer,_Descripe,_PlanD
             return VerifyPostBll.ExecuteSql(strSql);
         }
 
-        public ActionResult ReasonJson()
+        public ActionResult ReasonJson(string State)
         {
             string sql = @" select SetReason from VP_VerifyPost where SetDepart='{0}'  ";
+            if(State!=null&&State!=""&&State!="undefined")
+            {
+                sql += " and status='"+State+"' ";
+            }
             sql = string.Format(sql, ManageProvider.Provider.Current().DepartmentId);
             DataTable dt = VerifyPostBll.GetDataTable(sql);
             return Content(dt.ToJson());
@@ -596,7 +758,31 @@ field,VerifyPostDID);
                             {
                                  if(RequireRole==ObjectIDs[i])
                                  {
-                                     Msg = "5";
+                                     if(Type == "WM"|| Type == "GM")
+                                     {
+                                         if(base_user.DepartmentId==ManageProvider.Provider.Current().DepartmentId)
+                                         {
+                                        Msg = "5";
+                                    }
+                                         else
+                                          {
+                                                Msg = "3";
+                                          }
+                                      }
+                                        if (Type == "FM")
+                                        {
+                                            string sql = " select ParentId from base_department where DepartmentId='" + ManageProvider.Provider.Current().DepartmentId + "' ";
+                                            DataTable dt = VerifyPostBll.GetDataTable(sql);
+                                            if (base_user.DepartmentId == dt.Rows[0][0].ToString())
+                                            {
+                                                Msg = "5";
+                                            }
+                                        }
+                                        else
+                                        {
+                                            Msg = "3";
+                                        }
+                                     
                                   }
                             }
                             break;

@@ -427,8 +427,8 @@ and DepartmentId in (select ReviewDepart from FY_ChangeReview  where ChangeRevie
             //发送邮件提醒部门负责人审批
             string reciver = "";
             string content = "您好，有一个变更单需要您审批评审内容！";
-            string sql = @"select Email from Base_User where 
-exists (select * from Base_ObjectUserRelation where UserId='{1}' and ObjectId='e65b5d68-3d6e-4865-9de4-c79a631fda48')
+            string sql = @"select Email from Base_User a where 
+exists (select * from Base_ObjectUserRelation where UserId=a.userid and ObjectId='e65b5d68-3d6e-4865-9de4-c79a631fda48')
 and DepartmentId in (select ChangeBreakDeptID from FY_ChangeBreak  where ChangeBreakID='{0}') ";
             sql = string.Format(sql, ChangeBreakID, ManageProvider.Provider.Current().UserId);
             DataTable dt = ChangeBll.GetDataTable(sql);
@@ -440,8 +440,9 @@ and DepartmentId in (select ChangeBreakDeptID from FY_ChangeBreak  where ChangeB
 
                 }
                 reciver = reciver.Substring(0, reciver.Length - 1);
+                SendEmailByAccount(reciver, content);
             }
-            SendEmailByAccount(reciver, content);
+            
 
             return Content(new JsonMessage { Success = true, Code = 1.ToString(), Message = "操作成功。" }.ToString());
         }
@@ -486,8 +487,9 @@ where ChangeID  in (select ChangeID from FY_ChangeReview where ChangeReviewID='{
 
                     }
                     reciver = reciver.Substring(0, reciver.Length - 1);
+                    SendEmailByAccount(reciver, content1);
                 }
-                SendEmailByAccount(reciver, content1);
+                
             }
             return Content(new JsonMessage { Success = true, Code = 1.ToString(), Message = "操作成功。" }.ToString());
         }
@@ -603,8 +605,9 @@ where changeid='{0}' ";
 
                     }
                     reciver = reciver.Substring(0, reciver.Length - 1);
+                    SendEmailByAccount(reciver, content1);
                 }
-                SendEmailByAccount(reciver, content1);
+                
             }
             else if (tag == "No")
             {
@@ -625,8 +628,9 @@ where changeid='{0}' ";
 
                     }
                     reciver = reciver.Substring(0, reciver.Length - 1);
+                    SendEmailByAccount(reciver, content1);
                 }
-                SendEmailByAccount(reciver, content1);
+                
             }
             else
             {
@@ -762,8 +766,9 @@ from fy_breakpoint a left join Base_User b on a.ResponseBy=b.UserId where
 
                 }
                 reciver = reciver.Substring(0, reciver.Length - 1);
+                SendEmailByAccount(reciver, content);
             }
-            SendEmailByAccount(reciver,content);
+            
 
             return Content(new JsonMessage { Success = true, Code = 1.ToString(), Message = "操作成功。" }.ToString());
         }
@@ -787,8 +792,9 @@ from fy_breakpoint a left join Base_User b on a.ResponseBy=b.UserId where
 
                 }
                 reciver = reciver.Substring(0, reciver.Length - 1);
+                SendEmailByAccount(reciver, content);
             }
-            SendEmailByAccount(reciver, content);
+            
 
 
             return Content(new JsonMessage { Success = true, Code = 1.ToString(), Message = "操作成功。" }.ToString());
@@ -835,8 +841,9 @@ ScrappeGlass, ScrappeMaterial, ScrappeAll, FiRemark, ManageProvider.Provider.Cur
 
                 }
                 reciver = reciver.Substring(0, reciver.Length - 1);
+                SendEmailByAccount(reciver, content);
             }
-            SendEmailByAccount(reciver, content);
+            
             return Content(new JsonMessage { Success = true, Code = 1.ToString(), Message = "操作成功。" }.ToString());
         }
 
@@ -861,8 +868,8 @@ Manager='{1}',ManagerDt=getdate(),ManagerRemark='同意' where changeid='{0}' ",
                 //发送邮件提醒填写断点信息
                 string reciver = "";
                 string content1 = "您好，您有一个变更单需要审批！";
-                string sql = @" select Email from Base_User where 
-exists (select * from Base_ObjectUserRelation where UserId='' and ObjectId='e65b5d68-3d6e-4865-9de4-c79a631fda48')
+                string sql = @" select Email from Base_User a where 
+exists (select * from Base_ObjectUserRelation where UserId=a.userid and ObjectId='e65b5d68-3d6e-4865-9de4-c79a631fda48')
 and DepartmentId in (select DepartmentId from Base_User a where a.UserId in (select CreateByID from FY_Change where ChangeID='{0}')) ";
                 sql = string.Format(sql, ChangeID);
                 DataTable dt = ChangeBll.GetDataTable(sql);
@@ -874,8 +881,9 @@ and DepartmentId in (select DepartmentId from Base_User a where a.UserId in (sel
 
                     }
                     reciver = reciver.Substring(0, reciver.Length - 1);
+                    SendEmailByAccount(reciver, content1);
                 }
-                SendEmailByAccount(reciver, content1);
+                
 
             }
             strSql.AppendFormat(@"update fy_change set CreateState='{0}',CreateRemark='{1}' where changeid='{2}' ",
@@ -912,8 +920,9 @@ and DepartmentId in (select DepartmentId from Base_User a where a.UserId in (sel
 
                     }
                     reciver = reciver.Substring(0, reciver.Length - 1);
+                    SendEmailByAccount(reciver, content1);
                 }
-                SendEmailByAccount(reciver, content1);
+                
             }
             else if(tag=="No")
             {
@@ -933,8 +942,9 @@ and DepartmentId in (select DepartmentId from Base_User a where a.UserId in (sel
 
                     }
                     reciver = reciver.Substring(0, reciver.Length - 1);
+                    SendEmailByAccount(reciver, content1);
                 }
-                SendEmailByAccount(reciver, content1);
+                
             }
             else
             {

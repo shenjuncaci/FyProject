@@ -246,7 +246,8 @@ namespace LeaRun.Business
 
             StringBuilder strSql = new StringBuilder();
             List<DbParameter> parameter = new List<DbParameter>();
-            strSql.Append(@"select b.userid,b.RealName,c.AttendanceState from (
+            strSql.Append(@"select b.userid,b.RealName,c.AttendanceState,
+case when exists (select * from temp_usercode where usercode=b.code) then 1 else 0 end as type from (
 
 select distinct res_cpeo from [dbo].[SendMailList]
 union

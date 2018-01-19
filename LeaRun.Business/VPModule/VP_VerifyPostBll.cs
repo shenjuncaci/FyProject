@@ -21,15 +21,7 @@ namespace LeaRun.Business
             List<DbParameter> parameter = new List<DbParameter>();
             strSql.Append(@" select *,
 (select sum(DefectNum1+DefectNum2+DefectNum3+DefectNum4+DefectNum5+DefectNum6) from VP_VerifyPostDetail where VerifyPostID=a.VerifyPostID) as DefectNum,
-(select max(rn)
-from
-(
-select VerifyPostID, VerifyDate, ROW_NUMBER() OVER(partition by VerifyPostID order by VerifyDate asc) as rn
-from VP_VerifyPostDetail a
-where DefectNum1=0 and DefectNum2=0 and DefectNum3=0 
-and DefectNum4=0 and DefectNum5=0 and DefectNum6=0 and VerifyDate<=cast(GETDATE() as date)
-and VerifyPostID=a.VerifyPostID
-) as aa) as ZeroNum,
+dbo.[GetContinuousDayByVeryPostID](a.VerifyPostID) as ZeroNum,
 '查看' as trend
 from VP_VerifyPost a where 1=1   ");
             if (!string.IsNullOrEmpty(keyword))
@@ -74,7 +66,7 @@ b.QualityApprove,b.FactoryManager,b.WorkShopManager,b.GroupManager,b.Status1,b.S
 from VP_VerifyPost a
 left join VP_VerifyPostDetail b on a.VerifyPostID=b.VerifyPostID
 left join Base_Department c on a.SetDepart=c.DepartmentId where 1=1 and 
-a.SetDepart='{0}' and a.Status!='已完成' ", ManageProvider.Provider.Current().DepartmentId);
+a.SetDepart='{0}' ", ManageProvider.Provider.Current().DepartmentId);
             if (!string.IsNullOrEmpty(keyword))
             {
                 strSql.Append(keyword);

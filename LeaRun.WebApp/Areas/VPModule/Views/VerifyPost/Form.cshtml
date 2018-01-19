@@ -84,16 +84,16 @@
         if (!CheckDataValid('#form1')) {
             return false;
         }
-        if ($("#OneLevelAlarm").val() == "0")
+        if ($("#OneLevelAlarm").val() == "0" || $("#OneLevelAlarm").val() == "")
         {
             alert("请填写一级预警的数量");
             return false;
         }
-        if ($("#TwoLevelAlarm").val() == "0") {
+        if ($("#TwoLevelAlarm").val() == "0" || $("#TwoLevelAlarm").val() == "") {
             alert("请填写二级预警的数量");
             return false;
         }
-        if ($("#ThreeLevelAlarm").val() == "0") {
+        if ($("#ThreeLevelAlarm").val() == "0" || $("#ThreeLevelAlarm").val() == "") {
             alert("请填写三级预警的数量");
             return false;
         }

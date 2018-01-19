@@ -261,6 +261,24 @@
                     cellvalue = "未录入";
                 }
             }
+            else
+            {
+                if (NowDate.pattern("yyyy-MM-dd") == gridDate.pattern("yyyy-MM-dd"))
+                {
+                    var hour = NowDate.getHours();
+                    
+                    if (hour > 5)
+                    {
+                        if (Number(rowObject.checknum1) == 0) {
+                            cellvalue = "未录入";
+                        }
+                    }
+                }
+                else
+                {
+                    cellvalue = "";
+                }
+            }
         }
         return "<a href=\"#\" onclick=\"showtend('" + rowObject.verifypostdid + "','00:00-04:00','" + rowObject.verifydate + "')\">" + cellvalue + "</a>";
     }
@@ -275,6 +293,23 @@
             if (NowDate.pattern("yyyy-MM-dd") > gridDate.pattern("yyyy-MM-dd")) {
                 if (Number(rowObject.checknum2) == 0) {
                     cellvalue = "未录入";
+                }
+            }
+            else {
+                if (NowDate.pattern("yyyy-MM-dd") == gridDate.pattern("yyyy-MM-dd")) {
+                    var hour = NowDate.getHours();
+                    
+                    if (hour > 9) {
+                        if (Number(rowObject.checknum2) == 0) {
+                            cellvalue = "未录入";
+                        }
+                    }
+                    if (hour < 4) {
+                        cellvalue = "";
+                    }
+                }
+                else {
+                    cellvalue = "";
                 }
             }
         }
@@ -293,6 +328,23 @@
                     cellvalue = "未录入";
                 }
             }
+            else {
+                if (NowDate.pattern("yyyy-MM-dd") == gridDate.pattern("yyyy-MM-dd")) {
+                    var hour = NowDate.getHours();
+
+                    if (hour > 13) {
+                        if (Number(rowObject.checknum3) == 0) {
+                            cellvalue = "未录入";
+                        }
+                    }
+                    if (hour < 8) {
+                        cellvalue = "";
+                    }
+                }
+                else {
+                    cellvalue = "";
+                }
+            }
         }
         return "<a href=\"#\" onclick=\"showtend('" + rowObject.verifypostdid + "','08:00-12:00','" + rowObject.verifydate + "')\">" + cellvalue + "</a>";
     }
@@ -307,7 +359,24 @@
             if (NowDate.pattern("yyyy-MM-dd") > gridDate.pattern("yyyy-MM-dd")) {
 
                 if (Number(rowObject.checknum4) == 0) {
-                    cellvalue = "未录入";
+                    if (Number(rowObject.checknum4) == 0) {
+                        cellvalue = "未录入";
+                    }
+                }
+            }
+            else {
+                if (NowDate.pattern("yyyy-MM-dd") == gridDate.pattern("yyyy-MM-dd")) {
+                    var hour = NowDate.getHours();
+
+                    if (hour > 17) {
+                        cellvalue = "未录入";
+                    }
+                    if (hour < 12) {
+                        cellvalue = "";
+                    }
+                }
+                else {
+                    cellvalue = "";
                 }
             }
         }
@@ -326,6 +395,24 @@
                     cellvalue = "未录入";
                 }
             }
+            else {
+                if (NowDate.pattern("yyyy-MM-dd") == gridDate.pattern("yyyy-MM-dd")) {
+                    var hour = NowDate.getHours();
+
+                    if (hour > 21) {
+                        if (Number(rowObject.checknum5) == 0) {
+                            cellvalue = "未录入";
+                        }
+                    }
+                    if (hour < 16)
+                    {
+                        cellvalue = "";
+                    }
+                }
+                else {
+                    cellvalue = "";
+                }
+            }
         }
         return "<a href=\"#\" onclick=\"showtend('" + rowObject.verifypostdid + "','16:00-20:00','" + rowObject.verifydate + "')\">" + cellvalue + "</a>";
     }
@@ -342,6 +429,20 @@
                     cellvalue = "未录入";
                 }
             }
+            else {
+                if (NowDate.pattern("yyyy-MM-dd") == gridDate.pattern("yyyy-MM-dd")) {
+                    var hour = NowDate.getHours();
+
+                    if (hour < 20) {
+                        if (Number(rowObject.checknum6) == 0) {
+                            cellvalue = "";
+                        }
+                    }
+                }
+                else {
+                    cellvalue = "";
+                }
+            }
         }
         return "<a href=\"#\" onclick=\"showtend('" + rowObject.verifypostdid + "','20:00-24:00','" + rowObject.verifydate + "')\">" + cellvalue + "</a>";
     }
@@ -353,8 +454,8 @@
         var NowDate = new Date();
         NowDate.toLocaleDateString();
         gridDate = new Date(Date.parse(verifydate));
-        if (NowDate.pattern("yyyy-MM-dd") < gridDate.pattern("yyyy-MM-dd")) {
-            alert("还没到时间的数据不能操作");
+        if (NowDate.pattern("yyyy-MM-dd") != gridDate.pattern("yyyy-MM-dd")) {
+            alert("只能评审今天的数据");
             return false;
         }
 
@@ -660,6 +761,18 @@
         });
     }
 
+    function BindReason() {
+
+        $("#SetReason").html("");
+        
+        $("#SetReason").append("<option value=''>==请选择==</option>");
+        AjaxJson("/VPModule/VerifyPost/ReasonJson?State=" + $("#Status").val(), {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#SetReason").append($("<option></option>").val(DataJson[i].SetReason).html(DataJson[i].SetReason));
+            });
+        });
+    }
+
 </script>
 
 <!--左边-->
@@ -686,7 +799,7 @@
                         状态：
                     </th>
                     <td>
-                        <select id="Status" class="select">
+                        <select id="Status" class="select" onchange="BindReason()">
                             <option value="">==请选择==</option>
                             <option value="进行中">进行中</option>
                             <option value="已完成">已完成</option>

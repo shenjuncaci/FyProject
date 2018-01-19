@@ -82,8 +82,9 @@
             autowidth: true,
             colModel: [
                 { label: 'userid', name: 'userid', index: 'userid', width: 200, align: 'left', hidden:true },
-                { label: '姓名', name: 'realname', index: 'realname', width: 200, align: 'left' },
+                { label: '姓名', name: 'realname', index: 'realname', width: 200, align: 'left', formatter: NameVerify },
                 { label: '状态', name: 'attendancestate', index: 'attendancestate', width: 200, align: 'left' },
+                { label: '类型', name: 'type', index: 'type', width: 200, align: 'left', hidden: true },
             ],
             viewrecords: true,
             rowNum: 30,
@@ -257,6 +258,15 @@
         else {
             return String(cellvalue).substring(0, 10);
         }
+    }
+
+    function NameVerify(cellvalue, options, rowObject)
+    {
+        if (rowObject.type == "1")
+        {
+            cellvalue = cellvalue + "(必须参加)";
+        }
+        return cellvalue;
     }
 </script>
 
