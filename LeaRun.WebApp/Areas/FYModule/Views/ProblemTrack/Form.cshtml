@@ -1,0 +1,365 @@
+﻿@{
+    ViewBag.Title = "工序明细";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+    string UserID = ViewData["UserID"] as string;
+}
+
+<link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
+<script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery.xlsx/xlsx.full.min.js"></script>
+<link href="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.css" rel="stylesheet" />
+<script src="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.js"></script>
+
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
+
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+
+    input {
+        background: #E0FFFF;
+    }
+
+    textarea {
+        background: #E0FFFF;
+    }
+
+    select {
+        background: #E0FFFF;
+    }
+</style>
+
+
+<script type="text/javascript">
+    //$(document).ready(function () {
+
+    //    uploadify();
+    //});
+    $(function () {
+
+        BindData();
+        InitControl();
+
+        //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
+        //BindResponseBy();
+
+        $('input[id^="CreateDt"]').each(function () {
+
+            var w = this.value.indexOf("T");
+            if (w > 0) {
+                this.value = this.value.substring(0, w);
+            }
+            this.disabled = true;
+            this.readOnly = true;
+        });
+        $('input[id^="PlanDt"]').each(function () {
+
+            var w = this.value.indexOf("T");
+            if (w > 0) {
+                this.value = this.value.substring(0, w);
+            }
+            this.disabled = true;
+            this.readOnly = true;
+        });
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/FYModule/ProblemTrack/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+
+
+
+            });
+
+
+            var rowindex = 1;
+            //题目信息
+            AjaxJson("/FYModule/ProblemTrack/GetDetailList", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                var JsonData = data.rows;
+                //var colorState = "";
+                $.each(JsonData, function (i) {
+
+                    addone(rowindex);
+                    var rowData = JsonData[i];
+                    //alert(rowData.FllowStatus);
+                    //alert(rowData.ReviewDepart);ChangeReviewState
+                    $("#CreateDt➩" + rowindex).val(rowData.CreateDt);
+                    $("#CreateDt➩" + rowindex).prop("readonly", true);
+
+                    $("#ProblemDID➩" + rowindex).val(rowData.ProblemDID);
+                    $("#ProblemDID➩" + rowindex).prop("readonly", true);
+
+                    $("#PlanDt➩" + rowindex).val(rowData.PlanDt);
+                    $("#PlanDt➩" + rowindex).prop("readonly", true);
+
+                    $("#Progress➩" + rowindex).val(rowData.Progress);
+                    $("#Progress➩" + rowindex).prop("readonly", true);
+
+                    $("#Remark➩" + rowindex).val(rowData.Remark);
+                    $("#Remark➩" + rowindex).prop("readonly", true);
+
+
+                    rowindex++;
+
+                });
+            });
+            if ($("#Status").val() == "已完成") {
+                $("form input").prop("readonly", true);
+                $("form input").prop("disabled", true);
+                $("form textarea").prop("readonly", true);
+                $("form select").prop("disabled", true);
+                $("#add").css("display", "none");
+            }
+            else {
+                if ('@ViewData["UserID"]' != $("#CreateBy").val())
+                {
+                    if ('@ViewData["UserID"]' == $("#ResponseBy").val())
+                    {
+                        $("form input").prop("readonly", true);
+                        $("form input").prop("disabled", true);
+                        $("form textarea").prop("readonly", true);
+                        $("form select").prop("disabled", true);
+                        $("#ImprovementMeasures").prop("readonly", false);
+                        $("#ImprovementMeasures").prop("disabled", false);
+                    }
+                    else
+                    {
+                        $("form input").prop("readonly", true);
+                        $("form input").prop("disabled", true);
+                        $("form textarea").prop("readonly", true);
+                        $("form select").prop("disabled", true);
+
+                        $("#add").css("display", "none");
+                    }
+                }
+                else
+                {
+                    $("#ResponseBy").searchableSelect();
+                    document.getElementsByClassName("searchable-select-holder")[0].innerHTML = $("#ResponseBy").find("option:selected").text();
+                }
+                
+            }
+            //SkillList
+        }
+        else
+        {
+            $("#ResponseBy").searchableSelect();
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        $("#filePath").remove();
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        var DetailForm = GetTableDataJson("#DetailForm");
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            postData["DetailForm"] = DetailForm;
+            AjaxJson("/FYModule/ProblemTrack/SubmitForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+
+    ////绑定数据
+    //function BindData() {
+
+    //    $("#CustomExamType").html("");
+
+    //    $("#CustomExamType").append("<option value=''>==请选择==</option>");
+    //    AjaxJson("/FYModule/Post/TypeJson", {}, function (DataJson) {
+    //        $.each(DataJson, function (i) {
+    //            $("#CustomExamType").append($("<option></option>").val(DataJson[i].Code).html(DataJson[i].FullName));
+    //        });
+    //    });
+    //}
+
+
+
+
+    function addone(i) {
+        //alert(i);
+        var tab = document.getElementById('DetailForm');
+        var rowIndex = tab.rows.length + 1;
+        if (i == 999) {
+            //999表示是新增，-3表示减去3行标题
+            i = rowIndex - 2;
+        }
+        //添加一行;
+        var tr = tab.insertRow();
+        //tr.onmouseover = tr.className = "displayStyle";
+        //tr.onmouseout = tr.className = "hideStyle";
+        //tr.onclick = function () { this.className = "onClickChangeStyle(this)"; }
+
+        var td1 = tr.insertCell();
+        var td2 = tr.insertCell();
+        var td3 = tr.insertCell();
+        var td4 = tr.insertCell();
+
+
+        td1.innerHTML = "<input placeholder=\"自动生成，无需填写\" readonly  id=\"CreateDt➩" + i + "\" class=\"txt\" style=\"width:95%\"><input id=\"ProblemDID➩" + i + "\" class=\"txt\" hidden>";
+        td2.innerHTML = "<input  id=\"PlanDt➩" + i + "\" type=\"text\" class=\"txt Wdate\" onfocus=\"WdatePicker({ dateFmt: 'yyyy-MM-dd HH:mm:ss' })\" style=\"width:95%\">";
+        td3.innerHTML = "<input  id=\"Progress➩" + i + "\" class=\"txt\" style=\"width:95%\">";
+        td4.innerHTML = "<input  id=\"Remark➩" + i + "\" class=\"txt\" style=\"width:95%\">";
+
+
+        //初始化行;
+        //initRows(tab);
+    }
+
+    function BindData()
+    {
+        $("#ResponseBy").html("");
+
+        $("#ResponseBy").append("<option value=''>==请选择==</option>");
+        AjaxJson("/VPModule/VerifyPost/ResponseJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#ResponseBy").append($("<option></option>").val(DataJson[i].userid).html(DataJson[i].name));
+            });
+        })
+    }
+
+
+</script>
+
+
+<form id="form1">
+    <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">基本信息</div>
+
+
+            </div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+        <!--基本信息-->
+        <div id="basic" class="tabPanel">
+            <table class="form">
+                <tr style="display:none">
+                    <td colspan="4"><input id="Status" type="text" class="txt" /><input id="CreateBy" type="text" class="txt" /></td>
+                </tr>
+                <tr>
+                    <th class="formTitle">业务经办人：</th>
+                    <td class="formValue">
+                        @*<input id="PostName" type="text" class="txt" />*@
+                        <input  id="AgentBy" type="text" class="txt" datacol="yes" err="业务经办人" checkexpession="NotNull" />
+                    </td>
+                    <th class="formTitle">责任人</th>
+                    <td class="formValue">
+                        
+                        <select id="ResponseBy" class="txtselect" err="责任人" checkexpession="NotNull"></select>
+                    </td>
+                </tr>
+               
+                <tr>
+                    <th class="formTitle">问题描述</th>
+                    <td class="formValue" colspan="3">
+                        <textarea id="ProblemDescripe"  style="width:800px;height:80px;"></textarea>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">改善措施</th>
+                    <td class="formValue" colspan="3">
+                        <textarea id="ImprovementMeasures" style="width:800px;height:80px;"></textarea>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">备注</th>
+                    <td class="formValue" colspan="3">
+                        <textarea id="Remark"  style="width:800px;height:80px;"></textarea>
+                    </td>
+                </tr>
+                
+
+            </table>
+
+
+        </div>
+        <div id="Detail" class="tabPanel">
+            <div style="text-align:right">
+                <table>
+                    <tr>
+                        @*<td style="width:10%">
+                            <a href="../../../../Template/问题导入模板.xlsx" download="模板下载" \>模板下载</a>
+                        </td>*@
+                        <td style="width:89%"></td>
+                        <td style="width:11%">
+                            <a id="add" class="button button-caution button-square button-small" onclick="addone(999)">添加</a>
+                        </td>
+
+                    </tr>
+                </table>
+                <table style="display:none">
+                    <tr>
+                        <th style="width: 60px;">
+                            导入文件：
+                        </th>
+                        <td>
+                            <input type="file" id="filePath" class="keyword" style="width: 494px; border-radius: 0px;" name="filePath" />
+                        </td>
+                        <td>
+                            <input type="button" class="btnSearch" value="导入" onclick="ImportExcel()" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <table id="DetailForm" class="form-bill">
+                <tr><td colspan="3"><strong>进度跟踪</strong></td></tr>
+                <tr>
+
+                    <th style="width:20%">创建日期</th>
+                    <th style="width:20%">计划完成日期</th>
+                    <th style="width:30%">进度描述</th>
+                    <th style="width:30%">备注</th>
+                    
+                </tr>
+            </table>
+        </div>
+
+
+    </div>
+
+</form>

@@ -57,6 +57,8 @@ where 1=1  ");
                 strSql.AppendFormat(@" and (a.CreateBy='{0}' or  a.ResponseBy='{0}')  ", ManageProvider.Provider.Current().UserId);
             }
 
+
+
             if (!string.IsNullOrEmpty(ParameterJson) && ParameterJson.Length > 2)
             {
                 strSql.Append(ConditionBuilder.GetWhereSql(ParameterJson.JonsToList<Condition>(), out parameter));

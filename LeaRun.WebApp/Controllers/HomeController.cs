@@ -306,6 +306,7 @@ namespace LeaRun.WebApp.Controllers
             {
                 sql += " union select ChangeID as KeyValue,'/FYModule/Change/Form' as Url,'变更管理 '+ changeno as ProblemDescripe from FY_Change where ChangeState='等待总经理批准' ";
             }
+            sql += " union select ProblemID as KeyValue,'/FYModule/ProblemTrack/Form' as Url,'问题跟踪 '++REPLACE(ProblemDescripe,' ','') as ProblemDescripe from FY_ProblemTrack where Status!='已完成' and ResponseBy='" + ManageProvider.Provider.Current().UserId + "' ";
             DataTable dt = database.FindDataSetBySql(sql).Tables[0];
             string temp;
             if (dt.Rows.Count > 0)

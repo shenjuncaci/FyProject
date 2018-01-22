@@ -184,6 +184,7 @@
     <Compile Include="Areas\FYModule\Controllers\PlanController.cs" />
     <Compile Include="Areas\FYModule\Controllers\PostController.cs" />
     <Compile Include="Areas\FYModule\Controllers\ProblemActionController.cs" />
+    <Compile Include="Areas\FYModule\Controllers\ProblemTrackController.cs" />
     <Compile Include="Areas\FYModule\Controllers\ProcessController.cs" />
     <Compile Include="Areas\FYModule\Controllers\ProduceLineController.cs" />
     <Compile Include="Areas\FYModule\Controllers\RapidUserController.cs" />
@@ -9292,6 +9293,10 @@
     <Content Include="Areas\VPModule\Views\VerifyPost\loginform.cshtml" />
     <Content Include="Areas\VPModule\Views\VerifyPost\UserIndex.cshtml" />
     <Content Include="Areas\VPModule\Views\VerifyPost\UserList.cshtml" />
+    <Content Include="Areas\FYModule\Views\ProblemTrack\Index.cshtml" />
+    <Content Include="Areas\FYModule\Views\ProblemTrack\Form.cshtml" />
+    <Content Include="Areas\FYModule\Views\ProblemTrack\Uploadify.cshtml" />
+    <Content Include="Areas\FYModule\Views\ProblemTrack\DelOrDownload.cshtml" />
     <None Include="Properties\PublishProfiles\LR-FDMS.pubxml" />
     <Content Include="Views\Home\SkinIndex.cshtml" />
     <Content Include="Views\Login\Default.cshtml" />

@@ -1168,6 +1168,23 @@ function delConfirm(url, parm, msg) {
         }
     });
 }
+
+function delConfirmNoRefresh(url, parm, msg) {
+    confirmDialog("提示", msg, function (r) {
+        if (r) {
+            Loading(true, "正在删除数据...");
+            window.setTimeout(function () {
+                AjaxJson(url, parm, function (data) {
+                    tipDialog(data.Message, 3, data.Code);
+                    if (data.Code > 0) {
+                        //windowload();
+                    }
+                });
+            }, 200);
+        }
+    });
+}
+
 function delConfig(url, parm, count) {
     if (count == undefined) {
         count = 1;

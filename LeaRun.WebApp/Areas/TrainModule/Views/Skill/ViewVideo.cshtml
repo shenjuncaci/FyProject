@@ -7,21 +7,41 @@
 <script src="~/Content/Scripts/video.js/js/videojs-ie8.min.js"></script>
 
 <style>
-    body {
+    /*body {
         background-color: #191919
-    }
+    }*/
 
-    .m {
+    /*.m {
         width: 740px;
         height: 400px;
         margin-left: auto;
         margin-right: auto;
         margin-top: 100px;
+    }*/
+
+    video::-internal-media-controls-download-button {
+        display: none;
     }
+
+    video::-webkit-media-controls-enclosure {
+        overflow: hidden;
+    }
+
+    video::-webkit-media-controls-panel {
+        width: calc(100% + 30px);
+    }
+    .vid-wrapper {
+        width: 100%;
+        position: relative;
+        padding-bottom: 56.25%; /*需要用padding来维持16:9比例,也就是9除以16*/
+        height: 0;
+    }
+
+       
 </style>
 
-<div class="m">
-    <video id="my-video" class="video-js" controls preload="auto" width="740" height="400"
+<div>
+    @*<video id="my-video" class="video-js" controls preload="auto" width="740" height="400"
            poster="m.png" data-setup="{}">
         <source src="@ViewData["VideoSrc"]" type="video/mp4">
     </video>
@@ -32,5 +52,11 @@
             var myPlayer = this;
             myPlayer.play();
         });
-    </script>
+    </script>*@
+
+    <video width="950" height="650" controls="controls" autoplay="autoplay">
+        @*<source src="movie.ogg" type="video/ogg" />*@
+        <source src="@ViewData["VideoSrc"]" type="video/mp4" />
+        
+    </video>
 </div>

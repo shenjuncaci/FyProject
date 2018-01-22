@@ -98,6 +98,8 @@
     <Compile Include="FYModule\FY_PlanBll.cs" />
     <Compile Include="FYModule\FY_PostBll.cs" />
     <Compile Include="FYModule\FY_ProblemActionBll.cs" />
+    <Compile Include="FYModule\FY_ProblemTrackBll.cs" />
+    <Compile Include="FYModule\FY_ProblemTrackFileBll.cs" />
     <Compile Include="FYModule\FY_ProcessBll.cs" />
     <Compile Include="FYModule\FY_ProduceLineBll.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

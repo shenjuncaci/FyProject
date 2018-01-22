@@ -135,6 +135,9 @@
     <Compile Include="FYModule\FY_Plan.cs" />
     <Compile Include="FYModule\FY_Post.cs" />
     <Compile Include="FYModule\FY_ProblemAction.cs" />
+    <Compile Include="FYModule\FY_ProblemTrack.cs" />
+    <Compile Include="FYModule\FY_ProblemTrackDetail.cs" />
+    <Compile Include="FYModule\FY_ProblemTrackFile.cs" />
     <Compile Include="FYModule\FY_Process.cs" />
     <Compile Include="FYModule\FY_ProduceLine.cs" />
     <Compile Include="FYModule\FY_RapidScore.cs" />

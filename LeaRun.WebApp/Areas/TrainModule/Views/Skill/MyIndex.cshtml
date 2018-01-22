@@ -187,9 +187,7 @@
         }
         if (IsChecked(KeyValue)) {
             var url = "/TrainModule/skill/ViewVideo?VideoSrc=" + KeyValue;
-            openDialog(url, "Form", "查看视频", 800, 600, function (iframe) {
-                top.frames[iframe].AcceptClick()
-            });
+            FullDialog(url, "Form", "查看视频");
 
         }
     }

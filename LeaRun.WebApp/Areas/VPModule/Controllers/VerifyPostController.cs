@@ -316,9 +316,9 @@ and VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where VerifyPo
                         //根据周期重新添加数据
                         IDatabase database = DataFactory.Database();
                         DbTransaction isOpenTrans = database.BeginTrans();
-                        string sqlGetinfo = @" select a.*,sum(DefectNum1+DefectNum2+DefectNum3+DefectNum4+DefectNum5+DefectNum6) as DefectNumAll
+                        string sqlGetinfo = @" select a.*,cast(dbo.[GetAllDefectNum](a.VerifyPostID) as int) as DefectNumAll
 from VP_VerifyPost a left join VP_VerifyPostDetail b on a.VerifyPostID=b.VerifyPostID 
-where VerifyPostID in 
+where a.VerifyPostID in 
 (select VerifyPostID from VP_VerifyPostDetail where VerifyPostDID='{0}') ";
                         sqlGetinfo = string.Format(sqlGetinfo, verifypostdid);
                         DataTable dtGetInfo = VerifyPostBll.GetDataTable(sqlGetinfo);
@@ -359,10 +359,10 @@ where VerifyPostID in
                     //不是当天的数据
                     else
                     {
-                        string sqlCount = @" select a.*,b.VerifyCycle,b.OneLevelAlarm,b.TwoLevelAlarm,b.ThreeLevelAlarm,
-sum(DefectNum1+DefectNum2+DefectNum3+DefectNum4+DefectNum5+DefectNum6) as DefectNumAll
+                        string sqlCount = @" select a.*,b.VerifyCycle,b.OneLevelAlarm,b.TwoLevelAlarm,b.ThreeLevelAlarm,cast(dbo.[GetAllDefectNum](a.VerifyPostID) as int) as DefectNumAll
 from VP_VerifyPostDetail a left join VP_VerifyPost b on a.VerifyPostID=b.VerifyPostID 
-where a.VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where VerifyPostDID='{0}') and cast(a.VerifyDate as date)>=cast('{1}' as date) ";
+where a.VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where VerifyPostDID='{0}') and cast(a.VerifyDate as date)>=cast('{1}' as date) 
+order by VerifyDate desc ";
                         sqlCount = string.Format(sqlCount, verifypostdid, dtIsToday.Rows[0][0].ToString());
                         DataTable dtCount = VerifyPostBll.GetDataTable(sqlCount);
                         int C1 = Convert.ToInt32(dtCount.Rows[0]["VerifyCycle"].ToString());
@@ -371,13 +371,13 @@ where a.VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where Veri
                         TwoLevelAlarm = Convert.ToInt32(dtCount.Rows[0]["TwoLevelAlarm"].ToString());
                         ThreeLevelAlarm = Convert.ToInt32(dtCount.Rows[0]["ThreeLevelAlarm"].ToString());
                         DefectNumAll= Convert.ToInt32(dtCount.Rows[0]["DefectNumAll"].ToString());
-                        if (C1 - dtCount.Rows.Count-1 > 0)
+                        if (C1 - dtCount.Rows.Count+1 > 0)
                         {
                             IDatabase database = DataFactory.Database();
                             DbTransaction isOpenTrans = database.BeginTrans();
                             try
                             {
-                                DateTime mindt = Convert.ToDateTime(DateTime.Now).AddDays(1);
+                                DateTime mindt = Convert.ToDateTime(dtCount.Rows[0]["VerifyDate"].ToString()).AddDays(1);
                                 DateTime maxdt = mindt.AddDays(C1 - dtCount.Rows.Count+1);
                                 while (mindt < maxdt)
                                 {
@@ -405,6 +405,9 @@ where a.VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where Veri
                     }
                     //此处预计加入，根据报警设置数量来发邮件预警和加入问题到快速反应以及一般问题跟踪
                     //获取累计的不良数
+                    //获取基础数据，首先判断大于三级--依次降级
+                    
+
                     if(DefectNumAll>=ThreeLevelAlarm)
                     {
                         //大于三级警报，将问题加入到快反，并发送邮件给总经理、生产副总、质量副总、质量经理、厂长、车间主任、班长
@@ -415,31 +418,44 @@ ObjectId in ('15f14d9c-e74c-46ac-8641-b3c1bac26940','8431ea77-69c9-484c-a67f-4f3
 or ( 
 exists ( select * from Base_ObjectUserRelation where UserId=a.UserId and
 ObjectId in ('91c17ca4-0cbf-43fa-829e-3021b055b6c4','f6afd4e4-6fb2-446f-88dd-815ddb91b09d') )
-and (DepartmentId='81b8d368-f4e4-4fd3-be9b-57a679c041b3' or DepartmentId in (select ParentId from Base_Department where DepartmentId='81b8d368-f4e4-4fd3-be9b-57a679c041b3' ) )
+and (DepartmentId='{0}' or DepartmentId in (select ParentId from Base_Department where DepartmentId='{0}' ) )
 )
  ";
+                        sqlGetEmail = string.Format(sqlGetEmail, ManageProvider.Provider.Current().DepartmentId);
                         DataTable dtEmail = VerifyPostBll.GetDataTable(sqlGetEmail);
                         string EmailList = "";
                         if(dtEmail.Rows.Count>0)
                         {
                             for(int i=0;i<dtEmail.Rows.Count;i++)
                             {
-                                EmailList += dtEmail.Rows[i][0].ToString() + ",";
+                                if (dtEmail.Rows[i][0].ToString() != "&nbsp;")
+                                {
+                                    EmailList += dtEmail.Rows[i][0].ToString() + ",";
+                                }
                             }
                             EmailList = EmailList.Substring(0, EmailList.Length - 1);
                             SendEmailByAccount(EmailList, " 岗位验证已达到三级预警，请登录系统查看! ");
                         }
 
                         //插入问题到快速反应
+
+                        string sqlGetMessage = @"select a.*,b.FullName,(select top 1 Code from Base_User 
+where DepartmentId=a.SetDepart and exists (select * from Base_ObjectUserRelation where ObjectId='91c17ca4-0cbf-43fa-829e-3021b055b6c4')
+) as ResponseBy from VP_VerifyPost a left join Base_Department b on a.SetDepart=b.DepartmentId
+where a.VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where VerifyPostDID='{0}')";
+                        sqlGetMessage = string.Format(sqlGetMessage, verifypostdid);
                         FY_Rapid rapidentity = new FY_Rapid();
                         IDatabase database = DataFactory.Database();
                         DbTransaction isOpenTrans = database.BeginTrans();
                         try
                         {
+                            DataTable dtGetMessage = VerifyPostBll.GetDataTable(sqlGetMessage);
                             //获取快速反应的数据
-                            string sqlGetRapid = "";
+                           
                             rapidentity.Create();
-                            rapidentity.res_ms = "";
+                            rapidentity.res_ms = "岗位验证："+dtGetMessage.Rows[0]["FullName"].ToString()+" "+dtGetMessage.Rows[0]["SetReason"].ToString();
+                            rapidentity.res_cpeo = dtGetMessage.Rows[0]["ResponseBy"].ToString();
+                            rapidentity.res_cdate = DateTime.Now;
 
                             database.Insert(rapidentity, isOpenTrans);
                             database.Commit();
@@ -454,7 +470,116 @@ and (DepartmentId='81b8d368-f4e4-4fd3-be9b-57a679c041b3' or DepartmentId in (sel
                     {
                         if(DefectNumAll>=TwoLevelAlarm)
                         {
-                            //触发二级警报
+                            //触发二级警报,厂长，质量经理，车间主任，班长
+                            string sqlGetEmail = @" select Email from Base_User  a
+where exists ( select * from Base_ObjectUserRelation where UserId=a.UserId and
+ObjectId in ('91c17ca4-0cbf-43fa-829e-3021b055b6c4','f6afd4e4-6fb2-446f-88dd-815ddb91b09d') )
+and (DepartmentId='{0}' or DepartmentId in (select ParentId from Base_Department where DepartmentId='{0}' ) ) ";
+                            sqlGetEmail = string.Format(sqlGetEmail, ManageProvider.Provider.Current().DepartmentId);
+                            DataTable dtEmail = VerifyPostBll.GetDataTable(sqlGetEmail);
+                            string EmailList = "";
+                            if (dtEmail.Rows.Count > 0)
+                            {
+                                for (int i = 0; i < dtEmail.Rows.Count; i++)
+                                {
+                                    if (dtEmail.Rows[i][0].ToString() != "&nbsp;")
+                                    {
+                                        EmailList += dtEmail.Rows[i][0].ToString() + ",";
+                                    }
+                                }
+                                EmailList +=" li.wang@fuyaogroup.com ";
+                                SendEmailByAccount(EmailList, " 岗位验证已达到二级预警，请登录系统查看! ");
+                            }
+
+                            //插入问题到快速反应
+                            string sqlGetMessage = @"select a.*,b.FullName,(select top 1 Code from Base_User 
+where DepartmentId=a.SetDepart and exists (select * from Base_ObjectUserRelation where ObjectId='91c17ca4-0cbf-43fa-829e-3021b055b6c4')
+) as ResponseBy from VP_VerifyPost a left join Base_Department b on a.SetDepart=b.DepartmentId
+where a.VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where VerifyPostDID='{0}')";
+                            sqlGetMessage = string.Format(sqlGetMessage, verifypostdid);
+
+                            FY_Rapid rapidentity = new FY_Rapid();
+                            IDatabase database = DataFactory.Database();
+                            DbTransaction isOpenTrans = database.BeginTrans();
+                            try
+                            {
+                                DataTable dtGetMessage = VerifyPostBll.GetDataTable(sqlGetMessage);
+                                //获取快速反应的数据
+
+                                rapidentity.Create();
+                                rapidentity.res_ms = "岗位验证：" + dtGetMessage.Rows[0]["FullName"].ToString() + " " + dtGetMessage.Rows[0]["SetReason"].ToString();
+                                rapidentity.res_cpeo = dtGetMessage.Rows[0]["ResponseBy"].ToString();
+                                rapidentity.res_cdate = DateTime.Now;
+
+                                database.Insert(rapidentity, isOpenTrans);
+                                database.Commit();
+                            }
+                            catch
+                            {
+                                database.Rollback();
+                                database.Close();
+                            }
+                        }
+                        else
+                        {
+                            if(DefectNumAll>=OneLevelAlarm)
+                            {
+                                //触发一级警报,车间主任，班长
+                                string sqlGetEmail = @" select Email from Base_User  a
+where exists ( select * from Base_ObjectUserRelation where UserId=a.UserId and
+ObjectId in ('91c17ca4-0cbf-43fa-829e-3021b055b6c4','f6afd4e4-6fb2-446f-88dd-815ddb91b09d') )
+and (DepartmentId='{0}' 
+-- or DepartmentId in (select ParentId from Base_Department where DepartmentId='81b8d368-f4e4-4fd3-be9b-57a679c041b3' ) 
+) ";
+                                sqlGetEmail = string.Format(sqlGetEmail, ManageProvider.Provider.Current().DepartmentId);
+                                DataTable dtEmail = VerifyPostBll.GetDataTable(sqlGetEmail);
+                                string EmailList = "";
+                                if (dtEmail.Rows.Count > 0)
+                                {
+                                    for (int i = 0; i < dtEmail.Rows.Count; i++)
+                                    {
+                                        if (dtEmail.Rows[i][0].ToString() != "&nbsp;")
+                                        {
+                                            EmailList += dtEmail.Rows[i][0].ToString() + ",";
+                                        }
+                                    }
+                                    EmailList = EmailList.Substring(0, EmailList.Length - 1);
+                                    SendEmailByAccount(EmailList, " 岗位验证已达到一级预警，请登录系统查看! ");
+                                }
+
+                                //插入问题到一般问题处理流程
+                                string sqlGetMessage = @"select a.*,b.FullName,(select top 1 Code from Base_User 
+where DepartmentId=a.SetDepart and exists (select * from Base_ObjectUserRelation where ObjectId='91c17ca4-0cbf-43fa-829e-3021b055b6c4')
+) as ResponseBy from VP_VerifyPost a left join Base_Department b on a.SetDepart=b.DepartmentId
+where a.VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where VerifyPostDID='{0}')";
+                                sqlGetMessage = string.Format(sqlGetMessage, verifypostdid);
+
+                                FY_GeneralProblem generalentity = new FY_GeneralProblem();
+                                IDatabase database = DataFactory.Database();
+                                DbTransaction isOpenTrans = database.BeginTrans();
+                                try
+                                {
+                                    DataTable dtGetMessage = VerifyPostBll.GetDataTable(sqlGetMessage);
+                                    //获取快速反应的数据
+
+                                    generalentity.Create();
+                                    generalentity.ProblemDescripe = "岗位验证：" + dtGetMessage.Rows[0]["FullName"].ToString() + " " + dtGetMessage.Rows[0]["SetReason"].ToString();
+                                    generalentity.ResponseBy = dtGetMessage.Rows[0]["ResponseBy"].ToString();
+                                    generalentity.HappenDate = DateTime.Now;
+                                    generalentity.CauseAnalysis = "&nbsp;";
+                                    generalentity.CorrectMeasures = "&nbsp;";
+                                    generalentity.FinishStatus = "进行中";
+
+
+                                    database.Insert(generalentity, isOpenTrans);
+                                    database.Commit();
+                                }
+                                catch
+                                {
+                                    database.Rollback();
+                                    database.Close();
+                                }
+                            }
                         }
                     }
                 }
@@ -617,7 +742,7 @@ from VP_ReviewData where ReviewContent not in
 
         public ActionResult ResponseJson()
         {
-            string sql = " select code,realname+'('+code+')' as name from base_user where 1=1 and Enabled=1  ";
+            string sql = " select userid,code,realname+'('+code+')' as name from base_user where 1=1 and Enabled=1  ";
             DataTable dt = VerifyPostBll.GetDataTable(sql);
             return Content(dt.ToJson());
         }
