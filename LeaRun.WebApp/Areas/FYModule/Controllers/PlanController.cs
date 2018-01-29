@@ -951,7 +951,7 @@ where MONTH(Plandate)='" + month + "' and YEAR(Plandate)='" + year + "' and Back
         {
             StringBuilder strSql = new StringBuilder();
             strSql.AppendFormat(@"select distinct a.DepartmentID,b.FullName from FY_Plan 
-a left join Base_Department b on a.DepartmentID=b.DepartmentId where a.DepartmentID in (select departid from fy_departRelation where userid='{0}')
+a left join Base_Department b on a.DepartmentID=b.DepartmentId where 1=1
 ", ManageProvider.Provider.Current().UserId);
             DataTable dt = PlanBll.GetDataTable(strSql.ToString());
             return Content(dt.ToJson());
@@ -963,7 +963,9 @@ a left join Base_Department b on a.DepartmentID=b.DepartmentId where a.Departmen
         public ActionResult DepartmentJson2()
         {
             StringBuilder strSql = new StringBuilder();
-            strSql.Append("select * from ( select distinct b.DepartmentID,b.FullName,b.SortCode from FY_Plan a left join Base_Department b on a.DepartmentID=b.DepartmentId union select DepartmentId,FullName,'1000' from Base_Department where DepartmentId='159df668-e428-4dcb-9a71-c7cdeabdeb03' union select '','厂长','0' ) as a order by sortcode ");
+            strSql.Append(@"select * from ( select distinct b.DepartmentID,b.FullName,b.SortCode from FY_Plan a left join Base_Department b on a.DepartmentID=b.DepartmentId 
+--union select DepartmentId,FullName,'1000' from Base_Department where DepartmentId='159df668-e428-4dcb-9a71-c7cdeabdeb03' 
+union select '','监督人员','0' ) as a order by sortcode ");
             DataTable dt = PlanBll.GetDataTable(strSql.ToString());
             return Content(dt.ToJson());
         }

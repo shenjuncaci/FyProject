@@ -888,13 +888,13 @@ field,VerifyPostDID);
                                          if(base_user.DepartmentId==ManageProvider.Provider.Current().DepartmentId)
                                          {
                                         Msg = "5";
-                                    }
+                                         }
                                          else
                                           {
                                                 Msg = "3";
                                           }
                                       }
-                                        if (Type == "FM")
+                                       else if (Type == "FM")
                                         {
                                             string sql = " select ParentId from base_department where DepartmentId='" + ManageProvider.Provider.Current().DepartmentId + "' ";
                                             DataTable dt = VerifyPostBll.GetDataTable(sql);
@@ -1026,6 +1026,11 @@ field,VerifyPostDID);
             {
                 return -1;
             }
+        }
+
+        public ActionResult IsProduce()
+        {
+            return View();
         }
 
 

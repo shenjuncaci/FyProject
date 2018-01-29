@@ -1,0 +1,207 @@
+﻿@{
+    ViewBag.Title = "分享降低计划FORM";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+    string UserName = ViewData["UserName"] as string;
+}
+
+<link href="~/Content/Scripts/jquery.select2/css/select2.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery.select2/js/select2.js"></script>
+
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
+
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+
+    input {
+        background: #E0FFFF;
+    }
+
+    textarea {
+        background: #E0FFFF;
+    }
+
+    select {
+        background: #E0FFFF;
+    }
+</style>
+
+
+<script type="text/javascript">
+    //$(document).ready(function () {
+
+    //    uploadify();
+    //});
+    $(function () {
+        BindData();
+        InitControl();
+        //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
+        //BindResponseBy();
+
+        $('input[id$="Dt"]').each(function () {
+
+            var w = this.value.indexOf("T");
+            if (w > 0) {
+                this.value = this.value.substring(0, w);
+            }
+            //this.disabled = true;
+            //this.readOnly = true;
+        });
+
+
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/VPModule/RiskDownPlan/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+
+
+                if ($("#FinishStatus").val() == "已完成")
+                {
+                    $("form input").prop("readonly", true);
+                    $("form input").prop("disabled", true);
+                    $("form textarea").prop("readonly", true);
+                    $("form select").prop("disabled", true);
+                }
+
+                else
+                {
+                    $("#Leader").select2();
+                }
+
+            });
+        }
+        else {
+            $("#Leader").select2();
+        }
+    }
+
+    function BindData() {
+        
+
+        $("#Leader").html("");
+
+        $("#Leader").append("<option value=''>==请选择==</option>");
+        AjaxJson("/VPModule/VerifyPost/ResponseJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#Leader").append($("<option></option>").val(DataJson[i].userid).html(DataJson[i].name));
+            });
+        })
+    }
+    
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            AjaxJson("/VPModule/RiskDownPlan/SubmitForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+
+
+
+</script>
+
+
+<form id="form1">
+    <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">基本信息</div>
+
+
+            </div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+        <!--基本信息-->
+        <div id="basic" class="tabPanel">
+            <table class="form">
+
+                <tr style="display:none">
+                    <td colspan="4"><input id="FinishStatus" /></td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">评审工序：</th>
+                    <td class="formValue">
+                        <input id="AuditProcess" class="txt" datacol="yes" err="评审工序" checkexpession="NotNull" />
+                    </td>
+                    <th class="formTitle">主导者：</th>
+                    
+                    <td class="formValue">
+
+                        <select style="width:200px;" id="Leader" class="txtselect" err="主导者" checkexpession="NotNull"></select>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">计划开始时间：</th>
+                    <td class="formValue">
+                        <input id="PlanStartDt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" />
+                    </td>
+                    <th class="formTitle">计划完成时间：</th>
+                    <td class="formValue">
+
+                        <input id="PlanEndDt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" />
+
+
+                    </td>
+
+                </tr>
+
+                @*<tr>
+                    <th class="formTitle">计划开始时间：</th>
+                    <td class="formValue">
+                        <input id="PlanStartDt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" />
+                    </td>
+                </tr>*@
+
+            </table>
+        </div>
+
+
+    </div>
+
+</form>

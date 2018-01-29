@@ -276,7 +276,7 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
         public void ExcelExport(string condition)
         {
             ExcelHelper ex = new ExcelHelper();
-            string sql = @" select a.ProductArea as 产品区域,a.ProblemType2 as 问题类型,
+            string sql = @" select a.FinishStatus as 状态,a.ProductArea as 产品区域,a.ProblemType2 as 问题类型,a.IsCheck as 是否考核,
 a.ProblemType as 问题类别,b.realname as 责任人,c.fullname as 责任部门,a.Customer as 客户,
 a.ProblemDescripe as 问题描述,CONVERT(varchar(100),a.HappenDate,23) as 发生日期,a.CauseAnalysis as 根本原因分析,a.CorrectMeasures as 纠正措施,a.ImproveReport as 改善报告 
 from FY_GeneralProblem a left join Base_user b on a.ResponseBy=b.code 
@@ -309,12 +309,12 @@ where 1=1  ";
             StringBuilder strSql = new StringBuilder();
             strSql.AppendFormat(@"insert into FY_Rapid(res_id,res_area,res_ok,res_again,res_type,res_cpeo,res_kf,res_ms,res_cdate,
 res_fxnode,res_csnode,res_msfj,RapidState,PlanTime,IsEmail,CreateDt,
-res_yzb,res_fx,res_cs,res_fcf,res_fcsh,res_csgz,res_fmea,res_bzgx,res_jyjx,res_8d)
+res_yzb,res_fx,res_cs,res_fcf,res_fcsh,res_csgz,res_fmea,res_bzgx,res_jyjx,res_8d,IsCheck)
 select NEWID(),ProductArea,ProblemType,IsAgain,ProblemType2,ResponseBy,Customer,ProblemDescripe,
 HappenDate,CauseAnalysis,CorrectMeasures,ProblemAttach,'进行中',DATEADD(DAY,40,HappenDate),1,HappenDate as CreateDt,
-'未提交','未提交','未提交','未提交','未提交','未提交','未提交','未提交','未提交','未提交'
+'未提交','未提交','未提交','未提交','未提交','未提交','未提交','未提交','未提交','未提交',IsCheck
 from FY_GeneralProblem
-where GeneralProblemID='{0}' ",ID);
+where GeneralProblemID='{0}' ", ID);
             GeneralProblemBll.ExecuteSql(strSql);
 
             //删除掉原数据

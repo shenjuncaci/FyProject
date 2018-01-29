@@ -12,7 +12,7 @@
 </style>
 <script type="text/javascript">
     $(document).ready(function () {
-
+        BindData();
         GetGrid();
 
         //绑定键盘按下事件
@@ -65,9 +65,13 @@
 
     //搜索
     function btn_Search() {
-        var keywords = $("#keywords").val();
+        var keywords = "";
+        if (CheckIsNullNoTip($("#Year").val()))
+        {
+            keywords += " and YEAR(PlanStartDt)='"+$("#Year").val()+"' ";
+        }
         $("#gridTable").jqGrid('setGridParam', {
-            url: "@Url.Content("~/FYModule/Post/GridCzPageListJson")?keywords=" + escape(keywords), page: 1
+            url: "@Url.Content("~/VPModule/RiskDownPlan/GridPageListJson")?keywords=" + escape(keywords), page: 1
         }).trigger('reloadGrid');
     }
 
@@ -76,21 +80,25 @@
     function GetGrid() {
         var SelectRowIndx;
         $("#gridTable").jqGrid({
-            url: "@Url.Content("~/FYModule/Post/GridCzPageListJson")",
+            url: "@Url.Content("~/VPModule/RiskDownPlan/GridPageListJson")",
             datatype: "json",
             height: $(window).height() - 178,
             autowidth: true,
             colModel: [
-                { label: '主键', name: 'userid', index: 'userid', width: 80, align: 'left', hidden: true },
-                { label: '工号', name: 'code', index: 'postname', width: 200, align: 'left' },
-                { label: '用户名', name: 'realname', index: 'postname', width: 200, align: 'left' },
-                { label: '管理车间', name: 'dep', index: 'dep', width: 200, align: 'left', hidden: true },
+                { label: '主键', name: 'riskdownplanid', index: 'riskdownplanid', width: 80, align: 'left', hidden: true },
+                { label: '评审工序', name: 'auditprocess', index: 'auditprocess', width: 100, align: 'left' },
+                { label: '主导者', name: 'realname', index: 'realname', width: 100, align: 'left' },
+                { label: '计划开始时间', name: 'planstartdt', index: 'planstartdt', width: 100, align: 'left', formatter: dateFormat },
+                { label: '计划完成时间', name: 'planenddt', index: 'planenddt', width: 100, align: 'left', formatter: dateFormat },
+                { label: '实际完成时间', name: 'realenddt', index: 'realenddt', width: 100, align: 'left', formatter: dateFormat },
+                { label: '完成情况', name: 'finishstatus', index: 'finishstatus', width: 100, align: 'left', formatter: statusFormat},
+
             ],
             viewrecords: true,
             rowNum: 30,
             rowList: [30, 50, 100, 500, 1000],
             pager: "#gridPager",
-            sortname: 'userid',
+            sortname: 'planstartdt',
             sortorder: 'desc',
             rownumbers: true,
             shrinkToFit: false,
@@ -123,7 +131,7 @@
             top.frames[iframe].QueryClick(function (JsonData) {
                 QueryParamJson = JsonData;
                 $("#gridTable").jqGrid('setGridParam', {
-                    url: "@Url.Content("~/FYModule/post/GridCzPageListJson")?ParameterJson=" + escape(JsonData), page: 1
+                    url: "@Url.Content("~/TrainModule/JudgmentQuestion/GridPageListJson")?ParameterJson=" + escape(JsonData), page: 1
                 }).trigger('reloadGrid');
             });
         });
@@ -131,54 +139,75 @@
 
     //新增
     function btn_add() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "userid");
-
-
-        var url = "/FYModule/Post/UserList?KeyValue=" + KeyValue;
-
-        openDialog(url, "ProduceDepartList", "添加厂长", 625, 350, function (iframe) {
+        var url = "/VPModule/RiskDownPlan/Form"
+        openDialog(url, "Form", "新增", 650, 350, function (iframe) {
             top.frames[iframe].AcceptClick();
         });
     }
     //编辑
     function btn_edit() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "userid");
-
-
-        var url = "/FYModule/Post/ProduceDepartList?KeyValue=" + KeyValue;
-
-        openDialog(url, "ProduceDepartList", "添加厂长", 625, 350, function (iframe) {
-            top.frames[iframe].AcceptClick();
-        });
-    }
-    //添加检查明细
-    function btn_AddItem()
-    {
-        var KeyValue = GetJqGridRowValue("#gridTable", "userid");
+        var KeyValue = GetJqGridRowValue("#gridTable", "riskdownplanid");
         if (IsChecked(KeyValue)) {
-            var url = "/FYModule/post/FormAddItem?KeyValue=" + KeyValue;
+            var url = "/VPModule/RiskDownPlan/Form?KeyValue=" + KeyValue;
             openDialog(url, "Form", "编辑", 650, 350, function (iframe) {
-                top.frames[iframe].AcceptClick();
+                top.frames[iframe].AcceptClick()
+            });
+
+        }
+    }
+
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "riskdownplanid");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/VPModule/RiskDownPlan/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+
+    function btn_Done() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "riskdownplanid");
+        if (IsChecked(KeyValue)) {
+            $.ajax({
+                type: "post",
+                url: "/VPModule/RiskDownPlan/FinishIt",
+                data: { RiskDownPlanID: KeyValue },
+                async: false,
+                success: function (msg) {
+                    windowload();
+                },
+                error: function () {
+                    alert("出错了");
+                }
             });
         }
     }
-    //删除
-    function btn_delete() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "userid");
-        if (IsDelData(KeyValue)) {
-            var delparm = 'KeyValue=' + KeyValue;
-            delConfig('/FYModule/post/DeleteRole', delparm, KeyValue.split(",").length);
+
+
+    function statusFormat(cellvalue, options, rowObject) {
+        var DateNow = new Date();//取今天的日期
+        //alert(rowObject.decidedate);
+        var PlanDt = new Date(Date.parse(rowObject.planenddt));
+
+        //if (cellvalue.length > 20) {
+        //    cellvalue = cellvalue.substring(0, 20) + "....";
+        //}
+        if (cellvalue == "已完成") {
+            return "<div style='background-color: Green; color:black;text-align:center; width:100px'>" + cellvalue + "</div>";
         }
-    }
 
-    //导出Excel
-    function btn_derive() {
-        SetDeriveExcel("#gridTable", "快速反应");
-        openDialog("/CommonModule/ExcelImport/DeriveDialog", "DeriveDialog", "快速反应导出", 600, 300, function (iframe) {
-            top.frames[iframe].AcceptClick();
-        });
+        else {
+            //alert(DateNow.pattern("yyyy-MM-dd"));
+            //alert(PlanDt.pattern("yyyy-MM-dd"));
+            if (DateNow.pattern("yyyy-MM-dd") > PlanDt.pattern("yyyy-MM-dd")) {
+                return "<div style='background-color: Red; color:black;text-align:center; width:100px'>已超期</div>";
+            }
+            else {
+                return "<div style='background-color: Yellow; color:black;text-align:center; width:100px'>" + cellvalue + "</div>";
+            }
+        }
+        return cellvalue;
     }
-
 
     //刷新
     function windowload() {
@@ -224,7 +253,18 @@
     }
 
 
+    function BindData() {
 
+
+        $("#Year").html("");
+
+        $("#Year").append("<option value=''>==请选择==</option>");
+        AjaxJson("/VPModule/RiskDownPlan/YearListJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#Year").append($("<option></option>").val(DataJson[i].year).html(DataJson[i].year));
+            });
+        })
+    }
 </script>
 
 <!--左边-->
@@ -232,7 +272,7 @@
 <div>
     <div class="btnbartitle">
         <div>
-            用户列表 <span id="CenterTitle"></span>
+            评审内容列表 <span id="CenterTitle"></span>
         </div>
     </div>
     <!--工具栏-->
@@ -244,19 +284,21 @@
     </div>
     <!--列表-->
     <div id="grid_List">
-        <div class="bottomline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+        <div class="bottomline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px">
             <table border="0" class="form-find" style="height: 45px;">
                 <tr>
-                    <th>
-                        关键字：
-                    </th>
-                    <td>
-                        <input id="keywords" type="text" class="txt" style="width: 200px" />
-                    </td>
-                    <td>
-                        <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
-                    </td>
-                </tr>
+                        
+                        <th>
+                            年份：
+                        </th>
+                        <td>
+                            <select id="Year" class="select"></select>
+                        </td>
+                       
+                        <td>
+                            <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                        </td>
+                    </tr>
             </table>
         </div>
         <table id="gridTable"></table>

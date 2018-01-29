@@ -622,6 +622,7 @@ values(NEWID(),'{0}','{1}','{2}') ", UserID, array[i],IsMain);
             {
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendFormat(@" update Base_User set  Enabled=0 where UserID='{0}' ", UserID);
+
                 return PostDepartRelationBll.ExecuteSql(strSql);
             }
             catch

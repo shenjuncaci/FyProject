@@ -108,6 +108,7 @@ namespace LeaRun.Entity
 
         public DateTime? CreateDt { get; set; }
 
+        public string IsCheck { get; set; }
         #region 问题描述附件相对地址
         public string res_msfj { get; set; }
         public string res_yzbfj { get; set; }

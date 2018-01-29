@@ -267,7 +267,7 @@
                 {
                     var hour = NowDate.getHours();
                     
-                    if (hour > 5)
+                    if (hour >= 5)
                     {
                         if (Number(rowObject.checknum1) == 0) {
                             cellvalue = "未录入";
@@ -296,11 +296,14 @@
                 }
             }
             else {
+
                 if (NowDate.pattern("yyyy-MM-dd") == gridDate.pattern("yyyy-MM-dd")) {
                     var hour = NowDate.getHours();
                     
-                    if (hour > 9) {
+                    if (hour >= 9) {
+                        
                         if (Number(rowObject.checknum2) == 0) {
+                            
                             cellvalue = "未录入";
                         }
                     }
@@ -332,7 +335,7 @@
                 if (NowDate.pattern("yyyy-MM-dd") == gridDate.pattern("yyyy-MM-dd")) {
                     var hour = NowDate.getHours();
 
-                    if (hour > 13) {
+                    if (hour >= 13) {
                         if (Number(rowObject.checknum3) == 0) {
                             cellvalue = "未录入";
                         }
@@ -368,7 +371,7 @@
                 if (NowDate.pattern("yyyy-MM-dd") == gridDate.pattern("yyyy-MM-dd")) {
                     var hour = NowDate.getHours();
 
-                    if (hour > 17) {
+                    if (hour >= 17) {
                         cellvalue = "未录入";
                     }
                     if (hour < 12) {
@@ -399,7 +402,7 @@
                 if (NowDate.pattern("yyyy-MM-dd") == gridDate.pattern("yyyy-MM-dd")) {
                     var hour = NowDate.getHours();
 
-                    if (hour > 21) {
+                    if (hour >= 21) {
                         if (Number(rowObject.checknum5) == 0) {
                             cellvalue = "未录入";
                         }
@@ -467,15 +470,12 @@
             alert("身份验证失败");
             return false;
         }
-
-        if (confirm("是否确认今天生产")) {
-
-            if (IsChecked(verifypostdid)) {
-                var url = "/VPModule/VerifyPost/AuditForm?KeyValue=" + verifypostdid + "&Type=" + tag;
-                Dialog(url, "Form", "编辑", 350, 650);
-            }
+        var reValue = window.showModalDialog('IsProduce', window, 'dialogWidth=400;dialogHeight=100px;status:1;title:0;');
+        if (reValue == undefined)
+        {
+            return false;
         }
-        else
+        else if (reValue == "NotProduce")
         {
             $.ajax({
                 type: "post",
@@ -489,8 +489,7 @@
                     if (msg > 0) {
                         windowload();
                     }
-                    else
-                    {
+                    else {
                         alert("更新错误，请联系管理员");
                         return false;
                     }
@@ -499,8 +498,16 @@
                     alert("出错了");
                 }
             });
-           
         }
+        else
+        {
+            if (IsChecked(verifypostdid)) {
+                var url = "/VPModule/VerifyPost/AuditForm?KeyValue=" + verifypostdid + "&Type=" + tag;
+                Dialog(url, "Form", "编辑", 350, 650);
+            }
+        }
+        
+       
     }
 
     function showaudit1(verifypostdid, tag) {

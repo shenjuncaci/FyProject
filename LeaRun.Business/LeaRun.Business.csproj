@@ -122,6 +122,9 @@
     <Compile Include="TrainModule\TR_PostDepartmentRelationDetailBll.cs" />
     <Compile Include="TrainModule\TR_SkillBll.cs" />
     <Compile Include="VPModule\VP_ReviewDataBll.cs" />
+    <Compile Include="VPModule\VP_RiskDownFollowBll.cs" />
+    <Compile Include="VPModule\VP_RiskDownFollowFileBll.cs" />
+    <Compile Include="VPModule\VP_RiskDownPlanBll.cs" />
     <Compile Include="VPModule\VP_VerifyPostBll.cs" />
     <Compile Include="VPModule\VP_VerifyPostDetailBll.cs" />
   </ItemGroup>

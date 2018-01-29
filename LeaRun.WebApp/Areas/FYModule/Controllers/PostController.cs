@@ -150,6 +150,31 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
             }
         }
 
+        [HttpPost]
+        public ActionResult DeleteRole(string KeyValue)
+        {
+            try
+            {
+                var Message = "删除失败。";
+                int IsOk = 0;
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendFormat(@" delete from Base_ObjectUserRelation where ObjectId='54804f22-89a1-4eee-b257-255deaf4face' and UserId='{0}' ",KeyValue);
+                IsOk = PostBll.ExecuteSql(strSql);
+                if (IsOk > 0)
+                {
+                    Message = "删除成功。";
+                }
+
+                WriteLog(IsOk, KeyValue, Message);
+                return Content(new JsonMessage { Success = true, Code = IsOk.ToString(), Message = Message }.ToString());
+            }
+            catch (Exception ex)
+            {
+                WriteLog(-1, KeyValue, "操作失败：" + ex.Message);
+                return Content(new JsonMessage { Success = false, Code = "-1", Message = "操作失败：" + ex.Message }.ToString());
+            }
+        }
+
         public void WriteLog(int IsOk, string KeyValue, string Message = "")
         {
             string[] array = KeyValue.Split(',');
@@ -208,6 +233,66 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
                 sb.Append("</li>");
             }
             return Content(sb.ToString());
+        }
+
+        public ActionResult UserList()
+        {
+            return View();
+        }
+        public ActionResult GetUserList()
+        {
+            StringBuilder sb = new StringBuilder();
+            string sql = "select * from Base_user where Enabled=1 ";
+            DataTable dt = PostBll.GetDataTable(sql);
+            foreach (DataRow dr in dt.Rows)
+            {
+                string strchecked = "";
+                //if (!string.IsNullOrEmpty(dr["objectid"].ToString()))//判断是否选中
+                //{
+                //    strchecked = "selected";
+                //}
+                sb.Append("<li title=\"" + dr["realname"] + "\" class=\"" + strchecked + "\">");
+                sb.Append("<a id=\"" + dr["userid"] + "\"><img src=\"../../Content/Images/Icon16/role.png \">" + dr["realname"] + "</a><i></i>");
+                sb.Append("</li>");
+            }
+            return Content(sb.ToString());
+        }
+
+        public ActionResult UserListSubmit(string UserID, string ObjectId)
+        {
+            try
+            {
+                IDatabase database = DataFactory.Database();
+                StringBuilder strSql = new StringBuilder();
+                
+                string[] array = ObjectId.Split(',');
+                for (int i = 0; i < array.Length - 1; i++)
+                {
+                    //避免有重复添加的，先把执行下删除的语句
+                    strSql.AppendFormat(@" delete from Base_ObjectUserRelation where userid='{0}' 
+and ObjectId='54804f22-89a1-4eee-b257-255deaf4face'  ", array[i]);
+                    strSql.AppendFormat(@" insert into Base_ObjectUserRelation values(newid(),2,
+'54804f22-89a1-4eee-b257-255deaf4face','{1}','1',getdate(),'{0}','{2}') ",ManageProvider.Provider.Current().UserId
+,array[i],ManageProvider.Provider.Current().UserName);
+                }
+
+                //if (array.Length > 2)
+                //{
+                //    return Content(new JsonMessage { Success = true, Code = "-1", Message = "操作失败,一次只能选择一个用户。" }.ToString());
+                //}
+                //else
+                //{
+
+                //    database.ExecuteBySql(strSql);
+                //    return Content(new JsonMessage { Success = true, Code = 1.ToString(), Message = "操作成功。" }.ToString());
+                //}
+                database.ExecuteBySql(strSql);
+                return Content(new JsonMessage { Success = true, Code = 1.ToString(), Message = "操作成功。" }.ToString());
+            }
+            catch (Exception ex)
+            {
+                return Content(new JsonMessage { Success = false, Code = "-1", Message = "操作失败，错误：" + ex.Message }.ToString());
+            }
         }
 
         public ActionResult DepartListSubmit(string UserID, string ObjectId)

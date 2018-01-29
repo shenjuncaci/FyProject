@@ -12,7 +12,6 @@
 </style>
 <script type="text/javascript">
     $(document).ready(function () {
-
         GetGrid();
 
         //绑定键盘按下事件
@@ -65,9 +64,9 @@
 
     //搜索
     function btn_Search() {
-        var keywords = $("#keywords").val();
+        var keywords="";
         $("#gridTable").jqGrid('setGridParam', {
-            url: "@Url.Content("~/FYModule/Post/GridCzPageListJson")?keywords=" + escape(keywords), page: 1
+            url: "@Url.Content("~/VPModule/RiskDownFollow/GridPageListJson")?keywords=" + escape(keywords), page: 1
         }).trigger('reloadGrid');
     }
 
@@ -76,21 +75,38 @@
     function GetGrid() {
         var SelectRowIndx;
         $("#gridTable").jqGrid({
-            url: "@Url.Content("~/FYModule/Post/GridCzPageListJson")",
+            url: "@Url.Content("~/VPModule/RiskDownFollow/GridPageListJson")",
             datatype: "json",
             height: $(window).height() - 178,
             autowidth: true,
             colModel: [
-                { label: '主键', name: 'userid', index: 'userid', width: 80, align: 'left', hidden: true },
-                { label: '工号', name: 'code', index: 'postname', width: 200, align: 'left' },
-                { label: '用户名', name: 'realname', index: 'postname', width: 200, align: 'left' },
-                { label: '管理车间', name: 'dep', index: 'dep', width: 200, align: 'left', hidden: true },
+                { label: '主键', name: 'followid', index: 'followid', width: 80, align: 'left', hidden: true },
+                { label: '高风险项/问题描述', name: 'highriskitem', index: 'highriskitem', width: 150, align: 'left' },
+                { label: 'S', name: 'befores', index: 'befores', width: 50, align: 'left' },
+                { label: 'O', name: 'beforeo', index: 'beforeo', width: 50, align: 'left' },
+                { label: 'D', name: 'befored', index: 'befored', width: 50, align: 'left' },
+                { label: 'RPN', name: 'beforerpn', index: 'beforerpn', width: 50, align: 'left' },
+                { label: '优先等级', name: 'beforeprioritylevel', index: 'beforeprioritylevel', width: 50, align: 'left' },
+                { label: '原因分析', name: 'causeanaly', index: 'causeanaly', width: 150, align: 'left' },
+                { label: '行动措施', name: 'actionmeasures', index: 'actionmeasures', width: 150, align: 'left' },
+                { label: '责任人', name: 'realname', index: 'realname', width: 80, align: 'left' },
+                { label: '计划完成日期', name: 'planfinishdt', index: 'planfinishdt', width: 80, align: 'left', formatter: dateFormat },
+                { label: '实施证据', name: 'evidence', index: 'evidence', width: 80, align: 'left',formatter:uploadFormat },
+                { label: '完成日期', name: 'realfinishdt', index: 'realfinishdt', width: 80, align: 'left', formatter: dateFormat },
+                { label: '有效性', name: 'iseffective', index: 'iseffective', width: 80, align: 'left' },
+                { label: 'S', name: 'afters', index: 'afters', width: 50, align: 'left' },
+                { label: 'O', name: 'aftero', index: 'aftero', width: 50, align: 'left' },
+                { label: 'D', name: 'afterd', index: 'afterd', width: 50, align: 'left' },
+                { label: 'RPN', name: 'afterrpn', index: 'afterrpn', width: 50, align: 'left' },
+                { label: '优先等级', name: 'afterprioritylevel', index: 'afterprioritylevel', width: 50, align: 'left' },
+
+
             ],
             viewrecords: true,
             rowNum: 30,
             rowList: [30, 50, 100, 500, 1000],
             pager: "#gridPager",
-            sortname: 'userid',
+            sortname: 'planfinishdt',
             sortorder: 'desc',
             rownumbers: true,
             shrinkToFit: false,
@@ -113,70 +129,66 @@
             $("#gridTable").setGridHeight($(window).height() - 178);
         });
 
+        $("#gridTable").jqGrid('setGroupHeaders', {
+            useColSpanStyle: false,
+            groupHeaders: [
+                { startColumnName: 'highriskitem', numberOfColumns: 6, titleText: '改善前' },
+                { startColumnName: 'causeanaly', numberOfColumns: 4, titleText: '改善中' },
+                { startColumnName: 'evidence', numberOfColumns: 8, titleText: '改善后' },
+                //evidence
+            ]
+        })
+
+        $("#gridTable").jqGrid('setGroupHeaders', {
+            useColSpanStyle: false,
+            groupHeaders: [
+                { startColumnName: 'evidence', numberOfColumns: 2, titleText: '责任人上传' },
+                { startColumnName: 'iseffective', numberOfColumns: 6, titleText: '风险降低管理员评审' },
+            ]
+        })
+
     }
 
 
-    //高级查询
+    @*//高级查询
     var QueryParamJson = "";
     function btn_query() {
         QueryDialog("/Utility/QueryPage", "QueryPage", "查询过滤", 770, 395, function (iframe) {
             top.frames[iframe].QueryClick(function (JsonData) {
                 QueryParamJson = JsonData;
                 $("#gridTable").jqGrid('setGridParam', {
-                    url: "@Url.Content("~/FYModule/post/GridCzPageListJson")?ParameterJson=" + escape(JsonData), page: 1
+                    url: "@Url.Content("~/TrainModule/JudgmentQuestion/GridPageListJson")?ParameterJson=" + escape(JsonData), page: 1
                 }).trigger('reloadGrid');
             });
         });
-    }
+    }*@
 
     //新增
     function btn_add() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "userid");
-
-
-        var url = "/FYModule/Post/UserList?KeyValue=" + KeyValue;
-
-        openDialog(url, "ProduceDepartList", "添加厂长", 625, 350, function (iframe) {
+        var url = "/VPModule/RiskDownFollow/Form"
+        openDialog(url, "Form", "新增", 650, 350, function (iframe) {
             top.frames[iframe].AcceptClick();
         });
     }
     //编辑
     function btn_edit() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "userid");
-
-
-        var url = "/FYModule/Post/ProduceDepartList?KeyValue=" + KeyValue;
-
-        openDialog(url, "ProduceDepartList", "添加厂长", 625, 350, function (iframe) {
-            top.frames[iframe].AcceptClick();
-        });
-    }
-    //添加检查明细
-    function btn_AddItem()
-    {
-        var KeyValue = GetJqGridRowValue("#gridTable", "userid");
+        var KeyValue = GetJqGridRowValue("#gridTable", "followid");
         if (IsChecked(KeyValue)) {
-            var url = "/FYModule/post/FormAddItem?KeyValue=" + KeyValue;
+            var url = "/VPModule/RiskDownFollow/Form?KeyValue=" + KeyValue;
             openDialog(url, "Form", "编辑", 650, 350, function (iframe) {
-                top.frames[iframe].AcceptClick();
+                top.frames[iframe].AcceptClick()
             });
+
         }
     }
+
     //删除
     function btn_delete() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "userid");
+        var KeyValue = GetJqGridRowValue("#gridTable", "followid");
         if (IsDelData(KeyValue)) {
             var delparm = 'KeyValue=' + KeyValue;
-            delConfig('/FYModule/post/DeleteRole', delparm, KeyValue.split(",").length);
+            delConfig('/VPModule/RiskDownFollow/Delete', delparm, KeyValue.split(",").length);
         }
-    }
-
-    //导出Excel
-    function btn_derive() {
-        SetDeriveExcel("#gridTable", "快速反应");
-        openDialog("/CommonModule/ExcelImport/DeriveDialog", "DeriveDialog", "快速反应导出", 600, 300, function (iframe) {
-            top.frames[iframe].AcceptClick();
-        });
     }
 
 
@@ -223,7 +235,28 @@
         return cellvalue;
     }
 
+    function uploadFormat(cellvalue, options, rowObject)
+    {
+        return "<a href=\"#\" onclick=\"uploadform('" + rowObject.followid + "')\">" + cellvalue + "</a>";
+    }
 
+    function uploadform(followid)
+    {
+        var url = "/VPModule/RiskDownFollow/Uploadify?FolderId=" + followid;
+        Dialog(url, "Uploadify", "上传文件", 500, 350, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+
+    function btn_upload() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "followid");
+
+        var url = "/VPModule/RiskDownFollow/Uploadify?FolderId=" + KeyValue;
+        Dialog(url, "Uploadify", "上传文件", 500, 350, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+
+    }
 
 </script>
 
@@ -232,7 +265,7 @@
 <div>
     <div class="btnbartitle">
         <div>
-            用户列表 <span id="CenterTitle"></span>
+            评审内容列表 <span id="CenterTitle"></span>
         </div>
     </div>
     <!--工具栏-->
@@ -244,19 +277,31 @@
     </div>
     <!--列表-->
     <div id="grid_List">
-        <div class="bottomline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+        <div class="bottomline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;display:none">
             <table border="0" class="form-find" style="height: 45px;">
-                <tr>
-                    <th>
-                        关键字：
-                    </th>
-                    <td>
-                        <input id="keywords" type="text" class="txt" style="width: 200px" />
-                    </td>
-                    <td>
-                        <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
-                    </td>
-                </tr>
+                @*<tr>
+                        <th>
+                            题目描述：
+                        </th>
+                        <td>
+                            <input id="QuestionDescripe" type="text" class="txt" style="width: 200px" />
+                        </td>
+                        <th>
+                            技能类别：
+                        </th>
+                        <td>
+                            <select id="SkillType" class="select"></select>
+                        </td>
+                        <th>
+                            技能名称：
+                        </th>
+                        <td>
+                            <select id="SkillID" class="select"></select>
+                        </td>
+                        <td>
+                            <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                        </td>
+                    </tr>*@
             </table>
         </div>
         <table id="gridTable"></table>

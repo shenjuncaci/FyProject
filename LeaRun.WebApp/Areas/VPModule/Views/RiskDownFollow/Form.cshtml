@@ -1,0 +1,282 @@
+﻿@{
+    ViewBag.Title = "岗位验证明细";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+    //string UserName = ViewData["UserName"] as string;
+}
+
+<link href="~/Content/Scripts/jquery.select2/css/select2.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery.select2/js/select2.js"></script>
+
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
+
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+
+    input {
+        background: #E0FFFF;
+    }
+
+    textarea {
+        background: #E0FFFF;
+    }
+
+    select {
+        background: #E0FFFF;
+    }
+</style>
+
+
+<script type="text/javascript">
+    //$(document).ready(function () {
+
+    //    uploadify();
+    //});
+    $(function () {
+        BindData();
+        InitControl();
+        //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
+        //BindResponseBy();
+
+
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/VPModule/RiskDownFollow/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+
+            });
+        }
+        else {
+            $("#ResponseBy").select2();
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            AjaxJson("/VPModule/RiskDownFollow/SubmitForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+
+
+    function BindData() {
+        $("#ResponseBy").html("");
+
+        $("#ResponseBy").append("<option value=''>==请选择==</option>");
+        AjaxJson("/VPModule/VerifyPost/ResponseJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#ResponseBy").append($("<option></option>").val(DataJson[i].userid).html(DataJson[i].name));
+            });
+        })
+
+
+    }
+
+</script>
+
+
+<form id="form1">
+    <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="Tabbefore" class="tab_list bd actived" onclick="Tabchange('before')">改善前</div>
+                <div id="Tabdoing" class="tab_list bd" onclick="Tabchange('doing')">改善中</div>
+                <div id="Tabafter" class="tab_list bd" onclick="Tabchange('after')">改善后</div>
+               
+            </div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+        <!--基本信息-->
+        <div id="before" class="tabPanel">
+            <table class="form">
+
+                <tr>
+                    <th class="formTitle">高风险项/问题描述：</th>
+                    <td class="formValue" colspan="3">
+
+                        <input id="HighRiskItem" type="text" class="txt" datacol="yes" err="高风险项/问题描述" checkexpession="NotNull" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">S、O、D</th>
+                    <td class="formValue" colspan="3">
+                        <table>
+                            <tr>
+                                <td>
+                                    <input id="BeforeS" type="text" class="txt" datacol="yes" err="改善前S" checkexpession="NotNull" />
+                                </td>
+                                <td>
+                                    、
+                                </td>
+                                <td>
+                                    <input id="BeforeO" type="text" class="txt" datacol="yes" err="改善前O" checkexpession="NotNull" />
+                                </td>
+                                <td>
+                                    、
+                                </td>
+                                <td>
+                                    <input id="BeforeD" type="text" class="txt" datacol="yes" err="改善前D" checkexpession="NotNull" />
+                                </td>
+                            </tr>
+                        </table>
+                        
+                    </td>
+                    
+                </tr>
+
+                <tr>
+                    <th class="formTitle">RPN</th>
+                    <td class="formValue">
+
+
+                        <input readonly placeholder="自动生成，不需要填写" id="BeforeRPN" type="text" class="txt" datacol="yes" />
+                    </td>
+                    <th class="formTitle">优先等级：</th>
+                    <td class="formValue">
+
+                        <input readonly placeholder="自动生成，不需要填写" id="BeforePriorityLevel" type="text" class="txt" datacol="yes" />
+                    </td>
+                </tr>
+               
+
+            </table>
+        </div>
+        <div id="doing" class="tabPanel" style="display:none">
+            <table class="form">
+                <tr>
+                    <th class="formTitle">原因分析：</th>
+                    <td class="formValue" colspan="3">
+                        <textarea id="CauseAnaly" style="width:500px;height:80px;"></textarea>
+
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">行动措施：</th>
+                    <td class="formValue" colspan="3">
+                        <textarea id="ActionMeasures" style="width:500px;height:80px;"></textarea>
+
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">责任人</th>
+                    <td class="formValue">
+
+                        <select id="ResponseBy" class="txtselect" err="责任人" checkexpession="NotNull" style="width:150px"></select>
+                    </td>
+                    <th class="formTitle">计划完成日期</th>
+                    <td class="formValue">
+
+                        <input id="PlanFinishDt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" />
+                    </td>
+                </tr>
+               
+            </table>
+        </div>
+        <div id="after" class="tabPanel" style="display:none">
+            <table class="form">
+
+                <tr>
+                    <th class="formTitle">有效性</th>
+                    <td class="formValue">
+
+                        <select id="IsEffective" class="txtselect">
+                            <option value="">==请选择==</option>
+                            <option value="有效">有效</option>
+                            <option value="无效">无效</option>
+                        </select>
+                    </td>
+                    <th class="formTitle">完成日期</th>
+                    <td class="formValue">
+
+                        <input id="RealFinishDt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">S、O、D</th>
+                    <td class="formValue" colspan="3">
+                        <table>
+                            <tr>
+                                <td>
+                                    <input id="AfterS" type="text" class="txt" datacol="yes" />
+                                </td>
+                                <td>
+                                    、
+                                </td>
+                                <td>
+                                    <input id="AfterO" type="text" class="txt" datacol="yes" />
+                                </td>
+                                <td>
+                                    、
+                                </td>
+                                <td>
+                                    <input id="AfterD" type="text" class="txt" datacol="yes" />
+                                </td>
+                            </tr>
+                        </table>
+
+                    </td>
+
+                </tr>
+
+                <tr>
+                    <th class="formTitle">RPN</th>
+                    <td class="formValue">
+
+
+                        <input readonly placeholder="自动生成，不需要填写" id="AfterRPN" type="text" class="txt" datacol="yes" />
+                    </td>
+                    <th class="formTitle">优先等级：</th>
+                    <td class="formValue">
+
+                        <input readonly placeholder="自动生成，不需要填写" id="AfterPriorityLevel" type="text" class="txt" datacol="yes" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+</form>

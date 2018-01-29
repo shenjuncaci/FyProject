@@ -102,9 +102,9 @@
                 { label: '主键', name: 'problemid', index: 'problemid', width: 80, align: 'left', hidden: true },
                 { label: '状态', name: 'status', index: 'status', width: 100, align: 'left', formatter: statusFormat },
                 { label: '问题类型', name: 'problemtype', index: 'problemtype', width: 100, align: 'left', hidden: true },
-                { label: '问题描述', name: 'problemdescripe', index: 'problemdescripe', width: 200, align: 'left' },
+                { label: '问题描述', name: 'problemdescripe', index: 'problemdescripe', width: 200, align: 'left',formatter:lengthFormat },
                 { label: '改善措施', name: 'improvementmeasures', index: 'improvementmeasures', width: 200, align: 'left' },
-                { label: '业务经办人', name: 'agentby', index: 'agentby', width: 60, align: 'left' },
+                { label: '业务经办人', name: 'agentbyname', index: 'agentbyname', width: 60, align: 'left' },
                 { label: '责任人', name: 'responsename', index: 'responsename', width: 60, align: 'left' },
                 { label: '责任部门', name: 'departmentname', index: 'departmentname', width: 100, align: 'left' },
                 { label: '最新进度', name: 'progress', index: 'progress', width: 200, align: 'left' },
@@ -306,10 +306,28 @@
 
     //导出Excel
     function btn_derive() {
-        SetDeriveExcel("#gridTable", "快速反应");
-        openDialog("/CommonModule/ExcelImport/DeriveDialog", "DeriveDialog", "快速反应导出", 600, 300, function (iframe) {
-            top.frames[iframe].AcceptClick();
-        });
+        //SetDeriveExcel("#gridTable", "快速反应");
+        //openDialog("/CommonModule/Rapid/ExcelExport", "DeriveDialog", "快速反应导出", 600, 300, function (iframe) {
+        //    top.frames[iframe].AcceptClick();
+        //});
+        var keywords = "";
+        if (CheckIsNullNoTip($("#Status").val())) {
+            keywords += " and a.status='" + $("#Status").val() + "' ";
+        }
+        if (CheckIsNullNoTip($("#ResponseBy").val())) {
+            keywords += " and b.RealName like '%" + $("#ResponseBy").val() + "%' ";
+        }
+        if (CheckIsNullNoTip($("#Descripe").val())) {
+            keywords += " and a.ProblemDescripe like '%" + $("#Descripe").val() + "%' ";
+        }
+        if (CheckIsNullNoTip($("#CreateBy").val())) {
+            keywords += " and b1.RealName like '%" + $("#CreateBy").val() + "%' ";
+        }
+        if (CheckIsNullNoTip($("#CreateDept").val())) {
+            keywords += " and c1.FullName like '%" + $("#CreateDept").val() + "%' ";
+        }
+        window.open(encodeURI("ExcelExport?condition=" + keywords));
+
     }
 
 
@@ -334,6 +352,18 @@
         }
         else {
             return String(cellvalue).substring(0, 10);
+        }
+    }
+
+    function lengthFormat(cellvalue, options, rowObject)
+    {
+        if (cellvalue.length > 30)
+        {
+            return cellvalue.substring(0, 30) + "......";
+        }
+        else
+        {
+            return cellvalue;
         }
     }
 

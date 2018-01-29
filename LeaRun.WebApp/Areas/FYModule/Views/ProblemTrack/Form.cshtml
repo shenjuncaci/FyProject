@@ -146,7 +146,7 @@
             else {
                 if ('@ViewData["UserID"]' != $("#CreateBy").val())
                 {
-                    if ('@ViewData["UserID"]' == $("#ResponseBy").val())
+                    if ('@ViewData["UserID"]' == $("#ResponseBy").val()||'@ViewData["UserID"]' == $("#AgentBy").val())
                     {
                         $("form input").prop("readonly", true);
                         $("form input").prop("disabled", true);
@@ -167,16 +167,19 @@
                 }
                 else
                 {
+                    $("#AgentBy").searchableSelect();
+                    document.getElementsByClassName("searchable-select-holder")[0].innerHTML = $("#AgentBy").find("option:selected").text();
                     $("#ResponseBy").searchableSelect();
-                    document.getElementsByClassName("searchable-select-holder")[0].innerHTML = $("#ResponseBy").find("option:selected").text();
+                    document.getElementsByClassName("searchable-select-holder")[1].innerHTML = $("#ResponseBy").find("option:selected").text();
                 }
-                
+
             }
             //SkillList
         }
         else
         {
             $("#ResponseBy").searchableSelect();
+            $("#AgentBy").searchableSelect();
         }
     }
     //保存事件
@@ -255,6 +258,15 @@
                 $("#ResponseBy").append($("<option></option>").val(DataJson[i].userid).html(DataJson[i].name));
             });
         })
+
+        $("#AgentBy").html("");
+
+        $("#AgentBy").append("<option value=''>==请选择==</option>");
+        AjaxJson("/VPModule/VerifyPost/ResponseJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#AgentBy").append($("<option></option>").val(DataJson[i].userid).html(DataJson[i].name));
+            });
+        })
     }
 
 
@@ -283,7 +295,9 @@
                     <th class="formTitle">业务经办人：</th>
                     <td class="formValue">
                         @*<input id="PostName" type="text" class="txt" />*@
-                        <input  id="AgentBy" type="text" class="txt" datacol="yes" err="业务经办人" checkexpession="NotNull" />
+                        @*<input  id="AgentBy" type="text" class="txt" datacol="yes" err="业务经办人" checkexpession="NotNull" />*@
+
+                        <select id="AgentBy" class="txtselect" err="业务经办人" checkexpession="NotNull"></select>
                     </td>
                     <th class="formTitle">责任人</th>
                     <td class="formValue">
@@ -295,21 +309,21 @@
                 <tr>
                     <th class="formTitle">问题描述</th>
                     <td class="formValue" colspan="3">
-                        <textarea id="ProblemDescripe"  style="width:800px;height:80px;"></textarea>
+                        <textarea id="ProblemDescripe"  style="width:740px;height:80px;"></textarea>
                     </td>
                 </tr>
 
                 <tr>
                     <th class="formTitle">改善措施</th>
                     <td class="formValue" colspan="3">
-                        <textarea id="ImprovementMeasures" style="width:800px;height:80px;"></textarea>
+                        <textarea id="ImprovementMeasures" style="width:740px;height:80px;"></textarea>
                     </td>
                 </tr>
 
                 <tr>
                     <th class="formTitle">备注</th>
                     <td class="formValue" colspan="3">
-                        <textarea id="Remark"  style="width:800px;height:80px;"></textarea>
+                        <textarea id="Remark"  style="width:740px;height:80px;"></textarea>
                     </td>
                 </tr>
                 

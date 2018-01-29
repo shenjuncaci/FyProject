@@ -1490,13 +1490,18 @@
                 </tr>
                 <tr>
                     <th class="formTitle">发生日期：</th>
-                    <td class="formValue" colspan="3">
+                    <td class="formValue">
                         <input id="res_cdate" type="text" class="txt Wdate" onfocus="WdatePicker({maxDate:'%y-%M-%d'})" style="background:#E0FFFF" />
                     </td>
-                    <th class="formTitle" style="display:none">下次汇报日期：</th>
-                    <td class="formValue" style="display:none">
+                    <th class="formTitle">是否考核</th>
+                    <td class="formValue">
 
-                        <input id="res_ndate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" />
+                        <select id="IsCheck" class="txtselect">
+                            <option value="">==请选择==</option>
+                            <option value="考核">考核</option>
+                            <option value="不考核">不考核</option>
+
+                        </select>
 
 
                     </td>

@@ -208,6 +208,8 @@
     <Compile Include="Areas\TrainModule\Controllers\UploadifyController.cs" />
     <Compile Include="Areas\TrainModule\TrainModuleAreaRegistration.cs" />
     <Compile Include="Areas\VPModule\Controllers\ReviewDataController.cs" />
+    <Compile Include="Areas\VPModule\Controllers\RiskDownFollowController.cs" />
+    <Compile Include="Areas\VPModule\Controllers\RiskDownPlanController.cs" />
     <Compile Include="Areas\VPModule\Controllers\VerifyPostController.cs" />
     <Compile Include="Areas\VPModule\VPModuleAreaRegistration.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
@@ -9297,6 +9299,13 @@
     <Content Include="Areas\FYModule\Views\ProblemTrack\Form.cshtml" />
     <Content Include="Areas\FYModule\Views\ProblemTrack\Uploadify.cshtml" />
     <Content Include="Areas\FYModule\Views\ProblemTrack\DelOrDownload.cshtml" />
+    <Content Include="Areas\VPModule\Views\VerifyPost\IsProduce.cshtml" />
+    <Content Include="Areas\FYModule\Views\Post\UserList.cshtml" />
+    <Content Include="Areas\VPModule\Views\RiskDownPlan\Index.cshtml" />
+    <Content Include="Areas\VPModule\Views\RiskDownPlan\Form.cshtml" />
+    <Content Include="Areas\VPModule\Views\RiskDownFollow\Index.cshtml" />
+    <Content Include="Areas\VPModule\Views\RiskDownFollow\Form.cshtml" />
+    <Content Include="Areas\VPModule\Views\RiskDownFollow\Uploadify.cshtml" />
     <None Include="Properties\PublishProfiles\LR-FDMS.pubxml" />
     <Content Include="Views\Home\SkinIndex.cshtml" />
     <Content Include="Views\Login\Default.cshtml" />

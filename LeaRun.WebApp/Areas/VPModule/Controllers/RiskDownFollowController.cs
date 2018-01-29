@@ -19,14 +19,13 @@ using System.Web.Mvc;
 using System.Net.Mail;
 using System.Net;
 
-namespace LeaRun.WebApp.Areas.FYModule.Controllers
+namespace LeaRun.WebApp.Areas.VPModule.Controllers
 {
-    public class ProblemTrackController : Controller
+    public class RiskDownFollowController : Controller
     {
-        RepositoryFactory<FY_ProblemTrack> repositoryfactory = new RepositoryFactory<FY_ProblemTrack>();
-        RepositoryFactory<FY_ProblemTrackDetail> detailrepository = new RepositoryFactory<FY_ProblemTrackDetail>();
-        FY_ProblemTrackBll TrackBll = new FY_ProblemTrackBll();
-        FY_ProblemTrackFileBll TrackFileBll = new FY_ProblemTrackFileBll();
+        RepositoryFactory<VP_RiskDownFollow> repositoryfactory = new RepositoryFactory<VP_RiskDownFollow>();
+        VP_RiskDownFollowBll RiskDownFollowBll = new VP_RiskDownFollowBll();
+        VP_RiskDownFollowFileBll RiskDownFollowFileBll = new VP_RiskDownFollowFileBll();
         //
         // GET: /FYModule/Process/
 
@@ -40,7 +39,7 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
             try
             {
                 Stopwatch watch = CommonHelper.TimerStart();
-                DataTable ListData = TrackBll.GetPageList(keywords, ref jqgridparam, ParameterJson);
+                DataTable ListData = RiskDownFollowBll.GetPageList(keywords, ref jqgridparam, ParameterJson);
                 var JsonData = new
                 {
                     total = jqgridparam.total,
@@ -62,14 +61,50 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
 
         public ActionResult Form()
         {
-            ViewData["UserID"] = ManageProvider.Provider.Current().UserId;
             return View();
         }
 
         [HttpPost]
-        public ActionResult SubmitForm(string KeyValue, FY_ProblemTrack entity, string BuildFormJson,
-            HttpPostedFileBase Filedata, string DetailForm)
+        public ActionResult SubmitForm(string KeyValue, VP_RiskDownFollow entity, string BuildFormJson, HttpPostedFileBase Filedata)
         {
+            //定义三个基础数据，fema的矩阵，用二维数组的形式来表示，
+            //因为行的序号原因，数据和实际的矩阵行需要上下颠倒
+            //第一个，横坐标S，纵坐标D
+            int[,] detectionZone = new int[,] {
+                { 3,3,3,3,3,3,3,3,3,3},
+                { 3,3,3,3,3,3,3,3,3,3},
+                { 3,3,3,3,3,3,3,3,3,3},
+                { 3,3,3,3,3,3,3,3,2,2},
+                { 3,3,3,3,3,3,3,3,2,2},
+                { 3,3,3,3,3,3,2,2,1,1},
+                { 3,3,3,3,2,2,2,2,1,1},
+                { 3,2,2,2,2,2,1,1,1,1},
+                { 3,2,1,1,1,1,1,1,1,1},
+                { 3,2,1,1,1,1,1,1,1,1}
+            };
+            //第二个，横坐标S，纵坐标O
+            int[,] SeverityZone = new int[,]
+            {
+                { 3,3,3,3,3,3,3,3,3,3},
+                { 3,3,3,3,3,3,2,2,1,1},
+                { 3,3,3,3,3,3,2,2,1,1},
+                { 3,3,3,3,2,2,1,1,1,1},
+                { 3,3,2,2,2,2,1,1,1,1},
+                { 3,2,2,2,1,1,1,1,1,1},
+                { 3,2,2,2,1,1,1,1,1,1},
+                { 3,2,1,1,1,1,1,1,1,1},
+                { 3,1,1,1,1,1,1,1,1,1},
+                { 3,1,1,1,1,1,1,1,1,1}
+            };
+            //第三个，横坐标SeverityZone，纵坐标detectionZone
+            int[,] PriorityLevel = new int[,]
+            {
+                { 1,1,2},
+                { 1,2,3},
+                { 2,2,3}
+            };
+
+
             string ModuleId = DESEncrypt.Decrypt(CookieHelper.GetCookie("ModuleId"));
             IDatabase database = DataFactory.Database();
             DbTransaction isOpenTrans = database.BeginTrans();
@@ -78,92 +113,59 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
                 string Message = KeyValue == "" ? "新增成功。" : "编辑成功。";
                 if (!string.IsNullOrEmpty(KeyValue))
                 {
-                    //if (KeyValue == ManageProvider.Provider.Current().UserId)
-                    //{
-                    //    throw new Exception("无权限编辑信息");
-                    //}
-
+                    if (KeyValue == ManageProvider.Provider.Current().UserId)
+                    {
+                        throw new Exception("无权限编辑信息");
+                    }
 
 
                     entity.Modify(KeyValue);
+                    if(entity.BeforeD!=0&&entity.BeforeS!=0&&entity.BeforeO!=0)
+                    {
+                        entity.BeforeRPN = entity.BeforeD * entity.BeforeS * entity.BeforeO;
+                        entity.BeforePriorityLevel = PriorityLevel[detectionZone[entity.BeforeD - 1, entity.BeforeS - 1]-1, SeverityZone[entity.BeforeO - 1, entity.BeforeS - 1]-1];
+                    }
+
+                    if (entity.AfterD != 0 && entity.AfterS != 0 && entity.AfterO != 0)
+                    {
+                        entity.AfterRPN = entity.AfterD * entity.AfterS * entity.AfterO;
+                        entity.AfterPriorityLevel = PriorityLevel[detectionZone[entity.AfterD - 1, entity.AfterS - 1]-1, SeverityZone[entity.AfterO - 1, entity.AfterS - 1]-1];
+                    }
+                    if(entity.RealFinishDt!=null)
+                    {
+                        entity.FinishState = "已完成";
+                    }
 
 
                     database.Update(entity, isOpenTrans);
 
-                    int index = 1;
-                    List<FY_ProblemTrackDetail> DetailList = DetailForm.JonsToList<FY_ProblemTrackDetail>();
-                    foreach (FY_ProblemTrackDetail entityD in DetailList)
-                    {
-                        if (!string.IsNullOrEmpty(entityD.Progress))
-                        {
-                            if (!string.IsNullOrEmpty(entityD.ProblemDID))
-                            {
-                                entityD.Modify(entityD.ProblemDID);
-                                database.Update(entityD, isOpenTrans);
-                                index++;
-                            }
-                            else
-                            {
-                                entityD.Create();
-                                entityD.ProblemID = entity.ProblemID;
-
-                                database.Insert(entityD, isOpenTrans);
-                                index++;
-                            }
-                        }
-                        else
-                        {
-                            if (!string.IsNullOrEmpty(entityD.ProblemDID))
-                            {
-                                detailrepository.Repository().Delete(entityD.ProblemDID);
-
-                            }
-                        }
-                    }
-
                 }
                 else
                 {
-                    //entity.DepartMentID = ManageProvider.Provider.Current().DepartmentId;
+
                     entity.Create();
+                    if (entity.BeforeD != 0 && entity.BeforeS != 0 && entity.BeforeO != 0)
+                    {
+                        entity.BeforeRPN = entity.BeforeD * entity.BeforeS * entity.BeforeO;
+                        entity.BeforePriorityLevel = PriorityLevel[detectionZone[entity.BeforeD - 1, entity.BeforeS - 1] - 1, SeverityZone[entity.BeforeO - 1, entity.BeforeS - 1] - 1];
+                    }
+
+                    if (entity.AfterD != 0 && entity.AfterS != 0 && entity.AfterO != 0)
+                    {
+                        entity.AfterRPN = entity.AfterD * entity.AfterS * entity.AfterO;
+                        entity.AfterPriorityLevel = PriorityLevel[detectionZone[entity.AfterD - 1, entity.AfterS - 1] - 1, SeverityZone[entity.AfterO - 1, entity.AfterS - 1] - 1];
+                    }
+                    if (entity.RealFinishDt != null)
+                    {
+                        entity.FinishState = "已完成";
+                    }
 
 
                     database.Insert(entity, isOpenTrans);
 
-                    int index = 1;
-                    List<FY_ProblemTrackDetail> DetailList = DetailForm.JonsToList<FY_ProblemTrackDetail>();
-                    foreach (FY_ProblemTrackDetail entityD in DetailList)
-                    {
-                        if (!string.IsNullOrEmpty(entityD.Progress))
-                        {
-                            if (!string.IsNullOrEmpty(entityD.ProblemDID))
-                            {
-                                entityD.Modify(entityD.ProblemDID);
-                                database.Update(entityD, isOpenTrans);
-                                index++;
-                            }
-                            else
-                            {
-                                entityD.Create();
-                                entityD.ProblemID = entity.ProblemID;
-
-                                database.Insert(entityD, isOpenTrans);
-                                index++;
-                            }
-                        }
-                        else
-                        {
-                            if (!string.IsNullOrEmpty(entityD.ProblemDID))
-                            {
-                                detailrepository.Repository().Delete(entityD.ProblemDID);
-
-                            }
-                        }
-                    }
-
-                    Base_DataScopePermissionBll.Instance.AddScopeDefault(ModuleId, ManageProvider.Provider.Current().UserId, entity.ProblemID, isOpenTrans);
+                    Base_DataScopePermissionBll.Instance.AddScopeDefault(ModuleId, ManageProvider.Provider.Current().UserId, entity.FollowID, isOpenTrans);
                 }
-                Base_FormAttributeBll.Instance.SaveBuildForm(BuildFormJson, entity.ProblemID, ModuleId, isOpenTrans);
+                Base_FormAttributeBll.Instance.SaveBuildForm(BuildFormJson, entity.FollowID, ModuleId, isOpenTrans);
                 database.Commit();
                 return Content(new JsonMessage { Success = true, Code = "1", Message = Message }.ToString());
             }
@@ -179,7 +181,7 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
         [ValidateInput(false)]
         public ActionResult SetForm(string KeyValue)
         {
-            FY_ProblemTrack entity = DataFactory.Database().FindEntity<FY_ProblemTrack>(KeyValue);
+            VP_RiskDownFollow entity = DataFactory.Database().FindEntity<VP_RiskDownFollow>(KeyValue);
             if (entity == null)
             {
                 return Content("");
@@ -191,21 +193,12 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
             return Content(strJson);
         }
 
-        public ActionResult CusName()
-        {
-            string sql = " select fy_cus_id,fy_cus_name from FY_CUS where 1=1 ";
-            DataTable dt = TrackBll.GetDataTable(sql);
-            return Content(dt.ToJson());
-        }
 
         [HttpPost]
         public ActionResult Delete(string KeyValue)
         {
             try
             {
-                //添加一步验证，如果竞争对手ID在竞争对手明细表中已存在，则不能删除
-               
-
                 var Message = "删除失败。";
                 int IsOk = 0;
 
@@ -228,32 +221,7 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
         public void WriteLog(int IsOk, string KeyValue, string Message = "")
         {
             string[] array = KeyValue.Split(',');
-            Base_SysLogBll.Instance.WriteLog<FY_ProblemTrack>(array, IsOk.ToString(), Message);
-        }
-
-        public ActionResult GetDetailList(string KeyValue)
-        {
-            try
-            {
-                var JsonData = new
-                {
-                    rows = TrackBll.GetDetailList(KeyValue),
-                };
-                return Content(JsonData.ToJson());
-            }
-            catch (Exception ex)
-            {
-                Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "异常错误：" + ex.Message);
-                return null;
-            }
-        }
-
-        public string FinishIt(string ProblemID)
-        {
-            StringBuilder strSql = new StringBuilder();
-            strSql.AppendFormat(@" update FY_ProblemTrack set Status='已完成',FinshDt=GETDATE() where  ProblemID='{0}' and Status!='已完成' ", ProblemID);
-            TrackBll.ExecuteSql(strSql);
-            return "0";
+            Base_SysLogBll.Instance.WriteLog<VP_RiskDownFollow>(array, IsOk.ToString(), Message);
         }
 
         public ActionResult Uploadify()
@@ -261,13 +229,24 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
             return View();
         }
 
-        //多文件上传，每次insert
+        public ActionResult GetExistsList(string FollowID)
+        {
+            string sql = @" select a.*,case when (b.ResponseBy='{1}' or (exists (select * from Base_ObjectUserRelation where ObjectId='05883a74-6515-4bab-8ec6-3022aee9a1d8' and UserId='{1}')) and b.FinishState='进行中' ) then 1 else 0 end as canDel 
+from VP_RiskDownFollowFile a 
+left join VP_RiskDownFollow b on a.followid=b.followid
+
+where 1=1 and a.FollowID='{0}' ";
+            sql = string.Format(sql, FollowID,ManageProvider.Provider.Current().UserId);
+            DataTable dt = RiskDownFollowBll.GetDataTable(sql);
+            return Content(dt.ToJson());
+        }
+
         public ActionResult SubmitUploadify(string FolderId, HttpPostedFileBase Filedata)
         {
             try
             {
                 Thread.Sleep(1000);////延迟500毫秒
-                FY_ProblemTrackFile entity = new FY_ProblemTrackFile();
+                VP_RiskDownFollowFile entity = new VP_RiskDownFollowFile();
                 string IsOk = "";
                 //没有文件上传，直接返回
                 if (Filedata == null || string.IsNullOrEmpty(Filedata.FileName) || Filedata.ContentLength == 0)
@@ -283,7 +262,7 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
                 string uploadDate = DateTime.Now.ToString("yyyyMMdd");
                 //string UserId = ManageProvider.Provider.Current().UserId;
 
-                string virtualPath = string.Format("~/Resource/Document/NetWorkDisk/ProblemTrack/{0}{1}", fileGuid, FileEextension);
+                string virtualPath = string.Format("~/Resource/Document/NetWorkDisk/RiskDownFile/{0}{1}", fileGuid, FileEextension);
                 string fullFileName = this.Server.MapPath(virtualPath);
                 //创建文件夹，保存文件
                 string path = Path.GetDirectoryName(fullFileName);
@@ -296,8 +275,8 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
 
                         //文件信息写入数据库
                         entity.Create();
-                        entity.FilePath = virtualPath ;
-                        entity.ProblemID = FolderId;
+                        entity.FilePath = virtualPath;
+                        entity.FollowID = FolderId;
                         entity.FileName = Filedata.FileName;
                         //entity.FilePath = virtualPath;
                         entity.FileSize = filesize.ToString();
@@ -307,7 +286,7 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
                         this.DocumentType(FileEextension, ref _FileType, ref _Icon);
                         entity.Icon = _Icon;
                         entity.FileType = _FileType;
-                        IsOk = DataFactory.Database().Insert<FY_ProblemTrackFile>(entity).ToString();
+                        IsOk = DataFactory.Database().Insert<VP_RiskDownFollowFile>(entity).ToString();
                     }
                     catch (Exception ex)
                     {
@@ -425,33 +404,10 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
         }
 
 
-        public ActionResult GetFileList(string keywords, string CompanyId, string DepartmentId,
-            JqGridParam jqgridparam, string ParameterJson, string SkillID)
-        {
-            try
-            {
-                Stopwatch watch = CommonHelper.TimerStart();
-                DataTable ListData = TrackBll.GetFileList(keywords, ref jqgridparam, ParameterJson, SkillID);
-                var JsonData = new
-                {
-                    total = jqgridparam.total,
-                    page = jqgridparam.page,
-                    records = jqgridparam.records,
-                    costtime = CommonHelper.TimerEnd(watch),
-                    rows = ListData,
-                };
-                return Content(JsonData.ToJson());
-            }
-            catch (Exception ex)
-            {
-                Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "异常错误：" + ex.Message);
-                return null;
-            }
-        }
 
         public void Download(string KeyValue)
         {
-            FY_ProblemTrackFile entity = TrackFileBll.Repository().FindEntity(KeyValue);
+            VP_RiskDownFollowFile entity = RiskDownFollowFileBll.Repository().FindEntity(KeyValue);
             string filename = Server.UrlDecode(entity.FileName);//返回客户端文件名称
             string filepath = Server.UrlDecode(entity.FilePath);//文件虚拟路径
             if (FileDownHelper.FileExists(filepath))
@@ -464,8 +420,8 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
         {
             try
             {
-                FY_ProblemTrackFile entity = TrackFileBll.Repository().FindEntity(NetworkFileId);
-                TrackFileBll.Repository().Delete(NetworkFileId);
+                VP_RiskDownFollowFile entity = RiskDownFollowFileBll.Repository().FindEntity(NetworkFileId);
+                RiskDownFollowFileBll.Repository().Delete(NetworkFileId);
                 string FilePath = this.Server.MapPath(entity.FilePath);
                 if (System.IO.File.Exists(FilePath))
                     System.IO.File.Delete(FilePath);
@@ -477,30 +433,8 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
             }
         }
 
-        public ActionResult DelOrDownload()
-        {
-            return View();
-        }
 
-        public void ExcelExport(string condition)
-        {
-            ExcelHelper ex = new ExcelHelper();
-            string sql = @" select a.Status as 状态,a.ProblemDescripe as 问题描述,a.ImprovementMeasures as 改善措施
-,b2.realname as 业务经办人,b.RealName as 责任人 ,c.FullName as 责任部门,
 
-(select top 1 PlanDt from FY_ProblemTrackDetail where ProblemID=a.ProblemID order by PlanDt desc) as 计划完成日期,
-(select top 1 Progress from FY_ProblemTrackDetail where ProblemID=a.ProblemID order by PlanDt desc) as 最新进度,
-b1.RealName as 创建人,c1.FullName as 创建部门,a.CreateDt as 创建日期
-from FY_ProblemTrack a 
-left join Base_User b on a.ResponseBy=b.UserId
-left join Base_Department c on b.DepartmentId=c.DepartmentId 
-left join Base_User b1 on a.CreateBy=b1.UserId
-left join Base_Department c1 on b1.DepartmentId=c1.DepartmentId 
-left join Base_User b2 on a.AgentBy=b2.UserId 
-where 1=1  ";
-            sql = sql + condition;
-            DataTable ListData = TrackBll.GetDataTable(sql);
-            ex.EcportExcel(ListData, "问题跟踪导出");
-        }
+
     }
 }
