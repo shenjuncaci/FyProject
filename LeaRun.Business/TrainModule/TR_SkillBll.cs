@@ -19,7 +19,7 @@ namespace LeaRun.Business
         {
             StringBuilder strSql = new StringBuilder();
             List<DbParameter> parameter = new List<DbParameter>();
-            strSql.Append(@" select * from tr_skill where Enable=1 and  (DepartmentID='" + ManageProvider.Provider.Current().DepartmentId+ "' or DepartmentID in (select DepartmentId from Base_Department where ParentId='"+ManageProvider.Provider.Current().DepartmentId+"'))  ");
+            strSql.Append(@" select * from tr_skill where Enable=1 and IsAudit=1 and  (DepartmentID='" + ManageProvider.Provider.Current().DepartmentId+ "' or DepartmentID in (select DepartmentId from Base_Department where ParentId='"+ManageProvider.Provider.Current().DepartmentId+"'))  ");
             if (!string.IsNullOrEmpty(keyword))
             {
                 strSql.Append(keyword);

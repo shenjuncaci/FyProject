@@ -60,6 +60,7 @@ namespace LeaRun.Business
             List<DbParameter> parameter = new List<DbParameter>();
             strSql.Append(@"SELECT * FROM TR_EvaluateDetail WHERE 1=1");
             strSql.Append(" AND UserPostRelationID = @UserPostRelationID ");
+            strSql.Append(" order by SkillWeight desc ");
             parameter.Add(DbFactory.CreateDbParameter("@UserPostRelationID", RelationID));
             return DataFactory.Database().FindListBySql<TR_EvaluateDetail>(strSql.ToString(), parameter.ToArray());
         }
@@ -70,7 +71,7 @@ namespace LeaRun.Business
         {
             StringBuilder strSql = new StringBuilder();
             List<DbParameter> parameter = new List<DbParameter>();
-            strSql.Append(@" select * from TR_Skill where 1=1 and Enable=1  ");
+            strSql.Append(@" select * from TR_Skill where 1=1 and Enable=1 and IsAudit=1  ");
             //if (!string.IsNullOrEmpty(keyword))
             //{
             //    strSql.Append(@" AND (SkillName LIKE @keyword or SkillType like @keyword
@@ -136,9 +137,9 @@ and exists (select * from Base_ObjectUserRelation where UserId=aa.UserId and Obj
             }
             if (!string.IsNullOrEmpty(keyword))
             {
-                strSql.Append(@" AND (realname LIKE @keyword
+                strSql.Append(@" AND (realname LIKE @keyword1
                                     )");
-                parameter.Add(DbFactory.CreateDbParameter("@keyword", '%' + keyword + '%'));
+                parameter.Add(DbFactory.CreateDbParameter("@keyword1", '%' + keyword + '%'));
             }
             if (!string.IsNullOrEmpty(ParameterJson) && ParameterJson.Length > 2)
             {
@@ -158,6 +159,36 @@ left join Base_User d on a.UserID=d.UserId
 where d.Enabled=1 and b.RelationID is not null and (d.DepartmentId='{0}' or d.DepartmentID in (select DepartmentID from Base_Department where ParentID='{0}' ))
 and a.UserID!='{1}' and exists (select * from tr_skill where skillid in (select skillid from TR_PostDepartmentRelationDetail where RelationID=b.RelationID) )
  ", ManageProvider.Provider.Current().DepartmentId,ManageProvider.Provider.Current().UserId);
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                strSql.Append(@" AND (realname LIKE @keyword
+                                    )");
+                parameter.Add(DbFactory.CreateDbParameter("@keyword", '%' + keyword + '%'));
+            }
+            if (!string.IsNullOrEmpty(ParameterJson) && ParameterJson.Length > 2)
+            {
+                strSql.Append(ConditionBuilder.GetWhereSql(ParameterJson.JonsToList<Condition>(), out parameter));
+            }
+            return Repository().FindTablePageBySql(strSql.ToString(), parameter.ToArray(), ref jqgridparam);
+        }
+
+        public DataTable GetAuditList(string keyword, ref JqGridParam jqgridparam, string ParameterJson)
+        {
+            StringBuilder strSql = new StringBuilder();
+            List<DbParameter> parameter = new List<DbParameter>();
+            strSql.AppendFormat(@"select 
+a.AuditID,a.audittype,d.RealName as createby,b.RealName as diaodongren,a.createdt,c.FullName as departmentname,a.TargetDepartmentID
+from tr_hrauditlist a
+left join Base_User b on a.AuditID=b.UserId
+left join Base_Department c on a.targetdepartmentid=c.DepartmentId
+left join base_user d on a.createby=d.UserId
+where auditby=''
+union
+select a.SkillID,'技能审批' as type,a.CreateBy,'',CreateDt,b.fullname,''  
+from TR_Skill a
+left join Base_Department b on a.DepartmentID=b.DepartmentId
+where IsAudit=0
+ ");
             if (!string.IsNullOrEmpty(keyword))
             {
                 strSql.Append(@" AND (realname LIKE @keyword

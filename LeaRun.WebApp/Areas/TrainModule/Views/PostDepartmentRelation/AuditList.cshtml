@@ -11,6 +11,9 @@
     }
 </style>
 <script type="text/javascript">
+
+
+
     $(document).ready(function () {
 
         GetGrid();
@@ -24,6 +27,10 @@
                 $("#btnSearch").click();
             }
         });
+
+
+
+
     });
 
     var CompanyId = "", DepartmentId = "", DepartmentName = "";
@@ -67,7 +74,7 @@
     function btn_Search() {
         var keywords = $("#keywords").val();
         $("#gridTable").jqGrid('setGridParam', {
-            url: "@Url.Content("~/TrainModule/PostDepartmentRelation/GetUserListJson")?keywords=" + escape(keywords), page: 1
+            url: "@Url.Content("~/TrainModule/PostDepartmentRelation/GridAuditListJson")?keywords=" + escape(keywords), page: 1
         }).trigger('reloadGrid');
     }
 
@@ -76,22 +83,25 @@
     function GetGrid() {
         var SelectRowIndx;
         $("#gridTable").jqGrid({
-            url: "@Url.Content("~/TrainModule/PostDepartmentRelation/GetUserListJson")",
+            url: "@Url.Content("~/TrainModule/PostDepartmentRelation/GridAuditListJson")",
             datatype: "json",
             height: $(window).height() - 178,
             autowidth: true,
             colModel: [
-                { label: '主键', name: 'userid', index: 'userid', width: 80, align: 'left', hidden: true },
-                { label: '工号', name: 'code', index: 'code', width: 150, align: 'left' },
-                { label: '姓名', name: 'realname', index: 'realname', width: 150, align: 'left' },
-                { label: '现岗位', name: 'mainpost', index: 'mainpost', width: 150, align: 'left' },
-                { label: '储备岗位', name: 'postlist', index: 'postlist', width: 250, align: 'left' },
+                { label: '主键', name: 'auditid', index: 'auditid', width: 80, align: 'left', hidden: true },
+                { label: '审批类型', name: 'audittype', index: 'audittype', width: 150, align: 'left' },
+                { label: '申请人', name: 'createby', index: 'createby', width: 150, align: 'left' },
+                { label: '调动人', name: 'diaodongren', index: 'diaodongren', width: 150, align: 'left' },
+                { label: '创建日期', name: 'createdt', index: 'createdt', width: 150, align: 'left', formatter: dateFormat },
+                { label: '目标部门', name: 'departmentname', index: 'departmentname', width: 150, align: 'left' },
+                { label: '目标部门ID', name: 'targetdepartmentid', index: 'targetdepartmentid', width: 150, align: 'left', hidden: true },
+
             ],
             viewrecords: true,
             rowNum: 30,
             rowList: [30, 50, 100, 500, 1000],
             pager: "#gridPager",
-            sortname: 'userid',
+            sortname: 'createdt',
             sortorder: 'desc',
             rownumbers: true,
             shrinkToFit: false,
@@ -124,83 +134,77 @@
             top.frames[iframe].QueryClick(function (JsonData) {
                 QueryParamJson = JsonData;
                 $("#gridTable").jqGrid('setGridParam', {
-                    url: "@Url.Content("~/TrainModule/PostDepartmentRelation/GetUserListJson")?ParameterJson=" + escape(JsonData), page: 1
+                    url: "@Url.Content("~/TrainModule/PostDepartmentRelation/GridAuditListJson")?ParameterJson=" + escape(JsonData), page: 1
                 }).trigger('reloadGrid');
             });
         });
     }
 
-    function btn_add() {
-
-        if ('@ViewData["Isdept"]' == "1")
+    function btn_Evaluate(tag)
+    {
+        var KeyValue = GetJqGridRowValue("#gridTable", "auditid");
+        var Type = GetJqGridRowValue("#gridTable", "audittype");
+        var targetdepartmentid = GetJqGridRowValue("#gridTable", "targetdepartmentid");
+        if (IsChecked(KeyValue))
         {
-            if (!confirm("部门负责人一般只需要管理科长，如确认需要管理一般员工，请点击确认继续！！"))
-            {
-                return false;
-            }
+            var durl = encodeURI('@Url.Action("HRAudit", "PostDepartmentRelation")?Type=' + Type + '&ID=' + KeyValue + '&TargetID=' + targetdepartmentid + '&tag=' + tag);
+                        $.ajax({
+                            type: "post",
+                            url: durl,
+                            async: false,
+                            success: function (msg) {
+                                if (msg == "0") {
+                                    $("#gridTable").trigger("reloadGrid");
+                                }
+                                else
+                                {
+                                    alert("发生错误，请重试或者联系管理员");
+                                }
 
+
+                            },
+                            error: function () {
+                                alert("出错了");
+                            }
+                        });
         }
-
-        var KeyValue = GetJqGridRowValue("#gridTable", "userid");
-
-        
-            var url = "/TrainModule/PostDepartmentRelation/UserList?KeyValue=" + KeyValue;
-
-            openDialog(url, "UserList", "添加岗位", 625, 350, function (iframe) {
-                top.frames[iframe].AcceptClick();
-            });
-        
     }
 
-    //离职按钮
-    function btn_quit()
-    {
-        var KeyValue = GetJqGridRowValue("#gridTable", "userid");
-        $.ajax({
-            type: "post",
-            url: "/TrainModule/PostDepartmentRelation/QuitOne?UserID="+KeyValue,
-            async: false,
-            success: function (msg) {
-                alert("已提交人事部，请耐心等待");
-                windowload();
-            },
-            error: function () {
-                alert("出错了");
-            }
+    //新增
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "userpostrelationid");
+
+
+        var url = "/TrainModule/PostDepartmentRelation/EvaluateForm?KeyValue=" + KeyValue;
+
+        openDialog(url, "EvaluateForm", "评审表", 660, 350, function (iframe) {
+            top.frames[iframe].AcceptClick();
         });
     }
 
-    function btn_edit() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "userid");
-
-        if (IsChecked(KeyValue)) {
-            var url = "/TrainModule/PostDepartmentRelation/DepartPostList?KeyValue=" + KeyValue + "&IsMain=0";
-
-            openDialog(url, "UserList", "岗位编辑", 625, 350, function (iframe) {
-                top.frames[iframe].AcceptClick();
-            });
-        }
-    }
-
     function btn_editM() {
-
         var KeyValue = GetJqGridRowValue("#gridTable", "userid");
 
-        if (IsChecked(KeyValue)) {
-            var url = "/TrainModule/PostDepartmentRelation/DepartPostList?KeyValue=" + KeyValue + "&IsMain=1";
 
-            openDialog(url, "UserList", "岗位编辑", 625, 350, function (iframe) {
-                top.frames[iframe].AcceptClick();
-            });
-        }
+        var url = "/TrainModule/PostDepartmentRelation/DepartPostList?KeyValue=" + KeyValue+"&IsMain=1";
+
+        openDialog(url, "UserList", "岗位编辑", 625, 350, function (iframe) {
+            top.frames[iframe].AcceptClick();
+        });
     }
-   
+
 
     //刷新
     function windowload() {
         $("#gridTable").trigger("reloadGrid"); //重新载入
     }
 
+
+    function perFormat(cellvalue, options, rowObject) {
+
+            return cellvalue+'%';
+
+    }
 
     //特定单元格添加超链接，可以实现附件下载，后台要把地址传过来
     function HyperLink() {
@@ -227,7 +231,7 @@
 <div>
     <div class="btnbartitle">
         <div>
-            您正在查看 @ViewData["Department"] 的人员列表 <span id="CenterTitle"></span>
+            用户列表 <span id="CenterTitle"></span>
         </div>
     </div>
     <!--工具栏-->

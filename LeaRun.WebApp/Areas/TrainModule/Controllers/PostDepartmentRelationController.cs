@@ -276,18 +276,21 @@ values(NEWID(),'{0}','{1}') ", array[i], ManageProvider.Provider.Current().Depar
                 string[] array = ObjectId.Split(',');
                 for(int i=0;i<array.Length-1;i++)
                 {
-                    strSql.AppendFormat(@" update Base_user set DepartmentId='{0}' where UserId='{1}'  ",
-                        ManageProvider.Provider.Current().DepartmentId,array[i]);
+                    strSql.AppendFormat(@" insert into TR_HRAuditList 
+values(newid(),'{0}','{1}',getdate(),1,'',getdate(),'人员调动','{2}','待审') ",
+                   array[i], ManageProvider.Provider.Current().UserId, ManageProvider.Provider.Current().DepartmentId);
+                    //                    strSql.AppendFormat(@" update Base_user set DepartmentId='{0}' where UserId='{1}'  ",
+                    //                        ManageProvider.Provider.Current().DepartmentId,array[i]);
 
 
-                    //删除了该员工原来的岗位以及主管评定
-                    strSql.AppendFormat(@" delete from TR_EvaluateDetail 
-where UserPostRelationID in (select UserPostRelationID from TR_UserPost where UserID='{0}') ",array[i]);
-                     
-                    strSql.AppendFormat(@" update tr_userpost set IsEnable=0 where userid='{0}' ", array[i]);
+                    //                    //删除了该员工原来的岗位以及主管评定
+                    //                    strSql.AppendFormat(@" delete from TR_EvaluateDetail 
+                    //where UserPostRelationID in (select UserPostRelationID from TR_UserPost where UserID='{0}') ",array[i]);
+
+                    //                    strSql.AppendFormat(@" update tr_userpost set IsEnable=0 where userid='{0}' ", array[i]);
                 }
                 PostDepartRelationBll.ExecuteSql(strSql);
-                return Content(new JsonMessage { Success = true, Code = 1.ToString(), Message = "操作成功。" }.ToString());
+                return Content(new JsonMessage { Success = true, Code = 1.ToString(), Message = "已提交人事部审批，请等待审批通过。" }.ToString());
 
 
             }
@@ -621,7 +624,10 @@ values(NEWID(),'{0}','{1}','{2}') ", UserID, array[i],IsMain);
             try
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendFormat(@" update Base_User set  Enabled=0 where UserID='{0}' ", UserID);
+                //需要先经过人事审核
+                strSql.AppendFormat(@" insert into TR_HRAuditList values(newid(),'{0}','{1}',getdate(),1,'',getdate(),'人员离职','','待审') ",
+                    UserID,ManageProvider.Provider.Current().UserId);
+                //strSql.AppendFormat(@" update Base_User set  Enabled=0 where UserID='{0}' ", UserID);
 
                 return PostDepartRelationBll.ExecuteSql(strSql);
             }
@@ -632,6 +638,93 @@ values(NEWID(),'{0}','{1}','{2}') ", UserID, array[i],IsMain);
 
 
         }
+
+        public ActionResult AuditList()
+        {
+            return View();
+        }
+
+        public ActionResult GridAuditListJson(string keywords, string CompanyId, string DepartmentId,
+           JqGridParam jqgridparam, string ParameterJson)
+        {
+            try
+            {
+                Stopwatch watch = CommonHelper.TimerStart();
+                DataTable ListData = PostDepartRelationBll.GetAuditList(keywords, ref jqgridparam, ParameterJson);
+                var JsonData = new
+                {
+                    total = jqgridparam.total,
+                    page = jqgridparam.page,
+                    records = jqgridparam.records,
+                    costtime = CommonHelper.TimerEnd(watch),
+                    rows = ListData,
+                };
+                return Content(JsonData.ToJson());
+            }
+            catch (Exception ex)
+            {
+                Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "异常错误：" + ex.Message);
+                return null;
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="Type">人员离职，人员调动，技能审批</param>
+        /// <param name="ID"></param>
+        /// <param name="TargetID"></param>
+        /// <param name="tag">1同意-1拒绝</param>
+        /// <returns></returns>
+        public string HRAudit(string Type,string ID,string TargetID,string tag)
+        {
+            StringBuilder strSql = new StringBuilder();
+            if(Type== "人员离职")
+            {
+                if(tag=="1")
+                {
+                    strSql.AppendFormat(@" update TR_HRAuditList set AuditBy='{1}',status='通过' 
+where AuditID='{0}' and AuditType='人员离职' ",ID, ManageProvider.Provider.Current().UserId);
+                    strSql.AppendFormat(@" update base_user set Enabled=0 where userid='{0}' ",ID);
+                }
+                else
+                {
+                    strSql.AppendFormat(@" update TR_HRAuditList set AuditBy='{1}',status='拒绝' 
+where AuditID='{0}' and AuditType='人员离职' ", ID, ManageProvider.Provider.Current().UserId);
+                }
+            }
+            else if(Type=="人员调动")
+            {
+                if (tag == "1")
+                {
+                    strSql.AppendFormat(@" update TR_HRAuditList set AuditBy='{1}',status='通过' 
+where AuditID='{0}' and AuditType='人员调动' ", ID,ManageProvider.Provider.Current().UserId);
+                    strSql.AppendFormat(@" update base_user set DepartmentID='{1}' where userid='{0}' ", ID,TargetID);
+                }
+                else
+                {
+                    strSql.AppendFormat(@" update TR_HRAuditList set AuditBy='{1}',status='拒绝' 
+where AuditID='{0}' and AuditType='人员调动' ", ID, ManageProvider.Provider.Current().UserId);
+                }
+            }
+            else
+            {
+                if(tag=="1")
+                {
+                    strSql.AppendFormat(@" update TR_Skill set IsAudit=1 
+where SkillID='{0}' ", ID);
+                }
+                else
+                {
+                    strSql.AppendFormat(@" update TR_Skill set IsAudit=-1 
+where SkillID='{0}' ", ID);
+                }
+            }
+
+            PostDepartRelationBll.ExecuteSql(strSql);
+            return "0";
+        }
+
+
 
 
     }

@@ -40,7 +40,9 @@ namespace LeaRun.Entity
         public string VideoSrc { get; set; }
         public int ExamMinutes { get; set; }
         public int QuestionNum { get; set; }
-
+        public int IsAudit { get; set; }
+        public string CreateBy { get; set; }
+        public DateTime? CreateDt { get; set; }
         #region 扩展操作
         /// <summary>
         /// 新增调用
@@ -49,6 +51,9 @@ namespace LeaRun.Entity
         {
             this.SkillID = CommonHelper.GetGuid;
             this.DepartmentID = ManageProvider.Provider.Current().DepartmentId;
+            this.IsAudit = 0;
+            this.CreateBy = ManageProvider.Provider.Current().UserName;
+            this.CreateDt = DateTime.Now;
         }
 
         public override void Modify(string KeyValue)
