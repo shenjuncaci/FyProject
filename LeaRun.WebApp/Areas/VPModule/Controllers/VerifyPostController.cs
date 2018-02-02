@@ -289,6 +289,35 @@ namespace LeaRun.WebApp.Areas.VPModule.Controllers
             {
                 strSql.AppendFormat(@" update VP_VerifyPostDetail set Status{1}='未生产',DefectNum{1}=0,CheckNum{1}=0 where VerifyPostDID='{0}' "
     , verifypostdid,temp);
+                if(temp=="6")
+                {
+                    //当天最后一次，并且失效数量是0的话，检验下是否连续的无失效天数大于等于周期
+                    string sql = @"select isnull(dbo.[GetContinuousDayByVeryPostDID]('{0}'),0)";
+                    sql = string.Format(sql, verifypostdid);
+
+                    DataTable dt = VerifyPostBll.GetDataTable(sql);
+                    int MaxRq = 0;
+                    if (dt.Rows.Count > 0)
+                    {
+                        MaxRq = Convert.ToInt32(dt.Rows[0][0].ToString());
+                    }
+
+                    //获取周期
+                    sql = @"select VerifyCycle from VP_VerifyPost where 
+VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where VerifyPostDID='{0}')";
+                    sql = string.Format(sql, verifypostdid);
+                    dt = VerifyPostBll.GetDataTable(sql);
+                    int Cycle = Convert.ToInt32(dt.Rows[0][0].ToString());
+
+                    //连续天数大于周期，变成完成
+                    if (MaxRq >= Cycle)
+                    {
+                        StringBuilder sqlFinish = new StringBuilder();
+                        sqlFinish.AppendFormat(@" update VP_VerifyPost set Status='已完成',RealQuitDate=getdate()
+where VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where VerifyPostDID='{0}') ", verifypostdid);
+                        VerifyPostBll.ExecuteSql(sqlFinish);
+                    }
+                }
                 
             }
             else
@@ -299,8 +328,9 @@ namespace LeaRun.WebApp.Areas.VPModule.Controllers
                 int DefectNumAll = 0;
                 strSql.AppendFormat(@" update VP_VerifyPostDetail set DefectNum{3}='{1}',CheckNum{3}='{2}',Status{3}='' 
 where VerifyPostDID='{0}' ", verifypostdid,defectNum,checkNum,temp);
+                VerifyPostBll.ExecuteSql(strSql);
                 //当失效数量不是0的时候，重新更新明细表中的数据，在当前日期的后面再增加周期数量的数据
-                if(defectNum!="0")
+                if (defectNum!="0")
                 {
                     string sqlIsToday = " select VerifyDate from VP_VerifyPostDetail where VerifyPostDID='{0}' ";
                     sqlIsToday = string.Format(sqlIsToday, verifypostdid);
@@ -316,7 +346,7 @@ and VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where VerifyPo
                         //根据周期重新添加数据
                         IDatabase database = DataFactory.Database();
                         DbTransaction isOpenTrans = database.BeginTrans();
-                        string sqlGetinfo = @" select a.*,cast(dbo.[GetAllDefectNum](a.VerifyPostID) as int) as DefectNumAll
+                        string sqlGetinfo = @" select a.*,cast(dbo.[GetAllDefectNum]('{0}') as int) as DefectNumAll
 from VP_VerifyPost a left join VP_VerifyPostDetail b on a.VerifyPostID=b.VerifyPostID 
 where a.VerifyPostID in 
 (select VerifyPostID from VP_VerifyPostDetail where VerifyPostDID='{0}') ";
@@ -359,7 +389,7 @@ where a.VerifyPostID in
                     //不是当天的数据
                     else
                     {
-                        string sqlCount = @" select a.*,b.VerifyCycle,b.OneLevelAlarm,b.TwoLevelAlarm,b.ThreeLevelAlarm,cast(dbo.[GetAllDefectNum](a.VerifyPostID) as int) as DefectNumAll
+                        string sqlCount = @" select a.*,b.VerifyCycle,b.OneLevelAlarm,b.TwoLevelAlarm,b.ThreeLevelAlarm,cast(dbo.[GetAllDefectNum]('{0}') as int) as DefectNumAll
 from VP_VerifyPostDetail a left join VP_VerifyPost b on a.VerifyPostID=b.VerifyPostID 
 where a.VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where VerifyPostDID='{0}') and cast(a.VerifyDate as date)>=cast('{1}' as date) 
 order by VerifyDate desc ";
@@ -453,7 +483,7 @@ where a.VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where Veri
                             //获取快速反应的数据
                            
                             rapidentity.Create();
-                            rapidentity.res_ms = "岗位验证："+dtGetMessage.Rows[0]["FullName"].ToString()+" "+dtGetMessage.Rows[0]["SetReason"].ToString();
+                            rapidentity.res_ms = "岗位验证已达到三级预警，"+"当天的缺陷数量已达到 "+ DefectNumAll + "：" + dtGetMessage.Rows[0]["FullName"].ToString()+" "+dtGetMessage.Rows[0]["SetReason"].ToString();
                             rapidentity.res_cpeo = dtGetMessage.Rows[0]["ResponseBy"].ToString();
                             rapidentity.res_cdate = DateTime.Now;
 
@@ -507,7 +537,7 @@ where a.VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where Veri
                                 //获取快速反应的数据
 
                                 rapidentity.Create();
-                                rapidentity.res_ms = "岗位验证：" + dtGetMessage.Rows[0]["FullName"].ToString() + " " + dtGetMessage.Rows[0]["SetReason"].ToString();
+                                rapidentity.res_ms = "岗位验证已达到二级预警,"+"当天的缺陷数量已达到 "+ DefectNumAll+":" + dtGetMessage.Rows[0]["FullName"].ToString() + " " + dtGetMessage.Rows[0]["SetReason"].ToString();
                                 rapidentity.res_cpeo = dtGetMessage.Rows[0]["ResponseBy"].ToString();
                                 rapidentity.res_cdate = DateTime.Now;
 
@@ -563,7 +593,7 @@ where a.VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where Veri
                                     //获取快速反应的数据
 
                                     generalentity.Create();
-                                    generalentity.ProblemDescripe = "岗位验证：" + dtGetMessage.Rows[0]["FullName"].ToString() + " " + dtGetMessage.Rows[0]["SetReason"].ToString();
+                                    generalentity.ProblemDescripe = "岗位验证已达到一级预警," + "当天的缺陷数量已达到 " + DefectNumAll +":" + dtGetMessage.Rows[0]["FullName"].ToString() + " " + dtGetMessage.Rows[0]["SetReason"].ToString();
                                     generalentity.ResponseBy = dtGetMessage.Rows[0]["ResponseBy"].ToString();
                                     generalentity.HappenDate = DateTime.Now;
                                     generalentity.CauseAnalysis = "&nbsp;";
@@ -587,7 +617,7 @@ where a.VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where Veri
                 if(temp=="6"&&Convert.ToInt32(defectNum)==0)
                 {
                     //当天最后一次，并且失效数量是0的话，检验下是否连续的无失效天数大于等于周期
-                    string sql = @"select dbo.[GetContinuousDayByVeryPostDID]('{0}')";
+                    string sql = @"select isnull(dbo.[GetContinuousDayByVeryPostDID]('{0}'),0)";
                     sql = string.Format(sql, verifypostdid);
 
                     DataTable dt = VerifyPostBll.GetDataTable(sql);
@@ -614,9 +644,9 @@ where VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where Verify
                     }
 
                 }
-                
             }
-            VerifyPostBll.ExecuteSql(strSql);
+            //移动到前面去，不然界限判定会有问题
+            //VerifyPostBll.ExecuteSql(strSql);
             return "0";
         }
 

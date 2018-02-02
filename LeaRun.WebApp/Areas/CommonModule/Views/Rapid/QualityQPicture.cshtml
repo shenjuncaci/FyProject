@@ -1,0 +1,336 @@
+﻿@{
+    ViewBag.Title = "QualityQPicture";
+}
+
+<link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+<link href="~/Content/Styles/learunui-accordion.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+<script src="~/Content/Scripts/learunui-framework.js"></script>
+
+<link href="~/Content/Scripts/jquery.triangle/css/index.css" rel="stylesheet" />
+
+
+<div class="bottomline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>
+                年份：
+            </th>
+            <td>
+                <select id="Year" class="select"></select>
+            </td>
+            <th>
+                月份：
+            </th>
+            <td>
+                <select id="Month" class="select"></select>
+            </td>
+
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+        </tr>
+    </table>
+</div>
+
+<table style="float:left;margin-left:60px">
+    
+    <tr>
+        <td>
+        <div class="main5">
+            <div id="31" class="triangle31" style="margin-left: 395px;">
+                <div class="trian_texta" style="background-color:green">31</div>
+            </div>
+        </div>
+            </td>
+    </tr>
+    <tr style="height:5px"></tr>
+    <tr>
+        <td>
+
+            <div class="main4">
+                <div id="28" class="triangle28" style="margin-left: 320px;">
+                    <div class="trian_texta">28</div>
+                </div>
+                <div id="29" class="triangle29">
+                    <div class="trian_textb">29</div>
+                </div>
+                <div id="30" class="triangle30">
+                    <div class="trian_texta">30</div>
+                </div>
+            </div>
+
+        </td>
+    </tr>
+    <tr style="height:5px"></tr>
+    <tr>
+        <td>
+
+            <div class="main3">
+                <div id="none1" class="trianglenone1" style="margin-left: 245px;">
+                    
+                </div>
+                <div id="none2" class="trianglenone2">
+                    
+                </div>
+                <div id="none3" class="trianglenone3">
+                    
+                </div>
+                <div id="none4" class="trianglenone4">
+                    
+                </div>
+                <div id="none5" class="trianglenone5">
+
+                </div>
+                
+
+
+            </div>
+
+        </td>
+    </tr>
+    <tr style="height:5px"></tr>
+    <tr>
+        <td>
+
+            <div class="main2">
+                <div id="21" class="triangle21" style="margin-left: 170px;">
+                    <div class="trian_texta">21</div>
+                </div>
+                <div id="22" class="triangle22">
+                    <div class="trian_textb">22</div>
+                </div>
+                <div id="23" class="triangle23">
+                    <div class="trian_texta">23</div>
+                </div>
+                <div id="24" class="triangle24">
+                    <div class="trian_textb">24</div>
+                </div>
+                <div id="25" class="triangle25">
+                    <div class="trian_texta">25</div>
+                </div>
+                <div id="26" class="triangle26">
+                    <div class="trian_textb">26</div>
+                </div>
+                <div id="27" class="triangle27">
+                    <div class="trian_texta">27</div>
+                </div>
+                
+
+            </div>
+
+        </td>
+    </tr>
+    <tr style="height:5px"></tr>
+    <tr>
+        <td>
+            
+                <div class="main2">
+                    <div id="12" class="triangle12" style="margin-left: 95px;">
+                        <div class="trian_texta">12</div>
+                    </div>
+                    <div id="13" class="triangle13">
+                        <div class="trian_textb">13</div>
+                    </div>
+                    <div id="14" class="triangle14">
+                        <div class="trian_texta">14</div>
+                    </div>
+                    <div id="15" class="triangle15">
+                        <div class="trian_textb">15</div>
+                    </div>
+                    <div id="16" class="triangle16">
+                        <div class="trian_texta">16</div>
+                    </div>
+                    <div id="17" class="triangle17">
+                        <div class="trian_textb">17</div>
+                    </div>
+                    <div id="18" class="triangle18">
+                        <div class="trian_texta">18</div>
+                    </div>
+                    <div id="19" class="triangle19">
+                        <div class="trian_textb">19</div>
+                    </div>
+                    <div id="20" class="triangle20">
+                        <div class="trian_texta">20</div>
+                    </div>
+
+                </div>
+            
+        </td>
+    </tr>
+    <tr style="height:5px"></tr>
+    <tr>
+        <td>
+            <div class="main1">
+                <div id="1" class="triangle1" style="margin-left: 20px;">
+                    <div class="trian_texta">1</div>
+                </div>
+                <div id="2" class="triangle2">
+                    <div class="trian_textb">2</div>
+                </div>
+                <div id="3" class="triangle3">
+                    <div class="trian_texta">3</div>
+                </div>
+                <div id="4" class="triangle4">
+                    <div class="trian_textb">4</div>
+                </div>
+                <div id="5" class="triangle5">
+                    <div class="trian_texta">5</div>
+                </div>
+                <div id="6" class="triangle6">
+                    <div class="trian_textb">6</div>
+                </div>
+                <div id="7" class="triangle7">
+                    <div class="trian_texta">7</div>
+                </div>
+                <div id="8" class="triangle8">
+                    <div class="trian_textb">8</div>
+                </div>
+                <div id="9" class="triangle9">
+                    <div class="trian_texta">9</div>
+                </div>
+                <div id="10" class="triangle10">
+                    <div class="trian_textb">10</div>
+                </div>
+                <div id="11" class="triangle11">
+                    <div class="trian_texta">11</div>
+                </div>
+            </div>
+        </td>
+    </tr>
+</table>
+<table style="float:right;text-align:left">
+    <tr>
+        <td>
+    <div style="background-color:green;width:100px;height:50px">
+    </div>
+        </td>
+        <td>
+            质量稳定
+        </td>
+     </tr>
+    <tr>
+        <td>
+            <div style="background-color:yellow;width:100px;height:50px">
+            </div>
+        </td>
+        <td>
+            内部质量问题
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <div style="background-color:red;width:100px;height:50px">
+            </div>
+        </td>
+        <td>
+            外部质量问题
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <div style="background-color:darkred;width:100px;height:50px">
+            </div>
+        </td>
+        <td>
+            外部+内部质量问题
+        </td>
+    </tr>
+</table>
+
+
+    <script>
+        $(document).ready(function () {
+            $(".triangle1,.triangle3,.triangle5,.triangle7,.triangle9,.triangle11").animate({ marginTop: 0, opacity: 'show' }, { duration: 100 });
+            $(".triangle2,.triangle4,.triangle6,.triangle8,.triangle10").animate({ marginTop: 0, opacity: 'show' }, { duration: 100 });
+
+            $(".triangle13,.triangle15,.triangle17,.triangle19").animate({ marginTop: 0, opacity: 'show' }, { duration: 100 });
+            $(".triangle12,.triangle14,.triangle16,.triangle18,.triangle20").animate({ marginTop: 0, opacity: 'show' }, { duration: 100 });
+
+            $(".triangle22,.triangle24,.triangle26").animate({ marginTop: 0, opacity: 'show' }, { duration: 100 });
+            $(".triangle21,.triangle23,.triangle25,.triangle27").animate({ marginTop: 0, opacity: 'show' }, { duration: 100 });
+
+            $(".trianglenone1,.trianglenone3,.trianglenone5").animate({ marginTop: 0, opacity: 'show' }, { duration: 100 });
+            $(".trianglenone2,.trianglenone4").animate({ marginTop: 0, opacity: 'show' }, { duration: 100 });
+
+            $(".triangle28,.triangle30").animate({ marginTop: 0, opacity: 'show' }, { duration: 100 });
+            $(".triangle29").animate({ marginTop: 0, opacity: 'show' }, { duration: 100 });
+
+            $(".triangle31").animate({ marginTop: 0, opacity: 'show' }, { duration: 100 });
+
+
+            //从后台获取数据，按照
+            //首先加载搜索项中的数据绑定
+            BindData();
+
+            //使用js修改背景颜色
+            //$("#21").css("border-bottom", "100px solid rgba(255, 0, 0, 0.8)");
+
+            
+        });
+
+        function btn_Search() {
+            var direction = "";
+            AjaxJson("/CommonModule/Rapid/QPictureListJson", {Year:$("#Year").val(),Month:$("#Month").val()}, function (DataJson) {
+                $.each(DataJson, function (i) {
+                    if (DataJson[i].BasicDay == "1" || DataJson[i].BasicDay == "3" || DataJson[i].BasicDay == "5"
+                        || DataJson[i].BasicDay == "7" || DataJson[i].BasicDay == "9" || DataJson[i].BasicDay == "11"
+                        || DataJson[i].BasicDay == "12" || DataJson[i].BasicDay == "14" || DataJson[i].BasicDay == "16"
+                        || DataJson[i].BasicDay == "18" || DataJson[i].BasicDay == "20" || DataJson[i].BasicDay == "21"
+                        || DataJson[i].BasicDay == "23" || DataJson[i].BasicDay == "25" || DataJson[i].BasicDay == "27"
+                        || DataJson[i].BasicDay == "28" || DataJson[i].BasicDay == "30" || DataJson[i].BasicDay == "31")
+                    {
+                        direction = "border-bottom";
+                    }
+                    else
+                    {
+                        direction = "border-top";
+                    }
+
+                    if (DataJson[i].waibuNum > 0 && DataJson[i].neiNum > 0) {
+                        
+                        $("#" + DataJson[i].BasicDay + "").css(direction, "100px solid rgba(139, 0, 0, 0.8)");
+                    }
+                    else {
+                        if (DataJson[i].waibuNum > 0) {
+                            
+                            $("#" + DataJson[i].BasicDay + "").css(direction, "100px solid rgba(255, 0, 0, 0.8)");
+                        }
+                        else if (DataJson[i].neiNum > 0) {
+                            
+                            $("#" + DataJson[i].BasicDay + "").css(direction, "100px solid rgba(255, 255, 0, 0.8)");
+                        }
+                        else {
+                           
+                            $("#" + DataJson[i].BasicDay + "").css(direction, "100px solid rgba(0, 128, 0, 0.8)");
+                        }
+                    }
+                });
+            })
+        }
+
+        function BindData() {
+
+
+            $("#Year").html("");
+
+            $("#Year").append("<option value=''>==请选择==</option>");
+            AjaxJson("/CommonModule/Rapid/YearListJson", {}, function (DataJson) {
+                $.each(DataJson, function (i) {
+                    $("#Year").append($("<option></option>").val(DataJson[i].year).html(DataJson[i].year));
+                });
+            })
+
+            $("#Month").html("");
+
+            $("#Month").append("<option value=''>==请选择==</option>");
+            AjaxJson("/CommonModule/Rapid/MonthListJson", {}, function (DataJson) {
+                $.each(DataJson, function (i) {
+                    $("#Month").append($("<option></option>").val(DataJson[i].month).html(DataJson[i].month));
+                });
+            })
+        }
+
+    </script>
+
+

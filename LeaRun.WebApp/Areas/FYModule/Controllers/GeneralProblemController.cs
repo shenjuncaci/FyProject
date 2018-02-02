@@ -298,7 +298,7 @@ where 1=1  ";
         public string RejectIt(string GeneralProblemID)
         {
             StringBuilder strSql = new StringBuilder();
-            strSql.AppendFormat(@" update FY_GeneralProblem set finishstatus='回退' where  GeneralProblemID='{0}' and finishstatus!='已完成' ", GeneralProblemID);
+            strSql.AppendFormat(@" update FY_GeneralProblem set finishstatus='回退' where  GeneralProblemID='{0}' ", GeneralProblemID);
             GeneralProblemBll.ExecuteSql(strSql);
             return "0";
         }

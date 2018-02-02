@@ -106,7 +106,7 @@ from Base_Department a where DepartmentId='{0}' ";
             DbTransaction isOpenTrans = database.BeginTrans();
             try
             {
-                string Message = KeyValue == "" ? "新增成功。" : "编辑成功。";
+                string Message = KeyValue == "" ? "新增成功,等待人事部审批。" : "编辑成功。";
                 if (!string.IsNullOrEmpty(KeyValue))
                 {
                     if (KeyValue == ManageProvider.Provider.Current().UserId)
@@ -123,7 +123,7 @@ from Base_Department a where DepartmentId='{0}' ";
                 }
                 else
                 {
-                    string sql = " select * from tr_skill where skillname='{0}' ";
+                    string sql = " select * from tr_skill where skillname='{0}' and enable=1 ";
                     sql = string.Format(sql, entity.SkillName);
                     DataTable dt = SkillBll.GetDataTable(sql);
                     if(dt.Rows.Count>0)
@@ -470,7 +470,14 @@ from Base_Department a where DepartmentId='{0}' ";
                 string[] SkillArrary = new string[4];
 
                 string table = "";
-                table += " <table id=\"mytable\" class=\"gridtable\" width=\"90%\"> ";
+
+                //为了配合列数来调整每一个th的宽度~~~
+                int tempwidth = dt.Columns.Count * 4;
+                if(tempwidth>100)
+                {
+                    tempwidth = 100;
+                }
+                table += " <table id=\"mytable\" class=\"gridtable\" width=\""+tempwidth+"%\"> ";
 
                 //分解dt中的数据，再进行组合查询
                 if (dt.Columns.Count > 0)
@@ -490,7 +497,7 @@ from Base_Department a where DepartmentId='{0}' ";
                         {
                             if (i == 0)
                             {
-                                table += "<th>工号</th>";
+                                table += "<th><h4>工号</h4></th>";
                             }
 
 
@@ -603,15 +610,15 @@ and f.SkillID = '" + SkillArrary[1] + "' and d.UserId = '" + dt.Rows[j][0].ToStr
 
                         double srdL = Math.Round(100.0 * SrdFz / SrdFm, 0);
                         string bgcolor = "";
-                        if(srdL>=80)
+                        if(srdL>=70)
                         {
-                            if (srdL >= 90)
+                            if (srdL >= 80)
                             {
                                 bgcolor = "green";
                             }
                             else
                             {
-                                bgcolor = "red";
+                                bgcolor = "yellow";
                             }
                         }
                         else

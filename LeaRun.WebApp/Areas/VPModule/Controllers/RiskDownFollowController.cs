@@ -433,6 +433,13 @@ where 1=1 and a.FollowID='{0}' ";
             }
         }
 
+        public ActionResult YearListJson()
+        {
+            string sql = " select distinct year(CreateDt) as year from VP_RiskDownFollow where 1=1  ";
+            DataTable dt = RiskDownFollowBll.GetDataTable(sql);
+            return Content(dt.ToJson());
+        }
+
 
 
 

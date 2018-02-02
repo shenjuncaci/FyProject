@@ -19,7 +19,13 @@ namespace LeaRun.Business
         {
             StringBuilder strSql = new StringBuilder();
             List<DbParameter> parameter = new List<DbParameter>();
-            strSql.Append(@" select * from tr_skill where Enable=1 and IsAudit=1 and  (DepartmentID='" + ManageProvider.Provider.Current().DepartmentId+ "' or DepartmentID in (select DepartmentId from Base_Department where ParentId='"+ManageProvider.Provider.Current().DepartmentId+"'))  ");
+            strSql.Append(@" select * from tr_skill where Enable=1 and IsAudit=1  ");
+
+            if(ManageProvider.Provider.Current().ObjectId.IndexOf("33a32375-8723-46d3-b4c9-ca19de367d34")<0)
+            {
+                strSql.AppendFormat(" and  (DepartmentID='" + ManageProvider.Provider.Current().DepartmentId + "' or DepartmentID in (select DepartmentId from Base_Department where ParentId='" + ManageProvider.Provider.Current().DepartmentId + "'))  ");
+            }
+
             if (!string.IsNullOrEmpty(keyword))
             {
                 strSql.Append(keyword);
@@ -68,7 +74,7 @@ namespace LeaRun.Business
             return Repository().FindDataSetByProc("SkillMatrix", parameter.ToArray()).Tables[0];
         }
 
-        //修改技能矩阵的制作思路
+        //修改技能矩阵的制作思路,选出基本的框架，内里的数据根据行列在一个个计算，效率不敢恭维，幸好服务器的配置高
         public DataTable GetSkill(string DepartmentID)
         {
             string sql = @"select f.SkillID,f.SkillName

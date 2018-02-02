@@ -1099,6 +1099,37 @@ delegate (Object obj, X509Certificate certificate, X509Chain chain, SslPolicyErr
             return "0";
         }
 
+        public ActionResult QualityQPicture()
+        {
+            return View();
+        }
+
+        public ActionResult YearListJson()
+        {
+            string sql = " select distinct(year(res_cdate)) year from FY_Rapid where 1=1 ";
+            DataTable dt = rapidbll.GetDataTable(sql);
+            return Content(dt.ToJson());
+        }
+
+        public ActionResult MonthListJson()
+        {
+            string sql = " select basicmonth as month from Base_Month ";
+            DataTable dt = rapidbll.GetDataTable(sql);
+            return Content(dt.ToJson());
+        }
+
+        public ActionResult QPictureListJson(string Year,string Month)
+        {
+            
+            string sql = @" select *,
+(select count(*) from FY_Rapid where YEAR(res_cdate)='{0}' and MONTH(res_cdate)='{1}' and DAY(res_cdate)=a.basicday and res_ok='外部' ) as waibuNum,
+(select count(*) from FY_Rapid where YEAR(res_cdate)='{0}' and MONTH(res_cdate)='{1}' and DAY(res_cdate)=a.basicday and res_ok='内部' ) as neiNum  
+from base_day a where 1=1 order by a.basicday ";
+            sql = string.Format(sql, Year, Month);
+            DataTable dt = rapidbll.GetDataTable(sql);
+            return Content(dt.ToJson());
+        }
+
 
 
     }

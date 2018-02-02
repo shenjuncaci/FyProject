@@ -21,7 +21,7 @@ namespace LeaRun.Business
             List<DbParameter> parameter = new List<DbParameter>();
             strSql.Append(@" select *,
 (select sum(DefectNum1+DefectNum2+DefectNum3+DefectNum4+DefectNum5+DefectNum6) from VP_VerifyPostDetail where VerifyPostID=a.VerifyPostID) as DefectNum,
-dbo.[GetContinuousDayByVeryPostID](a.VerifyPostID) as ZeroNum,
+isnull(dbo.[GetContinuousDayByVeryPostID](a.VerifyPostID),0) as ZeroNum,
 '查看' as trend
 from VP_VerifyPost a where 1=1   ");
             if (!string.IsNullOrEmpty(keyword))

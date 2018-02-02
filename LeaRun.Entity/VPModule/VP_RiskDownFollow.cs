@@ -45,6 +45,7 @@ namespace LeaRun.Entity
         public int AfterPriorityLevel { get; set; }
 
         public string FinishState { get; set; }
+        public DateTime? CreateDt { get; set; }
 
         #region 扩展操作
         /// <summary>
@@ -54,6 +55,7 @@ namespace LeaRun.Entity
         {
             this.FollowID = CommonHelper.GetGuid;
             this.FinishState = "进行中";
+            this.CreateDt = DateTime.Now;
             //this.CreateBy
         }
 

@@ -29,6 +29,7 @@ where 1=1   ");
                 //strSql.Append(@" AND (ReviewContent LIKE @keyword
                 //                    )");
                 //parameter.Add(DbFactory.CreateDbParameter("@keyword", '%' + keyword + '%'));
+                strSql.Append(keyword);
             }
             if (!string.IsNullOrEmpty(ParameterJson) && ParameterJson.Length > 2)
             {
