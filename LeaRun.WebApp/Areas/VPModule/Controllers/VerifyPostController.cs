@@ -442,7 +442,7 @@ order by VerifyDate desc ";
                     {
                         //大于三级警报，将问题加入到快反，并发送邮件给总经理、生产副总、质量副总、质量经理、厂长、车间主任、班长
                         //获取邮件名单sql
-                        string sqlGetEmail = @" select Email from Base_User  a
+                        string sqlGetEmail = @" select Email,a.code from Base_User  a
 where exists( select * from Base_ObjectUserRelation where UserId=a.UserId and
 ObjectId in ('15f14d9c-e74c-46ac-8641-b3c1bac26940','8431ea77-69c9-484c-a67f-4f3419c0d393') )
 or ( 
@@ -454,6 +454,7 @@ and (DepartmentId='{0}' or DepartmentId in (select ParentId from Base_Department
                         sqlGetEmail = string.Format(sqlGetEmail, ManageProvider.Provider.Current().DepartmentId);
                         DataTable dtEmail = VerifyPostBll.GetDataTable(sqlGetEmail);
                         string EmailList = "";
+                        string WeChatList = "";
                         if(dtEmail.Rows.Count>0)
                         {
                             for(int i=0;i<dtEmail.Rows.Count;i++)
@@ -461,10 +462,13 @@ and (DepartmentId='{0}' or DepartmentId in (select ParentId from Base_Department
                                 if (dtEmail.Rows[i][0].ToString() != "&nbsp;")
                                 {
                                     EmailList += dtEmail.Rows[i][0].ToString() + ",";
+                                    WeChatList += dtEmail.Rows[i][1].ToString() + "|";
                                 }
                             }
                             EmailList = EmailList.Substring(0, EmailList.Length - 1);
+                            WeChatList = WeChatList.Substring(0, WeChatList.Length - 1);
                             SendEmailByAccount(EmailList, " 岗位验证已达到三级预警，请登录系统查看! ");
+                            WeChatHelper.SendWxMessage(WeChatList, " 岗位验证已达到三级预警，请登录系统查看! ");
                         }
 
                         //插入问题到快速反应
@@ -501,13 +505,14 @@ where a.VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where Veri
                         if(DefectNumAll>=TwoLevelAlarm)
                         {
                             //触发二级警报,厂长，质量经理，车间主任，班长
-                            string sqlGetEmail = @" select Email from Base_User  a
+                            string sqlGetEmail = @" select Email,code from Base_User  a
 where exists ( select * from Base_ObjectUserRelation where UserId=a.UserId and
 ObjectId in ('91c17ca4-0cbf-43fa-829e-3021b055b6c4','f6afd4e4-6fb2-446f-88dd-815ddb91b09d') )
 and (DepartmentId='{0}' or DepartmentId in (select ParentId from Base_Department where DepartmentId='{0}' ) ) ";
                             sqlGetEmail = string.Format(sqlGetEmail, ManageProvider.Provider.Current().DepartmentId);
                             DataTable dtEmail = VerifyPostBll.GetDataTable(sqlGetEmail);
                             string EmailList = "";
+                            string WeChatList = "";
                             if (dtEmail.Rows.Count > 0)
                             {
                                 for (int i = 0; i < dtEmail.Rows.Count; i++)
@@ -515,10 +520,13 @@ and (DepartmentId='{0}' or DepartmentId in (select ParentId from Base_Department
                                     if (dtEmail.Rows[i][0].ToString() != "&nbsp;")
                                     {
                                         EmailList += dtEmail.Rows[i][0].ToString() + ",";
+                                        WeChatList += dtEmail.Rows[i][1].ToString() + "|";
                                     }
                                 }
                                 EmailList +=" li.wang@fuyaogroup.com ";
+                                WeChatList += "008955";
                                 SendEmailByAccount(EmailList, " 岗位验证已达到二级预警，请登录系统查看! ");
+                                WeChatHelper.SendWxMessage(WeChatList, " 岗位验证已达到二级预警，请登录系统查看! ");
                             }
 
                             //插入问题到快速反应
@@ -555,7 +563,7 @@ where a.VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where Veri
                             if(DefectNumAll>=OneLevelAlarm)
                             {
                                 //触发一级警报,车间主任，班长
-                                string sqlGetEmail = @" select Email from Base_User  a
+                                string sqlGetEmail = @" select Email,code from Base_User  a
 where exists ( select * from Base_ObjectUserRelation where UserId=a.UserId and
 ObjectId in ('91c17ca4-0cbf-43fa-829e-3021b055b6c4','f6afd4e4-6fb2-446f-88dd-815ddb91b09d') )
 and (DepartmentId='{0}' 
@@ -564,6 +572,7 @@ and (DepartmentId='{0}'
                                 sqlGetEmail = string.Format(sqlGetEmail, ManageProvider.Provider.Current().DepartmentId);
                                 DataTable dtEmail = VerifyPostBll.GetDataTable(sqlGetEmail);
                                 string EmailList = "";
+                                string WeChatList = "";
                                 if (dtEmail.Rows.Count > 0)
                                 {
                                     for (int i = 0; i < dtEmail.Rows.Count; i++)
@@ -571,10 +580,13 @@ and (DepartmentId='{0}'
                                         if (dtEmail.Rows[i][0].ToString() != "&nbsp;")
                                         {
                                             EmailList += dtEmail.Rows[i][0].ToString() + ",";
+                                            WeChatList += dtEmail.Rows[i][1].ToString() + "|";
                                         }
                                     }
                                     EmailList = EmailList.Substring(0, EmailList.Length - 1);
+                                    WeChatList = WeChatList.Substring(0, WeChatList.Length - 1);
                                     SendEmailByAccount(EmailList, " 岗位验证已达到一级预警，请登录系统查看! ");
+                                    WeChatHelper.SendWxMessage(WeChatList, " 岗位验证已达到一级预警，请登录系统查看! ");
                                 }
 
                                 //插入问题到一般问题处理流程
