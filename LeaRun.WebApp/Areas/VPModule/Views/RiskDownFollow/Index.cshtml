@@ -70,7 +70,7 @@
             keywords += " and YEAR(CreateDt)='" + $("#Year").val() + "' ";
         }
         $("#gridTable").jqGrid('setGridParam', {
-            url: "@Url.Content("~/VPModule/RiskDownFollow/GridPageListJson")?keywords=" + escape(keywords), page: 1
+            url: "@Url.Content("~/VPModule/RiskDownFollow/GridPageListJson")?keywords=" + escape(keywords) + "&ResponseBy=" + GetQuery('ResponseBy'), page: 1
         }).trigger('reloadGrid');
     }
 
@@ -79,7 +79,7 @@
     function GetGrid() {
         var SelectRowIndx;
         $("#gridTable").jqGrid({
-            url: "@Url.Content("~/VPModule/RiskDownFollow/GridPageListJson")",
+            url: "@Url.Content("~/VPModule/RiskDownFollow/GridPageListJson")?ResponseBy=" + GetQuery('ResponseBy'),
             datatype: "json",
             height: $(window).height() - 228,
             autowidth: true,
@@ -144,6 +144,8 @@
         $("#gridTable").jqGrid('setGroupHeaders', {
             useColSpanStyle: false,
             groupHeaders: [
+               
+                { startColumnName: 'highriskitem', numberOfColumns: 10, titleText: '主导人填写' },
                 { startColumnName: 'evidence', numberOfColumns: 2, titleText: '责任人上传' },
                 { startColumnName: 'iseffective', numberOfColumns: 6, titleText: '风险降低管理员评审' },
             ]

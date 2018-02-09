@@ -69,11 +69,11 @@
         var SkillName = $("#SkillName").val();
         var SkillType = $("#SkillType").val();
         //var IsExam = $("#IsExam").val();
-        if (CheckIsNull(SkillName))
+        if (CheckIsNullNoTip(SkillName))
         {
             keywords += " and SkillName like '%" + SkillName + "%' ";
         }
-        if (CheckIsNull(SkillType))
+        if (CheckIsNullNoTip(SkillType))
         {
             keywords += " and SkillType like '%" + SkillType + "%' ";
         }

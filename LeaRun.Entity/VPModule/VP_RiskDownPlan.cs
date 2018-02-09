@@ -25,13 +25,13 @@ namespace LeaRun.Entity
 
         [DisplayName("主键")]
         public string RiskDownPlanID { get; set; }
-
         public string AuditProcess { get; set; }
         public string Leader { get; set; }
         public DateTime? PlanStartDt { get; set; }
         public DateTime? PlanEndDt { get; set; }
         public DateTime? RealEndDt { get; set; }
         public string FinishStatus { get; set; }
+        public string Remark { get; set; }
 
 
         #region 扩展操作

@@ -110,6 +110,7 @@
     <Compile Include="Base.Web\SessionHelper.cs" />
     <Compile Include="Base.Extension\ManageProvider.cs" />
     <Compile Include="Base.Web\ToState.cs" />
+    <Compile Include="Base.WeChat\WeChatHelper.cs" />
     <Compile Include="Base.Xml\XMLHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -121,6 +122,9 @@
       <Project>{7d1a96cf-9b89-443f-ab95-12343f52a1ac}</Project>
       <Name>LeaRun.DataAccess</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Base.WeChat\AccessToken.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

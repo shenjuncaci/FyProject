@@ -93,6 +93,9 @@ namespace LeaRun.WebApp.Areas.CommonModule.Controllers
                     rapid.Modify(KeyValue);
                     if (rapid.IsEmail != 1)
                     {
+                        //测试下微信公众号消息通知
+                        WeChatHelper.SendWxMessage(rapid.res_cpeo, "您好，您有一条新的快速反应需要处理，具体如下：" + rapid.res_ms + "\n 请登录系统处理：172.19.0.5:8086  ");
+
                         int IsEmail = SendEmail(rapid.res_cpeo, "您好，您有一条新的快速反应需要处理，具体如下：" + rapid.res_ms + "\n 请登录系统处理：172.19.0.5:8086  ");
                         rapid.IsEmail = IsEmail;
                     }
@@ -111,11 +114,24 @@ namespace LeaRun.WebApp.Areas.CommonModule.Controllers
                 }
                 else
                 {
+                    
+
+
                     rapid.Create();
+                    //测试下微信公众号消息通知
+                    WeChatHelper.SendWxMessage(rapid.res_cpeo, "您好，您有一条新的快速反应需要处理，具体如下：" + rapid.res_ms + "\n 请登录系统处理：172.19.0.5:8086  ");
                     int IsEmail = SendEmail(rapid.res_cpeo, "您好，您有一条新的快速反应需要处理，具体如下：" + rapid.res_ms + "\n 请登录系统处理：172.19.0.5:8086  ");
                     rapid.IsEmail = IsEmail;
                     rapid.PlanTime = rapid.res_cdate.AddDays(40);
                     database.Insert(rapid, isOpenTrans);
+
+                    //创建的同时新增一条记录到VP_RiskDownFlow
+                    VP_RiskDownFollow followentity = new VP_RiskDownFollow();
+                    followentity.Create();
+                    followentity.HighRiskItem = rapid.res_ms;
+                    database.Insert(followentity, isOpenTrans);
+                    
+
                     //database.Insert(base_employee, isOpenTrans);
                     Base_DataScopePermissionBll.Instance.AddScopeDefault(ModuleId, ManageProvider.Provider.Current().UserId, rapid.res_id, isOpenTrans);
                 }
@@ -1111,9 +1127,9 @@ delegate (Object obj, X509Certificate certificate, X509Chain chain, SslPolicyErr
             return Content(dt.ToJson());
         }
 
-        public ActionResult MonthListJson()
+        public ActionResult MonthListJson(string Year)
         {
-            string sql = " select basicmonth as month from Base_Month ";
+            string sql = " select distinct MONTH(res_cdate) as month from FY_Rapid where Year(res_cdate)='" + Year+"' ";
             DataTable dt = rapidbll.GetDataTable(sql);
             return Content(dt.ToJson());
         }
@@ -1123,7 +1139,8 @@ delegate (Object obj, X509Certificate certificate, X509Chain chain, SslPolicyErr
             
             string sql = @" select *,
 (select count(*) from FY_Rapid where YEAR(res_cdate)='{0}' and MONTH(res_cdate)='{1}' and DAY(res_cdate)=a.basicday and res_ok='外部' ) as waibuNum,
-(select count(*) from FY_Rapid where YEAR(res_cdate)='{0}' and MONTH(res_cdate)='{1}' and DAY(res_cdate)=a.basicday and res_ok='内部' ) as neiNum  
+(select count(*) from FY_Rapid where YEAR(res_cdate)='{0}' and MONTH(res_cdate)='{1}' and DAY(res_cdate)=a.basicday and res_ok='内部' ) as neiNum,
+IsOverDue=case when '{1}'=MONTH(GETDATE()) and a.BasicDay>DAY(GETDATE()) then 1 else 0 end 
 from base_day a where 1=1 order by a.basicday ";
             sql = string.Format(sql, Year, Month);
             DataTable dt = rapidbll.GetDataTable(sql);

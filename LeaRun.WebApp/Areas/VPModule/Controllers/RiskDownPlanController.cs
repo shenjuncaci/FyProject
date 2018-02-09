@@ -158,7 +158,7 @@ namespace LeaRun.WebApp.Areas.VPModule.Controllers
         public string FinishIt(string RiskDownPlanID)
         {
             StringBuilder strSql = new StringBuilder();
-            strSql.AppendFormat(@" update VP_RiskDownFollow set FinishStatus='已完成',RealEndDt=GETDATE() where  RiskDownPlanID='{0}' and FinishStatus!='已完成' ", RiskDownPlanID);
+            strSql.AppendFormat(@" update VP_RiskDownPlan set FinishStatus='已完成',RealEndDt=GETDATE() where  RiskDownPlanID='{0}' and FinishStatus!='已完成' ", RiskDownPlanID);
             RiskDownBll.ExecuteSql(strSql);
             return "0";
         }
@@ -166,7 +166,7 @@ namespace LeaRun.WebApp.Areas.VPModule.Controllers
 
         public ActionResult YearListJson()
         {
-            string sql = " select distinct YEAR(PlanFinishDt) as year from VP_RiskDownFollow where 1=1  ";
+            string sql = "  select distinct YEAR(PlanEndDt) as year from VP_RiskDownPlan where 1=1    ";
             DataTable dt = RiskDownBll.GetDataTable(sql);
             return Content(dt.ToJson());
         }

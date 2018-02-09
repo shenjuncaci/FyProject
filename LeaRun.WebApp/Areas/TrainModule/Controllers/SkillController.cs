@@ -177,6 +177,8 @@ from Base_Department a where DepartmentId='{0}' ";
                 int IsOk = 0;
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendFormat(@" update TR_Skill set enable=0 where SkillID='{0}'  ",KeyValue);
+                //将对应关系也删掉
+                strSql.AppendFormat(@" delete from TR_PostDepartmentRelationDetail where SkillID='{0}' ",KeyValue);
                 IsOk = repositoryfactory.Repository().ExecuteBySql(strSql);
                 if (IsOk > 0)
                 {
@@ -455,11 +457,12 @@ from Base_Department a where DepartmentId='{0}' ";
             return View();
         }
 
-        public string SkillMatrixData(string DepartmentID)
+        public string SkillMatrixData(string DepartmentID,string Year)
         {
             try
             {
                 if (DepartmentID == null || DepartmentID == "") { DepartmentID = ManageProvider.Provider.Current().DepartmentId; }
+                if (Year == null || Year == "") { Year = DateTime.Now.Year.ToString(); }
                 double srd = 0;
                 string[] strColumns = null;
                 DataTable dt = SkillBll.GetSkillMatrixData(DepartmentID);
@@ -567,7 +570,7 @@ from Base_Department a where DepartmentId='{0}' ";
                                 {
                                     SqlIsIN = @"select isnull(g.EvaluateScore,0) as EvaluateScore,e.SkillRequire,
 e.SkillWeight,isnull(ExamPer,0) as ExamPer,isnull(EvaluationPer,0) as EvaluationPer,
-isnull((select top 1 Score from TR_Paper where UserID=d.UserID and Skillid=f.SkillID order by PaperDate desc),0) as ExamScore
+isnull((select top 1 Score from TR_Paper where UserID=d.UserID and Skillid=f.SkillID and year(PaperDate)='{0}'  order by PaperDate desc),0) as ExamScore
 from TR_UserPost a
 left join TR_PostDepartmentRelation b on a.DepartmentPostID = b.RelationID
 left join TR_Post c on b.PostID = c.PostID
@@ -577,6 +580,7 @@ left join tr_skill f on e.SkillID = f.SkillID
 left join TR_EvaluateDetail g on g.UserPostRelationID=a.UserPostRelationID and g.SkillID=f.SkillID
 where f.SkillID is not null 
 and f.SkillID = '" + SkillArrary[1] + "' and d.UserId = '" + dt.Rows[j][0].ToString() + "' and c.PostName = '" + dt.Rows[j]["PostName"].ToString() + "'";
+                                    SqlIsIN = string.Format(SqlIsIN, Year);
                                     DtIsIn = SkillBll.GetDataTable(SqlIsIN);
                                     TempScore = Convert.ToInt32(Convert.ToInt32(DtIsIn.Rows[0]["ExamScore"].ToString())*Convert.ToInt32(DtIsIn.Rows[0]["ExamPer"].ToString())*0.01+Convert.ToInt32(DtIsIn.Rows[0]["EvaluateScore"].ToString())*Convert.ToInt32(DtIsIn.Rows[0]["EvaluationPer"].ToString())*0.01);
                                     
@@ -1249,6 +1253,13 @@ from V_ExamScore where 1=1 ");
 ");
             SkillBll.ExecuteSql(strSql);
             return "0";
+        }
+
+        public ActionResult YearJson()
+        {
+            string sql = " select distinct year(PaperDate) as year from TR_Paper ";
+            DataTable dt = SkillBll.GetDataTable(sql);
+            return Content(dt.ToJson());
         }
 
 

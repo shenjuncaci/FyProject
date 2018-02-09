@@ -91,7 +91,8 @@
                 { label: '计划开始时间', name: 'planstartdt', index: 'planstartdt', width: 100, align: 'left', formatter: dateFormat },
                 { label: '计划完成时间', name: 'planenddt', index: 'planenddt', width: 100, align: 'left', formatter: dateFormat },
                 { label: '实际完成时间', name: 'realenddt', index: 'realenddt', width: 100, align: 'left', formatter: dateFormat },
-                { label: '完成情况', name: 'finishstatus', index: 'finishstatus', width: 100, align: 'left', formatter: statusFormat},
+                { label: '完成情况', name: 'finishstatus', index: 'finishstatus', width: 100, align: 'left', formatter: statusFormat },
+                { label: '主导者ID', name: 'leader', index: 'leader', width: 80, align: 'left', hidden: true },
 
             ],
             viewrecords: true,
@@ -113,6 +114,12 @@
             gridComplete: function () {
                 //LoadViewList();
                 $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            },
+            ondblClickRow: function (RowIndx) {
+
+                var rowData = $(this).jqGrid('getRowData', RowIndx);
+
+                AddTabMenu("12250f38-1e8c-47da-ba6f-a47746dafd3e", "@Url.Content("~/VPModule/RiskDownFollow/Index")?ResponseBy=" + rowData.leader, "跟踪表", "page_white_edit.png", false);
             }
         });
         columnModelData("#gridTable");

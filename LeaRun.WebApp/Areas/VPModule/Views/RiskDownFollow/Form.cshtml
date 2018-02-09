@@ -63,10 +63,20 @@
     //    uploadify();
     //});
     $(function () {
+
+       
+
         BindData();
         InitControl();
         //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
         //BindResponseBy();
+        $('input[id$="Dt"]').each(function () {
+
+            var w = this.value.indexOf("T");
+            if (w > 0) {
+                this.value = this.value.substring(0, w);
+            }
+        });
 
 
     })
@@ -76,6 +86,38 @@
         if (!!GetQuery('KeyValue')) {
             AjaxJson("/VPModule/RiskDownFollow/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
                 SetWebControls(data);
+                
+                if (data.FinishState != "已完成")
+                {
+                   
+                    if ("@ViewData["IsAdmin"]" == "0")
+                    {
+                        var t = document.getElementById("tab3");
+                        var a = t.getElementsByTagName("input");
+                        var b = t.getElementsByTagName("select");
+                        for (var i = 0; i < a.length; i++) {
+                            a[i].setAttribute("disabled", "true");
+                        }
+                        for (var i = 0; i < b.length; i++) {
+                            b[i].setAttribute("disabled", "true");
+                        }
+                        $("#ResponseBy").prop("disabled", true);
+                        $("#PlanFinishDt").prop("disabled", true);
+                       
+                    }
+                    else
+                    {
+                        $("#ResponseBy").select2();
+                    }
+                }
+                else
+                {
+                    $("form input").prop("readonly", true);
+                    $("form input").prop("disabled", true);
+                    //$("form input").css("background", "white");
+                    $("form textarea").prop("readonly", true);
+                    $("form select").prop("disabled", true);
+                }
 
             });
         }
@@ -132,7 +174,7 @@
     <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
         <!--基本信息-->
         <div id="before" class="tabPanel">
-            <table class="form">
+            <table id="tab1" class="form">
 
                 <tr>
                     <th class="formTitle">高风险项/问题描述：</th>
@@ -173,12 +215,12 @@
                     <td class="formValue">
 
 
-                        <input readonly placeholder="自动生成，不需要填写" id="BeforeRPN" type="text" class="txt" datacol="yes" />
+                        <input readonly placeholder="自动生成，不需要填写" id="BeforeRPN" type="text" class="txt" datacol="yes" style="background:white" />
                     </td>
                     <th class="formTitle">优先等级：</th>
                     <td class="formValue">
 
-                        <input readonly placeholder="自动生成，不需要填写" id="BeforePriorityLevel" type="text" class="txt" datacol="yes" />
+                        <input readonly placeholder="自动生成，不需要填写" id="BeforePriorityLevel" type="text" class="txt" datacol="yes" style="background:white" />
                     </td>
                 </tr>
                
@@ -186,7 +228,7 @@
             </table>
         </div>
         <div id="doing" class="tabPanel" style="display:none">
-            <table class="form">
+            <table id="tab2" class="form">
                 <tr>
                     <th class="formTitle">原因分析：</th>
                     <td class="formValue" colspan="3">
@@ -217,7 +259,7 @@
             </table>
         </div>
         <div id="after" class="tabPanel" style="display:none">
-            <table class="form">
+            <table id="tab3" class="form">
 
                 <tr>
                     <th class="formTitle">有效性</th>
@@ -267,12 +309,12 @@
                     <td class="formValue">
 
 
-                        <input readonly placeholder="自动生成，不需要填写" id="AfterRPN" type="text" class="txt" datacol="yes" />
+                        <input readonly placeholder="自动生成，不需要填写" id="AfterRPN" type="text" class="txt" datacol="yes" style="background:white" />
                     </td>
                     <th class="formTitle">优先等级：</th>
                     <td class="formValue">
 
-                        <input readonly placeholder="自动生成，不需要填写" id="AfterPriorityLevel" type="text" class="txt" datacol="yes" />
+                        <input readonly placeholder="自动生成，不需要填写" id="AfterPriorityLevel" type="text" class="txt" datacol="yes" style="background:white" />
                     </td>
                 </tr>
             </table>

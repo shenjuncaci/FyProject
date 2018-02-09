@@ -34,12 +34,13 @@ namespace LeaRun.WebApp.Areas.VPModule.Controllers
             return View();
         }
 
-        public ActionResult GridPageListJson(string keywords, string CompanyId, string DepartmentId, JqGridParam jqgridparam, string ParameterJson)
+        public ActionResult GridPageListJson(string keywords, string CompanyId, string DepartmentId, 
+            JqGridParam jqgridparam, string ParameterJson,string ResponseBy)
         {
             try
             {
                 Stopwatch watch = CommonHelper.TimerStart();
-                DataTable ListData = RiskDownFollowBll.GetPageList(keywords, ref jqgridparam, ParameterJson);
+                DataTable ListData = RiskDownFollowBll.GetPageList(keywords, ref jqgridparam, ParameterJson,ResponseBy);
                 var JsonData = new
                 {
                     total = jqgridparam.total,
@@ -61,6 +62,13 @@ namespace LeaRun.WebApp.Areas.VPModule.Controllers
 
         public ActionResult Form()
         {
+            string IsAdmin = "0";
+            string admin = "05883a74-6515-4bab-8ec6-3022aee9a1d8";
+            if(ManageProvider.Provider.Current().ObjectId.IndexOf(admin)>-1)
+            {
+                IsAdmin = "1";
+            }
+            ViewData["IsAdmin"] = IsAdmin;
             return View();
         }
 
@@ -131,7 +139,7 @@ namespace LeaRun.WebApp.Areas.VPModule.Controllers
                         entity.AfterRPN = entity.AfterD * entity.AfterS * entity.AfterO;
                         entity.AfterPriorityLevel = PriorityLevel[detectionZone[entity.AfterD - 1, entity.AfterS - 1]-1, SeverityZone[entity.AfterO - 1, entity.AfterS - 1]-1];
                     }
-                    if(entity.RealFinishDt!=null)
+                    if(entity.IsEffective=="有效")
                     {
                         entity.FinishState = "已完成";
                     }
@@ -155,7 +163,7 @@ namespace LeaRun.WebApp.Areas.VPModule.Controllers
                         entity.AfterRPN = entity.AfterD * entity.AfterS * entity.AfterO;
                         entity.AfterPriorityLevel = PriorityLevel[detectionZone[entity.AfterD - 1, entity.AfterS - 1] - 1, SeverityZone[entity.AfterO - 1, entity.AfterS - 1] - 1];
                     }
-                    if (entity.RealFinishDt != null)
+                    if (entity.IsEffective == "有效")
                     {
                         entity.FinishState = "已完成";
                     }
@@ -294,6 +302,11 @@ where 1=1 and a.FollowID='{0}' ";
                         //System.IO.File.Delete(virtualPath);
                     }
                 }
+
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendFormat(@"update VP_RiskDownFollow set RealFinishDt=GETDATE() where FollowID='{0}'",FolderId);
+                RiskDownFollowBll.ExecuteSql(strSql);
+
                 var JsonData = new
                 {
                     Status = IsOk,

@@ -15,7 +15,7 @@ namespace LeaRun.Business
 {
     public class VP_RiskDownFollowBll : RepositoryFactory<VP_RiskDownFollow>
     {
-        public DataTable GetPageList(string keyword, ref JqGridParam jqgridparam, string ParameterJson)
+        public DataTable GetPageList(string keyword, ref JqGridParam jqgridparam, string ParameterJson,string ResponseBy)
         {
             StringBuilder strSql = new StringBuilder();
             List<DbParameter> parameter = new List<DbParameter>();
@@ -34,6 +34,10 @@ where 1=1   ");
             if (!string.IsNullOrEmpty(ParameterJson) && ParameterJson.Length > 2)
             {
                 strSql.Append(ConditionBuilder.GetWhereSql(ParameterJson.JonsToList<Condition>(), out parameter));
+            }
+            if(!string.IsNullOrEmpty(ResponseBy))
+            {
+                strSql.AppendFormat(@" and a.ResponseBy='{0}' ",ResponseBy);
             }
             return Repository().FindTablePageBySql(strSql.ToString(), parameter.ToArray(), ref jqgridparam);
         }

@@ -39,7 +39,7 @@ where 1=1
 
             if (ManageProvider.Provider.Current().ObjectId.IndexOf("f4633511-fa82-4ded-8fd5-ec68f60f47e3") < 0)
             {
-                strSql.AppendFormat(@" and (a.CreateBy='{0}' or  a.ResponseBy='{0}')  ", ManageProvider.Provider.Current().UserId);
+                strSql.AppendFormat(@" and (a.CreateBy='{0}' or  a.ResponseBy='{0}' or a.AgentBy='{0}')  ", ManageProvider.Provider.Current().UserId);
             }
 
             if (!string.IsNullOrEmpty(ParameterJson) && ParameterJson.Length > 2)

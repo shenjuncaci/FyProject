@@ -54,6 +54,14 @@
             <td>
                 <select id="datatype" class="txtselect"></select>
             </td>
+            <th>
+                年份：
+            </th>
+            <td>
+                <select id="Year" class="txtselect">
+                    
+                </select>
+            </td>
             
             <td>
                 <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
@@ -74,6 +82,15 @@
             AjaxJson("/TrainModule/Skill/DepartmentJson", {}, function (DataJson) {
                 $.each(DataJson, function (i) {
                     $("#datatype").append($("<option></option>").val(DataJson[i].DepartmentId).html(DataJson[i].FullName));
+                });
+            })
+
+            $("#Year").html("");
+
+            $("#Year").append("<option value=''>==请选择==</option>");
+            AjaxJson("/TrainModule/Skill/YearJson", {}, function (DataJson) {
+                $.each(DataJson, function (i) {
+                    $("#Year").append($("<option></option>").val(DataJson[i].year).html(DataJson[i].year));
                 });
             })
             Get_data();
@@ -100,7 +117,7 @@
 
             $.ajax({
                 type: "post",
-                url: "/TrainModule/skill/SkillMatrixData?DepartmentID=" + $("#datatype").val(),
+                url: "/TrainModule/skill/SkillMatrixData?DepartmentID=" + $("#datatype").val() + "&Year=" + $("#Year").val(),
                 async: false,
                 success: function (msg) {
                     document.getElementById("tableDiv").innerHTML = msg;
