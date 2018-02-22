@@ -85,7 +85,7 @@
             autowidth: true,
             colModel: [
                 { label: '主键', name: 'followid', index: 'followid', width: 80, align: 'left', hidden: true },
-                { label: '高风险项/问题描述', name: 'highriskitem', index: 'highriskitem', width: 150, align: 'left' },
+                { label: '高风险项/问题描述', name: 'highriskitem', index: 'highriskitem', width: 300, align: 'left' },
                 { label: 'S', name: 'befores', index: 'befores', width: 50, align: 'left' },
                 { label: 'O', name: 'beforeo', index: 'beforeo', width: 50, align: 'left' },
                 { label: 'D', name: 'befored', index: 'befored', width: 50, align: 'left' },
@@ -93,7 +93,7 @@
                 { label: '优先等级', name: 'beforeprioritylevel', index: 'beforeprioritylevel', width: 50, align: 'left' },
                 { label: '原因分析', name: 'causeanaly', index: 'causeanaly', width: 150, align: 'left' },
                 { label: '行动措施', name: 'actionmeasures', index: 'actionmeasures', width: 150, align: 'left' },
-                { label: '责任人', name: 'realname', index: 'realname', width: 80, align: 'left' },
+                { label: '主导人', name: 'realname', index: 'realname', width: 80, align: 'left' },
                 { label: '计划完成日期', name: 'planfinishdt', index: 'planfinishdt', width: 80, align: 'left', formatter: dateFormat },
                 { label: '实施证据', name: 'evidence', index: 'evidence', width: 80, align: 'left',formatter:uploadFormat },
                 { label: '完成日期', name: 'realfinishdt', index: 'realfinishdt', width: 80, align: 'left', formatter: dateFormat },
@@ -141,13 +141,15 @@
             ]
         })
 
+        var admin = '风险降低管理员('+'@ViewData["admin"]'+')评审';
+
         $("#gridTable").jqGrid('setGroupHeaders', {
             useColSpanStyle: false,
             groupHeaders: [
-               
+
                 { startColumnName: 'highriskitem', numberOfColumns: 10, titleText: '主导人填写' },
-                { startColumnName: 'evidence', numberOfColumns: 2, titleText: '责任人上传' },
-                { startColumnName: 'iseffective', numberOfColumns: 6, titleText: '风险降低管理员评审' },
+                { startColumnName: 'evidence', numberOfColumns: 2, titleText: '主导人上传' },
+                { startColumnName: 'iseffective', numberOfColumns: 6, titleText: admin },
             ]
         })
 

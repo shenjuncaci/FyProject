@@ -31,6 +31,19 @@ namespace LeaRun.WebApp.Areas.VPModule.Controllers
 
         public ActionResult Index()
         {
+            string Admin = "";
+            string sql = @"select RealName from Base_User a
+where exists (select * from Base_ObjectUserRelation where UserId=a.UserId and ObjectId='05883a74-6515-4bab-8ec6-3022aee9a1d8') ";
+            DataTable dt = RiskDownFollowBll.GetDataTable(sql);
+            if(dt.Rows.Count>0)
+            {
+                for(int i=0;i<dt.Rows.Count;i++)
+                {
+                    Admin += dt.Rows[i][0].ToString()+",";
+                }
+                Admin = Admin.Substring(0, Admin.Length - 1);
+            }
+            ViewData["admin"] = Admin;
             return View();
         }
 

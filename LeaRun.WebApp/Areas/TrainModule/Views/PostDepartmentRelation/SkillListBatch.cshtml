@@ -22,7 +22,7 @@
         var SkillName = $("#SkillName").val();
         var SkillType = $("#SkillType").val();
         $("#gridTable").jqGrid('setGridParam', {
-            url: "@Url.Content("~/TrainModule/PostDepartmentRelation/GetSkillListJson")?keywords=&SkillName=" + SkillName + "&SkillType=" + SkillType
+            url: encodeURI("@Url.Content("~/TrainModule/PostDepartmentRelation/GetSkillListJson")?keywords=&SkillName=" + SkillName + "&SkillType=" + SkillType)
         }).trigger('reloadGrid');
     }
     //显示技能列表

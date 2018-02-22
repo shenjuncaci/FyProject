@@ -289,7 +289,8 @@ namespace LeaRun.WebApp.Areas.VPModule.Controllers
             {
                 strSql.AppendFormat(@" update VP_VerifyPostDetail set Status{1}='未生产',DefectNum{1}=0,CheckNum{1}=0 where VerifyPostDID='{0}' "
     , verifypostdid,temp);
-                if(temp=="6")
+                VerifyPostBll.ExecuteSql(strSql);
+                if (temp=="6")
                 {
                     //当天最后一次，并且失效数量是0的话，检验下是否连续的无失效天数大于等于周期
                     string sql = @"select isnull(dbo.[GetContinuousDayByVeryPostDID]('{0}'),0)";
@@ -318,6 +319,7 @@ where VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where Verify
                         VerifyPostBll.ExecuteSql(sqlFinish);
                     }
                 }
+
                 
             }
             else

@@ -273,6 +273,10 @@
             alert("请先匹配责任人账号");
             return false;
         }
+        if ($("#res_dd").val() == undefined || $("#res_dd").val() == "" || $("#res_dd").val() == null || $("#res_dd").val() == "==请选择==") {
+            alert("请填写事发地");
+            return false;
+        }
         if (!CheckDataValid('#form1')) {
             return false;
         }
@@ -1449,7 +1453,15 @@
                 <tr>
                     <th class="formTitle">事发地：</th>
                     <td class="formValue">
-                        <input id="res_dd" type="text" class="txt" />
+                        <select id="res_dd" class="txtselect" err="事发地" checkexpession="NotNull">
+                            <option value="">==请选择==</option>
+                            <option value="内部工厂">内部工厂</option>
+                            <option value="运输途中">运输途中</option>
+                            <option value="中转库">中转库</option>
+                            <option value="主机厂总装线">主机厂总装线</option>
+                            <option value="PDI车库">PDI车库</option>
+                            <option value="售后">售后</option>
+                        </select>
                     </td>
                     <th class="formTitle">重复发生：</th>
                     <td class="formValue">
@@ -1534,6 +1546,16 @@
 
                     </td>
 
+                </tr>
+                <tr>
+                    <th class="formTitle">规范要求：</th>
+                    <td class="formValue">
+                        <input id="Requirements" type="text" class="txt" datacol="yes" checkexpession="NotNull" err="规范要求" />
+                    </td>
+                    <th class="formTitle">实际结果：</th>
+                    <td class="formValue">
+                        <input id="ActualResults" type="text" class="txt" datacol="yes" checkexpession="NotNull" err="实际结果" />
+                    </td>
                 </tr>
                 <tr>
                     <th class="formTitle">问题内容描述：</th>
