@@ -52,6 +52,14 @@ namespace LeaRun.Entity
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
 
+        public decimal HouseArea { get; set; }
+        public decimal HousePurchase { get; set; }
+        public decimal IPTVPurchase { get; set; }
+        public decimal BiLuPurchase { get; set; }
+        public decimal TrashFee { get; set; }
+        public decimal OtherPurchase { get; set; }
+        public decimal BusPurchase { get; set; }
+
 
 
 

@@ -157,8 +157,15 @@ namespace LeaRun.WebApp.Areas.VPModule.Controllers
 
         public string FinishIt(string RiskDownPlanID)
         {
+            string State = "已完成";
+            string sql = " select * from VP_RiskDownPlan where RiskDownPlanID='"+RiskDownPlanID+"' and FinishStatus='已完成' ";
+            DataTable dt = RiskDownBll.GetDataTable(sql);
+            if(dt.Rows.Count>0)
+            {
+                State = "进行中";
+            }
             StringBuilder strSql = new StringBuilder();
-            strSql.AppendFormat(@" update VP_RiskDownPlan set FinishStatus='已完成',RealEndDt=GETDATE() where  RiskDownPlanID='{0}' and FinishStatus!='已完成' ", RiskDownPlanID);
+            strSql.AppendFormat(@" update VP_RiskDownPlan set FinishStatus='{1}',RealEndDt=GETDATE() where  RiskDownPlanID='{0}'  ", RiskDownPlanID,State);
             RiskDownBll.ExecuteSql(strSql);
             return "0";
         }

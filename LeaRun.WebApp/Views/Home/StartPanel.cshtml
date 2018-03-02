@@ -25,10 +25,13 @@
     <link href="~/Content/Scripts/jquery.dropdown/css/menu.css" rel="stylesheet" />
     <script src="~/Content/Scripts/jquery.dropdown/js/jquery.backgroundpos.js"></script>
     <script src="~/Content/Scripts/jquery.dropdown/js/menu.js"></script>
-   
 
-  
-
+    <!--jqgrid表格组件start-->
+    <script src="~/Content/Scripts/jqgrid/jquery-ui-custom.min.js"></script>
+    <script src="~/Content/Scripts/jqgrid/grid.locale-cn.js"></script>
+    <link href="~/Content/Scripts/jqgrid/css/jqgrid.css" rel="stylesheet" />
+    <script src="~/Content/Scripts/jqgrid/jqGrid.js"></script>
+    <!--表格组件end-->
     <script src="~/Content/Scripts/Index.js"></script>
 
 
@@ -39,12 +42,12 @@
         $(function () {
             onChange();
             //ShortcutsList();
-            GetWaitToDoList();
-
+            //GetWaitToDoList();
+            GetGrid();
             ShortcutsList();
         });
 
-       
+
         function windowload() {
             Replace();
         }
@@ -291,7 +294,7 @@
             $.ajax({
                 type: "post",
                 url: durl,
-                dataType: "json",//请求页面返回的数据类型 
+                dataType: "json",//请求页面返回的数据类型
                 async: false,
                 success: function (data) {
                     //data = data.substring(1, data.length - 1);
@@ -312,7 +315,7 @@
                             $("#WaitDone").append("<li onclick='AddTab(\"" + data[i].KeyValue + "\",\"" + data[i].Url + "\")'>" + data[i].ProblemDescripe.substring(0, 50) + "..." + "</li>");
                         }
                     }
-                   
+
 
 
                 }
@@ -327,13 +330,75 @@
                 top.frames[iframe].AcceptClick()
             });
         }
+
+        function lengthFormat(cellvalue, options, rowObject) {
+            //alert(cellvalue);
+            if (cellvalue.length > 30) {
+                return cellvalue.substring(0, 30) + "...";
+            }
+            else {
+                return cellvalue;
+            }
+        }
+
+        //加载表格
+    function GetGrid() {
+        var SelectRowIndx;
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/Home/GetGridList")",
+            datatype: "json",
+            height: 220,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'KeyValue', index: 'KeyValue', width: 80, align: 'left', hidden: true },
+                { label: 'URL', name: 'Url', index: 'Url', width: 80, align: 'left', hidden: true },
+                { label: '模块', name: 'mokuai', index: 'mokuai', width: 100, align: 'left' },
+                { label: '问题描述', name: 'ProblemDescripe', index: 'ProblemDescripe', width: 200, align: 'left', formatter: lengthFormat }
+
+
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 1000],
+            pager: "#gridPager",
+            sortname: 'planstartdt',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            multiselect: false,
+            //cellattr: addCellAttr,
+
+            // useColSpanStyle:true,
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            },
+            gridComplete: function () {
+                //LoadViewList();
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            },
+            ondblClickRow: function (RowIndx) {
+
+                var rowData = $(this).jqGrid('getRowData', RowIndx);
+                AddTab(rowData.KeyValue, rowData.Url);
+                //AddTabMenu("12250f38-1e8c-47da-ba6f-a47746dafd3e", "@Url.Content("~/VPModule/RiskDownFollow/Index")?ResponseBy=" + rowData.leader, "跟踪表", "page_white_edit.png", false);
+            }
+        });
+        columnModelData("#gridTable");
+        //自应高度
+        $(window).resize(function () {
+            $("#gridTable").setGridHeight($(window).height() - 178);
+        });
+
+    }
+
     </script>
 </head>
 <body>
     <div>
         <table style="width: 100%;">
             <tr>
-                <td colspan="2" style="width: 100%">
+                <td colspan="2" style="width:100%">
                     <div class="box">
                         <div class="box-title">
                             <div style="float: left">
@@ -348,55 +413,55 @@
                                             <dt></dt>
                                             <dd><a href="#" onclick="onChange()"><span>快速反应年度统计</span></a></dd>
                                             <dd><a href="#" onclick="picture2()"><span>快速反应部门统计</span></a></dd>
-                                            
                                             <dd class="lastItem" onclick="picture3()"><a href="#"><span>分层审核完成率</span></a></dd>
                                         </dl>
                                     </li>
-                                    </ul>
+                                </ul>
 
-</div>
+                            </div>
                         </div>
                         <div class="box-content" style="height: 300px;">
                             <div id="container" style="height: 300px;">
                             </div>
-                            
+
                         </div>
                     </div>
                 </td>
                 @*<td>
-                    <div class="box" style="display:none">
-                        <div class="box-title">
-                            <div style="float: left">
-                                <img src="~/Content/Images/Icon32/sound.png" alt="" width="20" height="20" />
-                                通知公告
+                        <div class="box" style="display:none">
+                            <div class="box-title">
+                                <div style="float: left">
+                                    <img src="~/Content/Images/Icon32/sound.png" alt="" width="20" height="20" />
+                                    通知公告
+                                </div>
+                                <div style="float: right; padding-right: 10px;">更多</div>
                             </div>
-                            <div style="float: right; padding-right: 10px;">更多</div>
+                            <div class="box-content" style="height: 300px;">
+                                <a href="#" target="_blank">1、VS出了MAC版本啦 ！ </a>
+                                <br />
+                                <a href="#" target="_blank">2、什么！乐视亡了？！ </a>
+                                <br />
+                                <a href="#" target="_blank">3、福耀事业部无开发^_^ </a>
+                                <br />
+                                <a href="#" target="_blank">4、若果还有下个接手的兄弟，好自为之~~/(ㄒoㄒ)/~~ </a>
+                                <br />
+                            </div>
                         </div>
-                        <div class="box-content" style="height: 300px;">
-                            <a href="#" target="_blank">1、VS出了MAC版本啦 ！ </a>
-                            <br />
-                            <a href="#" target="_blank">2、什么！乐视亡了？！ </a>
-                            <br />
-                            <a href="#" target="_blank">3、福耀事业部无开发^_^ </a>
-                            <br />
-                            <a href="#" target="_blank">4、若果还有下个接手的兄弟，好自为之~~/(ㄒoㄒ)/~~ </a>
-                            <br />
-                        </div>
-                    </div>
-                </td>*@
+                    </td>*@
             </tr>
             <tr>
                 <td>
                     <div class="box">
                         <div class="box-title">
-                            <div style="float: left">
+                            <div style="float: left;">
                                 <img src="~/Content/Images/Icon32/hourglass_go.png" alt="" width="20" height="20" />
-                                待办任务
+                                待办任务(双击进入处理)
                             </div>
                             <div style="float: right; padding-right: 10px;"></div>
                         </div>
                         <div class="box-content" style="height: 250px; width: 650px;overflow:auto">
-                            <ul id="WaitDone"></ul>
+                            @*<ul id="WaitDone"></ul>*@
+                            <table id="gridTable"></table>
                         </div>
                     </div>
                 </td>
@@ -415,19 +480,19 @@
                     </div>
                 </td>
                 @*<td>
-                    <div class="box" style="display:none">
-                        <div class="box-title">
-                            <div style="float: left">
-                                <img src="~/Content/Images/Icon32/lightbulb_off.png" alt="" width="20" height="20" />
-                                讨论话题
+                        <div class="box" style="display:none">
+                            <div class="box-title">
+                                <div style="float: left">
+                                    <img src="~/Content/Images/Icon32/lightbulb_off.png" alt="" width="20" height="20" />
+                                    讨论话题
+                                </div>
+                                <div style="float: right; padding-right: 10px;">更多</div>
                             </div>
-                            <div style="float: right; padding-right: 10px;">更多</div>
+                            <div class="box-content" style="height: 250px;">
+
+                            </div>
                         </div>
-                        <div class="box-content" style="height: 250px;">
-                           
-                        </div>
-                    </div>
-                </td>*@
+                    </td>*@
             </tr>
         </table>
     </div>

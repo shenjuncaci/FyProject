@@ -503,11 +503,14 @@ namespace LeaRun.DataAccess
         {
             if (conn.State != ConnectionState.Open)
                 conn.Open();
+            
             cmd.Connection = conn;
             cmd.CommandText = cmdText;
             if (isOpenTrans != null)
                 cmd.Transaction = isOpenTrans;
             cmd.CommandType = cmdType;
+            ////由于导入时数据量巨大，执行时间延长到30秒
+            //cmd.CommandTimeout = 60000;
             if (cmdParms != null)
             {
                 cmd.Parameters.AddRange(cmdParms);

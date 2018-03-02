@@ -96,7 +96,7 @@
         $("#gridTable").jqGrid({
             url: "@Url.Content("~/FYModule/ProblemTrack/GridPageListJson")",
             datatype: "json",
-            height: ($(window).height() - 178)/2,
+            height: $(window).height() - 300,
             autowidth: true,
             colModel: [
                 { label: '主键', name: 'problemid', index: 'problemid', width: 80, align: 'left', hidden: true },

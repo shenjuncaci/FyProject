@@ -9,6 +9,10 @@
         vertical-align: text-top;
         padding-top: 2px;
     }
+
+    .differ {
+        background-color: #C0FF3E;
+    }  
 </style>
 <script type="text/javascript">
     $(document).ready(function () {
@@ -81,7 +85,7 @@
         $("#gridTable").jqGrid({
             url: "@Url.Content("~/VPModule/RiskDownFollow/GridPageListJson")?ResponseBy=" + GetQuery('ResponseBy'),
             datatype: "json",
-            height: $(window).height() - 228,
+            height: $(window).height() - 248,
             autowidth: true,
             colModel: [
                 { label: '主键', name: 'followid', index: 'followid', width: 80, align: 'left', hidden: true },
@@ -104,6 +108,8 @@
                 { label: 'RPN', name: 'afterrpn', index: 'afterrpn', width: 50, align: 'left' },
                 { label: '优先等级', name: 'afterprioritylevel', index: 'afterprioritylevel', width: 50, align: 'left' },
             ],
+            
+           
             viewrecords: true,
             rowNum: 30,
             rowList: [30, 50, 100, 500, 1000],
@@ -134,9 +140,9 @@
         $("#gridTable").jqGrid('setGroupHeaders', {
             useColSpanStyle: false,
             groupHeaders: [
-                { startColumnName: 'highriskitem', numberOfColumns: 6, titleText: '改善前' },
-                { startColumnName: 'causeanaly', numberOfColumns: 4, titleText: '改善中' },
-                { startColumnName: 'evidence', numberOfColumns: 8, titleText: '改善后' },
+                { startColumnName: 'highriskitem', numberOfColumns: 6, titleText: '<div style=\'background-color: #87CEFA;\'><b><font color="white">改善前</font></b></div>' },
+                { startColumnName: 'causeanaly', numberOfColumns: 4, titleText: '<div style=\'background-color: #87CEFA;\'><b><font color="white">改善中</font></b></div>' },
+                { startColumnName: 'evidence', numberOfColumns: 8, titleText: '<div style=\'background-color: #87CEFA;\'><b><font color="white">改善后</font></b></div>' },
                 //evidence
             ]
         })

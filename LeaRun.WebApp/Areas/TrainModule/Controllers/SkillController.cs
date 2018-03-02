@@ -123,7 +123,7 @@ from Base_Department a where DepartmentId='{0}' ";
                 }
                 else
                 {
-                    string sql = " select * from tr_skill where skillname='{0}' and enable=1 ";
+                    string sql = " select * from tr_skill where skillname='{0}' and (enable=1 or IsAudit=0) ";
                     sql = string.Format(sql, entity.SkillName);
                     DataTable dt = SkillBll.GetDataTable(sql);
                     if(dt.Rows.Count>0)
@@ -176,13 +176,14 @@ from Base_Department a where DepartmentId='{0}' ";
                 var Message = "删除失败。";
                 int IsOk = 0;
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendFormat(@" update TR_Skill set enable=0 where SkillID='{0}'  ",KeyValue);
-                //将对应关系也删掉
-                strSql.AppendFormat(@" delete from TR_PostDepartmentRelationDetail where SkillID='{0}' ",KeyValue);
+
+                strSql.AppendFormat(@" update TR_Skill set enable=0,IsAudit=0 where SkillID='{0}'  ",KeyValue);
+                ////将对应关系也删掉
+                //strSql.AppendFormat(@" delete from TR_PostDepartmentRelationDetail where SkillID='{0}' ",KeyValue);
                 IsOk = repositoryfactory.Repository().ExecuteBySql(strSql);
                 if (IsOk > 0)
                 {
-                    Message = "删除成功。";
+                    Message = "删除成功,请等待人事部审批。";
                 }
 
                 WriteLog(IsOk, KeyValue, Message);

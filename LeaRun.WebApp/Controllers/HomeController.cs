@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Web;
@@ -318,6 +319,37 @@ namespace LeaRun.WebApp.Controllers
                 temp = "-1";
             }
             return temp;
+        }
+
+        public ActionResult GetGridList(string keywords, string CompanyId, string DepartmentId, JqGridParam jqgridparam, string ParameterJson)
+        {
+            try
+            {
+                IDatabase database = DataFactory.Database();
+                Stopwatch watch = CommonHelper.TimerStart();
+                string sql = @"select a.ProblemID as KeyValue,'员工关系 ' as mokuai,'/FYModule/HrProblem/Form' as Url,a.ProblemDescripe as ProblemDescripe from FY_HrProblem a left join Base_FlowLog b on a.FlowID=b.FlowID where CurrentPerson='" + ManageProvider.Provider.Current().UserId + "'";
+                sql += " union select res_id as KeyValue,'快速反应 ','/CommonModule/Rapid/Form' as Url,REPLACE(res_ms,' ','') as ProblemDescripe from FY_Rapid where RapidState!='已完成' and res_cpeo='" + ManageProvider.Provider.Current().Code + "'  ";
+                if (ManageProvider.Provider.Current().UserId == "03e8fe3d-f8fc-4eb7-aab5-f6bf228bc0d8")
+                {
+                    sql += " union select ChangeID as KeyValue,'变更管理 ','/FYModule/Change/Form' as Url,changeno as ProblemDescripe from FY_Change where ChangeState='等待总经理批准' ";
+                }
+                sql += " union select ProblemID as KeyValue,'问题跟踪 ','/FYModule/ProblemTrack/Form' as Url,REPLACE(ProblemDescripe,' ','') as ProblemDescripe from FY_ProblemTrack where Status!='已完成' and (ResponseBy='" + ManageProvider.Provider.Current().UserId + "' or AgentBy='" + ManageProvider.Provider.Current().UserId + "') ";
+                DataTable ListData = database.FindDataSetBySql(sql).Tables[0];
+                var JsonData = new
+                {
+                    total = jqgridparam.total,
+                    page = jqgridparam.page,
+                    records = jqgridparam.records,
+                    costtime = CommonHelper.TimerEnd(watch),
+                    rows = ListData,
+                };
+                return Content(JsonData.ToJson());
+            }
+            catch (Exception ex)
+            {
+                Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "异常错误：" + ex.Message);
+                return null;
+            }
         }
     }
 }

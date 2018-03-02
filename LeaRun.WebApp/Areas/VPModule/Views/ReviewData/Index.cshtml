@@ -3,12 +3,16 @@
     Layout = "~/Views/Shared/_LayoutIndex.cshtml";
 }
 <style>
-    .ui-jqgrid tr.jqgrow td {
+    /*.ui-jqgrid tr.jqgrow td {
         white-space: normal !important;
         height: auto;
         vertical-align: text-top;
         padding-top: 2px;
-    }
+    }*/
+
+    .differ {
+        background-color: #E0FFFF;
+    }  
 </style>
 <script type="text/javascript">
     $(document).ready(function () {
@@ -84,6 +88,8 @@
                 { label: '评审内容', name: 'reviewcontent', index: 'reviewcontent', width: 450, align: 'left' },
                
             ],
+            altRows: true,//单双行样式不同  
+            altclass: 'differ',  
             viewrecords: true,
             rowNum: 30,
             rowList: [30, 50, 100, 500, 1000],

@@ -184,10 +184,15 @@ left join Base_Department c on a.targetdepartmentid=c.DepartmentId
 left join base_user d on a.createby=d.UserId
 where auditby=''
 union
-select a.SkillID,'技能审批' as type,a.CreateBy,a.skillname,CreateDt,b.fullname,''  
+select a.SkillID,'技能新增审批' as type,a.CreateBy,a.skillname,CreateDt,b.fullname,''  
 from TR_Skill a
 left join Base_Department b on a.DepartmentID=b.DepartmentId
-where IsAudit=0
+where IsAudit=0 and Enable=1
+union
+select a.SkillID,'技能删除审批' as type,a.CreateBy,a.skillname,CreateDt,b.fullname,''  
+from TR_Skill a
+left join Base_Department b on a.DepartmentID=b.DepartmentId
+where IsAudit=0 and Enable=0 
  ");
             if (!string.IsNullOrEmpty(keyword))
             {

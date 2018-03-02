@@ -706,7 +706,7 @@ where AuditID='{0}' and AuditType='人员调动' ", ID,ManageProvider.Provider.C
 where AuditID='{0}' and AuditType='人员调动' ", ID, ManageProvider.Provider.Current().UserId);
                 }
             }
-            else
+            else if(Type== "技能新增审批")
             {
                 if(tag=="1")
                 {
@@ -716,6 +716,20 @@ where SkillID='{0}' ", ID);
                 else
                 {
                     strSql.AppendFormat(@" update TR_Skill set IsAudit=-1 
+where SkillID='{0}' ", ID);
+                }
+            }
+            else
+            {
+                if(tag=="1")
+                {
+                    strSql.AppendFormat(@" update TR_Skill set IsAudit=1, Enable=0 
+where SkillID='{0}' ", ID);
+                    strSql.AppendFormat(@" delete from TR_PostDepartmentRelationDetail where SkillID='{0}' ", ID);
+                }
+                else
+                {
+                    strSql.AppendFormat(@" update TR_Skill set IsAudit=1, Enable=1 
 where SkillID='{0}' ", ID);
                 }
             }

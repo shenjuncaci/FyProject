@@ -9,6 +9,10 @@
         vertical-align: text-top;
         padding-top: 2px;
     }
+
+    .differ {
+        background-color: #C1FFC1;
+    }  
 </style>
 <script type="text/javascript">
     $(document).ready(function () {
@@ -92,9 +96,11 @@
                 { label: '计划完成时间', name: 'planenddt', index: 'planenddt', width: 100, align: 'left', formatter: dateFormat },
                 { label: '实际完成时间', name: 'realenddt', index: 'realenddt', width: 100, align: 'left', formatter: dateFormat },
                 { label: '完成情况', name: 'finishstatus', index: 'finishstatus', width: 100, align: 'left', formatter: statusFormat },
+                { label: '备注', name: 'remark', index: 'remark', width: 250, align: 'left' },
                 { label: '主导者ID', name: 'leader', index: 'leader', width: 80, align: 'left', hidden: true },
 
             ],
+            
             viewrecords: true,
             rowNum: 30,
             rowList: [30, 50, 100, 500, 1000],

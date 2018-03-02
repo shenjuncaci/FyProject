@@ -84,14 +84,17 @@
                 { label: '主键', name: 'roomcostid', index: 'roomcostid', width: 80, align: 'left', hidden: true },
                 { label: '宿舍名称', name: 'dormname', index: 'dormname', width: 150, align: 'left' },
                 { label: '房间号', name: 'roomno', index: 'roomno', width: 100, align: 'left' },
+                
                 { label: '计费日期', name: 'inputdate', index: 'inputdate', width: 100, align: 'left' },
                 
                 { label: '水费', name: 'waterpriceall', index: 'waterpriceall', width: 80, align: 'left' },
                 { label: '电费', name: 'electricpriceall', index: 'electricpriceall', width: 80, align: 'left' },
-                { label: '电视费', name: 'tvfee', index: 'tvfee', width: 80, align: 'left' },
-                { label: '物管费', name: 'propertyfee', index: 'propertyfee', width: 80, align: 'left' },
-                { label: '租金', name: 'rent', index: 'rent', width: 80, align: 'left' },
-                { label: '维护费', name: 'maintenancefee', index: 'maintenancefee', width: 80, align: 'left' },
+                { label: 'IPTV代扣', name: 'iptvpurchase', index: 'iptvpurchase', width: 80, align: 'left' },
+                { label: '闭路代扣', name: 'bilupurchase', index: 'bilupurchase', width: 80, align: 'left' },
+                { label: '垃圾费', name: 'trashfee', index: 'trashfee', width: 80, align: 'left' },
+                { label: '维修费', name: 'maintenancefee', index: 'maintenancefee', width: 80, align: 'left' },
+                { label: '其他代扣', name: 'otherpurchase', index: 'otherpurchase', width: 80, align: 'left' },
+                { label: '客车代扣', name: 'buspurchase', index: 'buspurchase', width: 80, align: 'left' },
                 { label: '备注', name: 'remark', index: 'remark', width: 250, align: 'left' },
                 //{ label: '结束时间', name: 'endtime', index: 'endtime', width: 250, align: 'left' },
             ],
@@ -236,7 +239,7 @@
 <div>
     <div class="btnbartitle">
         <div>
-            用户列表 <span id="CenterTitle"></span>
+            房费计算列表 <span id="CenterTitle"></span>
         </div>
     </div>
     <!--工具栏-->

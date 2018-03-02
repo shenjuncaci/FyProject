@@ -169,6 +169,7 @@ namespace LeaRun.WebApp.Areas.DormModule.Controllers
         {
             try
             {
+                keywords = keywords.Replace("-0", "-");
                 if (keywords == null || keywords == "undefined" || keywords == "")
                 {
                     keywords = DateTime.Now.Year.ToString()+"-"+DateTime.Now.Month.ToString();

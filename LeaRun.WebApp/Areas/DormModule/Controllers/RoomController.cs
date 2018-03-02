@@ -305,16 +305,21 @@ namespace LeaRun.WebApp.Areas.DormModule.Controllers
             return Content(new JsonMessage { Success = true, Code = "1", Message = Message }.ToString());
         }
 
-        public ActionResult CheckOut(string CheckInID)
+        public ActionResult CheckOut(string CheckInID,string Date)
         {
             StringBuilder strSql = new StringBuilder();
-            strSql.AppendFormat("update DM_CheckIn set IsLeave=1,checkoutdate=GETDATE() where CheckInID='{0}' ", CheckInID);
+            strSql.AppendFormat("update DM_CheckIn set IsLeave=1,checkoutdate='{1}' where CheckInID='{0}' ", CheckInID,Date);
             RoomBll.ExecuteSql(strSql);
             return Content(new JsonMessage { Success = true, Code = "1", Message = "退宿成功" }.ToString());
 
         }
 
         public ActionResult AssetsForm()
+        {
+            return View();
+        }
+
+        public ActionResult ChooseDate()
         {
             return View();
         }

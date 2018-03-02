@@ -237,8 +237,15 @@
 
     function CheckOut(CheckInID)
     {
+        var obj = new Array();
+        var reValue = window.showModalDialog('ChooseDate', window, 'dialogWidth=400px;dialogHeight=200px;status:1;title:0;');
+        //var reValue = Dialog('UpdatePlan?id=' + event.id, "test", "test", 400, 200)
+        //alert(reValue);
+        if (reValue == undefined) {
+            return false;
+        }
         //alert(CheckInID);
-        var postData = { CheckInID: CheckInID };
+        var postData = { CheckInID: CheckInID, Date: reValue };
         AjaxJson("/DormModule/Room/CheckOut", postData, function (data) {
             //Loading(false);
             

@@ -149,7 +149,7 @@
                     <th class="formTitle">计费月份</th>
                     <td class="formValue">
                         <input id="InputDate" type="text" class="txt" datacol="yes" err="房间号" checkexpession="NotNull" />
-                        
+
                     </td>
                 </tr>
                 <tr style="display:none">
@@ -162,9 +162,7 @@
                         <input id="EndDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" />
                     </td>
                     <th class="formTitle"></th>
-                    <td class="formValue">
-                        
-                    </td>
+                    <td class="formValue"></td>
                 </tr>
 
                 <tr>
@@ -172,7 +170,7 @@
                     <td class="formValue">
 
 
-                        
+
                         <input id="PreWater" type="text" class="txt" datacol="yes" err="上月水表" checkexpession="NotNull" />
                     </td>
 
@@ -191,7 +189,7 @@
                     <td class="formValue">
 
 
-                        
+
                         <input id="PreElectric" type="text" class="txt" datacol="yes" err="当前电表" checkexpession="NotNull" />
                     </td>
 
@@ -210,32 +208,64 @@
                     <td class="formValue">
 
 
-                        <input placeholder="自动计算，不用填写"  readonly id="ElectricPriceAll" type="text" class="txt" datacol="yes" />
+                        <input placeholder="自动计算，不用填写" readonly id="ElectricPriceAll" type="text" class="txt" datacol="yes" />
                     </td>
 
                     <th class="formTitle">水费总价：</th>
                     <td class="formValue">
-                        <input placeholder="自动计算，不用填写" readonly id="WaterPriceAll" type="text" class="txt" datacol="yes"  />
+                        <input placeholder="自动计算，不用填写" readonly id="WaterPriceAll" type="text" class="txt" datacol="yes" />
                     </td>
-                    <th class="formTitle">电视费</th>
+                    <th class="formTitle">住房面积</th>
                     <td class="formValue">
-                        <input id="TVFee" type="text" class="txt" datacol="yes" err="电视费" checkexpession="NotNull" />
+                        <input id="HouseArea" type="text" class="txt" datacol="yes" err="住房面积" checkexpession="NotNull" />
                     </td>
                 </tr>
 
                 <tr>
-                    <th class="formTitle">物管费：</th>
+                    <th class="formTitle">住房代扣：</th>
                     <td class="formValue">
-                        <input id="PropertyFee" type="text" class="txt" datacol="yes" err="物管费" checkexpession="NotNull" />
+                        <input id="HousePurchase" type="text" class="txt" datacol="yes" err="住房代扣" checkexpession="NotNull" />
                     </td>
 
-                    <th class="formTitle">租金：</th>
+                    <th class="formTitle">房租：</th>
                     <td class="formValue">
-                        <input id="Rent" type="text" class="txt" datacol="yes" err="租金" checkexpession="NotNull" />
+                        <input id="Rent" type="text" class="txt" datacol="yes" err="房租" checkexpession="NotNull" />
                     </td>
-                    <th class="formTitle">维护费</th>
+                    <th class="formTitle">维修费</th>
                     <td class="formValue">
                         <input id="MaintenanceFee" type="text" class="txt" datacol="yes" err="维护费" checkexpession="NotNull" />
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">IPTV代扣：</th>
+                    <td class="formValue">
+                        <input id="IPTVPurchase" type="text" class="txt" datacol="yes" err="IPTV代扣" checkexpession="NotNull" />
+                    </td>
+
+                    <th class="formTitle">闭路代扣：</th>
+                    <td class="formValue">
+                        <input id="BiLuPurchase" type="text" class="txt" datacol="yes" err="闭路代扣" checkexpession="NotNull" />
+                    </td>
+                    <th class="formTitle">垃圾费</th>
+                    <td class="formValue">
+                        <input id="TrashFee" type="text" class="txt" datacol="yes" err="维护费" checkexpession="NotNull" />
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">其他代扣：</th>
+                    <td class="formValue">
+                        <input id="OtherPurchase" type="text" class="txt" datacol="yes" err="其他代扣" checkexpession="NotNull" />
+                    </td>
+
+                    <th class="formTitle">客车代扣：</th>
+                    <td class="formValue">
+                        <input id="BusPurchase" type="text" class="txt" datacol="yes" err="客车代扣" checkexpession="NotNull" />
+                    </td>
+                    <th class="formTitle"></th>
+                    <td class="formValue">
+                       
                     </td>
                 </tr>
 
@@ -244,7 +274,7 @@
                     <th class="formTitle">备注：</th>
                     <td class="formValue" colspan="5">
 
-                        <input id="Remark" type="text" class="txt" datacol="yes" err="备注" checkexpession="NotNull" />
+                        <input id="Remark" type="text" class="txt" datacol="yes" />
 
                     </td>
 

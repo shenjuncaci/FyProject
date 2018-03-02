@@ -150,10 +150,10 @@
 
     //删除
     function btn_delete() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "Dormid");
+        var KeyValue = GetJqGridRowValue("#gridTable", "dormid");
         if (IsDelData(KeyValue)) {
             var delparm = 'KeyValue=' + KeyValue;
-            delConfig('/DormModule/skill/Delete', delparm, KeyValue.split(",").length);
+            delConfig('/DormModule/DORM/Delete', delparm, KeyValue.split(",").length);
         }
     }
 
