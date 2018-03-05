@@ -1,0 +1,79 @@
+﻿@{
+    ViewBag.Title = "PictureReport";
+}
+<link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+<link href="~/Content/Styles/learunui-accordion.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+<script src="~/Content/Scripts/learunui-framework.js"></script>
+<script src="~/Content/Scripts/jquery.echarts/echarts.js"></script>
+
+
+<div id="main" style="width: auto;height:400px"></div>
+
+<script type="text/javascript">
+
+
+
+
+        $(document).ready(function () {
+            onChange();
+        });
+
+        //把加载数据单独放到一个function中，供selectchange事件调用
+        function onChange()
+        {
+            
+
+
+
+
+        var DataForMyChart2 = new Array();
+
+        var c1=new Array();
+        var c2=new Array();
+        var durl = encodeURI('@Url.Action("GetPieData", "HrProblem")');
+        $.ajax({
+            type: "post",
+            url: durl,
+            async: false,
+            success: function (data) {
+                var xx;
+                var dataA = new Array();
+                //var i = 0;
+                dataA = data.split("|");
+
+
+                c1 = dataA[0].split(",");
+                c2 = dataA[1].split(",");
+                c3 = dataA[2].split(",");
+                for (var i = 0; i < c1.length; i++)
+                {
+                    var TempObject = {};
+                    TempObject["value"] = parseInt(c1[i]);
+
+                    TempObject["name"] = c3[i]+"(总共:"+c1[i]+"单,已完成:"+c2[i]+"单)";
+
+                    DataForMyChart2.push(TempObject);
+                }
+            }
+        });
+
+        var myChart2 = echarts.init(document.getElementById('main'));
+        //饼图
+        myChart2.setOption({
+            title: {
+                text: '各部门问题次数'
+            },
+            roseType: 'angle',
+            series: [
+                {
+                    name: '访问来源',
+                    type: 'pie',
+                    radius: '55%',
+                    data: DataForMyChart2
+                }
+            ]
+        })
+        }
+
+</script>

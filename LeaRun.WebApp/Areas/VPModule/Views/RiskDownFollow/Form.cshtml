@@ -122,7 +122,12 @@
             });
         }
         else {
-            $("#ResponseBy").select2();
+            if ("@ViewData["IsAdmin"]" == "0") {
+                $("#ResponseBy").val('@ViewData["MyID"]');
+                $("#ResponseBy").prop("disabled", true);
+            }
+            else { $("#ResponseBy").select2();}
+            
         }
     }
     //保存事件

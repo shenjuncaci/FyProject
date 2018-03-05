@@ -28,6 +28,12 @@ on a.Leader=b.UserID  where 1=1   ");
                 //parameter.Add(DbFactory.CreateDbParameter("@keyword", '%' + keyword + '%'));
                 strSql.Append(keyword);
             }
+            if (ManageProvider.Provider.Current().ObjectId.IndexOf("05883a74-6515-4bab-8ec6-3022aee9a1d8") < 0)
+            {
+                strSql.AppendFormat(" and Leader='{0}' ",ManageProvider.Provider.Current().UserId);
+            }
+
+
             if (!string.IsNullOrEmpty(ParameterJson) && ParameterJson.Length > 2)
             {
                 strSql.Append(ConditionBuilder.GetWhereSql(ParameterJson.JonsToList<Condition>(), out parameter));

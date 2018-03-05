@@ -47,6 +47,8 @@ namespace LeaRun.Entity
         public string FinishState { get; set; }
         public DateTime? CreateDt { get; set; }
 
+        public string FromSource { get; set; }
+
         #region 扩展操作
         /// <summary>
         /// 新增调用

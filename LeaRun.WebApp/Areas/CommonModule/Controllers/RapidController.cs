@@ -129,6 +129,7 @@ namespace LeaRun.WebApp.Areas.CommonModule.Controllers
                     VP_RiskDownFollow followentity = new VP_RiskDownFollow();
                     followentity.Create();
                     followentity.HighRiskItem = rapid.res_ms;
+                    followentity.FromSource = "快速反应改善项";
                     database.Insert(followentity, isOpenTrans);
                     
 

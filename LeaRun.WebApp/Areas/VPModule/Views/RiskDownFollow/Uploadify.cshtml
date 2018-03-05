@@ -22,7 +22,7 @@
 </style>
 <script>
     $(function () {
-       
+
         uploadify();
         GetFile();
     });
@@ -90,7 +90,8 @@
                     //document.getElementById("uploadify").style.display = "none";
                     $("#uploadify").css("display","none");
                 }
-                html += '<td onclick="download(\'' + DataJson[i].FileID +'\')" style="width: 70px;"><img src="@Url.Content("~/Content/Images/Icon16/arrow_down.png")" /></td>';
+                html += '<td onclick="download(\'' + DataJson[i].FileID + '\')" style="width: 70px;"><img src="@Url.Content("~/Content/Images/Icon16/arrow_down.png")" /></td>';
+                html += '<td onclick="View(\'' + DataJson[i].FileID +'\')" style="width: 70px;"><img src="@Url.Content("~/Content/Images/Icon16/application_form_magnify.png")" /></td>';
                 @*if (DataJson.Status > 0) {
                     html += '<td title="上传成功" style="width: 26px;"><img src="@Url.Content("~/Content/Images/Icon16/accept.png")" /></td>';
                 } else {
@@ -115,6 +116,24 @@
             $("#grid tbody").html("");
             GetFile();
         });
+    }
+
+    function View(FileID) {
+        $.ajax({
+            type: "post",
+            url: "/VPModule/RiskDownFollow/CheckFileName?FileID=" + FileID,
+            async: false,
+            success: function (msg) {
+                var url = "/Content/Scripts/pdf.js/generic/web/viewer.html?file=" + msg;
+                Dialog(url, "StudyForm", "在线查看文件",1000,800);
+            },
+            error: function () {
+                alert("出错了");
+            }
+        });
+
+
+            
     }
 
 </script>

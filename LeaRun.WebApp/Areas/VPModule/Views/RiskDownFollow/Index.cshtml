@@ -73,6 +73,9 @@
         if (CheckIsNullNoTip($("#Year").val())) {
             keywords += " and YEAR(CreateDt)='" + $("#Year").val() + "' ";
         }
+        if (CheckIsNullNoTip($("#FromSource").val())) {
+            keywords += " and FromSource='" + $("#FromSource").val() + "' ";
+        }
         $("#gridTable").jqGrid('setGridParam', {
             url: "@Url.Content("~/VPModule/RiskDownFollow/GridPageListJson")?keywords=" + escape(keywords) + "&ResponseBy=" + GetQuery('ResponseBy'), page: 1
         }).trigger('reloadGrid');
@@ -311,6 +314,17 @@
                     </th>
                     <td>
                         <select id="Year" class="select"></select>
+                    </td>
+
+                    <th>
+                        来源：
+                    </th>
+                    <td>
+                        <select id="FromSource" class="select">
+                            <option value="">==请选择==</option>
+                            <option value="年度评审改善项">年度评审改善项</option>
+                            <option value="快速反应改善项">快速反应改善项</option>
+                        </select>
                     </td>
 
                     <td>

@@ -82,6 +82,7 @@ where exists (select * from Base_ObjectUserRelation where UserId=a.UserId and Ob
                 IsAdmin = "1";
             }
             ViewData["IsAdmin"] = IsAdmin;
+            ViewData["MyID"] = ManageProvider.Provider.Current().UserId;
             return View();
         }
 
@@ -165,6 +166,7 @@ where exists (select * from Base_ObjectUserRelation where UserId=a.UserId and Ob
                 {
 
                     entity.Create();
+                    entity.FromSource = "年度评审改善项";
                     if (entity.BeforeD != 0 && entity.BeforeS != 0 && entity.BeforeO != 0)
                     {
                         entity.BeforeRPN = entity.BeforeD * entity.BeforeS * entity.BeforeO;
@@ -464,6 +466,75 @@ where 1=1 and a.FollowID='{0}' ";
             string sql = " select distinct year(CreateDt) as year from VP_RiskDownFollow where 1=1  ";
             DataTable dt = RiskDownFollowBll.GetDataTable(sql);
             return Content(dt.ToJson());
+        }
+
+        public string CheckFileName(string FileID)
+        {
+            string sql = "select * from VP_RiskDownFollowFile where FileID='"+FileID+"'";
+            DataTable dt = RiskDownFollowBll.GetDataTable(sql);
+            if(dt.Rows.Count>0)
+            {
+                if(dt.Rows[0]["FileExtensions"].ToString()==".pdf")
+                {
+                    if(DirFileHelper.IsExistFile(System.Web.HttpContext.Current.Request.PhysicalApplicationPath+"\\Content\\Scripts\\pdf.js\\generic\\web\\" + dt.Rows[0]["FileID"].ToString()+".pdf"))
+                    {
+                        return dt.Rows[0]["FileID"].ToString()+".pdf";
+                    }
+                    else
+                    {
+                        DirFileHelper.CopyFile(dt.Rows[0]["FilePath"].ToString().Replace("~/",""), "Content\\Scripts\\pdf.js\\generic\\web\\" + dt.Rows[0]["FileID"].ToString()+".pdf");
+                        return dt.Rows[0]["FileID"].ToString() + ".pdf";
+                    }
+                }
+                else
+                {
+                    //将word转换为pdf再返回路径
+                    if(dt.Rows[0]["FileExtensions"].ToString() == ".doc"|| dt.Rows[0]["FileExtensions"].ToString() == ".docx")
+                    {
+                        if (DirFileHelper.IsExistFile(System.Web.HttpContext.Current.Request.PhysicalApplicationPath + "\\Content\\Scripts\\pdf.js\\generic\\web\\" + dt.Rows[0]["FileID"].ToString()+".pdf"))
+                        {
+                            return dt.Rows[0]["FileID"].ToString() + ".pdf";
+                        }
+                        else
+                        {
+                            ToPDFHelper.ConvertWord2Pdf(dt.Rows[0]["FilePath"].ToString().Replace("~/", ""), "Content\\Scripts\\pdf.js\\generic\\web\\" + dt.Rows[0]["FileID"].ToString() + ".pdf");
+                            return dt.Rows[0]["FileID"].ToString() + ".pdf";
+                        }
+                    }
+                    else if(dt.Rows[0]["FileExtensions"].ToString() == ".xls" || dt.Rows[0]["FileExtensions"].ToString() == ".xlsx")
+                    {
+                        if (DirFileHelper.IsExistFile(System.Web.HttpContext.Current.Request.PhysicalApplicationPath + "\\Content\\Scripts\\pdf.js\\generic\\web\\" + dt.Rows[0]["FileID"].ToString() + ".pdf"))
+                        {
+                            return dt.Rows[0]["FileID"].ToString() + ".pdf";
+                        }
+                        else
+                        {
+                            ToPDFHelper.ConvertExcel2Pdf(dt.Rows[0]["FilePath"].ToString().Replace("~/", ""), "Content\\Scripts\\pdf.js\\generic\\web\\" + dt.Rows[0]["FileID"].ToString() + ".pdf");
+                            return dt.Rows[0]["FileID"].ToString() + ".pdf";
+                        }
+                    }
+                    else if (dt.Rows[0]["FileExtensions"].ToString() == ".ppt" || dt.Rows[0]["FileExtensions"].ToString() == ".pptx")
+                    {
+                        if (DirFileHelper.IsExistFile(System.Web.HttpContext.Current.Request.PhysicalApplicationPath + "\\Content\\Scripts\\pdf.js\\generic\\web\\" + dt.Rows[0]["FileID"].ToString() + ".pdf"))
+                        {
+                            return dt.Rows[0]["FileID"].ToString() + ".pdf";
+                        }
+                        else
+                        {
+                            ToPDFHelper.ConvertPowerPoint2Pdf(dt.Rows[0]["FilePath"].ToString().Replace("~/", ""), "Content\\Scripts\\pdf.js\\generic\\web\\" + dt.Rows[0]["FileID"].ToString() + ".pdf");
+                            return dt.Rows[0]["FileID"].ToString() + ".pdf";
+                        }
+                    }
+                    else
+                    {
+                        return "0";
+                    }
+                }
+            }
+            else
+            {
+                return "0";
+            }
         }
 
 

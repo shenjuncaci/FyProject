@@ -1652,6 +1652,8 @@
     <Content Include="Content\Images\Icon16\file_extension_pdf.png" />
     <Content Include="Content\Images\Icon16\file_extension_png.png" />
     <Content Include="Content\Images\Icon16\file_extension_pps.png" />
+    <Content Include="Content\Images\Icon16\file_extension_ppt.png" />
+    <Content Include="Content\Images\Icon16\file_extension_pptx.png" />
     <Content Include="Content\Images\Icon16\file_extension_ps.png" />
     <Content Include="Content\Images\Icon16\file_extension_psd.png" />
     <Content Include="Content\Images\Icon16\file_extension_pst.png" />
@@ -5456,6 +5458,8 @@
     <Content Include="Content\Images\Icon32\file_extension_pdf.png" />
     <Content Include="Content\Images\Icon32\file_extension_png.png" />
     <Content Include="Content\Images\Icon32\file_extension_pps.png" />
+    <Content Include="Content\Images\Icon32\file_extension_ppt.png" />
+    <Content Include="Content\Images\Icon32\file_extension_pptx.png" />
     <Content Include="Content\Images\Icon32\file_extension_ps.png" />
     <Content Include="Content\Images\Icon32\file_extension_psd.png" />
     <Content Include="Content\Images\Icon32\file_extension_pst.png" />
@@ -9307,6 +9311,7 @@
     <Content Include="Areas\CommonModule\Views\Rapid\QualityQPicture.cshtml" />
     <Content Include="Content\Scripts\jquery.triangle\img\Thumbs.db" />
     <Content Include="Areas\DormModule\Views\Room\ChooseDate.cshtml" />
+    <Content Include="Areas\FYModule\Views\HrProblem\PictureReport.cshtml" />
     <None Include="Properties\PublishProfiles\LR-FDMS.pubxml" />
     <Content Include="Views\Home\SkinIndex.cshtml" />
     <Content Include="Views\Login\Default.cshtml" />

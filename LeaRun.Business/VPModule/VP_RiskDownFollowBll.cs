@@ -39,6 +39,12 @@ where 1=1   ");
             {
                 strSql.AppendFormat(@" and a.ResponseBy='{0}' ",ResponseBy);
             }
+
+            if (ManageProvider.Provider.Current().ObjectId.IndexOf("05883a74-6515-4bab-8ec6-3022aee9a1d8") < 0)
+            {
+                strSql.AppendFormat(@" and a.ResponseBy='{0}' ", ManageProvider.Provider.Current().UserId);
+            }
+
             return Repository().FindTablePageBySql(strSql.ToString(), parameter.ToArray(), ref jqgridparam);
         }
 
