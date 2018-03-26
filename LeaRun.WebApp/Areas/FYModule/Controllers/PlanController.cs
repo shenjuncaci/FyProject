@@ -706,7 +706,7 @@ where a.DepartmentId='" + ManageProvider.Provider.Current().DepartmentId + "'";
         public int InsertAction(string problem, string action1, string response, string plandate)
         {
             StringBuilder strSql = new StringBuilder();
-            strSql.AppendFormat("insert into FY_ProblemAction values (NEWID(),'" + problem + "','" + action1 + "','" + response + "','" + plandate + "','" + ManageProvider.Provider.Current().UserId + "','" + ManageProvider.Provider.Current().DepartmentId + "')");
+            strSql.AppendFormat("insert into FY_ProblemAction (actionid,problemdescripe,actioncontent,responseby,plandate,createby,createbydept,createdt,problemstate) values (NEWID(),'" + problem + "','" + action1 + "','" + response + "','" + plandate + "','" + ManageProvider.Provider.Current().UserId + "','" + ManageProvider.Provider.Current().DepartmentId + "',getdate(),'待审')");
             int result = PlanBll.ExecuteSql(strSql);
 
             string GetReciverSql = " select Email from base_user where userid='" + response + "' ";
@@ -1292,5 +1292,61 @@ where a.BackColor!='' and a.DepartmentID='" + ManageProvider.Provider.Current().
             
             return Content(new JsonMessage { Success = true, Code = IsOk.ToString(), Message = Message }.ToString());
         }
+
+        public ActionResult ProblemAction()
+        {
+            return View();
+        }
+        public string GetProblemActionData(string year)
+        {
+            string result = "";
+            string temp1 = "";
+            string temp2 = "";
+            string temp3 = "";
+            string temp4 = "";
+            //string sql = " select count(*) as rapidcount,MONTH(res_cdate) as month from FY_Rapid where YEAR(res_cdate)='"+year+"' group by MONTH(res_cdate),YEAR(res_cdate)  ";
+            string sql = @"select isnull(problemcount,0),ISNULL(okcount,0),basicmonth,case when ISNULL(okcount,0)=0 then 0 else cast(100.0*ISNULL(okcount,0)/isnull(problemcount,0) as decimal(18,2)) end as rate
+from
+Base_Month a 
+left join (select count(*) as problemcount,MONTH(createdt) as month 
+from FY_ProblemAction where YEAR(createdt)='{0}' group by MONTH(createdt),YEAR(createdt)) as b
+on a.BasicMonth=b.month
+left join  (select count(*) as okcount,MONTH(createdt) as month 
+from FY_ProblemAction where YEAR(createdt)='{0}' 
+and ProblemState='已完成'
+group by MONTH(createdt),YEAR(createdt)) as c
+on a.BasicMonth=c.month ";
+            sql = string.Format(sql, year);
+            DataTable dt = PlanBll.GetDataTable(sql);
+            if (dt.Rows.Count > 0)
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    temp1 = temp1 + dt.Rows[i][0] + ",";
+                    temp2 = temp2 + dt.Rows[i][1] + ",";
+                    temp3 = temp3 + dt.Rows[i][2] + ",";
+                    temp4 = temp4 + dt.Rows[i][3] + ",";
+                }
+                temp1 = temp1.Substring(0, temp1.Length - 1);
+                temp2 = temp2.Substring(0, temp2.Length - 1);
+                temp3 = temp3.Substring(0, temp3.Length - 1);
+                temp4 = temp4.Substring(0, temp4.Length - 1);
+            }
+            result = temp1 + "|" + temp2 + "|" + temp3+"|"+temp4;
+
+
+            return result;
+        }
+
+
+        public ActionResult YearJson()
+        {
+            string sql= " select distinct(year(createdt)) as year from FY_ProblemAction ";
+            DataTable dt = PlanBll.GetDataTable(sql);
+            return Content(dt.ToJson());
+        }
+
+
+
     }
 }

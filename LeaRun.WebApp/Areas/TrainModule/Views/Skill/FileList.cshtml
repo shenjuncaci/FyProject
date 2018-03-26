@@ -22,7 +22,9 @@
             colModel: [
                 { label: '文件主键', name: 'fileid', hidden: true },
                 { label: '文件名称', name: "filename", width: 250, sortable: false },
-                { label: '文件路径', name: "filepath", width: 450, sortable: false,hidden: true }
+                { label: '文件路径', name: "filepath", width: 450, sortable: false, hidden: true },
+                { label: '文件后缀', name: "fileextensions", width: 450, sortable: false, hidden: true },
+                { label: '技能类型', name: "skilltype", width: 450, sortable: false, hidden: true }
 
             ],
             pager: false,
@@ -33,9 +35,13 @@
 
             ondblClickRow: function (RowIndx) {
                 var rowData = $(this).jqGrid('getRowData', RowIndx);
-                
+                var arr = new Array();
+                arr[0] = rowData.filepath;
+                arr[1] = rowData.fileid;
+                arr[2] = rowData.fileextensions;
+                arr[3] = rowData.skilltype;
 
-                window.returnValue = rowData.filepath;
+                window.returnValue = arr;
                 window.close();
             }
         });

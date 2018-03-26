@@ -109,9 +109,15 @@ from Base_Department a where DepartmentId='{0}' ";
                 string Message = KeyValue == "" ? "新增成功,等待人事部审批。" : "编辑成功。";
                 if (!string.IsNullOrEmpty(KeyValue))
                 {
-                    if (KeyValue == ManageProvider.Provider.Current().UserId)
+                    
+
+                    string sql = " select * from tr_skill where skillname='{0}' and (enable=1 or IsAudit=0) and skillid!='{1}' ";
+                    sql = string.Format(sql, entity.SkillName,KeyValue);
+                    DataTable dt = SkillBll.GetDataTable(sql);
+                    if (dt.Rows.Count > 0)
                     {
-                        throw new Exception("无权限编辑信息");
+                        return Content(new JsonMessage { Success = false, Code = "-1", Message = "已有相同名称的技能，不允许修改成该名称" }.ToString());
+
                     }
 
 
@@ -685,7 +691,7 @@ and f.SkillID = '" + SkillArrary[1] + "' and d.UserId = '" + dt.Rows[j][0].ToStr
                 string uploadDate = DateTime.Now.ToString("yyyyMMdd");
                 //string UserId = ManageProvider.Provider.Current().UserId;
 
-                string virtualPath = string.Format("~/Content/Scripts/pdf.js/generic/web/{0}{1}", fileGuid, FileEextension);
+                string virtualPath = string.Format("~/Resource/Document/NetworkDisk/KnowledgeBase/{0}{1}", fileGuid, FileEextension);
                 string fullFileName = this.Server.MapPath(virtualPath);
                 //创建文件夹，保存文件
                 string path = Path.GetDirectoryName(fullFileName);
@@ -1261,6 +1267,75 @@ from V_ExamScore where 1=1 ");
             string sql = " select distinct year(PaperDate) as year from TR_Paper ";
             DataTable dt = SkillBll.GetDataTable(sql);
             return Content(dt.ToJson());
+        }
+
+        public string CheckFileName(string FileID)
+        {
+            string sql = "select * from tr_skillfile where FileID='" + FileID + "'";
+            DataTable dt = SkillBll.GetDataTable(sql);
+            if (dt.Rows.Count > 0)
+            {
+                if (dt.Rows[0]["FileExtensions"].ToString() == ".pdf")
+                {
+                    if (DirFileHelper.IsExistFile(System.Web.HttpContext.Current.Request.PhysicalApplicationPath + "\\Content\\Scripts\\pdf.js\\generic\\web\\" + dt.Rows[0]["FileID"].ToString() + ".pdf"))
+                    {
+                        return dt.Rows[0]["FileID"].ToString() + ".pdf";
+                    }
+                    else
+                    {
+                        DirFileHelper.CopyFile("Resource\\Document\\NetworkDisk\\KnowledgeBase\\" + dt.Rows[0]["FilePath"].ToString(), "Content\\Scripts\\pdf.js\\generic\\web\\" + dt.Rows[0]["FileID"].ToString() + ".pdf");
+                        return dt.Rows[0]["FileID"].ToString() + ".pdf";
+                    }
+                }
+                else
+                {
+                    //将word转换为pdf再返回路径
+                    if (dt.Rows[0]["FileExtensions"].ToString() == ".doc" || dt.Rows[0]["FileExtensions"].ToString() == ".docx")
+                    {
+                        if (DirFileHelper.IsExistFile(System.Web.HttpContext.Current.Request.PhysicalApplicationPath + "\\Content\\Scripts\\pdf.js\\generic\\web\\" + dt.Rows[0]["FileID"].ToString() + ".pdf"))
+                        {
+                            return dt.Rows[0]["FileID"].ToString() + ".pdf";
+                        }
+                        else
+                        {
+                            ToPDFHelper.ConvertWord2Pdf("Resource\\Document\\NetworkDisk\\KnowledgeBase\\" + dt.Rows[0]["FilePath"].ToString(), "Content\\Scripts\\pdf.js\\generic\\web\\" + dt.Rows[0]["FileID"].ToString() + ".pdf");
+                            return dt.Rows[0]["FileID"].ToString() + ".pdf";
+                        }
+                    }
+                    else if (dt.Rows[0]["FileExtensions"].ToString() == ".xls" || dt.Rows[0]["FileExtensions"].ToString() == ".xlsx")
+                    {
+                        if (DirFileHelper.IsExistFile(System.Web.HttpContext.Current.Request.PhysicalApplicationPath + "\\Content\\Scripts\\pdf.js\\generic\\web\\" + dt.Rows[0]["FileID"].ToString() + ".pdf"))
+                        {
+                            return dt.Rows[0]["FileID"].ToString() + ".pdf";
+                        }
+                        else
+                        {
+                            ToPDFHelper.ConvertExcel2Pdf("Resource\\Document\\NetworkDisk\\KnowledgeBase\\" + dt.Rows[0]["FilePath"].ToString(), "Content\\Scripts\\pdf.js\\generic\\web\\" + dt.Rows[0]["FileID"].ToString() + ".pdf");
+                            return dt.Rows[0]["FileID"].ToString() + ".pdf";
+                        }
+                    }
+                    else if (dt.Rows[0]["FileExtensions"].ToString() == ".ppt" || dt.Rows[0]["FileExtensions"].ToString() == ".pptx")
+                    {
+                        if (DirFileHelper.IsExistFile(System.Web.HttpContext.Current.Request.PhysicalApplicationPath + "\\Content\\Scripts\\pdf.js\\generic\\web\\" + dt.Rows[0]["FileID"].ToString() + ".pdf"))
+                        {
+                            return dt.Rows[0]["FileID"].ToString() + ".pdf";
+                        }
+                        else
+                        {
+                            ToPDFHelper.ConvertPowerPoint2Pdf("Resource\\Document\\NetworkDisk\\KnowledgeBase\\" + dt.Rows[0]["FilePath"].ToString(), "Content\\Scripts\\pdf.js\\generic\\web\\" + dt.Rows[0]["FileID"].ToString() + ".pdf");
+                            return dt.Rows[0]["FileID"].ToString() + ".pdf";
+                        }
+                    }
+                    else
+                    {
+                        return "0";
+                    }
+                }
+            }
+            else
+            {
+                return "0";
+            }
         }
 
 

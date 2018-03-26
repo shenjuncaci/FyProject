@@ -63,10 +63,22 @@
         return fmt;
     }
 
+    
+
     //搜索
     function btn_Search() {
-        var keywords = $("#keywords").val();
+        var keywords ="";
         var IsEmpty = $("#IsEmpty").val();
+        var RoomNO = $("#RoomNO").val();
+        var UserName = $("#UserName").val();
+
+        if (CheckIsNullNoTip(RoomNO)) {
+            keywords += " and a.roomno like '%" + RoomNO + "%' ";
+        }
+       
+        if (CheckIsNullNoTip(UserName)) {
+            keywords += " and exists (select * from DM_CheckIn where RoomID=a.roomid and (PersonName like '%" + UserName + "%' or PersonCode like '%" + UserName + "%')) ";
+        }
         $("#gridTable").jqGrid('setGridParam', {
             url: "@Url.Content("~/DormModule/Room/GridPageListJson")?keywords=" + escape(keywords) + "&IsEmpty=" + IsEmpty, page: 1
         }).trigger('reloadGrid');
@@ -255,18 +267,32 @@
             <table border="0" class="form-find" style="height: 45px;">
                 <tr>
                     <th>
-                        关键字：
+                        房间号：
                     </th>
                     <td>
-                        <input id="keywords" type="text" class="txt" style="width: 200px" />
+                        <input id="RoomNO" type="text" class="txt" style="width: 200px" />
                     </td>
+                    <th>
+                        用户名/工号：
+                    </th>
+                    <td>
+                        <input id="UserName" type="text" class="txt" style="width: 200px" />
+                    </td>
+                    @*<th>
+                        工号：
+                    </th>
+                    <td>
+                        <input id="Code" type="text" class="txt" style="width: 200px" />
+                    </td>*@
                     <th>
                         是否有空位：
                     </th>
                     <td>
                         <select id="IsEmpty" class="txtselect">
-                        <option value="有空位">有空位</option>
-                        <option value="无空位">无空位</option></select>
+                            <option value="">==请选择==</option>
+                            <option value="有空位">有空位</option>
+                            <option value="无空位">无空位</option>
+                        </select>
                     </td>
                     <td>
                         <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />

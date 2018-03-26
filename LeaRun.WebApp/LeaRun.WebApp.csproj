@@ -182,6 +182,10 @@
     <Compile Include="Areas\FYModule\Controllers\ProduceLineController.cs" />
     <Compile Include="Areas\FYModule\Controllers\RapidUserController.cs" />
     <Compile Include="Areas\FYModule\FYModuleAreaRegistration.cs" />
+    <Compile Include="Areas\ProjectManageModule\Controllers\NoticeController.cs" />
+    <Compile Include="Areas\ProjectManageModule\Controllers\ProjectController.cs" />
+    <Compile Include="Areas\ProjectManageModule\Controllers\PublicFileController.cs" />
+    <Compile Include="Areas\ProjectManageModule\ProjectManageModuleAreaRegistration.cs" />
     <Compile Include="Areas\TCModule\Controllers\AttachContractController.cs" />
     <Compile Include="Areas\TCModule\Controllers\ShortContractController.cs" />
     <Compile Include="Areas\TCModule\TCModuleAreaRegistration.cs" />
@@ -7977,6 +7981,7 @@
     <Content Include="Content\Scripts\bootstrap\tag\bootstrap.tag.js" />
     <Content Include="Content\Scripts\bootstrap\timepicker\bootstrap.timepicker.css" />
     <Content Include="Content\Scripts\bootstrap\timepicker\bootstrap.timepicker.js" />
+    <Content Include="Content\Scripts\ChromeshowModalDialog.js" />
     <Content Include="Content\Scripts\ckeditor\adapters\jquery.js" />
     <Content Include="Content\Scripts\ckeditor\build-config.js" />
     <Content Include="Content\Scripts\ckeditor\ckeditor.js" />
@@ -8415,6 +8420,15 @@
     <Content Include="Content\Scripts\jquery.fullcalendar\lib\jquery.min.js" />
     <Content Include="Content\Scripts\jquery.fullcalendar\lib\moment.min.js" />
     <Content Include="Content\Scripts\jquery.fullcalendar\locale-all.js" />
+    <Content Include="Content\Scripts\jquery.layer\layer.js" />
+    <Content Include="Content\Scripts\jquery.layer\mobile\layer.js" />
+    <Content Include="Content\Scripts\jquery.layer\mobile\need\layer.css" />
+    <Content Include="Content\Scripts\jquery.layer\theme\default\icon-ext.png" />
+    <Content Include="Content\Scripts\jquery.layer\theme\default\icon.png" />
+    <Content Include="Content\Scripts\jquery.layer\theme\default\layer.css" />
+    <Content Include="Content\Scripts\jquery.layer\theme\default\loading-0.gif" />
+    <Content Include="Content\Scripts\jquery.layer\theme\default\loading-1.gif" />
+    <Content Include="Content\Scripts\jquery.layer\theme\default\loading-2.gif" />
     <Content Include="Content\Scripts\jquery.monthpicker\jquery.monthpicker.css" />
     <Content Include="Content\Scripts\jquery.monthpicker\jquery.monthpicker.js" />
     <Content Include="Content\Scripts\jquery.PDFObject\pdfobject.js" />
@@ -9312,6 +9326,14 @@
     <Content Include="Content\Scripts\jquery.triangle\img\Thumbs.db" />
     <Content Include="Areas\DormModule\Views\Room\ChooseDate.cshtml" />
     <Content Include="Areas\FYModule\Views\HrProblem\PictureReport.cshtml" />
+    <Content Include="Areas\ProjectManageModule\Views\Web.config" />
+    <Content Include="Areas\ProjectManageModule\Views\Notice\Index.cshtml" />
+    <Content Include="Areas\ProjectManageModule\Views\Notice\Form.cshtml" />
+    <Content Include="Areas\FYModule\Views\Plan\ProblemAction.cshtml" />
+    <Content Include="Areas\ProjectManageModule\Views\Notice\NoticeInfo.cshtml" />
+    <Content Include="Areas\ProjectManageModule\Views\Project\Index.cshtml" />
+    <Content Include="Areas\ProjectManageModule\Views\Project\Form.cshtml" />
+    <Content Include="Areas\ProjectManageModule\Views\Notice\ChooseProject.cshtml" />
     <None Include="Properties\PublishProfiles\LR-FDMS.pubxml" />
     <Content Include="Views\Home\SkinIndex.cshtml" />
     <Content Include="Views\Login\Default.cshtml" />
@@ -9609,6 +9631,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Areas\DormModule\Views\Shared\" />
+    <Folder Include="Areas\ProjectManageModule\Views\Shared\" />
     <Folder Include="Areas\TCModule\Views\Shared\" />
     <Folder Include="Areas\VPModule\Views\Shared\" />
   </ItemGroup>

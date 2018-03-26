@@ -143,7 +143,7 @@
         var KeyValue = GetJqGridRowValue("#gridTable", "relationid");
         if (IsChecked(KeyValue)) {
             var url = "/TrainModule/PostDepartmentRelation/Form?KeyValue=" + KeyValue;
-            openDialog(url, "Form", "编辑", 650, 350, function (iframe) {
+            openDialog(url, "Form", "编辑", 800, 520, function (iframe) {
                 top.frames[iframe].AcceptClick()
             });
 

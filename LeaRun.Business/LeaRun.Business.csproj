@@ -102,6 +102,9 @@
     <Compile Include="FYModule\FY_ProblemTrackFileBll.cs" />
     <Compile Include="FYModule\FY_ProcessBll.cs" />
     <Compile Include="FYModule\FY_ProduceLineBll.cs" />
+    <Compile Include="ProjectManageModule\PM_NoticeBll.cs" />
+    <Compile Include="ProjectManageModule\PM_ProjectBll.cs" />
+    <Compile Include="ProjectManageModule\PM_PublicFileBll.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BaseUtility\BaseFactory.cs" />
     <Compile Include="BaseUtility\BaseManager.cs" />
@@ -120,6 +123,8 @@
     <Compile Include="TrainModule\TR_PostBll.cs" />
     <Compile Include="TrainModule\TR_PostDepartmentRelationBll.cs" />
     <Compile Include="TrainModule\TR_PostDepartmentRelationDetailBll.cs" />
+    <Compile Include="TrainModule\TR_ProjectBll.cs" />
+    <Compile Include="TrainModule\TR_ProjectDetailBll.cs" />
     <Compile Include="TrainModule\TR_SkillBll.cs" />
     <Compile Include="VPModule\VP_ReviewDataBll.cs" />
     <Compile Include="VPModule\VP_RiskDownFollowBll.cs" />

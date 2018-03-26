@@ -35,6 +35,7 @@ namespace LeaRun.Entity
         public string CauseAnaly { get; set; }
         public string ActionMeasures { get; set; }
         public string ResponseBy { get; set; }
+        public string RealResponseBy { get; set; }
         public DateTime? PlanFinishDt { get; set; }
         public DateTime? RealFinishDt { get; set; }
         public string IsEffective { get; set; }

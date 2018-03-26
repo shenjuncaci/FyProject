@@ -16,6 +16,7 @@
 </style>
 <script type="text/javascript">
     $(document).ready(function () {
+        
         BindData();
         GetGrid();
 
@@ -69,6 +70,7 @@
 
     //搜索
     function btn_Search() {
+        //console.log(document.getElementById("lr-done").innerHTML);
         var keywords = "";
         if (CheckIsNullNoTip($("#Year").val()))
         {
@@ -116,6 +118,19 @@
             // useColSpanStyle:true,
             onSelectRow: function () {
                 SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+                
+                var ss1 = GetJqGridRowValue("#gridTable", "finishstatus");
+                //alert(ss1);
+                if (ss1.indexOf("已完成")>0) {
+                    //alert(11);
+                    document.getElementById("lr-done").innerHTML = "<span><b id='ss1' style=\"background: url('../../Content/Images/Icon16/spellcheck_error.png') 50% 4px no-repeat;\">取消完成</b></span>";
+                    
+                }
+                else {
+                    document.getElementById("lr-done").innerHTML = "<span><b id='ss1' style=\"background: url('../../Content/Images/Icon16/spellcheck.png') 50% 4px no-repeat;\">完成</b></span>";
+                }
+                
+                
             },
             gridComplete: function () {
                 //LoadViewList();

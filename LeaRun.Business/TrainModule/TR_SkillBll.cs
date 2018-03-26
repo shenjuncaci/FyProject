@@ -41,7 +41,7 @@ namespace LeaRun.Business
         {
             StringBuilder strSql = new StringBuilder();
             List<DbParameter> parameter = new List<DbParameter>();
-            strSql.AppendFormat(@" select * from tr_skillfile where skillid='{0}'  ",SkillID);
+            strSql.AppendFormat(@" select a.*,b.SkillType from TR_SkillFile a left join TR_Skill b on a.SkillID=b.SkillID where a.skillid='{0}'  ", SkillID);
             if (!string.IsNullOrEmpty(keyword))
             {
                 strSql.Append(keyword);

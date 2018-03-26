@@ -383,6 +383,30 @@
                     <td class="formValue">
                         <select id="Customer" class="txtselect"></select>
                     </td>
+                    <th class="formTitle">投诉级别：</th>
+                    <td class="formValue">
+                        <select id="ComplaintLevel" class="txtselect">
+                            <option value="A级">A级</option>
+                            <option value="B级">B级</option>
+                            <option value="C级">C级</option>
+                            <option value="D级">D级</option>
+                            <option value="E级">E级</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">事发地：</th>
+                    <td class="formValue">
+                        <select id="HappenPlace" class="txtselect" err="事发地" checkexpession="NotNull">
+                            <option value="">==请选择==</option>
+                            <option value="内部工厂">内部工厂</option>
+                            <option value="运输途中">运输途中</option>
+                            <option value="中转库">中转库</option>
+                            <option value="主机厂总装线">主机厂总装线</option>
+                            <option value="PDI车库">PDI车库</option>
+                            <option value="售后">售后</option>
+                        </select>
+                    </td>
                     <th class="formTitle">重复发生：</th>
                     <td class="formValue">
                         <select id="IsAgain" class="txtselect">
@@ -391,14 +415,11 @@
 
                         </select>
                     </td>
-                       
-                    
                 </tr>
-
                 <tr>
-                    <th class="formTitle">负责人：</th>
+                    <th class="formTitle">产品名称：</th>
                     <td class="formValue">
-                        <select id="ResponseBy" class="txtselect"></select>
+                        <input id="ProductName" type="text" class="txt" />
                     </td>
                     <th class="formTitle">问题类别：</th>
                     <td class="formValue">
@@ -409,14 +430,28 @@
                         </select>
                     </td>
                 </tr>
-               
+                <tr>
+                    <th class="formTitle">负责人：</th>
+                    <td class="formValue">
+                        <select id="ResponseBy" class="txtselect"></select>
+                    </td>
+                    <th class="formTitle">重要程度：</th>
+                    <td class="formValue">
+                        <select id="ImportLevel" class="txtselect">
+                            <option value="I级">I级</option>
+                            <option value="II级">II级</option>
+
+                        </select>
+                    </td>
+                </tr>
+
                 <tr>
                     <th class="formTitle">发生日期：</th>
                     <td class="formValue">
                         <input id="HappenDate" type="text" class="txt Wdate" onfocus="WdatePicker({maxDate:'%y-%M-%d'})" style="background:#E0FFFF" />
                     </td>
-                    <th class="formTitle" >计划完成日期：</th>
-                    <td class="formValue" >
+                    <th class="formTitle">计划完成日期：</th>
+                    <td class="formValue">
 
                         <input id="PlanFinishDt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" />
 
@@ -452,6 +487,16 @@
                     </td>
 
                 </tr>
+                <tr>
+                    <th class="formTitle">规范要求：</th>
+                    <td class="formValue">
+                        <input id="Requirements" type="text" class="txt" datacol="yes" checkexpession="NotNull" err="规范要求" />
+                    </td>
+                    <th class="formTitle">实际结果：</th>
+                    <td class="formValue">
+                        <input id="ActualResults" type="text" class="txt" datacol="yes" checkexpession="NotNull" err="实际结果" />
+                    </td>
+                </tr>
 
                 <tr>
                     <th class="formTitle">是否考核：</th>
@@ -464,14 +509,10 @@
                         </select>
                     </td>
                     <th class="formTitle"></th>
-                    <td class="formValue">
-
-                        
-
-
-                    </td>
+                    <td class="formValue"></td>
 
                 </tr>
+
 
                 <tr>
                     <th class="formTitle">问题内容描述：</th>

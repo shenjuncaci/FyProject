@@ -19,10 +19,11 @@ namespace LeaRun.Business
         {
             StringBuilder strSql = new StringBuilder();
             List<DbParameter> parameter = new List<DbParameter>();
-            strSql.Append(@" select a.*,b.realname,
+            strSql.Append(@" select a.*,b.realname,c.realname as responseby1,
 case when exists (select * from VP_RiskDownFollowFile where FollowID=a.followid) then '查看' else '尚未上传' end as evidence
 from VP_RiskDownFollow a 
 left join base_user b on a.ResponseBy=b.UserID 
+left join base_user c on a.RealResponseBy=c.UserID
 where 1=1   ");
             if (!string.IsNullOrEmpty(keyword))
             {

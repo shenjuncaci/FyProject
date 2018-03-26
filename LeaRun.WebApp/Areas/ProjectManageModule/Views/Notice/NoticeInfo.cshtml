@@ -1,0 +1,41 @@
+﻿@{
+    ViewBag.Title = "判断题";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+
+}
+
+<script type="text/javascript">
+    //$(document).ready(function () {
+
+    //    uploadify();
+    //});
+    $(function () {
+
+        InitControl();
+        //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
+        //BindResponseBy();
+
+
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/ProjectManageModule/Notice/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+
+            });
+        }
+        //$("#NoticeContent").css("width", $(window).height());
+        //$("#NoticeContent").css("height", $(window).height());
+    }
+</script>
+
+<table style="width:98%">
+    <tr>
+        @*<th class="formTitle">通知内容</th>*@
+        <td>
+            <textarea readonly id="NoticeContent" type="text" style="font-size:30px;width:780px;height:530px"/>
+        </td>
+    </tr>
+</table>

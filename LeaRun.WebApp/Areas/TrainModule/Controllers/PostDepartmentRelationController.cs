@@ -71,7 +71,6 @@ from Base_Department a where DepartmentId='{0}' ";
 
         public ActionResult Form()
         {
-            
             return View();
         }
 
@@ -335,6 +334,13 @@ where a.UserPostRelationID='{0}'
 and not exists (select * from TR_EvaluateDetail where UserPostRelationID='{0}' and skillid=d.SkillID) 
  ",
 RelationID);
+                //删除岗位对应关系中不存在的数据
+                strSql.AppendFormat(@" delete from TR_EvaluateDetail where UserPostRelationID='{0}' and skillid not in (
+select  d.SkillID from TR_UserPost a
+left join TR_PostDepartmentRelation b on a.DepartmentPostID=b.RelationID
+left join TR_PostDepartmentRelationDetail c on b.RelationID=c.RelationID
+left join TR_Skill d on c.SkillID=d.SkillID
+where a.UserPostRelationID='{0}') ",RelationID);
                 PostDepartRelationBll.ExecuteSql(strSql);
                 var JsonData = new
                 {

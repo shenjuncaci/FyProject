@@ -140,6 +140,10 @@
     <Compile Include="FYModule\FY_Process.cs" />
     <Compile Include="FYModule\FY_ProduceLine.cs" />
     <Compile Include="FYModule\FY_RapidScore.cs" />
+    <Compile Include="ProjectManageModule\PM_Notice.cs" />
+    <Compile Include="ProjectManageModule\PM_Project.cs" />
+    <Compile Include="ProjectManageModule\PM_ProjectMember.cs" />
+    <Compile Include="ProjectManageModule\PM_PublicFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TCModule\TC_AttachContract.cs" />
     <Compile Include="TCModule\TC_AttachContractDetail.cs" />
@@ -162,6 +166,9 @@
     <Compile Include="TrainModule\TR_Post.cs" />
     <Compile Include="TrainModule\TR_PostDepartmentRelation.cs" />
     <Compile Include="TrainModule\TR_PostDepartmentRelationDetail.cs" />
+    <Compile Include="TrainModule\TR_Project.cs" />
+    <Compile Include="TrainModule\TR_ProjectDetail.cs" />
+    <Compile Include="TrainModule\TR_ProjectMember.cs" />
     <Compile Include="TrainModule\TR_Skill.cs" />
     <Compile Include="TrainModule\TR_SkillFile.cs" />
     <Compile Include="TrainModule\TR_UserPost.cs" />

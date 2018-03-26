@@ -310,12 +310,12 @@
 
     function btn_upload() {
         var KeyValue = GetJqGridRowValue("#gridTable", "skillid");
-
-        var url = "/TrainModule/Skill/Uploadify?FolderId=" + KeyValue;
-        Dialog(url, "Uploadify", "上传文件", 500, 350, function (iframe) {
-            top.frames[iframe].AcceptClick()
-        });
-
+        if (IsChecked(KeyValue)) {
+            var url = "/TrainModule/Skill/Uploadify?FolderId=" + KeyValue;
+            Dialog(url, "Uploadify", "上传文件", 500, 350, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+        }
     }
 
     function btn_questions()

@@ -102,12 +102,14 @@
                             b[i].setAttribute("disabled", "true");
                         }
                         $("#ResponseBy").prop("disabled", true);
+                        $("#RealResponseBy").prop("disabled", true);
                         $("#PlanFinishDt").prop("disabled", true);
                        
                     }
                     else
                     {
                         $("#ResponseBy").select2();
+                        $("#RealResponseBy").select2();
                     }
                 }
                 else
@@ -122,6 +124,7 @@
             });
         }
         else {
+            $("#RealResponseBy").select2();
             if ("@ViewData["IsAdmin"]" == "0") {
                 $("#ResponseBy").val('@ViewData["MyID"]');
                 $("#ResponseBy").prop("disabled", true);
@@ -158,6 +161,15 @@
             });
         })
 
+
+        $("#RealResponseBy").html("");
+
+        $("#RealResponseBy").append("<option value=''>==请选择==</option>");
+        AjaxJson("/VPModule/VerifyPost/ResponseJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#RealResponseBy").append($("<option></option>").val(DataJson[i].userid).html(DataJson[i].name));
+            });
+        })
 
     }
 
@@ -249,15 +261,25 @@
                     </td>
                 </tr>
                 <tr>
-                    <th class="formTitle">责任人</th>
+                    <th class="formTitle">主导人</th>
                     <td class="formValue">
 
-                        <select id="ResponseBy" class="txtselect" err="责任人" checkexpession="NotNull" style="width:150px"></select>
+                        <select id="ResponseBy" class="txtselect" err="主导人" checkexpession="NotNull" style="width:150px"></select>
                     </td>
                     <th class="formTitle">计划完成日期</th>
                     <td class="formValue">
 
                         <input id="PlanFinishDt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">责任人</th>
+                    <td class="formValue">
+
+                        <select id="RealResponseBy" class="txtselect" err="责任人" checkexpession="NotNull" style="width:150px"></select>
+                    </td>
+                    <th class="formTitle"></th>
+                    <td class="formValue">
                     </td>
                 </tr>
                

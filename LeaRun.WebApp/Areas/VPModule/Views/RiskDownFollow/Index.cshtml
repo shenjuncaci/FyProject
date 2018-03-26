@@ -101,6 +101,7 @@
                 { label: '原因分析', name: 'causeanaly', index: 'causeanaly', width: 150, align: 'left' },
                 { label: '行动措施', name: 'actionmeasures', index: 'actionmeasures', width: 150, align: 'left' },
                 { label: '主导人', name: 'realname', index: 'realname', width: 80, align: 'left' },
+                { label: '责任人', name: 'responseby1', index: 'responseby1', width: 80, align: 'left' },
                 { label: '计划完成日期', name: 'planfinishdt', index: 'planfinishdt', width: 80, align: 'left', formatter: dateFormat },
                 { label: '实施证据', name: 'evidence', index: 'evidence', width: 80, align: 'left',formatter:uploadFormat },
                 { label: '完成日期', name: 'realfinishdt', index: 'realfinishdt', width: 80, align: 'left', formatter: dateFormat },
@@ -144,7 +145,7 @@
             useColSpanStyle: false,
             groupHeaders: [
                 { startColumnName: 'highriskitem', numberOfColumns: 6, titleText: '<div style=\'background-color: #87CEFA;\'><b><font color="white">改善前</font></b></div>' },
-                { startColumnName: 'causeanaly', numberOfColumns: 4, titleText: '<div style=\'background-color: #87CEFA;\'><b><font color="white">改善中</font></b></div>' },
+                { startColumnName: 'causeanaly', numberOfColumns: 5, titleText: '<div style=\'background-color: #87CEFA;\'><b><font color="white">改善中</font></b></div>' },
                 { startColumnName: 'evidence', numberOfColumns: 8, titleText: '<div style=\'background-color: #87CEFA;\'><b><font color="white">改善后</font></b></div>' },
                 //evidence
             ]
@@ -156,7 +157,7 @@
             useColSpanStyle: false,
             groupHeaders: [
 
-                { startColumnName: 'highriskitem', numberOfColumns: 10, titleText: '主导人填写' },
+                { startColumnName: 'highriskitem', numberOfColumns: 11, titleText: '主导人填写' },
                 { startColumnName: 'evidence', numberOfColumns: 2, titleText: '主导人上传' },
                 { startColumnName: 'iseffective', numberOfColumns: 6, titleText: admin },
             ]

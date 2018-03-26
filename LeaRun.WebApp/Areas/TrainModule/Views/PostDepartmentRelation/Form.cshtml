@@ -4,6 +4,9 @@
 }
 
 <link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+<script src="~/Content/Scripts/ChromeshowModalDialog.js"></script>
+
+
 
 <style>
     #Fixed {
@@ -171,9 +174,45 @@
         }
     }
 
+    function selectSkillChrome(reValue) {//为打开的窗口定义方法，让打开的窗口关闭时通过window.opener赋值回来并执行  
+        for (var i = 0; i < reValue.length; i++) {
+
+
+            var tab = document.getElementById('DetailForm');
+            var rowIndex = tab.rows.length + 1;
+            var j = rowIndex - 2;
+            if (!IsExistItem(j, reValue[i].SkillID)) {
+                addone(999);
+                $("#SkillName➩" + j).val(reValue[i].SkillName);
+                $("#SkillID➩" + j).val(reValue[i].SkillID);
+            }
+            else {
+                top.TipMsg("该技能已存在,不能重复添加", 4000, "error");
+            }
+            
+        }
+         
+    }  
+
     function addbatch()
     {
+
+        //////试试用div写
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '技能选择',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['550px', '350px'],
+            content: 'SkillListBatch'
+        });
+
+
+        return false;
+
+
         var reValue = window.showModalDialog('SkillListBatch', window, 'dialogWidth=800px;dialogHeight=600px;status:1;title:0;');
+        if (!has_showModalDialog) return;
         if (reValue == undefined) {
             return false;
         }
@@ -181,11 +220,12 @@
        
         for (var i = 0; i < reValue.length; i++)
         {
-            if (!IsExistItem(i, reValue[i].SkillID)) {
+            
 
                 var tab = document.getElementById('DetailForm');
                 var rowIndex = tab.rows.length + 1;
                 var j = rowIndex - 2;
+                if(!IsExistItem(j, reValue[i].SkillID)) {
                 addone(999);
                 $("#SkillName➩" + j).val(reValue[i].SkillName);
                 $("#SkillID➩" + j).val(reValue[i].SkillID);

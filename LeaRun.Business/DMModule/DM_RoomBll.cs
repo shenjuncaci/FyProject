@@ -25,9 +25,7 @@ cast((select count(*) from DM_CheckIn where IsLeave=0 and RoomID=a.roomid) as nv
 from DM_Room a left join DM_Dorm b on a.dormid=b.dormid where 1=1   ");
             if (!string.IsNullOrEmpty(keyword))
             {
-                strSql.Append(@" AND (RoomNO LIKE @keyword 
-                                    )");
-                parameter.Add(DbFactory.CreateDbParameter("@keyword", '%' + keyword + '%'));
+                strSql.Append(keyword);
             }
             if(IsEmpty=="有空位")
             {

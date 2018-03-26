@@ -383,5 +383,135 @@ where PaperID='{0}'", paper.PaperID);
         {
             return View();
         }
+
+
+        public ActionResult MenuPage()
+        {
+            return View();
+        }
+
+        public ActionResult AuditPage()
+        {
+            bool IsLeader = false;  //判断是否车间主任，有车间主任权限可以显示当前日期之前所有未审核完的记录
+            bool IsBz = false; //加一个角色的判断，用来判断是否同时显示车间主任和车间班长的审批内容
+            IManageUser user = ManageProvider.Provider.Current();
+            string[] objectID = user.ObjectId.Split(',');
+            for (int i = 0; i < objectID.Length; i++)
+            {
+                if (objectID[i] == "91c17ca4-0cbf-43fa-829e-3021b055b6c4" || objectID[i] == "54804f22-89a1-4eee-b257-255deaf4face" || objectID[i] == "8431ea77-69c9-484c-a67f-4f3419c0d393")
+                {
+                    IsLeader = true;
+                }
+                if (objectID[i] == "f6afd4e4-6fb2-446f-88dd-815ddb91b09d")
+                {
+                    IsBz = true;
+                }
+            }
+
+            StringBuilder strSql = new StringBuilder();
+            List<DbParameter> parameter = new List<DbParameter>();
+            if (IsLeader == false)
+            {
+                strSql.Append(@"select PlanID,Plandate,PlanContent,b.RealName,a.line from fy_plan a left join Base_User b on a.ResponseByID=b.UserId
+             left join Base_GroupUser c on c.GroupUserId=a.groupid
+where PlanContent!='' and  IsLeave=0  and a.BackColor!='' and a.BackColor!='grey' and
+           a.DepartmentID='" + ManageProvider.Provider.Current().DepartmentId + "' and   GETDATE()>=cast(cast(a.plandate as nvarchar(30))+' '+c.StartTime as datetime) and " +
+               "GETDATE()<=cast(cast( case when c.duty='白班' then a.Plandate else DATEADD(day,1,a.Plandate) end as nvarchar(30))+' '+c.EndTime as datetime) " +
+               " and not exists (select * from FY_PlanDetail where planid=a.planid and ExamResult!='')");
+
+
+            }
+            else
+            {
+                strSql.Append(@" select PlanID,Plandate,PlanContent,b.RealName,a.line from fy_plan a left join Base_User b on a.ResponseByID=b.UserId 
+left join Base_GroupUser c on c.GroupUserId=a.groupid where PlanContent!='' and Plandate=cast(GETDATE() as date) and ResponseByID='" + ManageProvider.Provider.Current().UserId + "' and (a.BackColor='' or a.BackColor='grey' ) and not exists (select * from FY_PlanDetail where planid=a.planid and ExamResult!='') ");
+                if (IsBz == true)
+                {
+                    strSql.Append(@" union select PlanID,Plandate,PlanContent,b.RealName,a.line from fy_plan a left join Base_User b on a.ResponseByID=b.UserId
+             left join Base_GroupUser c on c.GroupUserId=a.groupid
+where PlanContent!='' and  IsLeave=0  and a.BackColor!='' and a.BackColor!='grey' and
+           a.DepartmentID='" + ManageProvider.Provider.Current().DepartmentId + "' and   GETDATE()>=cast(cast(a.plandate as nvarchar(30))+' '+c.StartTime as datetime) and " +
+               "GETDATE()<=cast(cast( case when c.duty='白班' then a.Plandate else DATEADD(day,1,a.Plandate) end as nvarchar(30))+' '+c.EndTime as datetime) and not exists (select * from FY_PlanDetail where planid=a.planid and ExamResult!='') ");
+                }
+            }
+
+            string table = "<ul data-role=\"listview\">";
+
+            DataTable dt = SkillBll.GetDataTable(strSql.ToString());
+            if (dt.Rows.Count > 0)
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    table += "<li onclick=\"auditinfo(this.id)\" id=\"" + dt.Rows[i]["PlanID"].ToString() + "\" >" + dt.Rows[i]["PlanContent"].ToString()+ "(产线："+ dt.Rows[i]["line"].ToString() + ")" + "</li>";
+                }
+
+            }
+            table += "</ul>";
+            ViewData["Content"] = table;
+
+            return View();
+        }
+
+        public ActionResult AuditDetailPage(string ID)
+        {
+            string deptID = "";
+            string sqlGetDept = " select * from fy_plan where PlanID='" + ID + "' ";
+            DataTable dtGetDept = SkillBll.GetDataTable(sqlGetDept);
+            if (dtGetDept.Rows.Count > 0)
+            {
+                deptID = dtGetDept.Rows[0]["DepartmentID"].ToString();
+            }
+
+            string IsLeader = "";
+            string SqlIsLeader = @"select * from Base_ObjectUserRelation where UserId='" + ManageProvider.Provider.Current().UserId + "' and ObjectId in ('8431ea77-69c9-484c-a67f-4f3419c0d393', '91c17ca4-0cbf-43fa-829e-3021b055b6c4','54804f22-89a1-4eee-b257-255deaf4face')";
+            DataTable dtIsLeader = SkillBll.GetDataTable(SqlIsLeader);
+            if (dtIsLeader.Rows.Count > 0)
+            {
+                //如果有车间主任、厂长、副总的权限，除了通用还要加上系统监督的审批内容
+                IsLeader = "系统监督";
+            }
+
+            StringBuilder strSql = new StringBuilder();
+            strSql.AppendFormat("insert into fy_plandetail  select NEWID(),'{0}',processid,'','{1}',ProcessName,AbleProcess,AuditContent,FailureEffect,ReactionPlan from FY_Process where processid not in " +
+                "(select processid from fy_plandetail where planid='{0}') and (ProcessName in (select PlanContent from FY_Plan where PlanID='{0}' ) " +
+                "or (processname in ('通用','{3}') and DepartmentID='cb016a86-d835-4eb9-ad80-6a86d2140c88') )  and (DepartmentID='{2}' or DepartmentID='cb016a86-d835-4eb9-ad80-6a86d2140c88') ",
+                ID, ManageProvider.Provider.Current().UserId, deptID, IsLeader);
+            SkillBll.ExecuteSql(strSql);
+
+            //获取数据展示到页面
+            string sql = @" select a.plandid,a.ProcessName,a.AbleProcess,a.AuditContent,a.FailureEffect,a.ReactionPlan,a.examresult 
+from fy_plandetail a left join FY_Process b on a.processid=b.ProcessID where a.planid='" + ID + "' order by a.ProcessName desc ";
+            DataTable dt = SkillBll.GetDataTable(sql);
+            ViewData["dt"] = dt;
+            return View();
+        }
+
+        public ActionResult ProblemResponse(string id)
+        {
+            return View();
+        }
+
+        public ActionResult ResponseAllJson()
+        {
+            FY_PlanBll planbll = new FY_PlanBll();
+            DataTable ListData = planbll.GetResponseAllByList();
+            return Content(ListData.ToJson());
+        }
+
+        public int InsertAction(string problem, string action1, string response, string plandate)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.AppendFormat("insert into FY_ProblemAction values (NEWID(),'" + problem + "','" + action1 + "','" + response + "','" + plandate + "','" + ManageProvider.Provider.Current().UserId + "','" + ManageProvider.Provider.Current().DepartmentId + "')");
+            int result = SkillBll.ExecuteSql(strSql);
+
+            //string GetReciverSql = " select Email from base_user where userid='" + response + "' ";
+            //DataTable dt = SkillBll.GetDataTable(GetReciverSql);
+            //if (dt.Rows.Count > 0)
+            //{
+            //    MailHelper.SendEmail(dt.Rows[0][0].ToString(), "您好，您的分层审核有一项不合格，请注意登录系统查看");
+            //}
+
+            return result;
+        }
     }
 }

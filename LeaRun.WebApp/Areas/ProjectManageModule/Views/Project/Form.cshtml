@@ -1,0 +1,212 @@
+﻿@{
+    ViewBag.Title = "项目管理Form";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+
+}
+
+<link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
+<script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>
+
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
+
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+
+    input {
+        background: #E0FFFF;
+    }
+
+    textarea {
+        background: #E0FFFF;
+    }
+
+    select {
+        background: #E0FFFF;
+    }
+</style>
+
+
+<script type="text/javascript">
+    //$(document).ready(function () {
+
+    //    uploadify();
+    //});
+    $(function () {
+        BindDepartMent();
+        InitControl();
+        //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
+        //BindResponseBy();
+        $('input[id$="Date"]').each(function () {
+
+            var w = this.value.indexOf("T");
+            if (w > 0) {
+                this.value = this.value.substring(0, w);
+            }
+            this.disabled = true;
+            this.readOnly = true;
+        });
+
+
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/ProjectManageModule/project/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            AjaxJson("/ProjectManageModule/project/SubmitForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+
+    function BindDepartMent() {
+        $("#DepartMentID").html("");
+        $("#DepartMentID").append("<option value=''>==请选择==</option>");
+        AjaxJson("/ProjectManageModule/Project/DepartmentJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#DepartMentID").append($("<option></option>").val(DataJson[i].departmentid).html(DataJson[i].fullname));
+            });
+        })
+    }
+
+
+
+</script>
+
+
+<form id="form1">
+    <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">基本信息</div>
+
+
+            </div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+        <!--基本信息-->
+        <div id="basic" class="tabPanel">
+            <table class="form">
+
+                <tr>
+                    <th class="formTitle">项目编号：</th>
+                    <td class="formValue">
+
+                        <input readonly id="ProjectNO" type="text" class="txt" value="@ViewBag.BillNo" style="width: 95%" />
+
+                    </td>
+
+                    <th class="formTitle">部门</th>
+                    <td class="formValue">
+                        <select id="DepartMentID" class="select" datacol="yes" err="部门" checkexpession="NotNull" style="width: 96%"></select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">登陆日期：</th>
+                    <td class="formValue">
+                        <input id="CreateDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" err="登陆日期" checkexpession="NotNull" />
+                    </td>
+
+                    <th class="formTitle">计划完成日期：</th>
+                    <td class="formValue">
+                        <input id="PlanFinishDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" err="计划完成日期" checkexpession="NotNull" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">项目名称：</th>
+                    <td class="formValue" colspan="3">
+
+                        <input id="ProjectName" type="text" class="txt" datacol="yes" err="项目名称" checkexpession="NotNull" />
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">项目性质：</th>
+                    <td class="formValue">
+                        <input id="ProjectNature" type="text" class="txt" datacol="yes" err="项目性质" checkexpession="NotNull" />
+                    </td>
+
+                    <th class="formTitle">项目状态：</th>
+                    <td class="formValue">
+                        <input id="ProjectStatus" type="text" class="txt" datacol="yes" err="项目状态" checkexpession="NotNull" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">基准：</th>
+                    <td class="formValue">
+                        <input id="BenchMark" type="text" class="txt" datacol="yes" err="基准" checkexpession="NotNull" />
+                    </td>
+
+                    <th class="formTitle">目标：</th>
+                    <td class="formValue">
+                        <input id="Target" type="text" class="txt" datacol="yes" err="目标" checkexpession="NotNull" />
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">项目指标：</th>
+                    <td class="formValue">
+                        <input id="ProjectIndicators" type="text" class="txt" datacol="yes" err="项目指标" checkexpession="NotNull" />
+                    </td>
+
+                    <th class="formTitle">收益计算公式&说明：</th>
+                    <td class="formValue">
+                        <input id="CalculationFormula" type="text" class="txt" datacol="yes" err="收益计算公式" checkexpession="NotNull" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+
+    </div>
+
+</form>

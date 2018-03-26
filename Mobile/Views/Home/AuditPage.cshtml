@@ -1,0 +1,29 @@
+﻿
+@{
+    ViewBag.Title = "AuditPage";
+}
+
+<body>
+    <div data-role="page">
+
+        <div data-role="header">
+            <a href="#" data-role="button" data-rel="back" data-icon="arrow-l">后退</a><h1>分层审核</h1>
+        </div>
+
+        <div data-role="content">
+            @Html.Raw(ViewData["Content"])
+        </div>
+
+        <div data-role="footer">
+            <h1>develop by--shenjun</h1>
+        </div>
+
+    </div>
+</body>
+<script>
+
+    function auditinfo(id) {
+         window.location.href = '@Url.Content("~/Home/AuditDetailPage")?ID=' + id;
+        
+    }
+</script>

@@ -20,10 +20,10 @@ namespace LeaRun.Business
             StringBuilder strSql = new StringBuilder();
             List<DbParameter> parameter = new List<DbParameter>();
             strSql.Append(@" select a.*,b.DormName from DM_RoomCost a left join 
-DM_Dorm b on a.dormid=b.dormid where 1=1  ");
+DM_Dorm b on a.dormid=b.dormid left join dm_room c on a.roomno=c.roomno where 1=1  ");
             if (!string.IsNullOrEmpty(keyword))
             {
-                strSql.Append(@" AND (DormName LIKE @keyword
+                strSql.Append(@" AND (b.DormName LIKE @keyword or c.roomno like @keyword
                                     )");
                 parameter.Add(DbFactory.CreateDbParameter("@keyword", '%' + keyword + '%'));
             }

@@ -699,7 +699,7 @@ group by FullName ";
         public void ExcelExport(string condition)
         {
             ExcelHelper ex = new ExcelHelper();
-            string sql = @" select RapidState as 状态,a.res_area as 产品区域,a.res_type as 问题类型,a.IsCheck as 是否考核,a.res_again as 是否重复发生,
+            string sql = @" select RapidState as 状态,a.res_jb as 投诉级别,a.res_area as 产品区域,a.res_dd as 事发地,a.res_type as 问题类型,a.IsCheck as 是否考核,a.res_again as 是否重复发生,
 a.res_ok as 问题类别,b.RealName as 责任人,c.FullName as 责任部门,
 res_kf as 客户,res_ms as 问题描述,CONVERT(varchar(100), res_cdate, 23) as 发生日期,res_fxnode as 根本原因分析,
 res_csnode as 纠正措施,NotCompleteReason as 未按进度完成原因,Action as 对应措施,Requirements as 规范要求,ActualResults as 规范操作
@@ -1049,7 +1049,7 @@ dataCondition + " and b.RealName='" + Name + "' " +
                 //将记录插入到一般问题表中
                 strSql.AppendFormat(@" insert into FY_GeneralProblem
 select NEWID(),res_area,res_ok,res_again,res_type,res_cpeo,res_kf,res_ms,res_cdate,
-res_fxnode,res_csnode,res_msfj,'',RapidState,null,DATEADD(DAY,7,res_cdate),'','','',IsCheck
+res_fxnode,res_csnode,res_msfj,'',RapidState,null,DATEADD(DAY,7,res_cdate),'','','',IsCheck,res_jb,res_dd,res_mc,res_cd,Requirements,ActualResults
 from FY_Rapid where res_id='{0}' ", ID);
                 rapidbll.ExecuteSql(strSql);
             }

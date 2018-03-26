@@ -1,0 +1,92 @@
+﻿
+@{
+    ViewBag.Title = "MenuPage";
+}
+
+<body>
+    <div data-role="page">
+
+        <div data-role="header">
+            <h1>考试列表</h1>
+        </div>
+
+        <div data-role="content">
+            <a href="FirstPage" data-role="button" data-icon="refresh">标准化培训</a>
+            <a href="AuditPage" data-role="button" data-icon="refresh">分层审核</a>
+        </div>
+
+        <div data-role="footer">
+            <h1>develop by--shenjun</h1>
+        </div>
+
+    </div>
+</body>
+<script>
+    function examinfo(id,type) {
+        //if (type == "0")
+        //{
+        //    alert("技能");
+        //}
+        //if (type == "1")
+        //{
+        //    alert("专项");
+        //}
+        $.ajax({
+            type: "post",
+            url: "/home/IsApply?Type=" + type + "&ID=" + id,
+            async: false,
+            success: function (msg) {
+                if (msg == "可以参加考试")
+                {
+                    window.location.href = '@Url.Content("~/Home/ExamPage")?ID=' + id + '&Type=' + type;
+
+                    return false;
+                }
+                else
+                {
+                    alert(msg);
+                }
+            },
+            error: function () {
+                alert("出错了");
+            }
+        });
+    }
+
+
+
+    function auditinfo(id) {
+         window.location.href = '@Url.Content("~/Home/AuditDetailPage")?ID=' + id;
+        //if (type == "0")
+        //{
+        //    alert("技能");
+        //}
+        //if (type == "1")
+        //{
+        //    alert("专项");
+        //}
+        @*$.ajax({
+            type: "post",
+            url: "/home/auditform?ID=" + id,
+            async: false,
+            success: function (msg) {
+                if (msg == "可以参加考试")
+                {
+                    window.location.href = '@Url.Content("~/Home/ExamPage")?ID=' + id + '&Type=' + type;
+
+                    return false;
+                }
+                else
+                {
+                    alert(msg);
+                }
+            },
+            error: function () {
+                alert("出错了");
+            }
+        });*@
+    }
+</script>
+
+
+

@@ -555,8 +555,9 @@ and ApprovePost in ('3efe8c99-fcaa-4efd-9523-ef0fa652557c','1538456f-0a50-4f1f-a
             return View();
         }
 
-        public string GetPieData(string year)
+        public string GetPieData(string StartDate,string EndDate)
         {
+           
             string result = "";
             string temp1 = "";
             string temp2 = "";
@@ -565,9 +566,42 @@ and ApprovePost in ('3efe8c99-fcaa-4efd-9523-ef0fa652557c','1538456f-0a50-4f1f-a
             //    "' group by fullname ";
             string sql = @"select count(distinct a.ProblemID) as allcount,COUNT(distinct b.ProblemID) as fiunishcount,
 a.ProposeDept from FY_HrProblem a
-left join (select * from FY_HrProblem where ProblemState='已完成') b on a.ProblemID=b.ProblemID
+left join (select * from FY_HrProblem where ProblemState='已完成') b on a.ProblemID=b.ProblemID 
+where a.CreateDt>='{0}' and a.createdt<='{1}' 
 group by a.ProposeDept ";
-            sql = string.Format(sql, year);
+            sql = string.Format(sql, StartDate,EndDate);
+            DataTable dt = PostBll.GetDataTable(sql);
+            if (dt.Rows.Count > 0)
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    temp1 = temp1 + dt.Rows[i][0] + ",";
+                    temp2 = temp2 + dt.Rows[i][1] + ",";
+                    temp3 = temp3 + dt.Rows[i][2] + ",";
+
+                }
+                temp1 = temp1.Substring(0, temp1.Length - 1);
+                temp2 = temp2.Substring(0, temp2.Length - 1);
+                temp3 = temp3.Substring(0, temp3.Length - 1);
+            }
+            result = temp1 + "|" + temp2 + "|" + temp3;
+            return result;
+        }
+
+        public string GetChartData(string StartDate, string EndDate)
+        {
+            string result = "";
+            string temp1 = "";
+            string temp2 = "";
+            string temp3 = "";
+            //string sql = "select count(*) as cishu,fullname from RapidList_New where YEAR(res_cdate)='" + year + 
+            //    "' group by fullname ";
+            string sql = @"select count(distinct a.ProblemID) as allcount,COUNT(distinct b.ProblemID) as fiunishcount,
+a.ProblemType from FY_HrProblem a
+left join (select * from FY_HrProblem where ProblemState='已完成') b on a.ProblemID=b.ProblemID 
+where a.CreateDt>='{0}' and a.createdt<='{1}' 
+group by a.ProblemType ";
+            sql = string.Format(sql, StartDate,EndDate);
             DataTable dt = PostBll.GetDataTable(sql);
             if (dt.Rows.Count > 0)
             {

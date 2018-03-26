@@ -3,6 +3,11 @@
     Layout = "~/Views/Shared/_LayoutIndex.cshtml";
 }
 <script>
+
+    //注意：parent 是 JS 自带的全局对象，可用于操作父页面
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+    //parent.layer.iframeAuto(index);
+
     $(function () {
         $("#keywords").focus();
         BindSkill();
@@ -31,7 +36,7 @@
         $("#gridTable").jqGrid({
             url: "@Url.Content("~/TrainModule/PostDepartmentRelation/GetSkillListJson")",
             datatype: "json",
-            height: 500,
+            height: 230,
             autowidth: true,
             colModel: [
                 { label: '技能主键', name: 'skillid', hidden: true },
@@ -110,11 +115,23 @@
             alert("请至少选择一个技能");
             return false;
         }
+
+        parent.selectSkillChrome(Result);
+        parent.layer.close(index);
         //console.log(Result);
         //alert(ResultArr[0] + ',' + ResultArr[1] + ',' + ResultArr[2])
-        window.returnValue = Result;
+        if (window.opener != undefined) {
+            //window.opener.hasOpenWindow = false;  
+            window.opener.selectSkillChrome(Result);
+        }
+        else 
+        {
+            window.returnValue = Result;
+        }
         window.close();
     }
+
+   
 </script>
 <div class="border" style="margin: 1px; border-bottom: none; margin-bottom: 0px;">
     <div class="QueryArea">

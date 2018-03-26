@@ -29,6 +29,7 @@
     <SccProvider>SAK</SccProvider>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -63,9 +64,6 @@
     </Reference>
     <Reference Include="LeaRun.Repository">
       <HintPath>..\LeaRun.Repository\bin\Debug\LeaRun.Repository.dll</HintPath>
-    </Reference>
-    <Reference Include="LeaRun.Resource">
-      <HintPath>..\LeaRun.Resource\bin\Debug\LeaRun.Resource.dll</HintPath>
     </Reference>
     <Reference Include="LeaRun.ServiceFactory">
       <HintPath>..\LeaRun.ServiceFactory\bin\Debug\LeaRun.ServiceFactory.dll</HintPath>
@@ -9113,6 +9111,10 @@
     <Content Include="Views\Home\SkillExam.cshtml" />
     <Content Include="Views\Home\ExamPage.cshtml" />
     <Content Include="Views\Home\ErrorPage.cshtml" />
+    <Content Include="Views\Home\MenuPage.cshtml" />
+    <Content Include="Views\Home\AuditPage.cshtml" />
+    <Content Include="Views\Home\AuditDetailPage.cshtml" />
+    <Content Include="Views\Home\ProblemResponse.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

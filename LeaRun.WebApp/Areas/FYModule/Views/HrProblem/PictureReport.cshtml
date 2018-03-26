@@ -8,7 +8,36 @@
 <script src="~/Content/Scripts/jquery.echarts/echarts.js"></script>
 
 
+<script src="~/Content/Scripts/datepicker/WdatePicker.js"></script>
+
+<div id="grid_List">
+    <div class="bottomline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px">
+        <table>
+            <tr>
+                <th>
+                    开始日期：
+                </th>
+                <td>
+                    <input id="txtStartDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="width: 200px;border:1px,solid" />
+                </td>
+                <th>
+                    结束日期：
+                </th>
+                <td>
+                    <input id="txtEndDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="width: 200px;border:1px,solid" />
+                </td>
+
+                <td>
+                    <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="onChange()" />
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
 <div id="main" style="width: auto;height:400px"></div>
+
+<div id="main2" style="width: auto;height:400px"></div>
 
 <script type="text/javascript">
 
@@ -17,21 +46,23 @@
 
         $(document).ready(function () {
             onChange();
+            picture2();
         });
 
         //把加载数据单独放到一个function中，供selectchange事件调用
         function onChange()
         {
-            
 
 
+        var startDate = $("#txtStartDate").val();
+        var endDate = $("#txtEndDate").val();
 
 
         var DataForMyChart2 = new Array();
 
         var c1=new Array();
-        var c2=new Array();
-        var durl = encodeURI('@Url.Action("GetPieData", "HrProblem")');
+        var c2 = new Array();
+        var durl = encodeURI('@Url.Action("GetPieData", "HrProblem")?StartDate=' + startDate + "&EndDate=" + endDate);
         $.ajax({
             type: "post",
             url: durl,
@@ -74,6 +105,66 @@
                 }
             ]
         })
+
+
+
+
+
+            var startDate = $("#txtStartDate").val();
+        var endDate = $("#txtEndDate").val();
+
+
+        var DataForMyChart2 = new Array();
+
+        var c1=new Array();
+        var c2 = new Array();
+        var durl = encodeURI('@Url.Action("GetChartData", "HrProblem")?StartDate=' + startDate + "&EndDate=" + endDate);
+        $.ajax({
+            type: "post",
+            url: durl,
+            async: false,
+            success: function (data) {
+                var xx;
+                var dataA = new Array();
+                //var i = 0;
+                dataA = data.split("|");
+
+
+                c1 = dataA[0].split(",");
+                c2 = dataA[1].split(",");
+                c3 = dataA[2].split(",");
+                for (var i = 0; i < c1.length; i++)
+                {
+                    var TempObject = {};
+                    TempObject["value"] = parseInt(c1[i]);
+
+                    TempObject["name"] = c3[i]+"(总共:"+c1[i]+"单,已完成:"+c2[i]+"单)";
+
+                    DataForMyChart2.push(TempObject);
+                }
+            }
+        });
+
+        var myChart2 = echarts.init(document.getElementById('main2'));
+        //饼图
+        myChart2.setOption({
+            title: {
+                text: '各类型问题次数'
+            },
+            roseType: 'angle',
+            series: [
+                {
+                    name: '访问来源',
+                    type: 'pie',
+                    radius: '55%',
+                    data: DataForMyChart2
+                }
+            ]
+        })
         }
+
+        //function picture2() {
+
+        //}
 
 </script>

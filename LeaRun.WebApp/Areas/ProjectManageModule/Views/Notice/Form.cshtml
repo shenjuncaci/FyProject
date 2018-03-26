@@ -1,0 +1,188 @@
+﻿@{
+    ViewBag.Title = "判断题";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+    
+}
+
+<link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
+<script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>
+
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
+
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+
+    input {
+        background: #E0FFFF;
+    }
+
+    textarea {
+        background: #E0FFFF;
+    }
+
+    select {
+        background: #E0FFFF;
+    }
+</style>
+
+
+<script type="text/javascript">
+    //$(document).ready(function () {
+
+    //    uploadify();
+    //});
+    $(function () {
+
+        InitControl();
+        //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
+        //BindResponseBy();
+
+
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/ProjectManageModule/Notice/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+
+            });
+
+            $.ajax({
+                type: "post",
+                url: "/ProjectManageModule/Notice/GetProjectName?ProjectID=" + $("#ProjectID").val(),
+                async: false,
+                success: function (msg) {
+                    $("#ProjectName").val(msg);
+                },
+                error: function () {
+                    alert("出错了");
+                }
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            AjaxJson("/ProjectManageModule/Notice/SubmitForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+
+
+    function addProject() {
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '选择项目',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['550px', '350px'],
+            content: 'ChooseProject'
+        });
+    }
+
+    function SelectProject(result) {
+        $("#ProjectID").val(result[0]);
+        $("#ProjectName").val(result[1]);
+    }
+
+</script>
+
+
+<form id="form1">
+    <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">基本信息</div>
+
+
+            </div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+        <!--基本信息-->
+        <div id="basic" class="tabPanel">
+            <table class="form">
+
+                <tr>
+                    <th class="formTitle">项目名称：</th>
+                    <td class="formValue">
+
+                        <table style="width:100%">
+                            <tr>
+                                <td style="width:90%">
+                                    <input readonly id="ProjectID" type="text" class="txt" datacol="yes" err="项目ID" checkexpession="NotNull" style="width:10%;display:none" />
+                                    <input readonly id="ProjectName" type="text" class="txt" datacol="yes" err="项目名称" checkexpession="NotNull" style="width:90%" />
+                                </td>
+                                <td style="width:10%">
+                                    <img src="~/Content/Images/Icon16/bullet_magnify.png" onclick="addProject()">
+                                </td>
+                            </tr>
+                        </table>
+
+
+                    </td>
+                   
+
+                    <th class="formTitle"></th>
+                    <td class="formValue">
+                        
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">通知内容</th>
+                    <td class="formValue" colspan="3"> 
+                        <textarea id="NoticeContent" type="text" class="txt" datacol="yes" err="通知内容" checkexpession="NotNull" style="height:130px"></textarea>
+                    </td>
+                    
+                </tr>
+               
+
+            </table>
+        </div>
+
+
+    </div>
+
+</form>

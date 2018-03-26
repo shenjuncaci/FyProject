@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.13
+VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeaRun.Utilities", "LeaRun.Utilities\LeaRun.Utilities.csproj", "{7A9E54B1-D54D-4AF2-99E9-06E9BAFF4846}"
 EndProject
@@ -114,5 +114,8 @@ Global
 		{7D1A96CF-9B89-443F-AB95-12343F52A1AC} = {A0E9EAC1-4E3C-40F0-8EE2-ADA529AEF605}
 		{FE90ED79-3221-4C96-9361-9019A17BE9F7} = {AF9BA993-669E-45A6-9F8B-08D47E47919E}
 		{DCD9D380-C2E1-41B2-9761-43F40DBA1567} = {F39F5F4A-9C46-4CEE-8C83-C99CE98767B0}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DC8AFE95-0869-454E-B527-44E0F6F6461E}
 	EndGlobalSection
 EndGlobal

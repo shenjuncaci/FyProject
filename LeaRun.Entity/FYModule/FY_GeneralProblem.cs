@@ -46,6 +46,12 @@ namespace LeaRun.Entity
         public string ImproveReport { get; set; }
         public string ImproveReportAttach { get; set; }
         public string IsCheck { get; set; }
+        public string ComplaintLevel { get; set; }
+        public string HappenPlace { get; set; }
+        public string ProductName { get; set; }
+        public string ImportLevel { get; set; }
+        public string Requirements { get; set; }
+        public string ActualResults { get; set; }
 
 
         #region 扩展操作

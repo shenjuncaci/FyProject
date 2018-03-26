@@ -87,8 +87,10 @@
                 
                 { label: '计费日期', name: 'inputdate', index: 'inputdate', width: 100, align: 'left' },
                 
-                { label: '水费', name: 'waterpriceall', index: 'waterpriceall', width: 80, align: 'left' },
-                { label: '电费', name: 'electricpriceall', index: 'electricpriceall', width: 80, align: 'left' },
+                { label: '上月水表', name: 'prewater', index: 'prewater', width: 80, align: 'left' },
+                { label: '当前水表', name: 'nowwater', index: 'nowwater', width: 80, align: 'left' },
+                { label: '上月电表', name: 'preelectric', index: 'preelectric', width: 80, align: 'left' },
+                { label: '当前电表', name: 'nowelectric', index: 'nowelectric', width: 80, align: 'left' },
                 { label: 'IPTV代扣', name: 'iptvpurchase', index: 'iptvpurchase', width: 80, align: 'left' },
                 { label: '闭路代扣', name: 'bilupurchase', index: 'bilupurchase', width: 80, align: 'left' },
                 { label: '垃圾费', name: 'trashfee', index: 'trashfee', width: 80, align: 'left' },
@@ -165,7 +167,7 @@
         var KeyValue = GetJqGridRowValue("#gridTable", "roomcostid");
         if (IsDelData(KeyValue)) {
             var delparm = 'KeyValue=' + KeyValue;
-            delConfig('/DormModule/skill/Delete', delparm, KeyValue.split(",").length);
+            delConfig('/DormModule/RoomCost/Delete', delparm, KeyValue.split(",").length);
         }
     }
 
