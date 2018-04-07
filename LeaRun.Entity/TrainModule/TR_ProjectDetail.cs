@@ -31,9 +31,10 @@ namespace LeaRun.Entity
 
 
         public int SortNO { get; set; }
+        public int Score { get; set; }
         
         public string Remark { get; set; }
-        
+        public string SkillName { get; set; }
 
 
 

@@ -30,6 +30,7 @@
 
 </div>
 <script>
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
     function cancel() {
         self.close();
     }
@@ -40,10 +41,12 @@
             alert("请填写完整项目再提交");
             return false;
         }
-
+        parent.layer.close(index);
+        parent.CheckOutAjax(GetQuery('CheckInID'), _EventName);
         
-        window.returnValue = _EventName;
-        window.close();
+        
+        //window.returnValue = _EventName;
+        //window.close();
     }
    
 </script>

@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "工序信息";
+    ViewBag.Title = "课程选择";
     Layout = "~/Views/Shared/_LayoutIndex.cshtml";
 }
 <style>
@@ -65,35 +65,9 @@
 
     //搜索
     function btn_Search() {
-
-        var keywords = "";
-        var Code = $("#Code").val();
-        var ExamType = $("#ExamType").val();
-        var PostList = $("#PostList").val();
-        var Skill = $("#Skill").val();
-        var Name = $("#Name").val();
-        if (CheckIsNullNoTip(Code))
-        {
-            keywords += " and Code='" + Code + "' ";
-        }
-        if (CheckIsNullNoTip(ExamType))
-        {
-            keywords += " and Fromsource='" + ExamType + "' ";
-        }
-        if (CheckIsNullNoTip(PostList))
-        {
-            keywords += " and PostID='" + PostList + "' ";
-        }
-        if (CheckIsNullNoTip(Skill))
-        {
-            keywords += " and SkillName like '%" + Skill + "%'";
-        }
-        if (CheckIsNullNoTip(Name))
-        {
-            keywords += " and RealName like '%" + Name + "%' ";
-        }
+        var keywords = $("#keywords").val();
         $("#gridTable").jqGrid('setGridParam', {
-            url: "@Url.Content("~/TrainModule/Skill/GridExamScoreListJson")?keywords=" + escape(keywords), page: 1
+            url: "@Url.Content("~/TrainModule/project/GridStudyListJson")?keywords=" + escape(keywords), page: 1
         }).trigger('reloadGrid');
     }
 
@@ -102,25 +76,24 @@
     function GetGrid() {
         var SelectRowIndx;
         $("#gridTable").jqGrid({
-            url: "@Url.Content("~/TrainModule/Skill/GridExamScoreListJson")",
+            url: "@Url.Content("~/TrainModule/project/GridStudyListJson")",
             datatype: "json",
             height: $(window).height() - 178,
             autowidth: true,
             colModel: [
-                //{ label: '主键', name: 'Skillid', index: 'Skillid', width: 80, align: 'left', hidden: true },
-                { label: '类别', name: 'type', index: 'type', width: 80, align: 'left' },
-                { label: '技能/专项名称', name: 'skillname', index: 'skillname', width: 200, align: 'left' },
-                { label: '工号', name: 'code', index: 'code', width: 80, align: 'left' },
-                { label: '姓名', name: 'realname', index: 'realname', width: 80, align: 'left' },
-                { label: '岗位', name: 'postname', index: 'postname', width: 120, align: 'left' },
-                { label: '考试成绩', name: 'score', index: 'score', width: 80, align: 'left' },
-                
+                //{ label: '主键', name: 'projectid', index: 'projectid', width: 80, align: 'left', hidden: true },
+                { label: '技能名称', name: 'projectname', index: 'projectname', width: 250, align: 'left' },
+                { label: '学习时长', name: 'startdate', index: 'startdate', width: 250, align: 'left', formatter: dateFormat },
+                { label: '要求学分', name: 'enddate', index: 'enddate', width: 100, align: 'left', formatter: dateFormat },
+                { label: '已获取的学分', name: 'remark', index: 'remark', width: 250, align: 'left' },
+                //{ label: '备注', name: 'remark', index: 'remark', width: 250, align: 'left' },
+                //{ label: '结束时间', name: 'endtime', index: 'endtime', width: 250, align: 'left' },
             ],
             viewrecords: true,
             rowNum: 30,
             rowList: [30, 50, 100, 500, 1000],
             pager: "#gridPager",
-            sortname: 'fromsource',
+            sortname: 'startdate',
             sortorder: 'desc',
             rownumbers: true,
             shrinkToFit: false,
@@ -135,6 +108,23 @@
             gridComplete: function () {
                 //LoadViewList();
                 $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            },
+            ondblClickRow: function (RowIndx) {
+
+                var rowData = $(this).jqGrid('getRowData', RowIndx);
+
+                //GetAttachGrid(rowData.skillid);
+
+                var index=layer.open({
+                    type: 2,  //2表示ifrmae弹出层
+                    title: '课程排名',
+                    maxmin: true,
+                    shadeClose: true, //点击遮罩关闭层
+                    area: ['800px', '550px'],
+                    content: 'CourseRankDetail?KeyValue='+rowData.projectid
+                    });
+                //layer.full(index);
+
             }
         });
         columnModelData("#gridTable");
@@ -153,7 +143,7 @@
             top.frames[iframe].QueryClick(function (JsonData) {
                 QueryParamJson = JsonData;
                 $("#gridTable").jqGrid('setGridParam', {
-                    url: "@Url.Content("~/TrainModule/Skill/GridExamScoreListJson")?ParameterJson=" + escape(JsonData), page: 1
+                    url: "@Url.Content("~/TrainModule/project/GridPageListJson")?ParameterJson=" + escape(JsonData), page: 1
                 }).trigger('reloadGrid');
             });
         });
@@ -161,39 +151,30 @@
 
     //新增
     function btn_add() {
-        var url = "/TrainModule/Skill/Form"
-        openDialog(url, "Form", "新增", 650, 350, function (iframe) {
+        var url = "/TrainModule/project/Form"
+        openDialog(url, "Form", "新增", 1000, 550, function (iframe) {
             top.frames[iframe].AcceptClick();
         });
     }
     //编辑
     function btn_edit() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "Skillid");
+        var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
+        //alert(KeyValue);
         if (IsChecked(KeyValue)) {
-            var url = "/TrainModule/Skill/Form?KeyValue=" + KeyValue;
-            openDialog(url, "Form", "编辑", 650, 350, function (iframe) {
+            var url = "/TrainModule/project/Form?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑", 1000, 550, function (iframe) {
                 top.frames[iframe].AcceptClick()
             });
 
         }
     }
-    //添加检查明细
-    function btn_AddItem()
-    {
-        var KeyValue = GetJqGridRowValue("#gridTable", "Skillid");
-        if (IsChecked(KeyValue)) {
-            var url = "/TrainModule/Skill/FormAddItem?KeyValue=" + KeyValue;
-            openDialog(url, "Form", "编辑", 650, 350, function (iframe) {
-                top.frames[iframe].AcceptClick();
-            });
-        }
-    }
+
     //删除
     function btn_delete() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "Skillid");
+        var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
         if (IsDelData(KeyValue)) {
             var delparm = 'KeyValue=' + KeyValue;
-            delConfig('/TrainModule/Skill/Delete', delparm, KeyValue.split(",").length);
+            delConfig('/TrainModule/project/Delete', delparm, KeyValue.split(",").length);
         }
     }
 
@@ -205,6 +186,17 @@
         });
     }
 
+    //添加用户
+    function add_user() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
+        if (IsChecked(KeyValue)) {
+            var url = "/TrainModule/project/UserForm?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑", 1000, 350, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+
+        }
+    }
 
     //刷新
     function windowload() {
@@ -241,51 +233,15 @@
         }
 
 
-        if (DateNow.pattern("yyyy-MM-dd") > DecideDate.pattern("yyyy-MM-dd"))
-        {
-            cellvalue = "<font color=\"red\">" + cellvalue + "</font>";
-        }
+        //if (DateNow.pattern("yyyy-MM-dd") > DecideDate.pattern("yyyy-MM-dd"))
+        //{
+        //    cellvalue = "<font color=\"red\">" + cellvalue + "</font>";
+        //}
 
         return cellvalue;
     }
 
-    function BindPost()
-    {
-        $("#PostList").html("");
 
-        //$("#PostList").append("<option value=''>==请选择==</option>");
-        AjaxJson("/TrainModule/Skill/PostJson", {UserCode:$("#Code").val()}, function (DataJson) {
-            $.each(DataJson, function (i) {
-                $("#PostList").append($("<option></option>").val(DataJson[i].PostID).html(DataJson[i].PostName));
-            });
-        });
-    }
-
-    function btn_derive()
-    {
-        var keywords = "";
-        var Code = $("#Code").val();
-        var ExamType = $("#ExamType").val();
-        var PostList = $("#PostList").val();
-        var Skill = $("#Skill").val();
-        var Name = $("#Name").val();
-        if (CheckIsNull(Code)) {
-            keywords += " and Code='" + Code + "' ";
-        }
-        if (CheckIsNullNoTip(ExamType)) {
-            keywords += " and Fromsource='" + ExamType + "' ";
-        }
-        if (CheckIsNullNoTip(PostList)) {
-            keywords += " and PostID='" + PostList + "' ";
-        }
-        if (CheckIsNullNoTip(Skill)) {
-            keywords += " and SkillName like '%" + Skill + "%'";
-        }
-        if (CheckIsNullNoTip(Name)) {
-            keywords += " and RealName like '%" + Name + "%' ";
-        }
-        window.open(encodeURI("ExcelExport?condition=" + keywords));
-    }
 
 </script>
 
@@ -294,7 +250,7 @@
 <div>
     <div class="btnbartitle">
         <div>
-            用户列表 <span id="CenterTitle"></span>
+           个人学习情况 <span id="CenterTitle"></span>
         </div>
     </div>
     <!--工具栏-->
@@ -310,42 +266,10 @@
             <table border="0" class="form-find" style="height: 45px;">
                 <tr>
                     <th>
-                        考试类型：
+                        关键字：
                     </th>
                     <td>
-                        <select id="ExamType" class="select">
-                            .
-                            <option value="">==请选择==</option>
-                            <option value="0">技能考试</option>
-                            <option value="1">专项考试</option>
-                            <option value="2">人才培养</option>
-                        </select>
-                    </td>
-                    <th>
-                        技能/专项名称：
-                    </th>
-                    <td>
-                        <input id="Skill" type="text" />
-                    </td>
-                    <th>
-                        姓名：
-                    </th>
-                    <td>
-                        <input id="Name" type="text"/>
-                    </td>
-                    <th>
-                        工号：
-                    </th>
-                    <td>
-                        <input id="Code" type="text" onchange="BindPost()" />
-                    </td>
-                    <th>
-                        岗位：
-                    </th>
-                    <td>
-                        <select id="PostList" class="select">
-                            
-                        </select>
+                        <input id="keywords" type="text" class="txt" style="width: 200px" />
                     </td>
                     <td>
                         <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />

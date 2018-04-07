@@ -167,10 +167,18 @@ namespace LeaRun.Entity
         public string res_type { get; set; }
 
         public string res_again { get; set; }
+
+
         #endregion
         #endregion
         //分层审核中的工序ID
         public string ProcessID { get; set; }
+
+        public string res_postverify { get; set; }
+        public DateTime? res_postverifydt { get; set; }
+        public string res_postverifynode { get; set; }
+
+        public string VerifyPostID { get; set; }
 
         #region 扩展操作
         /// <summary>
@@ -189,6 +197,7 @@ namespace LeaRun.Entity
             this.res_bzgx = "未提交";
             this.res_jyjx = "未提交";
             this.res_8d = "未提交";
+            this.res_postverify = "未提交";
 
             this.RapidState = "进行中";
             this.CreateDt = DateTime.Now;

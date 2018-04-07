@@ -62,7 +62,6 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
 
         public ActionResult Form()
         {
-
             return View();
         }
 

@@ -72,7 +72,7 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
         }
 
         [HttpPost]
-        public ActionResult SubmitForm(string KeyValue, PM_Project entity, string BuildFormJson, HttpPostedFileBase Filedata)
+        public ActionResult SubmitForm(string KeyValue, PM_Project entity, string BuildFormJson, HttpPostedFileBase Filedata, string DetailForm)
         {
             string ModuleId = DESEncrypt.Decrypt(CookieHelper.GetCookie("ModuleId"));
             IDatabase database = DataFactory.Database();
@@ -90,6 +90,19 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
 
                     entity.Modify(KeyValue);
 
+                    database.Delete<PM_ProjectMember>("ProjectID", KeyValue, isOpenTrans);
+                    List<PM_ProjectMember> DetailList = DetailForm.JonsToList<PM_ProjectMember>();
+                    int index = 1;
+                    foreach (PM_ProjectMember entityD in DetailList)
+                    {
+                        if (!string.IsNullOrEmpty(entityD.UserID))
+                        {
+                            entityD.Create();
+                            entityD.ProjectID = KeyValue;
+                            database.Insert(entityD, isOpenTrans);
+                            index++;
+                        }
+                    }
 
                     database.Update(entity, isOpenTrans);
 
@@ -99,6 +112,18 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
 
                     entity.Create();
 
+                    List<PM_ProjectMember> DetailList = DetailForm.JonsToList<PM_ProjectMember>();
+                    int index = 1;
+                    foreach (PM_ProjectMember entityD in DetailList)
+                    {
+                        if (!string.IsNullOrEmpty(entityD.UserID))
+                        {
+                            entityD.Create();
+                            entityD.ProjectID = entity.ProjectID;
+                            database.Insert(entityD, isOpenTrans);
+                            index++;
+                        }
+                    }
 
                     database.Insert(entity, isOpenTrans);
 
@@ -168,6 +193,52 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
             string sql = " select departmentid,fullname from base_department where 1=1 order by FullName ";
             DataTable dt = ProjectBll.GetDataTable(sql);
             return Content(dt.ToJson());
+        }
+
+        public ActionResult GetDetailList(string KeyValue)
+        {
+            try
+            {
+                var JsonData = new
+                {
+                    rows = ProjectBll.GetDetailList(KeyValue),
+                };
+                return Content(JsonData.ToJson());
+            }
+            catch (Exception ex)
+            {
+                Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "异常错误：" + ex.Message);
+                return null;
+            }
+        }
+
+        public ActionResult UserListBatch()
+        {
+            return View();
+        }
+
+        public ActionResult GetUserListJson(string keywords, string CompanyId, string DepartmentId,
+           JqGridParam jqgridparam, string ParameterJson, string SkillName, string SkillType)
+        {
+            try
+            {
+                Stopwatch watch = CommonHelper.TimerStart();
+                DataTable ListData = ProjectBll.GetUserList(keywords, ref jqgridparam, ParameterJson);
+                var JsonData = new
+                {
+                    total = jqgridparam.total,
+                    page = jqgridparam.page,
+                    records = jqgridparam.records,
+                    costtime = CommonHelper.TimerEnd(watch),
+                    rows = ListData,
+                };
+                return Content(JsonData.ToJson());
+            }
+            catch (Exception ex)
+            {
+                Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "异常错误：" + ex.Message);
+                return null;
+            }
         }
     }
 }

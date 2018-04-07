@@ -1,0 +1,172 @@
+﻿@{
+    ViewBag.Title = "技能列表";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script>
+
+    //注意：parent 是 JS 自带的全局对象，可用于操作父页面
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+    //parent.layer.iframeAuto(index);
+
+    $(function () {
+        $("#keywords").focus();
+       
+        GetGrid();
+        //绑定键盘按下事件
+        $(document).keypress(function (e) {
+            // 回车键事件
+            if (e.which == 13) {
+                $("#keywords").focus();
+                $("#keywords").select();
+                $("#btnSearch").click();
+            }
+        });
+    });
+    //搜索
+    function btn_Search() {
+        var keywords = "";
+        var UserName = $("#UserName").val();
+        var UserCode = $("#UserCode").val();
+        if (CheckIsNullNoTip(UserName)) {
+            keywords += " and realname like '%" + UserName + "%' ";
+        }
+        if (CheckIsNullNoTip(UserCode)) {
+            keywords += " and code like '%" + UserCode + "%' ";
+        }
+
+        $("#gridTable").jqGrid('setGridParam', {
+            url: encodeURI("@Url.Content("~/ProjectManageModule/Project/GetUserListJson")?keywords=")
+        }).trigger('reloadGrid');
+    }
+    //显示技能列表
+    function GetGrid() {
+        var index = GetQuery('index');
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/ProjectManageModule/Project/GetUserListJson")",
+            datatype: "json",
+            height: 230,
+            autowidth: true,
+            colModel: [
+                { label: '用户主键', name: 'userid', hidden: true },
+                { label: '用户名称', name: "realname", width: 100, sortable: false },
+                { label: '工号', name: "code", width: 100, sortable: false },
+                { label: '所属部门', name: "fullname", width: 100, sortable: false }
+
+            ],
+            pager: false,
+            rowNum: 1000,
+            //rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            multiselect: true
+            //双击事件
+            //ondblClickRow: function (RowIndx) {
+            //    var rowData = $(this).jqGrid('getRowData', RowIndx);
+            //    //var $parentobj = top.$.dialog;
+            //    //if (!$parentobj.IsExistItem(index, rowData.SkillID)) {
+            //    //    $parentobj.$("#SkillID➩" + index).val(rowData.SkillID);
+            //    //    $parentobj.$("#SkillName➩" + index).val(rowData.SkillName);
+
+            //    //    index++;
+
+            //    // closeDialog();
+            //    //} else {
+            //    //    top.TipMsg("技能已存在,不能重复添加", 4000, "error");
+            //    //}
+            //    var ResultArr = new Array();
+            //    ResultArr[0] = rowData.skillid;
+            //    ResultArr[1] = rowData.skillname;
+            //    ResultArr[2] = rowData.skilldescripe;
+
+            //    window.returnValue = ResultArr;
+            //    window.close();
+            //}
+        });
+    }
+
+    
+
+    //多选，一次传多个技能回去
+    function btn_Confirm()
+    {
+        var Result = new Array();
+        var UserID = GetJqGridRowValue("#gridTable", "userid");
+        var UserName = GetJqGridRowValue("#gridTable", "realname");
+        //var SkillDescripe = GetJqGridRowValue("#gridTable", "skilldescripe");
+        var UserIDArr = UserID.split(",");
+        var UserNameArr = UserName.split(",");
+
+        for (var i = 0; i < UserIDArr.length; i++)
+        {
+
+            var TempObject = {};
+            TempObject["UserID"] = UserIDArr[i];
+            TempObject["UserName"] = UserNameArr[i];
+            Result.push(TempObject);
+
+        }
+
+
+
+
+
+        if (Result.length==0)
+        {
+            alert("请至少选择一个用户");
+            return false;
+        }
+
+        parent.selectSkillChrome(Result);
+        parent.layer.close(index);
+        //console.log(Result);
+        //alert(ResultArr[0] + ',' + ResultArr[1] + ',' + ResultArr[2])
+        if (window.opener != undefined) {
+            //window.opener.hasOpenWindow = false;
+            window.opener.selectSkillChrome(Result);
+        }
+        else
+        {
+            window.returnValue = Result;
+        }
+        window.close();
+    }
+
+
+</script>
+<div class="border" style="margin: 1px; border-bottom: none; margin-bottom: 0px;">
+    <div class="QueryArea">
+        <table border="0" class="form-find" style="height: 45px;">
+            <tr>
+                <th>
+                    用户名称：
+                </th>
+                <td>
+                    <input id="UserName" type="text" class="txt" style="width: 50px" />
+                </td>
+                <th>
+                    员工编号：
+                </th>
+                <td>
+                    <input id="UserCode" type="text" class="txt" style="width: 50px" />
+                </td>
+                <td>
+                    <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                </td>
+                <td>
+                    <input id="btnSearch" type="button" class="btnSearch" value="确 认" onclick="btn_Confirm()" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="line"></div>
+    <table id="gridTable"></table>
+    <style>
+        .ui-widget-content {
+            border-left: none;
+        }
+
+        .ui-th-column, .ui-jqgrid .ui-jqgrid-htable th.ui-th-column {
+            background: none;
+        }
+    </style>
+</div>

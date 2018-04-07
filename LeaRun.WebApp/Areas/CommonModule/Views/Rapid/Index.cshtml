@@ -101,6 +101,7 @@ border-top:1px solid #E8E8E8;
                 { label: '负责人', name: 'realname', index: 'realname', width: 65, align: 'center' },
                 { label: '部门', name: 'fullname', index: 'fullname', width: 100, align: 'center' },
                 { label: '遏制表', name: 'yzb', index: 'yzb', width: 65, align: 'center', formatter: colorChangeyzb },
+                { label: '岗位验证', name: 'postverify', index: 'postverify', width: 65, align: 'center', formatter: colorChangepostverify },
                 { label: '根本原因</br>分析', name: 'fx', index: 'fx', width: 65, align: 'center', formatter: colorChangefx },
                 { label: '纠正措施', name: 'cs', index: 'cs', width: 65, align: 'center', formatter: colorChangecs },
                 { label: '防错法', name: 'fcf', index: 'fcf', width: 65, align: 'center', formatter: colorChangefcf },
@@ -129,6 +130,7 @@ border-top:1px solid #E8E8E8;
                 { label: '未按进度完成附件', name: 'notcompletereasonfj', index: 'notcompletereasonfj', width: 65, align: 'right', hidden: true },
                 { label: '对策措施附件', name: 'actionfj', index: 'actionfj', width: 65, align: 'right', hidden: true },
                 { label: '分层审核工序ID', name: 'processid', index: 'processid', width: 65, align: 'right', hidden: true },
+                { label: '岗位验证记录ID', name: 'verifypostid', index: 'verifypostid', width: 65, align: 'right', hidden: true },
                 
             ],
             viewrecords: true,
@@ -178,7 +180,7 @@ border-top:1px solid #E8E8E8;
             groupHeaders: [
               { startColumnName: 'rapidstate', numberOfColumns: 5, titleText: '问题描述（G:完成，Y:进行，R:超期，W:待定，N:不适用）' },
               { startColumnName: 'action', numberOfColumns: 4, titleText: '问题跟踪' },
-              { startColumnName: 'yzb', numberOfColumns: 1, titleText: '24H' },
+              { startColumnName: 'yzb', numberOfColumns: 2, titleText: '24H' },
               { startColumnName: 'fx', numberOfColumns: 1, titleText: '3D' },
               { startColumnName: 'cs', numberOfColumns: 1, titleText: '7D' },
               { startColumnName: 'fcf', numberOfColumns: 2, titleText: '14D' },
@@ -439,6 +441,11 @@ border-top:1px solid #E8E8E8;
         var reValue = window.showModalDialog('FormForRapid?tag=edit' + '&ProcessID=' + processid + '&rapidID=' + GetJqGridRowValue("#gridTable", "res_id") + '&state=只读', window, 'dialogWidth=650px;dialogHeight=400px;status:1;title:0;');
        
     }
+    function showverifypost(verifypostid) {
+        var obj = new Array();
+        var reValue = window.showModalDialog('FormForVerifyPost?tag=edit' + '&VerifyPostID=' + verifypostid + '&rapidID=' + GetJqGridRowValue("#gridTable", "res_id") + '&state=只读', window, 'dialogWidth=650px;dialogHeight=400px;status:1;title:0;');
+
+    }
 
     function colorChangefcsh(cellvalue, options, rowObject) {
 
@@ -473,6 +480,62 @@ border-top:1px solid #E8E8E8;
             }
         }
         if (IsOK > -1 || IsOK2>-1) {
+
+            return "<div style='background-color: white; color:black;text-align:center; width:50px; height:5px'></div><div  style='background-color: Green; color:black;text-align:center; width:50px; height:40px'>" + cellvalue + "</div><div style='background-color: white; color:black;text-align:center; width:50px; height:5px'></div>"
+        }
+        if (IsDoing > -1) {
+            if (IsMinus > 0) {
+
+                return "<div style='background-color: white; color:black;text-align:center; width:50px; height:5px'></div><div style='background-color: Yellow; color:black;text-align:center; width:50px; height:40px'>" + cellvalue + "</div><div style='background-color: white; color:black;text-align:center; width:50px; height:5px'></div>"
+            }
+            else {
+                cellvalue = cellvalue.replace("Y", "R");
+                return "<div style='background-color: white; color:black;text-align:center; width:50px; height:5px'></div><div   style='background-color: red; color:black;text-align:center; width:50px; height:40px'>" + cellvalue + "</div><div style='background-color: white; color:black;text-align:center; width:50px; height:5px'></div>"
+            }
+        }
+        if (IsApprove > -1) {
+            return "<div style='background-color: white; color:black;text-align:center; width:50px; height:5px'></div><div  style='background-color: Yellow; color:black;text-align:center; width:50px; height:40px'>" + cellvalue + "</div><div style='background-color: white; color:black;text-align:center; width:50px; height:5px'></div>"
+        }
+        else {
+            return cellvalue;
+        }
+
+
+    }
+
+    function colorChangepostverify(cellvalue, options, rowObject) {
+
+        var temp2 = "<a href='#' onClick='showverifypost(\"" + rowObject.verifypostid + "\")'><img src=\"../../../../Content/Images/Icon16/drive_magnify.png\" /></a>";
+
+        var temp = "";
+        //if (rowObject.res_fcshfj != "" && rowObject.res_fcshfj != null && rowObject.res_fcshfj != undefined) {
+
+        //    temp = temp + "<a href=\"" + rowObject.res_fcshfj.replace('~', '../../../../') + "\" download=\"附件下载\">" + "<img src=\"../../../../Content/Images/fileType/application_put.png\" />" + "</a>";
+        //}
+        var IsMinus = String(cellvalue).indexOf("-");
+
+        var num = String(cellvalue).replace(/[^0-9]/ig, "");
+        var IsOK = String(cellvalue).indexOf("G");
+        var IsOK2 = String(cellvalue).indexOf("NA");
+        var IsDoing = String(cellvalue).indexOf("Y");
+        var IsApprove = String(cellvalue).indexOf("W");
+        //cellvalue = temp + cellvalue;
+        //if (temp.length > 2) {
+        //    cellvalue = cellvalue.replace("G", "");
+        //    cellvalue = cellvalue.replace("Y", "");
+        //    cellvalue = cellvalue.replace("W", "");
+        //    cellvalue = cellvalue.replace("NA", "");
+        //}
+        if (rowObject.verifypostid != null && rowObject.verifypostid != undefined && rowObject.verifypostid != "") {
+            cellvalue = temp2 + cellvalue;
+            if (temp2.length > 2) {
+                cellvalue = cellvalue.replace("G", "");
+                cellvalue = cellvalue.replace("Y", "");
+                cellvalue = cellvalue.replace("W", "");
+                cellvalue = cellvalue.replace("NA", "");
+            }
+        }
+        if (IsOK > -1 || IsOK2 > -1) {
 
             return "<div style='background-color: white; color:black;text-align:center; width:50px; height:5px'></div><div  style='background-color: Green; color:black;text-align:center; width:50px; height:40px'>" + cellvalue + "</div><div style='background-color: white; color:black;text-align:center; width:50px; height:5px'></div>"
         }
@@ -767,7 +830,7 @@ border-top:1px solid #E8E8E8;
         var KeyValue = GetJqGridRowValue("#gridTable", "res_id");
         if (IsChecked(KeyValue)) {
             var url = "/CommonModule/Rapid/Form?KeyValue=" + KeyValue;
-            openDialog(url, "Form", "编辑", 650, 350, function (iframe) {
+            openDialog(url, "Form", "编辑", 800, 450, function (iframe) {
                 top.frames[iframe].AcceptClick();
             });
         }

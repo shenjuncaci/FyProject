@@ -1,0 +1,41 @@
+﻿@{
+    ViewBag.Title = "CodeForm";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+
+<h2>CodeForm</h2>
+<div class="QueryArea">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>
+                开始工号：
+            </th>
+            <td>
+                <input id="StartCode" type="text" class="txt" style="width: 50px" />
+            </td>
+            <th>
+                结束工号：
+            </th>
+            <td>
+                <input id="EndCode" type="text" class="txt" style="width: 50px" />
+            </td>
+
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="确 认" onclick="btn_Confirm()" />
+            </td>
+        </tr>
+    </table>
+</div>
+
+<script>
+    function btn_Confirm()
+    {
+        var StartCode = $("#StartCode").val();
+        var EndCode = $("#EndCode").val();
+        var ResultArr = new Array();
+        ResultArr[0] = StartCode;
+        ResultArr[1] = EndCode;
+        window.returnValue = ResultArr;
+        window.close();
+    }
+</script>

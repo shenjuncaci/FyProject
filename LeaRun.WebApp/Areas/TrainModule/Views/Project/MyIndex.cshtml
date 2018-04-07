@@ -63,24 +63,11 @@
         return fmt;
     }
 
-    
-
     //搜索
     function btn_Search() {
-        var keywords ="";
-        var IsEmpty = $("#IsEmpty").val();
-        var RoomNO = $("#RoomNO").val();
-        var UserName = $("#UserName").val();
-
-        if (CheckIsNullNoTip(RoomNO)) {
-            keywords += " and a.roomno like '%" + RoomNO + "%' ";
-        }
-       
-        if (CheckIsNullNoTip(UserName)) {
-            keywords += " and exists (select * from DM_CheckIn where RoomID=a.roomid and (PersonName like '%" + UserName + "%' or PersonCode like '%" + UserName + "%')) ";
-        }
+        var keywords = $("#keywords").val();
         $("#gridTable").jqGrid('setGridParam', {
-            url: "@Url.Content("~/DormModule/Room/GridPageListJson")?keywords=" + escape(keywords) + "&IsEmpty=" + IsEmpty, page: 1
+            url: "@Url.Content("~/TrainModule/project/GridMyPageListJson")?keywords=" + escape(keywords), page: 1
         }).trigger('reloadGrid');
     }
 
@@ -89,23 +76,24 @@
     function GetGrid() {
         var SelectRowIndx;
         $("#gridTable").jqGrid({
-            url: "@Url.Content("~/DormModule/Room/GridPageListJson")",
+            url: "@Url.Content("~/TrainModule/project/GridMyPageListJson")",
             datatype: "json",
             height: $(window).height() - 178,
             autowidth: true,
             colModel: [
-                { label: '主键', name: 'roomid', index: 'roomid', width: 80, align: 'left', hidden: true },
-                { label: '楼栋', name: 'dormname', index: 'dormname', width: 150, align: 'left' }, 
-                { label: '房间号', name: 'roomno', index: 'roomno', width: 150, align: 'left' },
-                { label: '住宿情况', name: 'state', index: 'state', width: 100, align: 'left' },
+                { label: '主键', name: 'projectid', index: 'projectid', width: 80, align: 'left', hidden: true },
+                { label: '项目名称', name: 'projectname', index: 'projectname', width: 250, align: 'left' },
+                { label: '开始日期', name: 'startdate', index: 'startdate', width: 250, align: 'left', formatter: dateFormat },
+                { label: '结束日期', name: 'enddate', index: 'enddate', width: 100, align: 'left', formatter: dateFormat },
                 { label: '备注', name: 'remark', index: 'remark', width: 250, align: 'left' },
+                //{ label: '备注', name: 'remark', index: 'remark', width: 250, align: 'left' },
                 //{ label: '结束时间', name: 'endtime', index: 'endtime', width: 250, align: 'left' },
             ],
             viewrecords: true,
             rowNum: 30,
             rowList: [30, 50, 100, 500, 1000],
             pager: "#gridPager",
-            sortname: 'dormname',
+            sortname: 'startdate',
             sortorder: 'desc',
             rownumbers: true,
             shrinkToFit: false,
@@ -120,6 +108,26 @@
             gridComplete: function () {
                 //LoadViewList();
                 $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            },
+            ondblClickRow: function (RowIndx) {
+
+                //var rowData = $(this).jqGrid('getRowData', RowIndx);
+
+                ////GetAttachGrid(rowData.skillid);
+
+                //var index=layer.open({
+                //    type: 2,  //2表示ifrmae弹出层
+                //    title: '学习明细',
+                //    maxmin: true,
+                //    shadeClose: true, //点击遮罩关闭层
+                //    area: ['800px', '550px'],
+                //    content: 'projectInfo?KeyValue='+rowData.projectid
+                //    });
+                //layer.full(index);
+                var rowData = $(this).jqGrid('getRowData', RowIndx);
+
+                AddTabMenu("eddb137d-34fc-456e-835e-105d0e762be0", "@Url.Content("~/TrainModule/Project/SkillDetail")?ProjectID=" + rowData.projectid, "学习中心明细", "page_white_edit.png", false);
+
             }
         });
         columnModelData("#gridTable");
@@ -130,73 +138,6 @@
 
     }
 
-
-    //高级查询
-    var QueryParamJson = "";
-    function btn_query() {
-        QueryDialog("/Utility/QueryPage", "QueryPage", "查询过滤", 770, 395, function (iframe) {
-            top.frames[iframe].QueryClick(function (JsonData) {
-                QueryParamJson = JsonData;
-                $("#gridTable").jqGrid('setGridParam', {
-                    url: "@Url.Content("~/DormModule/Room/GridPageListJson")?ParameterJson=" + escape(JsonData), page: 1
-                }).trigger('reloadGrid');
-            });
-        });
-    }
-
-    //新增
-    function btn_add() {
-        var url = "/DormModule/Room/Form"
-        openDialog(url, "Form", "新增", 1000, 350, function (iframe) {
-            top.frames[iframe].AcceptClick();
-        });
-    }
-    //编辑
-    function btn_edit() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "roomid");
-        if (IsChecked(KeyValue)) {
-            var url = "/DormModule/Room/Form?KeyValue=" + KeyValue;
-            openDialog(url, "Form", "编辑", 1000, 350, function (iframe) {
-                top.frames[iframe].AcceptClick()
-            });
-
-        }
-    }
-
-    //删除
-    function btn_delete() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "roomid");
-        if (IsDelData(KeyValue)) {
-            var delparm = 'KeyValue=' + KeyValue;
-            delConfig('/DormModule/skill/Delete', delparm, KeyValue.split(",").length);
-        }
-    }
-
-    //人员入住管理
-    function btn_CheckIn()
-    {
-        //var url = "/DormModule/Room/CheckInForm"
-        //openDialog(url, "Form", "新增", 1000, 350, function (iframe) {
-        //    top.frames[iframe].AcceptClick();
-        //});
-
-        var KeyValue = GetJqGridRowValue("#gridTable", "roomid");
-        if (IsChecked(KeyValue)) {
-            var url = "/DormModule/Room/CheckInForm?KeyValue=" + KeyValue;
-            openDialog(url, "Form", "编辑", 1000, 350, function (iframe) {
-                top.frames[iframe].AcceptClick()
-            });
-
-        }
-    }
-
-    //导出Excel
-    function btn_derive() {
-        SetDeriveExcel("#gridTable", "快速反应");
-        openDialog("/CommonModule/ExcelImport/DeriveDialog", "DeriveDialog", "快速反应导出", 600, 300, function (iframe) {
-            top.frames[iframe].AcceptClick();
-        });
-    }
 
 
     //刷新
@@ -234,10 +175,10 @@
         }
 
 
-        if (DateNow.pattern("yyyy-MM-dd") > DecideDate.pattern("yyyy-MM-dd"))
-        {
-            cellvalue = "<font color=\"red\">" + cellvalue + "</font>";
-        }
+        //if (DateNow.pattern("yyyy-MM-dd") > DecideDate.pattern("yyyy-MM-dd"))
+        //{
+        //    cellvalue = "<font color=\"red\">" + cellvalue + "</font>";
+        //}
 
         return cellvalue;
     }
@@ -251,7 +192,7 @@
 <div>
     <div class="btnbartitle">
         <div>
-            用户列表 <span id="CenterTitle"></span>
+            学习中心 <span id="CenterTitle"></span>
         </div>
     </div>
     <!--工具栏-->
@@ -267,33 +208,10 @@
             <table border="0" class="form-find" style="height: 45px;">
                 <tr>
                     <th>
-                        房间号：
+                        关键字：
                     </th>
                     <td>
-                        <input id="RoomNO" type="text" class="txt" style="width: 200px" />
-                    </td>
-                    <th>
-                        用户名/工号：
-                    </th>
-                    <td>
-                        <input id="UserName" type="text" class="txt" style="width: 200px" />
-                    </td>
-                    @*<th>
-                        工号：
-                    </th>
-                    <td>
-                        <input id="Code" type="text" class="txt" style="width: 200px" />
-                    </td>*@
-                    <th>
-                        是否有空位：
-                    </th>
-                    <td>
-                        <select id="IsEmpty" class="txtselect">
-                            <option value="">==请选择==</option>
-                            <option value="有空位">有空位</option>
-                            <option value="无空位">无空位</option>
-                            <option value="空房间">空房间</option>
-                        </select>
+                        <input id="keywords" type="text" class="txt" style="width: 200px" />
                     </td>
                     <td>
                         <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />

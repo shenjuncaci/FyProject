@@ -1,0 +1,148 @@
+﻿@{
+    ViewBag.Title = "技能列表";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script>
+    $(function () {
+        $("#keywords").focus();
+
+        GetGrid();
+        //绑定键盘按下事件
+        $(document).keypress(function (e) {
+            // 回车键事件
+            if (e.which == 13) {
+                $("#keywords").focus();
+                $("#keywords").select();
+                $("#btnSearch").click();
+            }
+        });
+    });
+    //搜索
+    function btn_Search() {
+        var Dept = $("#Dept").val();
+
+        var KeyWords = "";
+        if (CheckIsNull(Dept))
+        {
+            KeyWords += " and Fullname like '%" + Dept + "%' ";
+        }
+
+
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "@Url.Content("~/TrainModule/CustomExam/GetDeptListJson")?keywords=" + KeyWords
+        }).trigger('reloadGrid');
+    }
+    //显示技能列表
+    function GetGrid() {
+        var index = GetQuery('index');
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/TrainModule/CustomExam/GetDeptListJson")",
+            datatype: "json",
+            height: $(window).height(),
+            autowidth: true,
+            colModel: [
+                { label: '部门ID', name: 'departmentid', hidden: true },
+                { label: '部门名称', name: "fullname", width: 250, sortable: false },
+
+
+            ],
+            pager: false,
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            multiselect: true
+            //双击事件
+            //ondblClickRow: function (RowIndx) {
+            //    var rowData = $(this).jqGrid('getRowData', RowIndx);
+            //    //var $parentobj = top.$.dialog;
+            //    //if (!$parentobj.IsExistItem(index, rowData.SkillID)) {
+            //    //    $parentobj.$("#SkillID➩" + index).val(rowData.SkillID);
+            //    //    $parentobj.$("#SkillName➩" + index).val(rowData.SkillName);
+
+            //    //    index++;
+
+            //    // closeDialog();
+            //    //} else {
+            //    //    top.TipMsg("技能已存在,不能重复添加", 4000, "error");
+            //    //}
+            //    var ResultArr = new Array();
+            //    ResultArr[0] = rowData.skillid;
+            //    ResultArr[1] = rowData.skillname;
+            //    ResultArr[2] = rowData.skilldescripe;
+
+            //    window.returnValue = ResultArr;
+            //    window.close();
+            //}
+        });
+    }
+
+
+
+    //多选，一次传多个技能回去
+    function btn_Confirm()
+    {
+        var Result = new Array();
+        var departmentid = GetJqGridRowValue("#gridTable", "departmentid");
+
+        //var SkillName = GetJqGridRowValue("#gridTable", "skillname");
+        //var SkillDescripe = GetJqGridRowValue("#gridTable", "skilldescripe");
+        //var SkillIDArr = SkillId.split(",");
+        //var SkillNameArr = SkillName.split(",");
+
+        //for (var i = 0; i < SkillIDArr.length; i++)
+        //{
+
+        //    var TempObject = {};
+        //    TempObject["SkillID"] = SkillIDArr[i];
+        //    TempObject["SkillName"] = SkillNameArr[i];
+        //    Result.push(TempObject);
+
+        //}
+
+
+
+
+
+        if (departmentid == undefined)
+        {
+            alert("请至少选择一个部门");
+            return false;
+        }
+        //console.log(Result);
+        //alert(ResultArr[0] + ',' + ResultArr[1] + ',' + ResultArr[2])
+        window.returnValue = departmentid;
+        window.close();
+    }
+</script>
+<div class="border" style="margin: 1px; border-bottom: none; margin-bottom: 0px;">
+    <div class="QueryArea">
+        <table border="0" class="form-find" style="height: 45px;">
+            <tr>
+                <th>
+                    部门名称：
+                </th>
+                <td>
+                    <input id="Dept" type="text" class="txt" style="width: 50px" />
+                </td>
+
+                <td>
+                    <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                </td>
+                <td>
+                    <input id="btnSearch" type="button" class="btnSearch" value="确 认" onclick="btn_Confirm()" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="line"></div>
+    <table id="gridTable"></table>
+    <style>
+        .ui-widget-content {
+            border-left: none;
+        }
+
+        .ui-th-column, .ui-jqgrid .ui-jqgrid-htable th.ui-th-column {
+            background: none;
+        }
+    </style>
+</div>

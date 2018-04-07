@@ -993,6 +993,34 @@ dataCondition + " and b.RealName='" + Name + "' " +
             return View();
         }
 
+        public ActionResult FormForVerifyPost(string tag, string VerifyPostID, string rapidID, string state)
+        {
+            string sql = "";
+            ViewData["tag"] = tag;
+            ViewData["rapidID"] = rapidID;
+            ViewData["VerifyPostID"] = VerifyPostID;
+            ViewData["state"] = state;
+            ViewData["CanEdit"] = 0;
+            if (tag == "edit")
+            {
+                if (state == "只读")
+                {
+                    ViewData["CanEdit"] = 0;
+                }
+                else
+                {
+                    sql = " select res_postverify from fy_rapid where res_id='" + rapidID + "' ";
+                    DataTable dt = rapidbll.GetDataTable(sql);
+                    if (dt.Rows[0][0].ToString() == "未提交" || dt.Rows[0][0].ToString() == "回退")
+                    {
+                        ViewData["CanEdit"] = 1;
+                    }
+                }
+
+            }
+            return View();
+        }
+
         public ActionResult EventJson(string DepartmentID)
         {
             string sql = " select postname from fy_post where DepartMentID='"+DepartmentID+"' ";
@@ -1091,7 +1119,7 @@ from FY_Rapid where res_id='{0}' ", ID);
             
             message.To.Add("zhonghua.yan@fuyaogroup.com");
 
-            message.To.Add("li.wang@fuyaogroup.com");
+            //message.To.Add("zhonghua.yan@fuyaogroup.com");
 
             message.To.Add(dt.Rows[0]["Email"].ToString());
 

@@ -953,7 +953,7 @@
                 $("#btn_fcshadd").css("display", "none");
                 $("#btn_fcshedit").css("display", "none");
                 $("#btn_fcshdel").css("display", "none");
-                
+
 
                 var temptext = document.getElementById("res_fcshstate").value;
                 //alert(temptext);
@@ -990,6 +990,68 @@
                     temptext += " <button onclick=\"approve('res_fcsh','" + fcshstate.value + "','n','" + fcshdt.value + "','" + fcshnode.value + "')\">撤销</button> ";
                 }
                 document.getElementById("res_fcshstate").innerHTML = temptext;
+            }
+
+
+            var postverifydt = document.getElementById("res_postverifydt");
+            var postverifynode = document.getElementById("res_postverifynode");
+            var postverifystate = document.getElementById("res_postverify");
+            postverifystate.readOnly = true;
+            if (postverifystate.value == "未提交" || postverifystate.value == "回退" || postverifystate.value=="撤回") {
+                var temptext = document.getElementById("res_postverifystate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+
+                temptext += "状态:" + postverifystate.value;
+
+                temptext += " <button onclick=\"approve('res_postverify','" + postverifystate.value + "','y','" + postverifydt.value + "','" + postverifynode.value + "')\">提交</button> ";
+
+                //alert(temptext);
+                document.getElementById("res_postverifystate").innerHTML = temptext;
+            }
+            else if (postverifystate.value == "待审") {
+                $("#btn_postverifyadd").css("display", "none");
+                $("#btn_postverifyedit").css("display", "none");
+                $("#btn_postverifydel").css("display", "none");
+
+
+                var temptext = document.getElementById("res_postverifystate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + postverifystate.value;
+                if ('@role' == "质保部审批") {
+
+                    temptext += " <button onclick=\"approve('res_postverify','" + postverifystate.value + "','y','" + postverifydt.value + "','" + postverifynode.value + "')\">通过</button> ";
+                    temptext += " <button onclick=\"approve('res_postverify','" + postverifystate.value + "','n','" + postverifydt.value + "','" + postverifynode.value + "')\">退回</button> ";
+                }
+                else
+                {
+                    temptext += " <button onclick=\"approve('res_postverify','" + postverifystate.value + "','sn','" + postverifydt.value + "','" + postverifynode.value + "')\">撤回</button> ";
+                }
+                document.getElementById("res_postverifystate").innerHTML = temptext;
+            }
+            else if (postverifystate.value == "通过") {
+                $("#btn_postverifyadd").css("display", "none");
+                $("#btn_postverifyedit").css("display", "none");
+                $("#btn_postverifydel").css("display", "none");
+                document.getElementById("res_postverifydt").readOnly = true;
+                document.getElementById("res_postverifynode").readOnly = true;
+                document.getElementById("res_postverifydt").disabled = true;
+                document.getElementById("res_postverifynode").disabled = true;
+                var temptext = document.getElementById("res_postverifystate").value;
+                //alert(temptext);
+                if (temptext == undefined) {
+                    temptext = "";
+                }
+                temptext += "状态:" + postverifystate.value;
+                if ('@role' == "质保部审批") {
+                    temptext += " <button onclick=\"approve('res_postverify','" + postverifystate.value + "','n','" + postverifydt.value + "','" + postverifynode.value + "')\">撤销</button> ";
+                }
+                document.getElementById("res_postverifystate").innerHTML = temptext;
             }
 
 
@@ -1290,13 +1352,16 @@
         //});
         var tid = field + "dt";
         var tnode = field + "node";
-        
+        //alert(tnode);
+        //alert(tid);
 
         var tupload = "uploadify" + field.replace("res_", "") + "txt";
         dt = document.getElementById(tid).value;
         node = document.getElementById(tnode).value;
         var upload = $("#" + tupload).val();
         upload = document.getElementById(tupload).innerText;
+
+        //alert(node);
         if (node == "" || node == undefined || node == null)
         {
             alert("请填写完整信息再提交");
@@ -1315,6 +1380,15 @@
                     return false;
                 }
 
+            }
+            if (field == "res_postverify")
+            {
+                var VerifyPostID=$("#VerifyPostID").val();
+                if (VerifyPostID == "" || VerifyPostID == undefined || VerifyPostID == null) {
+                    alert("请先填写岗位验证信息再提交");
+                    //closeDialog();
+                    return false;
+                }
             }
             else {
                 upload = delHtmlTag(upload);
@@ -1363,7 +1437,7 @@
 
     function fcshmodify(tag)
     {
-        
+
         if (tag == "add")
         {
             if ($("#ProcessID").val() != undefined && $("#ProcessID").val() != null && $("#ProcessID").val() != "")
@@ -1389,7 +1463,7 @@
                 return false;
             });
 
-            
+
             return false;
         }
         else if (tag == "view")
@@ -1406,6 +1480,54 @@
         //alert($("#res_fcshstate").val());
         var obj = new Array();
         var reValue = window.showModalDialog('FormForRapid?tag=' + tag + '&ProcessID=' + $("#ProcessID").val() + '&rapidID=' + GetQueryNew('KeyValue') + '&state=' + $("#res_fcsh").val(), window, 'dialogWidth=650px;dialogHeight=400px;status:1;title:0;');
+        //var reValue = Dialog('UpdatePlan?id=' + event.id, "test", "test", 400, 200)
+        //alert(reValue);
+        if (reValue == undefined) {
+            return false;
+        }
+
+
+    }
+
+    function postverifymodify(tag) {
+
+        if (tag == "add") {
+            if ($("#VerifyPostID").val() != undefined && $("#VerifyPostID").val() != null && $("#VerifyPostID").val() != "") {
+                alert("已存在岗位验证记录，无法再新增");
+                return false;
+            }
+        }
+        else if (tag == "edit") {
+            if ($("#VerifyPostID").val() == undefined || $("#VerifyPostID").val() == null || $("#VerifyPostID").val() == "") {
+                alert("尚未新增岗位验证记录，请先新增");
+                return false;
+            }
+        }
+        else if (tag == "del") {
+
+            var postData = { KeyValue: GetQueryNew('KeyValue'), ProcessID: $("#VerifyPostID").val() }
+            AjaxJson("/CommonModule/Rapid/DeleteGwyz", postData, function (data) {
+                //Loading(false);
+                alert("删除成功");
+                return false;
+            });
+
+
+            return false;
+        }
+        else if (tag == "view") {
+            var obj = new Array();
+            var reValue = window.showModalDialog('FormForVerifyPost?tag=edit&VerifyPostID=' + $("#VerifyPostID").val() + '&rapidID=' + GetQueryNew('KeyValue') + '&state=只读', window, 'dialogWidth=650px;dialogHeight=400px;status:1;title:0;');
+            return false;
+        }
+
+        //var url = "/FYModule/Process/FormForRapid?tag=" + tag + "&ProcessID=" + $("#ProcessID").val()
+        //openDialog(url, "Form", "新增", 650, 350, function (iframe) {
+        //    top.frames[iframe].AcceptClick();
+        //});
+        //alert($("#res_fcshstate").val());
+        var obj = new Array();
+        var reValue = window.showModalDialog('FormForVerifyPost?tag=' + tag + '&VerifyPostID=' + $("#VerifyPostID").val() + '&rapidID=' + GetQueryNew('KeyValue') + '&state=' + $("#res_postverify").val(), window, 'dialogWidth=650px;dialogHeight=400px;status:1;title:0;');
         //var reValue = Dialog('UpdatePlan?id=' + event.id, "test", "test", 400, 200)
         //alert(reValue);
         if (reValue == undefined) {
@@ -1604,24 +1726,51 @@
 
                     </td>
                     <td class="formValue" style="width:10%" id="res_yzbstate">状态：<input id="res_yzb" type="text" class="txt" /></td>
-                    <th class="formTitle" style="width:10%">根本原因</br>分析(3D)：</th>
+
+                    <th class="formTitle" style="width:10%;word-wrap:break-word;word-break:break-all;">岗位验证</br>（24H）：</th>
                     <td class="formValue" style="width:30%">
-                        <b>操作日期：</b> <input id="res_fxdt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>根本原因分析：</b>
-                        <textarea id="res_fxnode" class="txt" style="width:180px;height:80px;" /></textarea>
-                        <input id="uploadifyfx" name="uploadify" type="file" /><label id="uploadifyfxtxt" style="display:none" />
+                        <b>操作日期：</b> <input id="res_postverifydt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>节点状态:</b><select id="res_postverifynode" class="txtselect">
+                            <option value="">请选择</option>
+                            <option value="NA">NA</option>
+                            <option value="G">G</option>
+
+                        </select>
+
+                        <button id="btn_postverifyadd" onclick="postverifymodify('add')">新增</button>
+                        <button id="btn_postverifyedit" onclick="postverifymodify('edit')">编辑</button>
+                        <button id="btn_postverifydel" onclick="postverifymodify('del')">删除</button>
+                        <button id="btn_postverifyview" onclick="postverifymodify('view')">查看</button>
+                        <label id="VerifyPostID" style="display:none" />
+                        <input id="uploadifypostverify" name="uploadify" type="file" />
+                        <label id="uploadifypostverifytxt" style="display:none" />
                     </td>
-                    <td class="formValue" style="width:10%" id="res_fxstate">状态：<input id="res_fx" type="text" class="txt" /></td>
+                    <td class="formValue" style="width:10%" id="res_postverifystate">状态：<input id="res_postverify" type="text" class="txt" /></td>
+
                 </tr>
 
                 <tr>
+                    <th class="formTitle" style="width:10%">根本原因</br>分析(3D)：</th>
+                    <td class="formValue" style="width:30%">
+                        <b>操作日期：</b> <input id="res_fxdt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>根本原因分析：</b>
+                        <textarea id="res_fxnode" class="txt" style="width:230px;height:80px;"></textarea>
+                        <input id="uploadifyfx" name="uploadify" type="file" /><label id="uploadifyfxtxt" style="display:none" />
+                    </td>
+                    <td class="formValue" style="width:10%" id="res_fxstate">状态：<input id="res_fx" type="text" class="txt" /></td>
+
                     <th class="formTitle">纠正措施</br>（7D)：</th>
                     <td class="formValue">
                         <b>操作日期：</b> <input id="res_csdt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>纠正措施：</b>
-                        <textarea id="res_csnode" class="txt" style="width:180px;height:80px;" /></textarea>
+                        <textarea id="res_csnode" class="txt" style="width:230px;height:80px;"></textarea>
                         <input id="uploadifycs" name="uploadify" type="file" /><label id="uploadifycstxt" style="display:none" />
 
                     </td>
                     <td class="formValue" id="res_csstate">状态：<input id="res_cs" type="text" class="txt" /></td>
+
+                    
+                </tr>
+
+
+                <tr>
                     <th class="formTitle">防错法</br>（14D)：</th>
                     <td class="formValue">
                         <b>操作日期：</b> <input id="res_fcfdt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>节点状态：</b> <select id="res_fcfnode" class="txtselect">
@@ -1632,10 +1781,7 @@
                         </select> <input id="uploadifyfcf" name="uploadify" type="file" /><label id="uploadifyfcftxt" style="display:none" />
                     </td>
                     <td class="formValue" id="res_fcfstate">状态：<input id="res_fcf" type="text" class="txt" /></td>
-                </tr>
 
-
-                <tr>
                     <th class="formTitle">分层审核</br>（14D):</th>
                     <td class="formValue">
                         <b>操作日期：</b>
@@ -1665,6 +1811,12 @@
 
                     </td>
                     <td class="formValue" id="res_fcshstate">状态：<input id="res_fcsh" type="text" class="txt" /></td>
+                    
+                </tr>
+
+
+                <tr>
+
                     <th class="formTitle">措施跟踪</br>（34D):</th>
                     <td class="formValue">
                         <b>操作日期：</b> <input id="res_csgzdt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>节点状态：</b> <select id="res_csgznode" class="txtselect">
@@ -1675,10 +1827,7 @@
                         </select> <input id="uploadifycsgz" name="uploadify" type="file" /><label id="uploadifycsgztxt" style="display:none" />
                     </td>
                     <td class="formValue" id="res_csgzstate">状态：<input id="res_csgz" type="text" class="txt" /></td>
-                </tr>
 
-
-                <tr>
                     <th class="formTitle">FMEA/CP<br />更新日期</br>（35D):</th>
                     <td class="formValue">
                         <b>操作日期：</b> <input id="res_fmeadt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>节点状态：</b> <select id="res_fmeanode" class="txtselect">
@@ -1690,6 +1839,9 @@
 
                     </td>
                     <td class="formValue" id="res_fmeastate">状态：<input id="res_fmea" type="text" class="txt" /></td>
+                   
+                </tr>
+                <tr>
                     <th class="formTitle">标准更新</br>（35D):</th>
                     <td class="formValue">
                         <b>操作日期：</b> <input id="res_bzgxdt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>节点状态：</b> <select id="res_bzgxnode" class="txtselect">
@@ -1700,8 +1852,7 @@
                         </select> <input id="uploadifybzgx" name="uploadify" type="file" /><label id="uploadifybzgxtxt" style="display:none" />
                     </td>
                     <td class="formValue" id="res_bzgxstate">状态：<input id="res_bzgx" type="text" class="txt" /></td>
-                </tr>
-                <tr>
+
                     <th class="formTitle">经验教训</br>（40D):</th>
                     <td class="formValue">
                         <b>操作日期：</b> <input id="res_jyjxdt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>节点状态：</b> <select id="res_jyjxnode" class="txtselect">
@@ -1713,6 +1864,10 @@
 
                     </td>
                     <td class="formValue" id="res_jyjxstate">状态：<input id="res_jyjx" type="text" class="txt" /></td>
+
+                    
+                </tr>
+                <tr>
                     <th class="formTitle">完整8D</br>报告(40D)</th>
                     <td class="formValue">
                         <b>操作日期：</b> <input id="res_8ddt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" />
@@ -1724,6 +1879,9 @@
                         </select> <input id="uploadify8d" name="uploadify" type="file" /><label id="uploadify8dtxt" style="display:none" />
                     </td>
                     <td class="formValue" id="res_8dstate">状态：<input id="res_8d" type="text" class="txt" /></td>
+                    <th class="formTitle"></th>
+                    <td class="formValue"></td>
+                    <td class="formValue" ></td>
                 </tr>
 
             </table>

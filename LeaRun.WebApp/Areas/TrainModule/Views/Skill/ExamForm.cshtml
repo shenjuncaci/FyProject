@@ -212,11 +212,15 @@
             return false;
         }
 
+        var DetailForm = getData();
 
+        if (DetailForm == false) {
+            return false;
+        }
         Loading(true, "正在提交数据...");
         window.setTimeout(function () {
 
-            var DetailForm = getData();
+            
             var postData = { KeyValue: GetQuery('KeyValue'), DetailForm: DetailForm }
             //alert(DetailForm);
             // postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
@@ -250,9 +254,11 @@
             for (var i = 0; i < radio.length; i++) {
                 if (radio[i].checked == true) {
                     result = result + "{\"QuestionID\":\"" + radio[i].name + "\",\"Answer\":\"" + radio[i].id + "\"},";
+                    QuestionCount = QuestionCount + 1;
                 }
             }
         }
+
 
         var multi = document.getElementsByClassName("multi");
 
@@ -273,8 +279,7 @@
                             tempQuestionID = multi[j].name;
                             tempAnswer = multi[j].id;
                         }
-                        else
-                        {
+                        else {
                             tempQuestionID = multi[j].name;
                             tempAnswer = multi[j].id;
                         }
@@ -287,9 +292,12 @@
             QuestionCount = QuestionCount + 1;
         }
         result = result.substring(0, result.length - 1);
+        //alert(QuestionCount);
+        //alert(tempNum);
         if (QuestionCount == tempNum) {
             return '[' + result + ']';
         }
+
         else if (QuestionCount < tempNum) {
             alert("请答完所有题目再提交");
             return false;
@@ -298,6 +306,7 @@
             alerrt("出现异常了，请联系管理员");
             return false;
         }
+
     }
 
 

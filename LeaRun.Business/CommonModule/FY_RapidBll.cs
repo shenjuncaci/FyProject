@@ -57,12 +57,20 @@ namespace LeaRun.Business
                     {
                         strSql.AppendFormat(" update fy_rapid set {0}='待审',RapidState='进行中',{0}dt='{2}',{0}node='{3}' where res_id='{1}'", field, KeyValue, DateTime.Now.ToString(), node);
                     }
+                    //else if(field== "res_verifypost")
+                    //{
+                    //    strSql.AppendFormat(" update fy_rapid set res_postverify='待审',RapidState='进行中',res_postverifydt='{1}',res_postverifynode='{2}' where res_id='{0}'", KeyValue, DateTime.Now.ToString(), node);
+                    //}
                     else
                     {
                         string PreField = "";
-                        if (field == "res_fx")
+                        if(field== "res_postverify")
                         {
                             PreField = "res_yzb";
+                        }
+                        if (field == "res_fx")
+                        {
+                            PreField = "res_postverify";
                         }
                         if (field == "res_cs")
                         {

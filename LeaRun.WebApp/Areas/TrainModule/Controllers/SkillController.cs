@@ -920,6 +920,8 @@ and f.SkillID = '" + SkillArrary[1] + "' and d.UserId = '" + dt.Rows[j][0].ToStr
             return View();
         }
 
+
+        //PC端考试只有人才培养会用
         public ActionResult SubmitExam(string KeyValue, string DetailForm)
         {
             IDatabase database = DataFactory.Database();
@@ -928,7 +930,7 @@ and f.SkillID = '" + SkillArrary[1] + "' and d.UserId = '" + dt.Rows[j][0].ToStr
             //先建立一个主表
             TR_Paper paper = new TR_Paper();
             paper.SkillID = KeyValue;
-            paper.FromSource = 0; //表示是常规学习考试
+            paper.FromSource = 2; //表示是常规学习考试
             paper.Create();
 
 

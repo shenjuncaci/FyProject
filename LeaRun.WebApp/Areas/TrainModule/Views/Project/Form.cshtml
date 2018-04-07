@@ -1,6 +1,7 @@
 ﻿@{
     ViewBag.Title = "项目管理Form";
     Layout = "~/Views/Shared/_LayoutForm.cshtml";
+   
 
 }
 
@@ -63,7 +64,7 @@
     //    uploadify();
     //});
     $(function () {
-        BindDepartMent();
+       
         InitControl();
         //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
         //BindResponseBy();
@@ -83,14 +84,14 @@
     //得到一个对象实体
     function InitControl() {
         if (!!GetQuery('KeyValue')) {
-            AjaxJson("/ProjectManageModule/project/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+            AjaxJson("/TrainModule/project/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
                 SetWebControls(data);
 
             });
 
             var rowindex = 1;
             //题目信息
-            AjaxJson("/ProjectManageModule/project/GetDetailList", { KeyValue: GetQuery('KeyValue') }, function (data) {
+            AjaxJson("/TrainModule/project/GetDetailList", { KeyValue: GetQuery('KeyValue') }, function (data) {
                 var JsonData = data.rows;
                 //var colorState = "";
                 $.each(JsonData, function (i) {
@@ -99,13 +100,12 @@
                     var rowData = JsonData[i];
                     //alert(rowData.FllowStatus);
                     //alert(rowData.ReviewDepart);ChangeReviewState
-                    $("#UserID➩" + rowindex).val(rowData.UserID);
-                    $("#UserName➩" + rowindex).val(rowData.UserName);
-                    $("#PostName➩" + rowindex).val(rowData.PostName);
-                    $("#Duty➩" + rowindex).val(rowData.Duty);
+                    $("#SkillID➩" + rowindex).val(rowData.SkillID);
+                    $("#SkillName➩" + rowindex).val(rowData.SkillName);
+                    $("#Score➩" + rowindex).val(rowData.Score);
                     //$("#RelationDID➩" + rowindex).val(rowData.RelationDID);
                     rowindex++;
-                    array[i] = rowData.UserID;
+                    array[i] = rowData.SkillID;
                 });
             });
         }
@@ -121,22 +121,12 @@
             var postData = GetWebControls("#form1");
             postData["DetailForm"] = DetailForm;
             postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
-            AjaxJson("/ProjectManageModule/project/SubmitForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+            AjaxJson("/TrainModule/project/SubmitForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
                 tipDialog(data.Message, 3, data.Code);
                 top.frames[tabiframeId()].windowload();
                 closeDialog();
             });
         }, 200);
-    }
-
-    function BindDepartMent() {
-        $("#DepartMentID").html("");
-        $("#DepartMentID").append("<option value=''>==请选择==</option>");
-        AjaxJson("/ProjectManageModule/Project/DepartmentJson", {}, function (DataJson) {
-            $.each(DataJson, function (i) {
-                $("#DepartMentID").append($("<option></option>").val(DataJson[i].departmentid).html(DataJson[i].fullname));
-            });
-        })
     }
 
 
@@ -178,29 +168,28 @@
         var td1 = tr.insertCell();
         var td2 = tr.insertCell();
         var td3 = tr.insertCell();
-        var td4 = tr.insertCell();
+        
 
 
-
-        td1.innerHTML = "<input style=\"width:95%\" readonly id='UserName➩" + i + "' type=\"text\" class=\"txt\"><input readonly id=\"UserID➩" + i + "\" type=\"hidden\" class=\"txt\">";
-        td2.innerHTML = "<input id='PostName➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"岗位职责\" checkexpession=\"NotNull\"> ";
-        td3.innerHTML = "<input  style=\"width:95%\" id='Duty➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"职责描述\" checkexpession=\"NotNull\">";
-        td4.innerHTML = "<button onclick='deleteCurrentRow(this)'>删除</button>";
+        td1.innerHTML = "<input style=\"width:95%\" readonly ondblclick='ChooseSkill(" + i + ")' id='SkillName➩" + i + "' type=\"text\" class=\"txt\"><input readonly id=\"SkillID➩" + i + "\" type=\"hidden\" class=\"txt\">";
+        td2.innerHTML = "<select id='Score➩" + i + "' class=\"select\" datacol=\"yes\" err=\"学分\" checkexpession=\"NotNull\"> <option value='1'>1</option><option value='2'>2</option><option value='3'>3</option><option value='4'>4</option><option value='5'>5</option><option value='6'>6</option><option value='7'>7</option><option value='8'>8</option><option value='9'>9</option><option value='10'>10</option></select>";
+        
+        td3.innerHTML = "<button onclick='deleteCurrentRow(this)'>删除</button>";
 
         //初始化行;
         //initRows(tab);
     }
-
+    
     function addbatch() {
 
         //////试试用div写
         layer.open({
             type: 2,  //2表示ifrmae弹出层
-            title: '用户选择',
+            title: '技能选择',
             maxmin: true,
             shadeClose: true, //点击遮罩关闭层
             area: ['550px', '350px'],
-            content: 'UserListBatch'
+            content: 'SkillListBatch'
         });
     }
 
@@ -211,18 +200,18 @@
             var tab = document.getElementById('DetailForm');
             var rowIndex = tab.rows.length + 1;
             var j = rowIndex - 2;
-            if (!IsExistItem(j, reValue[i].UserID)) {
+            if (!IsExistItem(j, reValue[i].SkillID)) {
                 addone(999);
-                $("#UserName➩" + j).val(reValue[i].UserName);
-                $("#UserID➩" + j).val(reValue[i].UserID);
+                $("#SkillName➩" + j).val(reValue[i].SkillName);
+                $("#SkillID➩" + j).val(reValue[i].SkillID);
             }
             else {
-                top.TipMsg("该用户已存在,不能重复添加", 4000, "error");
+                top.TipMsg("该技能已存在,不能重复添加", 4000, "error");
             }
 
         }
 
-    }
+    }  
 
     function IsExistItem(index, code) {
         if (!ArrayExists(array, code)) {
@@ -232,6 +221,7 @@
             return true;
         }
     }
+
 </script>
 
 
@@ -251,30 +241,8 @@
         <div id="basic" class="tabPanel">
             <table class="form">
 
-                <tr>
-                    <th class="formTitle">项目编号：</th>
-                    <td class="formValue">
 
-                        <input readonly id="ProjectNO" type="text" class="txt" value="@ViewBag.BillNo" style="width: 95%" />
 
-                    </td>
-
-                    <th class="formTitle">部门</th>
-                    <td class="formValue">
-                        <select id="DepartMentID" class="select" datacol="yes" err="部门" checkexpession="NotNull" style="width: 96%"></select>
-                    </td>
-                </tr>
-                <tr>
-                    <th class="formTitle">登陆日期：</th>
-                    <td class="formValue">
-                        <input id="CreateDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" err="登陆日期" checkexpession="NotNull" />
-                    </td>
-
-                    <th class="formTitle">计划完成日期：</th>
-                    <td class="formValue">
-                        <input id="PlanFinishDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" err="计划完成日期" checkexpession="NotNull" />
-                    </td>
-                </tr>
                 <tr>
                     <th class="formTitle">项目名称：</th>
                     <td class="formValue" colspan="3">
@@ -284,52 +252,38 @@
                 </tr>
 
                 <tr>
-                    <th class="formTitle">项目性质：</th>
+                    <th class="formTitle">开始日期：</th>
                     <td class="formValue">
-                        <input id="ProjectNature" type="text" class="txt" datacol="yes" err="项目性质" checkexpession="NotNull" />
+                        <input id="StartDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" err="开始日期" checkexpession="NotNull" />
                     </td>
 
-                    <th class="formTitle">项目状态：</th>
+                    <th class="formTitle">结束日期：</th>
                     <td class="formValue">
-                        <input id="ProjectStatus" type="text" class="txt" datacol="yes" err="项目状态" checkexpession="NotNull" />
+                        <input id="EndDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" err="结束日期" checkexpession="NotNull" />
                     </td>
                 </tr>
                 <tr>
-                    <th class="formTitle">基准：</th>
-                    <td class="formValue">
-                        <input id="BenchMark" type="text" class="txt" datacol="yes" err="基准" checkexpession="NotNull" />
-                    </td>
+                    <th class="formTitle">备注：</th>
+                    <td class="formValue" colspan="3">
 
-                    <th class="formTitle">目标：</th>
-                    <td class="formValue">
-                        <input id="Target" type="text" class="txt" datacol="yes" err="目标" checkexpession="NotNull" />
-                    </td>
-                </tr>
-
-                <tr>
-                    <th class="formTitle">项目指标：</th>
-                    <td class="formValue">
-                        <input id="ProjectIndicators" type="text" class="txt" datacol="yes" err="项目指标" checkexpession="NotNull" />
-                    </td>
-
-                    <th class="formTitle">收益计算公式&说明：</th>
-                    <td class="formValue">
-                        <input id="CalculationFormula" type="text" class="txt" datacol="yes" err="收益计算公式" checkexpession="NotNull" />
+                        <input id="Remark" type="text" class="txt" datacol="yes" />
                     </td>
                 </tr>
             </table>
-
             <table id="DetailForm" class="form-bill">
-                <tr><td colspan="3"><strong>成员管理</strong></td><td><a class="button button-caution button-square button-small" onclick="addbatch()">添加</a></td></tr>
+                <tr><td colspan="2"><strong>题目数据</strong></td><td><a class="button button-caution button-square button-small" onclick="addbatch()">添加</a></td></tr>
                 <tr>
-                    <th style="width:20%">用户名</th>
-                    <th style="width:20%">岗位</th>
-                    <th style="width:50%">职责描述</th>
-
-                    <th style="width:10%">删除</th>
+                    @*<th style="width:5%;display:none">题目ID</th>*@
+                    @*<th style="width:10%">序号</th>*@
+                    <th style="width:60%">技能</th>
+                    <th style="width:20%">学分</th>
+                    
+                    <th style="width:20%">删除</th>
                 </tr>
             </table>
         </div>
+
+        
 
 
     </div>

@@ -35,6 +35,10 @@ from DM_Room a left join DM_Dorm b on a.dormid=b.dormid where 1=1   ");
             {
                 strSql.AppendFormat(@" and (select count(*) from DM_CheckIn where IsLeave=0 and RoomID=a.roomid)>=a.standardPeople ");
             }
+            else if(IsEmpty== "空房间")
+            {
+                strSql.AppendFormat(@" and not exists (select * from dm_checkin where IsLeave=0 and RoomID=a.roomid ) ");
+            }
             if (!string.IsNullOrEmpty(ParameterJson) && ParameterJson.Length > 2)
             {
                 strSql.Append(ConditionBuilder.GetWhereSql(ParameterJson.JonsToList<Condition>(), out parameter));

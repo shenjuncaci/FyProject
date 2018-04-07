@@ -167,6 +167,71 @@ namespace LeaRun.WebApp.Areas.VPModule.Controllers
         }
 
         [HttpPost]
+        public ActionResult SubmitRapidForm(string KeyValue, VP_VerifyPost entity, string BuildFormJson, HttpPostedFileBase Filedata,string rapidID)
+        {
+            string ModuleId = DESEncrypt.Decrypt(CookieHelper.GetCookie("ModuleId"));
+            IDatabase database = DataFactory.Database();
+            DbTransaction isOpenTrans = database.BeginTrans();
+            try
+            {
+                string Message = KeyValue == "" ? "新增成功。" : "编辑成功。";
+                if (!string.IsNullOrEmpty(KeyValue))
+                {
+                    if (KeyValue == ManageProvider.Provider.Current().UserId)
+                    {
+                        throw new Exception("无权限编辑信息");
+                    }
+
+
+                    entity.Modify(KeyValue);
+
+
+                    database.Update(entity, isOpenTrans);
+
+                }
+                else
+                {
+
+                    entity.Create();
+
+                    //新建的时候网明细表里插入数据,数据未发生日期+1天+周期数的条数
+                    DateTime mindt = Convert.ToDateTime(entity.StartDate).AddDays(1);
+                    DateTime maxdt = mindt.AddDays(entity.VerifyCycle);
+                    while (mindt < maxdt)
+                    {
+                        VP_VerifyPostDetail EntityD = new VP_VerifyPostDetail();
+                        EntityD.Create();
+                        EntityD.VerifyDate = mindt;
+                        EntityD.VerifyPostID = entity.VerifyPostID;
+
+                        database.Insert(EntityD, isOpenTrans);
+
+                        mindt = mindt.AddDays(1);
+
+
+                    }
+
+                    database.Insert(entity, isOpenTrans);
+
+                    Base_DataScopePermissionBll.Instance.AddScopeDefault(ModuleId, ManageProvider.Provider.Current().UserId, entity.VerifyPostID, isOpenTrans);
+
+                    StringBuilder strSql = new StringBuilder();
+                    strSql.AppendFormat(@"update FY_Rapid  set verifypostid='{0}' where res_id='{1}' ", entity.VerifyPostID, rapidID);
+                    VerifyPostBll.ExecuteSql(strSql);
+                }
+                Base_FormAttributeBll.Instance.SaveBuildForm(BuildFormJson, entity.VerifyPostID, ModuleId, isOpenTrans);
+                database.Commit();
+                return Content(new JsonMessage { Success = true, Code = "1", Message = Message }.ToString());
+            }
+            catch (Exception ex)
+            {
+                database.Rollback();
+                database.Close();
+                return Content(new JsonMessage { Success = false, Code = "-1", Message = "操作失败：" + ex.Message }.ToString());
+            }
+        }
+
+        [HttpPost]
         [ValidateInput(false)]
         public ActionResult SetForm(string KeyValue)
         {
@@ -525,7 +590,7 @@ and (DepartmentId='{0}' or DepartmentId in (select ParentId from Base_Department
                                         WeChatList += dtEmail.Rows[i][1].ToString() + "|";
                                     }
                                 }
-                                EmailList +=" li.wang@fuyaogroup.com ";
+                                EmailList += " zhonghua.yan@fuyaogroup.com ";
                                 WeChatList += "008955";
                                 SendEmailByAccount(EmailList, " 岗位验证已达到二级预警，请登录系统查看! ");
                                 WeChatHelper.SendWxMessage(WeChatList, " 岗位验证已达到二级预警，请登录系统查看! ");

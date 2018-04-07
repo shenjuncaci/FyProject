@@ -1,0 +1,189 @@
+﻿@{
+    ViewBag.Title = "工序信息";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+<style>
+    .ui-jqgrid tr.jqgrow td {
+        white-space: normal !important;
+        height: auto;
+        vertical-align: text-top;
+        padding-top: 2px;
+    }
+
+    .differ {
+        background-color: #C0FF3E;
+    }
+</style>
+<script type="text/javascript">
+    $(document).ready(function () {
+        Get_data();
+    });
+
+
+
+    function Get_data() {
+        //AjaxJson("/TrainModule/skill/SkillMatrixData", { DepartmentID: $("#datatype").val() }, function (data) {
+        //    document.getElementById("tableDiv").innerHTML = data;
+        //})
+
+        $.ajax({
+            type: "post",
+            url: "/TrainModule/project/getskilldata?ProjectID=" + GetQuery('ProjectID'),
+            async: false,
+            success: function (msg) {
+                document.getElementById("tableDiv").innerHTML = msg;
+            },
+            error: function () {
+                alert("出错了");
+            }
+        });
+    }
+
+    function study(skillid)
+    {
+        var reValue = window.showModalDialog('FileList?SkillID=' + skillid, window, 'dialogWidth=800px;dialogHeight=500px;status:1;title:0;');
+        if (reValue == undefined) {
+            alert("请选择一个教材");
+            return false;
+        }
+        if (reValue[3] == "流程类") {
+            window.open("/Resource/Document/NetworkDisk/KnowledgeBase/" + reValue[0]);
+        }
+        else if (reValue[3] == "视频文件")
+        {
+            var url = "/TrainModule/Project/ViewVideo?VideoSrc=" + reValue[0] + "&SkillID=" + skillid;
+            FullDialog(url, "Form", "查看视频");
+        }
+        else {
+            $.ajax({
+                type: "post",
+                url: "/TrainModule/Skill/CheckFileName?FileID=" + reValue[1],
+                async: false,
+                success: function (msg) {
+                    var url = "/Content/Scripts/pdf.js/generic/web/viewer2.html?file=" + msg + "&SkillID=" + skillid;
+                    Dialog(url, "StudyForm", "在线查看文件", 1000, 800);
+                },
+                error: function () {
+                    alert("出错了");
+                }
+            });
+        }
+        //FullDialog(url, "StudyForm", "学习");
+
+    }
+
+    function apply(skillid)
+    {
+        var durl = encodeURI('@Url.Action("ExamApply", "project")?SkillID=' + skillid);
+                        $.ajax({
+                            type: "post",
+                            url: durl,
+                            async: false,
+                            success: function (msg) {
+                                if (msg == "0") {
+                                    alert("提交申请成功，等待批准");
+                                }
+                                else if (msg == "-1")
+                                {
+                                    alert("已提交过申请，请不要重复提交");
+                                }
+                                else
+                                {
+                                    alert("发生错误，请重试或者联系管理员");
+                                }
+
+
+                            },
+                            error: function () {
+                                alert("出错了");
+                            }
+                        });
+    }
+
+    function exam(skillid)
+    {
+        var durl = encodeURI('@Url.Action("IsApply", "Project")?SkillID=' + skillid);
+                        $.ajax({
+                            type: "post",
+                            url: durl,
+                            async: false,
+                            success: function (msg) {
+                                if (msg == "1") {
+                                    var url = "/TrainModule/skill/ExamForm?KeyValue=" + skillid;
+                                    FullopenDialog(url, "Form", "考试页面", function (iframe) {
+                                        top.frames[iframe].AcceptClick();
+                                        windowload();
+                                    });
+                                }
+                                else if (msg == "0") {
+                                    alert("学习时间不够，请继续学习");
+                                }
+                                else if (msg == "-1") {
+                                    alert("尚未开始学习，请先学习");
+                                }
+
+                            },
+                            error: function () {
+                                alert("出错了");
+                            }
+                        });
+
+    }
+</script>
+
+<!--左边-->
+<!--中间-->
+<div>
+    <div class="btnbartitle">
+        <div>
+            学习中心明细 <span id="CenterTitle"></span>
+        </div>
+    </div>
+    <!--工具栏-->
+    <div class="tools_bar" style="border-top: none; margin-bottom: 0px;">
+        <div class="PartialButton">
+            @Html.Partial("_PartialButton")
+        </div>
+
+    </div>
+    <!--列表-->
+    @*<div id="grid_List">
+        <div class="bottomline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px">
+            <table border="0" class="form-find" style="height: 45px;">
+                <tr>
+                    <th>
+                        年份：
+                    </th>
+                    <td>
+                        <select id="Year" class="select"></select>
+                    </td>
+
+                    <th>
+                        来源：
+                    </th>
+                    <td>
+                        <select id="FromSource" class="select">
+                            <option value="">==请选择==</option>
+                            <option value="年度评审改善项">年度评审改善项</option>
+                            <option value="快速反应改善项">快速反应改善项</option>
+                        </select>
+                    </td>
+
+                    <td>
+                        <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <table id="gridTable"></table>
+        <div id="gridPager"></div>
+    </div>*@
+    <!--视图-->
+    <div id="tableDiv">
+        
+    </div>
+   
+</div>
+

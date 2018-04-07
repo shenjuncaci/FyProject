@@ -145,7 +145,7 @@ left join (select skillid,SkillName from TR_Skill union select CustomExamID,Cust
         {
             StringBuilder strSql = new StringBuilder();
             List<DbParameter> parameter = new List<DbParameter>();
-            strSql.Append(@" select *,type=case when fromsource=0 then '技能考试' when fromsource=1 then '专项考试' else '错误' end 
+            strSql.Append(@" select *,type=case when fromsource=0 then '技能考试' when fromsource=1 then '专项考试' when fromsource=2 then '人才培养' else '错误' end 
 from V_ExamScore where 1=1 ");
             if (!string.IsNullOrEmpty(keyword))
             {

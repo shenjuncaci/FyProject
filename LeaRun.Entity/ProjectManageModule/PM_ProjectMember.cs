@@ -15,7 +15,6 @@ namespace LeaRun.Entity
     [PrimaryKey("ProjectMemberID")]
     public class PM_ProjectMember : BaseEntity
     {
-
         [DisplayName("主键")]
         public string ProjectMemberID { get; set; }
 
@@ -26,6 +25,8 @@ namespace LeaRun.Entity
         public string PostName { get; set; }
 
         public string Duty { get; set; }
+
+        public string UserName { get; set; }
 
 
         #region 扩展操作

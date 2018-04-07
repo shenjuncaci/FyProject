@@ -98,7 +98,7 @@
             });
 
             var rowindex = 1;
-            //评审明细信息
+            //明细信息
             AjaxJson("/DormModule/Room/GetList", { KeyValue: GetQuery('KeyValue') }, function (data) {
                 var JsonData = data.rows;
                 //var colorState = "";
@@ -237,25 +237,77 @@
 
     function CheckOut(CheckInID)
     {
-        var obj = new Array();
-        var reValue = window.showModalDialog('ChooseDate', window, 'dialogWidth=400px;dialogHeight=200px;status:1;title:0;');
-        //var reValue = Dialog('UpdatePlan?id=' + event.id, "test", "test", 400, 200)
-        //alert(reValue);
-        if (reValue == undefined) {
-            return false;
-        }
+        //var obj = new Array();
+        //var reValue = window.showModalDialog('ChooseDate', window, 'dialogWidth=400px;dialogHeight=200px;status:1;title:0;');
+        ////var reValue = Dialog('UpdatePlan?id=' + event.id, "test", "test", 400, 200)
+        ////alert(reValue);
+        //if (reValue == undefined) {
+        //    return false;
+        //}
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '选择项目',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['550px', '350px'],
+            content: 'ChooseDate?CheckInID=' + CheckInID
+        });
         //alert(CheckInID);
-        var postData = { CheckInID: CheckInID, Date: reValue };
+    }
+
+    function CheckOutAjax(CheckInID,CheckOutDate) {
+        var postData = { CheckInID: CheckInID, Date: CheckOutDate };
         AjaxJson("/DormModule/Room/CheckOut", postData, function (data) {
             //Loading(false);
-            
-           // top.frames[tabiframeId()].windowload();
-            tipDialog(data.Message, 3, data.Code);
-            top.frames[tabiframeId()].windowload();
-            closeDialog();
-            
+
+            //top.frames[tabiframeId()].windowload();
+            //windowload();
+            //tipDialog(data.Message, 3, data.Code);
+            //top.frames[tabiframeId()].windowload();
+            //closeDialog();
+
+            var tb = document.getElementById('CurrentForm');
+            var rowNum = tb.rows.length;
+            for (i = 2; i < rowNum; i++) {
+                tb.deleteRow(i);
+                rowNum = rowNum - 1;
+                i = i - 1;
+            }
+
+            var tb = document.getElementById('HistoryForm');
+            var rowNum = tb.rows.length;
+            for (i = 2; i < rowNum; i++) {
+                tb.deleteRow(i);
+                rowNum = rowNum - 1;
+                i = i - 1;
+            }
+
+
+
+
+            InitControl();
+
+            $('input[id^="CheckInDate"]').each(function () {
+                var w = this.value.indexOf("T");
+                //alert(this.value);
+                if (w > 0) {
+
+                    this.value = this.value.substring(0, w);
+                    //alert(this.value);
+                }
+            });
+
+            $('input[id^="CheckOutDate"]').each(function () {
+                var w = this.value.indexOf("T");
+                //alert(this.value);
+                if (w > 0) {
+
+                    this.value = this.value.substring(0, w);
+                    //alert(this.value);
+                }
+            });
+
         });
-       
     }
 
 
@@ -308,7 +360,7 @@
                     <th class="formTitle">备注：</th>
                     <td class="formValue" colspan="3">
 
-                        <input readonly id="Remark" type="text" class="txt" datacol="yes" err="备注" checkexpession="NotNull" />
+                        <input readonly id="Remark" type="text" class="txt" datacol="yes" />
 
                     </td>
 
