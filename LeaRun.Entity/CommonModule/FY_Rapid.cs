@@ -180,6 +180,8 @@ namespace LeaRun.Entity
 
         public string VerifyPostID { get; set; }
 
+        
+
         #region 扩展操作
         /// <summary>
         /// 新增调用

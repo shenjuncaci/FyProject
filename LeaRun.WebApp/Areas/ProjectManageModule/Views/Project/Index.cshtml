@@ -159,7 +159,7 @@
     //新增
     function btn_add() {
         var url = "/ProjectManageModule/Project/Form"
-        openDialog(url, "Form", "新增", 1000, 350, function (iframe) {
+        openDialog(url, "Form", "新增", 1000, 550, function (iframe) {
             top.frames[iframe].AcceptClick();
         });
     }
@@ -169,7 +169,7 @@
         //alert(KeyValue);
         if (IsChecked(KeyValue)) {
             var url = "/ProjectManageModule/Project/Form?KeyValue=" + KeyValue;
-            openDialog(url, "Form", "编辑", 1000, 350, function (iframe) {
+            openDialog(url, "Form", "编辑", 1000, 550, function (iframe) {
                 top.frames[iframe].AcceptClick()
             });
 

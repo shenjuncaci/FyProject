@@ -65,7 +65,16 @@
 
     //搜索
     function btn_Search() {
-        var keywords = $("#keywords").val();
+        var keywords = "";
+        var RoomNO = $("#RoomNO").val();
+        if (CheckIsNullNoTip(RoomNO)) {
+            keywords += " and c.RoomNO like '%" + RoomNO + "%' ";
+        }
+
+        var CalDate = $("#CalDate").val();
+        if (CheckIsNullNoTip(CalDate)) {
+            keywords += " and a.inputdate like '%" + CalDate + "%'  ";
+        }
         $("#gridTable").jqGrid('setGridParam', {
             url: "@Url.Content("~/DormModule/RoomCost/GridPageListJson")?keywords=" + escape(keywords), page: 1
         }).trigger('reloadGrid');
@@ -82,7 +91,7 @@
             autowidth: true,
             colModel: [
                 { label: '主键', name: 'roomcostid', index: 'roomcostid', width: 80, align: 'left', hidden: true },
-                { label: '宿舍名称', name: 'dormname', index: 'dormname', width: 150, align: 'left' },
+                { label: '宿舍名称', name: 'dormname', index: 'dormname', width: 150, align: 'left',hidden:true },
                 { label: '房间号', name: 'roomno', index: 'roomno', width: 100, align: 'left' },
                 
                 { label: '计费日期', name: 'inputdate', index: 'inputdate', width: 100, align: 'left' },
@@ -257,10 +266,16 @@
             <table border="0" class="form-find" style="height: 45px;">
                 <tr>
                     <th>
-                        关键字：
+                        房间号：
                     </th>
                     <td>
-                        <input id="keywords" type="text" class="txt" style="width: 200px" />
+                        <input id="RoomNO" type="text" class="txt" style="width: 200px" />
+                    </td>
+                    <th>
+                        计费日期：
+                    </th>
+                    <td>
+                        <input id="CalDate" type="text" class="txt" style="width: 200px" />
                     </td>
                     <td>
                         <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />

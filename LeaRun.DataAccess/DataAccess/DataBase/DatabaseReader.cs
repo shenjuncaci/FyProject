@@ -88,7 +88,7 @@ namespace LeaRun.DataAccess
                 T model = Activator.CreateInstance<T>();
                 while (dr.Read())
                 {
-                    foreach (PropertyInfo pi in model.GetType().GetProperties(BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.Instance))
+                    foreach (PropertyInfo pi in model.GetType().GetProperties(BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.Instance).Where(p=>p.GetGetMethod().IsVirtual==false))
                     {
                         if (!IsNullOrDBNull(dr[pi.Name]))
                         {

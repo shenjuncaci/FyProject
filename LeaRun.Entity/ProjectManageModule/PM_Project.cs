@@ -34,6 +34,7 @@ namespace LeaRun.Entity
         public string BenchMark { get; set; }
         public string Target { get; set; }
         public string CalculationFormula { get; set; }
+        public string DataProvider { get; set; }
 
 
         #region 扩展操作

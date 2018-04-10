@@ -23,8 +23,7 @@ namespace LeaRun.Business
 DM_Dorm b on a.dormid=b.dormid left join dm_room c on a.roomno=c.roomno where 1=1  ");
             if (!string.IsNullOrEmpty(keyword))
             {
-                strSql.Append(@" AND (b.DormName LIKE @keyword or c.roomno like @keyword
-                                    )");
+                strSql.Append(keyword);
                 parameter.Add(DbFactory.CreateDbParameter("@keyword", '%' + keyword + '%'));
             }
             if (!string.IsNullOrEmpty(ParameterJson) && ParameterJson.Length > 2)

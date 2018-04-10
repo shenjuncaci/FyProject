@@ -14,7 +14,7 @@
     $(function () {
         BindDepartment();
         InitControl();
-        //js通配符获取所有日期，去掉T后面的内容
+        //js通配符获取所有日期，去掉T后面的内容Date
         //测试后效率还可以,如果以后发现效率不行,可以尝试去掉if判断,根据日期格式固定截取字符串
         
         $('input[id$="Dt"]').each(function () {
@@ -25,6 +25,16 @@
             }
             this.disabled = true;
             this.readOnly=true;
+        });
+
+        $('input[id$="Date"]').each(function () {
+
+            var w = this.value.indexOf("T");
+            if (w > 0) {
+                this.value = this.value.substring(0, w);
+            }
+            this.disabled = true;
+            this.readOnly = true;
         });
         
 

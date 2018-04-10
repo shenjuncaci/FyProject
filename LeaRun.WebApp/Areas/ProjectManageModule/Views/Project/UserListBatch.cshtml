@@ -35,7 +35,7 @@
         }
 
         $("#gridTable").jqGrid('setGridParam', {
-            url: encodeURI("@Url.Content("~/ProjectManageModule/Project/GetUserListJson")?keywords=")
+            url: encodeURI("@Url.Content("~/ProjectManageModule/Project/GetUserListJson")?keywords=" + keywords)
         }).trigger('reloadGrid');
     }
     //显示技能列表

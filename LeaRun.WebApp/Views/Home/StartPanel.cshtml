@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@{
+    ViewBag.Title = "欢迎使用";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<!DOCTYPE html>
 
 <html>
 <head>
@@ -40,11 +44,16 @@
 
     <script type="text/javascript">
         $(function () {
+            //$("#boxleft1").height = $(window).height() - $(window).height() + 488 - 50;
+            //$("#boxleft2").height = $(window).height() - $(window).height() + 488 - 50;
+            $("#boxleft1").css("height", $(window).height() - $(window).height() + 488 - 180);
+            $("#boxleft2").css("height", $(window).height() - $(window).height() + 488 - 180);
             onChange();
             //ShortcutsList();
             //GetWaitToDoList();
             GetGrid();
             ShortcutsList();
+           
         });
 
 
@@ -347,15 +356,13 @@
         $("#gridTable").jqGrid({
             url: "@Url.Content("~/Home/GetGridList")",
             datatype: "json",
-            height: 220,
+            height: $(window).height() - 488,
             autowidth: true,
             colModel: [
                 { label: '主键', name: 'KeyValue', index: 'KeyValue', width: 80, align: 'left', hidden: true },
                 { label: 'URL', name: 'Url', index: 'Url', width: 80, align: 'left', hidden: true },
                 { label: '模块', name: 'mokuai', index: 'mokuai', width: 100, align: 'left' },
                 { label: '问题描述', name: 'ProblemDescripe', index: 'ProblemDescripe', width: 200, align: 'left', formatter: lengthFormat }
-
-
             ],
             viewrecords: true,
             rowNum: 30,
@@ -387,16 +394,27 @@
         columnModelData("#gridTable");
         //自应高度
         $(window).resize(function () {
-            $("#gridTable").setGridHeight($(window).height() - 178);
+            $("#gridTable").setGridHeight($(window).height() - 488);
         });
 
     }
 
+        window.onresize = function () {
+           // alert(121);
+            $("#boxleft1").css("height", $(window).height() - $(window).height() + 488 - 180);
+            $("#boxleft1").css("width", ($(window).width()-50)/2);
+            $("#boxleft2").css("height", $(window).height() - $(window).height() + 488 - 180);
+            $("#boxleft2").css("width", ($(window).width() - 50)/2);
+            $("#boxtop").css("width", $(window).width()-50);
+        }
     </script>
 </head>
 <body>
-    <div>
-        <table style="width: 100%;">
+    <div class="layoutPanel layout-west">
+
+    </div>
+    <div class="layoutPanel layout-center">
+        <table id="tabl1" style="width: 100%;">
             <tr>
                 <td colspan="2" style="width:100%">
                     <div class="box">
@@ -420,61 +438,44 @@
 
                             </div>
                         </div>
-                        <div class="box-content" style="height: 300px;">
+                        <div class="box-content" id="boxtop" style="height: 320px;overflow:scroll">
                             <div id="container" style="height: 300px;">
                             </div>
 
                         </div>
                     </div>
                 </td>
-                @*<td>
-                        <div class="box" style="display:none">
-                            <div class="box-title">
-                                <div style="float: left">
-                                    <img src="~/Content/Images/Icon32/sound.png" alt="" width="20" height="20" />
-                                    通知公告
-                                </div>
-                                <div style="float: right; padding-right: 10px;">更多</div>
-                            </div>
-                            <div class="box-content" style="height: 300px;">
-                                <a href="#" target="_blank">1、VS出了MAC版本啦 ！ </a>
-                                <br />
-                                <a href="#" target="_blank">2、什么！乐视亡了？！ </a>
-                                <br />
-                                <a href="#" target="_blank">3、福耀事业部无开发^_^ </a>
-                                <br />
-                                <a href="#" target="_blank">4、若果还有下个接手的兄弟，好自为之~~/(ㄒoㄒ)/~~ </a>
-                                <br />
-                            </div>
-                        </div>
-                    </td>*@
+
             </tr>
             <tr>
-                <td>
+                <td colspan="2" style="width:100%">
+                    <table style="width: 100%;">
+                        <tr>
+                <td style="width:50%">
                     <div class="box">
-                        <div class="box-title">
+                        <div class="box-title" style="width:100%;">
                             <div style="float: left;">
                                 <img src="~/Content/Images/Icon32/hourglass_go.png" alt="" width="20" height="20" />
                                 待办任务(双击进入处理)
                             </div>
                             <div style="float: right; padding-right: 10px;"></div>
                         </div>
-                        <div class="box-content" style="height: 250px; width: 650px;overflow:auto">
+                        <div class="box-content" id="boxleft1" style="overflow:scroll">
                             @*<ul id="WaitDone"></ul>*@
                             <table id="gridTable"></table>
                         </div>
                     </div>
                 </td>
-                <td>
+                <td style="width:50%">
                     <div class="box">
-                        <div class="box-title">
-                            <div style="float: left">
+                        <div class="box-title" style="width:100%;">
+                            <div style="float:left">
                                 <img src="~/Content/Images/Icon32/tag_blue.png" alt="" width="20" height="20" />
                                 快捷方式
                             </div>
-                            <div style="float: right; padding-right: 10px;"></div>
+                            <div style="float:right; padding-right:10px;"></div>
                         </div>
-                        <div class="box-content" style="height: 250px; width: 550px">
+                        <div class="box-content" id="boxleft2"  style="overflow:scroll">
                             <div id="Shortcuts"></div>
                         </div>
                     </div>
@@ -493,6 +494,9 @@
                             </div>
                         </div>
                     </td>*@
+                        </tr>
+                    </table>
+                </td>
             </tr>
         </table>
     </div>

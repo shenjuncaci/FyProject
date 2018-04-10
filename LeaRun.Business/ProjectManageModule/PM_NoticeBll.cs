@@ -19,7 +19,8 @@ namespace LeaRun.Business
         {
             StringBuilder strSql = new StringBuilder();
             List<DbParameter> parameter = new List<DbParameter>();
-            strSql.Append(@" select a.*,b.projectname from pm_notice a left join pm_project b on a.projectid=b.projectid where 1=1   ");
+            strSql.AppendFormat(@" select a.*,b.projectname from pm_notice a left join pm_project b on a.projectid=b.projectid where 1=1 
+and exists (select * from PM_ProjectMember where ProjectID=b.ProjectID and UserID='{0}') ",ManageProvider.Provider.Current().UserId);
             //if (!string.IsNullOrEmpty(keyword))
             //{
             //    strSql.Append(@" AND (PostName LIKE @keyword

@@ -5,6 +5,8 @@
 }
 
 <link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+<link href="~/Content/Scripts/jquery.select2/css/select2.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery.select2/js/select2.js"></script>
 
 <style>
     #grid td {
@@ -65,6 +67,8 @@
     $(function () {
         BindDepartMent();
         InitControl();
+        $("#DepartMentID").select2();
+        $("#DataProvider").select2();
         //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
         //BindResponseBy();
         $('input[id$="Date"]').each(function () {
@@ -137,6 +141,14 @@
                 $("#DepartMentID").append($("<option></option>").val(DataJson[i].departmentid).html(DataJson[i].fullname));
             });
         })
+
+        $("#DataProvider").html("");
+        $("#DataProvider").append("<option value=''>==请选择==</option>");
+        AjaxJson("/ProjectManageModule/Project/UserJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#DataProvider").append($("<option></option>").val(DataJson[i].userid).html(DataJson[i].realname));
+            });
+        })
     }
 
 
@@ -204,7 +216,7 @@
         });
     }
 
-    function selectSkillChrome(reValue) {//为打开的窗口定义方法，让打开的窗口关闭时通过window.opener赋值回来并执行  
+    function selectSkillChrome(reValue) {//为打开的窗口定义方法，让打开的窗口关闭时通过window.opener赋值回来并执行
         for (var i = 0; i < reValue.length; i++) {
 
 
@@ -277,16 +289,33 @@
                 </tr>
                 <tr>
                     <th class="formTitle">项目名称：</th>
-                    <td class="formValue" colspan="3">
+                    <td class="formValue" colspan="1">
 
                         <input id="ProjectName" type="text" class="txt" datacol="yes" err="项目名称" checkexpession="NotNull" />
+                    </td>
+                    <th class="formTitle">数据提供：</th>
+                    <td class="formValue">
+                        <select id="DataProvider" class="select" datacol="yes" err="数据提供" checkexpession="NotNull" style="width: 96%"></select>
                     </td>
                 </tr>
 
                 <tr>
                     <th class="formTitle">项目性质：</th>
                     <td class="formValue">
-                        <input id="ProjectNature" type="text" class="txt" datacol="yes" err="项目性质" checkexpession="NotNull" />
+
+                        <select id="ProjectNature" class="select" datacol="yes" err="项目性质" checkexpession="NotNull" style="width: 96%">
+                            <option value="">==请选择==</option>
+                            <option value="物耗">物耗</option>
+                            <option value="采购">采购</option>
+                            <option value="能耗">能耗</option>
+                            <option value="物流">物流</option>
+                            <option value="成品率">成品率</option>
+                            <option value="工厂费用">工厂费用</option>
+                            <option value="质量">质量</option>
+                            <option value="效率">效率</option>
+                            <option value="资金">资金</option>
+                            <option value="其他">其他</option>
+                        </select>
                     </td>
 
                     <th class="formTitle">项目状态：</th>

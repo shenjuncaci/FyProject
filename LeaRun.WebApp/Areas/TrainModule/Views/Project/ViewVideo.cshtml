@@ -75,6 +75,7 @@
 </div>
 
 <script>
+
     var c = parseInt($("#secend").html());
     var m = parseInt($("#minute").html());
     var h = parseInt($("#hour").html());
@@ -135,4 +136,8 @@
             closeDialog();
         });
     }   
+
+    $(document).ready(function () {
+        timedCount();
+    });
 </script>

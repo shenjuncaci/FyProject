@@ -23,7 +23,7 @@ namespace LeaRun.DataAccess
             IList<DbParameter> parameter = new List<DbParameter>();
             DbType dbtype = new DbType();
             Type type = entity.GetType();
-            PropertyInfo[] props = type.GetProperties();
+            PropertyInfo[] props = type.GetProperties().Where(p => p.GetGetMethod().IsVirtual == false).ToArray();
             foreach (PropertyInfo pi in props)
             {
                 if (pi.GetValue(entity, null) != null)
@@ -211,7 +211,7 @@ namespace LeaRun.DataAccess
             sb.Append("(");
             StringBuilder sp = new StringBuilder();
             StringBuilder sb_prame = new StringBuilder();
-            PropertyInfo[] props = type.GetProperties();
+            PropertyInfo[] props = type.GetProperties().Where(p => p.GetGetMethod().IsVirtual == false).ToArray();
             foreach (PropertyInfo prop in props)
             {
                 if (prop.GetValue(entity, null) != null)
@@ -272,7 +272,7 @@ namespace LeaRun.DataAccess
         public static StringBuilder UpdateSql<T>(T entity, string pkName)
         {
             Type type = entity.GetType();
-            PropertyInfo[] props = type.GetProperties();
+            PropertyInfo[] props = type.GetProperties().Where(p => p.GetGetMethod().IsVirtual == false).ToArray();
             StringBuilder sb = new StringBuilder();
             sb.Append(" Update ");
             sb.Append(type.Name);
@@ -309,7 +309,8 @@ namespace LeaRun.DataAccess
         {
             string pkName = GetKeyField<T>().ToString();
             Type type = entity.GetType();
-            PropertyInfo[] props = type.GetProperties();
+            PropertyInfo[] props = type.GetProperties().Where(p=>p.GetGetMethod().IsVirtual==false).ToArray();
+            
             StringBuilder sb = new StringBuilder();
             sb.Append("Update ");
             sb.Append(type.Name);
@@ -373,7 +374,7 @@ namespace LeaRun.DataAccess
         public static StringBuilder DeleteSql<T>(T entity)
         {
             Type type = entity.GetType();
-            PropertyInfo[] props = type.GetProperties();
+            PropertyInfo[] props = type.GetProperties().Where(p => p.GetGetMethod().IsVirtual == false).ToArray();
             StringBuilder sb = new StringBuilder("Delete From " + type.Name + " Where 1=1");
             foreach (PropertyInfo prop in props)
             {
@@ -414,7 +415,7 @@ namespace LeaRun.DataAccess
         public static StringBuilder SelectSql<T>(int Top) where T : new()
         {
             string tableName = typeof(T).Name;
-            PropertyInfo[] props = GetProperties(new T().GetType());
+            PropertyInfo[] props = GetProperties(new T().GetType()).Where(p=>p.GetGetMethod().IsVirtual==false).ToArray();
             StringBuilder sbColumns = new StringBuilder();
             foreach (PropertyInfo prop in props)
             {

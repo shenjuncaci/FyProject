@@ -1,264 +1,199 @@
 ﻿@{
-    ViewBag.Title = "工序信息";
+    ViewBag.Title = "文件中心管理/文件上传";
     Layout = "~/Views/Shared/_LayoutIndex.cshtml";
 }
+<!--上传文件组件start-->
+<link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
+<script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>
+<!--上传文件组件end-->
 <style>
-    .ui-jqgrid tr.jqgrow td {
-        white-space: normal !important;
-        height: auto;
-        vertical-align: text-top;
-        padding-top: 2px;
+    .button {
+        background-color: #5EB34A; /* Green */
+        border: none;
+        color: white;
+        height: 26px;
+        width: 70px;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 5px;
+        font-size: 12px;
+        font-family: 微软雅黑;
     }
 </style>
-<script type="text/javascript">
-    $(document).ready(function () {
+<script>
+    $(function () {
 
-        GetGrid();
-
-        //绑定键盘按下事件
-        $(document).keypress(function (e) {
-            //回车键事件
-            if (e.which == 13) {
-                $("#keywords").focus();
-                $("#keywords").select();
-                $("#btnSearch").click();
-            }
-        });
+        uploadify();
+        GetFile();
     });
+    //上传文件
+    var index_uploadify = 1;
+    function uploadify() {
 
-    var CompanyId = "", DepartmentId = "", DepartmentName = "";
+        $("#uploadify").uploadify({
 
-
-    Date.prototype.pattern = function (fmt) {
-        var o = {
-            "M+": this.getMonth() + 1, //月份
-            "d+": this.getDate(), //日
-            "h+": this.getHours() % 12 == 0 ? 12 : this.getHours() % 12, //小时
-            "H+": this.getHours(), //小时
-            "m+": this.getMinutes(), //分
-            "s+": this.getSeconds(), //秒
-            "q+": Math.floor((this.getMonth() + 3) / 3), //季度
-            "S": this.getMilliseconds() //毫秒
-        };
-        var week = {
-            "0": "/u65e5",
-            "1": "/u4e00",
-            "2": "/u4e8c",
-            "3": "/u4e09",
-            "4": "/u56db",
-            "5": "/u4e94",
-            "6": "/u516d"
-        };
-        if (/(y+)/.test(fmt)) {
-            fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
-        }
-        if (/(E+)/.test(fmt)) {
-            fmt = fmt.replace(RegExp.$1, ((RegExp.$1.length > 1) ? (RegExp.$1.length > 2 ? "/u661f/u671f" : "/u5468") : "") + week[this.getDay() + ""]);
-        }
-        for (var k in o) {
-            if (new RegExp("(" + k + ")").test(fmt)) {
-                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
-            }
-        }
-        return fmt;
-    }
-
-    //搜索
-    function btn_Search() {
-        var keywords = $("#keywords").val();
-        $("#gridTable").jqGrid('setGridParam', {
-            url: "@Url.Content("~/ProjectManageModule/Project/GridPageListJson")?keywords=" + escape(keywords), page: 1
-        }).trigger('reloadGrid');
-    }
-
-
-    //加载表格
-    function GetGrid() {
-        var SelectRowIndx;
-        $("#gridTable").jqGrid({
-            url: "@Url.Content("~/ProjectManageModule/Project/GridPageListJson")",
-            datatype: "json",
-            height: $(window).height() - 178,
-            autowidth: true,
-            colModel: [
-                { label: '主键', name: 'fileid', index: 'fileid', width: 80, align: 'left', hidden: true },
-                { label: '文件名称', name: 'filename', index: 'filename', width: 200, align: 'left' },
-                { label: '部门', name: 'fullname', index: 'fullname', width: 100, align: 'left'},
-            ],
-            viewrecords: true,
-            rowNum: 30,
-            rowList: [30, 50, 100, 500, 1000],
-            pager: "#gridPager",
-            sortname: 'createdate',
-            sortorder: 'desc',
-            rownumbers: true,
-            shrinkToFit: false,
-            gridview: true,
-            multiselect: false,
-            //cellattr: addCellAttr,
-
-            // useColSpanStyle:true,
-            onSelectRow: function () {
-                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            uploader: '/ProjectManageModule/PublicFile/SubmitUploadify',
+            swf: '/Content/Scripts/uploadify/uploadify.swf',
+            buttonText: "上传文件",
+            //fileTypeExts: "*.pdf",
+            height: 24,
+            width: 70,
+            fileSizeLimit: 140960,
+            onFallback: function () {
+                alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
             },
-            gridComplete: function () {
-                //LoadViewList();
-                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            onUploadSuccess: function (file, data, response) {
+                $('.drag-tip').remove();
+                $("#grid tbody").html("");
+                GetFile();
+                @*var DataJson = JSON.parse(data);
+                var html = "";
+                html += '<tr>';
+                if (DataJson.NetworkFile.Icon == "new") {
+                    html += '<td style="width: 16px;"><img src="@Url.Content("~/Content/Images/Icon32/page_white.png")" /></td>';
+                } else {
+                    html += '<td style="width: 16px;"><img src="../../Content/Images/Icon32/file_extension_' + DataJson.NetworkFile.Icon + '.png" /></td>';
+                }
+                html += '<td style="width: 320px;"><div id="divFileName">' + DataJson.NetworkFile.FileName + '</div></td>';
+                html += '<td style="width: 70px;">' + DataJson.NetworkFile.FileSize + '</td>';
+                if (DataJson.Status > 0) {
+                    html += '<td title="上传成功" style="width: 26px;"><img src="@Url.Content("~/Content/Images/Icon16/accept.png")" /></td>';
+                } else {
+                    html += '<td title=' + DataJson.Status + ' style="width: 26px;"></td>';
+                }
+                html += '</tr>';
+                $("#grid tbody").prepend(html);*@
+                //top.frames[tabiframeId()].GetAttachGrid(GetQuery('FolderId'));
             }
-            //ondblClickRow: function (RowIndx) {
-
-            //    var rowData = $(this).jqGrid('getRowData', RowIndx);
-
-            //    //GetAttachGrid(rowData.skillid);
-
-            //    var index=layer.open({
-            //        type: 2,  //2表示ifrmae弹出层
-            //        title: '通知明细',
-            //        maxmin: true,
-            //        shadeClose: true, //点击遮罩关闭层
-            //        area: ['800px', '550px'],
-            //        content: 'NoticeInfo?KeyValue='+rowData.projectid
-            //        });
-            //    //layer.full(index);
-
-            //}
         });
-        columnModelData("#gridTable");
-        //自应高度
-        $(window).resize(function () {
-            $("#gridTable").setGridHeight($(window).height() - 178);
-        });
-
     }
 
+    //获取原来的文件
+    function GetFile()
+    {
+        var html = "";
+        AjaxJson("/ProjectManageModule/PublicFile/GetExistsList", { }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                html += '<tr>';
+                if (DataJson[i].Icon == "new") {
+                    html += '<td style="width: 16px;"><img src="@Url.Content("~/Content/Images/Icon32/page_white.png")" /></td>';
+                } else {
+                    html += '<td style="width: 16px;"><img src="../../Content/Images/Icon32/file_extension_' + DataJson[i].Icon + '.png" /></td>';
+                }
+                html += '<td style="width: 320px;"><div id="divFileName">' + DataJson[i].FileName + '</div></td>';
+                html += '<td style="width: 70px;">' + DataJson[i].FileSize + '</td>';
+                if (DataJson[i].canDel == "1") {
+                    html += '<td onclick="del(\'' + DataJson[i].FileID + '\')" style="width: 70px;"><img src="@Url.Content("~/Content/Images/Icon16/cross.png")" /></td>';
+                }
+                else
+                {
+                    //document.getElementById("uploadify").style.display = "none";
+                    $("#uploadify").css("display","none");
+                }
+                html += '<td onclick="download(\'' + DataJson[i].FileID + '\')" style="width: 70px;"><img src="@Url.Content("~/Content/Images/Icon16/arrow_down.png")" /></td>';
+                html += '<td onclick="View(\'' + DataJson[i].FileID +'\')" style="width: 70px;"><img src="@Url.Content("~/Content/Images/Icon16/application_form_magnify.png")" /></td>';
+                @*if (DataJson.Status > 0) {
+                    html += '<td title="上传成功" style="width: 26px;"><img src="@Url.Content("~/Content/Images/Icon16/accept.png")" /></td>';
+                } else {
+                    html += '<td title=' + DataJson.Status + ' style="width: 26px;"></td>';
+                }*@
+                html += '</tr>';
 
-    //高级查询
-    var QueryParamJson = "";
-    function btn_query() {
-        QueryDialog("/Utility/QueryPage", "QueryPage", "查询过滤", 770, 395, function (iframe) {
-            top.frames[iframe].QueryClick(function (JsonData) {
-                QueryParamJson = JsonData;
-                $("#gridTable").jqGrid('setGridParam', {
-                    url: "@Url.Content("~/ProjectManageModule/Project/GridPageListJson")?ParameterJson=" + escape(JsonData), page: 1
-                }).trigger('reloadGrid');
             });
+            $("#grid tbody").prepend(html);
+        })
+    }
+
+    function download(FileID)
+    {
+        var url = '/ProjectManageModule/PublicFile/Download?KeyValue=' + FileID;
+        location.href = url;
+    }
+
+    function del(FileID)
+    {
+        AjaxJson("/ProjectManageModule/PublicFile/DeleteFile", { NetworkFileId: FileID }, function (data) {
+            $("#grid tbody").html("");
+            GetFile();
         });
     }
 
-    //新增
-    function btn_add() {
-        var url = "/ProjectManageModule/Project/Form"
-        openDialog(url, "Form", "新增", 1000, 350, function (iframe) {
-            top.frames[iframe].AcceptClick();
+    function View(FileID) {
+        $.ajax({
+            type: "post",
+            url: "/ProjectManageModule/PublicFile/CheckFileName?FileID=" + FileID,
+            async: false,
+            success: function (msg) {
+                var url = "/Content/Scripts/pdf.js/generic/web/viewer.html?file=" + msg;
+                Dialog(url, "StudyForm", "在线查看文件",1000,800);
+            },
+            error: function () {
+                alert("出错了");
+            }
         });
+
+
+
     }
-    //编辑
-    function btn_edit() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
-        //alert(KeyValue);
-        if (IsChecked(KeyValue)) {
-            var url = "/ProjectManageModule/Project/Form?KeyValue=" + KeyValue;
-            openDialog(url, "Form", "编辑", 1000, 350, function (iframe) {
-                top.frames[iframe].AcceptClick()
-            });
-
-        }
-    }
-
-    //删除
-    function btn_delete() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
-        if (IsDelData(KeyValue)) {
-            var delparm = 'KeyValue=' + KeyValue;
-            delConfig('/ProjectManageModule/Project/Delete', delparm, KeyValue.split(",").length);
-        }
-    }
-
-    //导出Excel
-    function btn_derive() {
-        SetDeriveExcel("#gridTable", "文件管理导出");
-        openDialog("/CommonModule/ExcelImport/DeriveDialog", "DeriveDialog", "文件管理导出", 600, 300, function (iframe) {
-            top.frames[iframe].AcceptClick();
-        });
-    }
-
-
-    //刷新
-    function windowload() {
-        $("#gridTable").trigger("reloadGrid"); //重新载入
-    }
-
-
-    //特定单元格添加超链接，可以实现附件下载，后台要把地址传过来
-    function HyperLink() {
-        var data = $("#gridTable").jqGrid("getRowData");
-        for (var i = 0; i < data.length; i++) {
-            data[i].res_ms;
-        }
-    }
-
-    function dateFormat(cellvalue, options, rowObject) {
-        //alert(cellvalue);
-        if (cellvalue == "0001-01-01T00:00:00" || cellvalue == null) {
-            return "";
-        }
-        else {
-            return String(cellvalue).substring(0, 10);
-        }
-    }
-
-    //根据日期判断，文本显示红色
-    function LengthSub(cellvalue, options, rowObject) {
-        var DateNow = new Date();//取今天的日期
-        //alert(rowObject.decidedate);
-        var DecideDate = new Date(Date.parse(rowObject.decidedate));
-
-        if (cellvalue.length > 20) {
-            cellvalue = cellvalue.substring(0, 20) + "....";
-        }
-        return cellvalue;
-    }
-
-
 
 </script>
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
 
-<!--左边-->
-<!--中间-->
-<div>
-    <div class="btnbartitle">
-        <div>
-            公告文件管理 <span id="CenterTitle"></span>
-        </div>
-    </div>
-    <!--工具栏-->
-    <div class="tools_bar" style="border-top: none; margin-bottom: 0px;">
-        <div class="PartialButton">
-            @Html.Partial("_PartialButton")
-        </div>
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
 
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+</style>
+<form id="form1" style="margin: 10px">
+    <div style="height: 29px;">
+        <div style="float: left;">
+            <input id="uploadify" name="uploadify" type="file" />
+        </div>
+        @*<div style="float: right; line-height: 26px; color: #3083eb; cursor: pointer;">
+                上传必知
+            </div>*@
     </div>
-    <!--列表-->
-    <div id="grid_List">
-        <div class="bottomline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
-            <table border="0" class="form-find" style="height: 45px;">
-                <tr>
-                    <th>
-                        关键字：
-                    </th>
-                    <td>
-                        <input id="keywords" type="text" class="txt" style="width: 200px" />
-                    </td>
-                    <td>
-                        <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
-                    </td>
-                </tr>
+    <div class="border background" style="height: 598px; overflow: auto; overflow-y: scroll">
+        <div class="upload-item">
+            <table id="grid" style="width: 100%; border-collapse: collapse;">
+                <tbody></tbody>
             </table>
         </div>
-        <table id="gridTable"></table>
-        <div id="gridPager"></div>
+        <div class="drag-tip" style="text-align: center; padding-top: 100px;">
+            @*<h1 style="color: #666; font-size: 20px; font-family: Microsoft Yahei; padding-bottom: 2px;">试试将电脑里的文件拖拽到此上传</h1>*@
+            @*<p style="color: #666; font-size: 12px;">
+                    （您的浏览器不支持此拖拽功能）
+                </p>*@
+
+        </div>
     </div>
-    <!--视图-->
-
-</div>
-
+</form>

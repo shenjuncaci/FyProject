@@ -135,11 +135,9 @@
             <table class="form">
 
                 <tr>
-                    <th class="formTitle">楼栋：</th>
-                    <td class="formValue">
-
-
-                        <select id="DormID" class="select" datacol="yes" err="楼栋" checkexpession="NotNull"></select>
+                    <th class="formTitle" style="display:none">楼栋：</th>
+                    <td class="formValue" style="display:none">
+                        <select id="DormID" class="select" datacol="yes"></select>
                     </td>
 
                     <th class="formTitle">房间号：</th>
@@ -151,6 +149,8 @@
                         <input id="InputDate" type="text" class="txt" datacol="yes" err="房间号" checkexpession="NotNull" />
 
                     </td>
+                    <th class="formTitle"></th>
+                    <td class="formValue"></td>
                 </tr>
                 <tr style="display:none">
                     <th class="formTitle">计费开始日期：</th>
@@ -178,9 +178,9 @@
                     <td class="formValue">
                         <input id="NowWater" type="text" class="txt" datacol="yes" err="当前水表" checkexpession="NotNull" />
                     </td>
-                    <th class="formTitle">水费单价</th>
+                    <th class="formTitle">@*水费单价*@</th>
                     <td class="formValue">
-                        <input id="WaterPrice" type="text" class="txt" datacol="yes" err="当前水表" checkexpession="NotNull" />
+                        @*<input id="WaterPrice" type="text" class="txt" datacol="yes" err="当前水表" checkexpession="NotNull" />*@
                     </td>
                 </tr>
 
@@ -197,13 +197,13 @@
                     <td class="formValue">
                         <input id="NowElectric" type="text" class="txt" datacol="yes" err="当前电表" checkexpession="NotNull" />
                     </td>
-                    <th class="formTitle">电费单价</th>
+                    <th class="formTitle">@*电费单价*@</th>
                     <td class="formValue">
-                        <input id="ElectricPrice" type="text" class="txt" datacol="yes" err="电费单价" checkexpession="NotNull" />
+                        @*<input id="ElectricPrice" type="text" class="txt" datacol="yes" err="电费单价" checkexpession="NotNull" />*@
                     </td>
                 </tr>
 
-                <tr>
+                <tr style="display:none">
                     <th class="formTitle">电费总价：</th>
                     <td class="formValue">
 
@@ -222,10 +222,10 @@
                 </tr>
 
                 <tr>
-                    <th class="formTitle">住房代扣：</th>
-                    <td class="formValue">
-                        <input id="HousePurchase" type="text" class="txt" datacol="yes" err="住房代扣" checkexpession="NotNull" />
-                    </td>
+                    @*<th class="formTitle">住房代扣：</th>
+        <td class="formValue">
+            <input id="HousePurchase" type="text" class="txt" datacol="yes" err="住房代扣" checkexpession="NotNull" />
+        </td>*@
 
                     <th class="formTitle">房租：</th>
                     <td class="formValue">
@@ -235,6 +235,8 @@
                     <td class="formValue">
                         <input id="MaintenanceFee" type="text" class="txt" datacol="yes" err="维护费" checkexpession="NotNull" />
                     </td>
+                    <th class="formTitle"></th>
+                    <td class="formValue"></td>
                 </tr>
 
                 <tr>

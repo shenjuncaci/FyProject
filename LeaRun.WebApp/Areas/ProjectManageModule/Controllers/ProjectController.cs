@@ -195,6 +195,14 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
             return Content(dt.ToJson());
         }
 
+        public ActionResult UserJson()
+        {
+            string sql = @"select userid,realname from Base_User where Enabled=1 and 
+(DepartmentId = '5bce3524-2835-46c9-af3a-90250f2cf198' or DepartmentId in (select DepartmentId from Base_Department where ParentId = '5bce3524-2835-46c9-af3a-90250f2cf198') )";
+            DataTable dt = ProjectBll.GetDataTable(sql);
+            return Content(dt.ToJson());
+        }
+
         public ActionResult GetDetailList(string KeyValue)
         {
             try
