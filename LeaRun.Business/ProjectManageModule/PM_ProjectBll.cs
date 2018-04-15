@@ -52,6 +52,16 @@ namespace LeaRun.Business
             return DataFactory.Database().FindListBySql<PM_ProjectMember>(strSql.ToString(), parameter.ToArray());
         }
 
+        public List<PM_ProjectActivity> GetActivityList(string KeyValue)
+        {
+            StringBuilder strSql = new StringBuilder();
+            List<DbParameter> parameter = new List<DbParameter>();
+            strSql.Append(@"select * from PM_ProjectActivity where ProjectID=@ProjectID");
+            //strSql.Append(" AND CustomExamID = @CustomExamID and IsEnabe=1 order by SortNO ");
+            parameter.Add(DbFactory.CreateDbParameter("@ProjectID", KeyValue));
+            return DataFactory.Database().FindListBySql<PM_ProjectActivity>(strSql.ToString(), parameter.ToArray());
+        }
+
         public DataTable GetUserList(string keyword, ref JqGridParam jqgridparam, string ParameterJson)
         {
             StringBuilder strSql = new StringBuilder();

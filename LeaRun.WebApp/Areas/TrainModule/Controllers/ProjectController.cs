@@ -393,9 +393,9 @@ where ProjectID='{0}' group by UserID     having count(UserID)>1)  ", KeyValue);
                     OperateTable += "<tr>";
                     for (int i=0;i<dt.Rows.Count;i++)
                     {
-                        table += "<td style=\"border-right:#cccccc solid 1px;border-left:#cccccc solid 1px;border-top:#cccccc solid 1px;border-bottom:#cccccc solid 1px;background-image:url(../../../../Content/Images/background/1.png)\"><div style=\"width:240px;height:150px\"><font color='yellow'>" + dt.Rows[i]["SkillName"].ToString() + "</font></div></td>";
+                        table += "<td style=\"border-right:#cccccc solid 1px;border-left:#cccccc solid 1px;border-top:#cccccc solid 1px;border-bottom:#cccccc solid 1px;background-image:url(../../../../Content/Images/background/1.png)\"><div style=\"width:240px;height:150px\"><font size=\"5\" color='yellow'>" + dt.Rows[i]["SkillName"].ToString() + "</font></div></td>";
                         table += "<td><div style=\"width:150px;height:150px\"></div></td>";
-                        OperateTable += "<td><label>"+dt.Rows[i]["StudyState"].ToString() + "</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick=\"study('" + dt.Rows[i]["skillid"].ToString()+"')\">开始学习</button>&nbsp;&nbsp;&nbsp;&nbsp;<button onclick=\"exam('"+dt.Rows[i]["skillid"].ToString()+"')\">开始考试</button></td>";
+                        OperateTable += "<td style=\"border-right:#cccccc solid 1px;border-left:#cccccc solid 1px;border-top:#cccccc solid 1px;border-bottom:#cccccc solid 1px;\"><label class='lb'>状态：" + dt.Rows[i]["StudyState"].ToString() + "</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button  class='btn_pr' onclick=\"study('" + dt.Rows[i]["skillid"].ToString()+ "')\">开始学习</button>&nbsp;&nbsp;&nbsp;&nbsp;<button  class='btn_pr' onclick=\"exam('" + dt.Rows[i]["skillid"].ToString()+"')\">开始考试</button></td>";
                         OperateTable += "<td></td>";
                     }
                     table += "</tr>";
@@ -409,9 +409,9 @@ where ProjectID='{0}' group by UserID     having count(UserID)>1)  ", KeyValue);
                         {
                             table += "<tr>";
                             OperateTable += "<tr>";
-                            table += "<td style=\"border-right:#cccccc solid 1px;border-left:#cccccc solid 1px;border-top:#cccccc solid 1px;border-bottom:#cccccc solid 1px;background-image:url(../../../../Content/Images/background/1.png)\"><div style=\"width:240px;height:150px\"><font color='yellow'>" + dt.Rows[i]["SkillName"].ToString() + "</font></div></td>";
+                            table += "<td style=\"border-right:#cccccc solid 1px;border-left:#cccccc solid 1px;border-top:#cccccc solid 1px;border-bottom:#cccccc solid 1px;background-image:url(../../../../Content/Images/background/1.png)\"><div style=\"width:240px;height:150px\"><font size='5' color='yellow'>" + dt.Rows[i]["SkillName"].ToString() + "</font></div></td>";
                             table += "<td><div style=\"width:50px;height:150px\"></div></td>";
-                            OperateTable += "<td><label>" + dt.Rows[i]["StudyState"].ToString() + "</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick=\"study('" + dt.Rows[i]["skillid"].ToString() + "')\">开始学习</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick=\"exam('" + dt.Rows[i]["skillid"].ToString() + "')\">开始考试</button></td>";
+                            OperateTable += "<td style=\"border-right:#cccccc solid 1px;border-left:#cccccc solid 1px;border-top:#cccccc solid 1px;border-bottom:#cccccc solid 1px;\"><label class='lb'>状态：" + dt.Rows[i]["StudyState"].ToString() + "</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button  class='btn_pr' onclick=\"study('" + dt.Rows[i]["skillid"].ToString() + "')\">开始学习</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button  class='btn_pr' onclick=\"exam('" + dt.Rows[i]["skillid"].ToString() + "')\">开始考试</button></td>";
                             OperateTable += "<td></td>";
                         }
                         else
@@ -420,18 +420,18 @@ where ProjectID='{0}' group by UserID     having count(UserID)>1)  ", KeyValue);
                             {
                                 table += "</tr>"+OperateTable+ "</tr><tr style=\"height:20px\"><td colspan=\"6\"></td></tr><tr>";
                                 OperateTable = "<tr>";
-                                table += "<td style=\"border-right:#cccccc solid 1px;border-left:#cccccc solid 1px;border-top:#cccccc solid 1px;border-bottom:#cccccc solid 1px;background-image:url(../../../../Content/Images/background/1.png)\"><div style=\"width:240px;height:150px\"><font color='yellow'>" + dt.Rows[i]["SkillName"].ToString() + "</font></div></td>";
+                                table += "<td style=\"border-right:#cccccc solid 1px;border-left:#cccccc solid 1px;border-top:#cccccc solid 1px;border-bottom:#cccccc solid 1px;background-image:url(../../../../Content/Images/background/1.png)\"><div style=\"width:240px;height:150px\"><font size='5' color='yellow'>" + dt.Rows[i]["SkillName"].ToString() + "</font></div></td>";
                                 table += "<td><div style=\"width:50px;height:150px\"></div></td>";
-                                OperateTable += "<td><label>" + dt.Rows[i]["StudyState"].ToString() + "</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick=\"study('" + dt.Rows[i]["skillid"].ToString() + "')\">开始学习</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick=\"exam('" + dt.Rows[i]["skillid"].ToString() + "')\">开始考试</button></td>";
+                                OperateTable += "<td style=\"border-right:#cccccc solid 1px;border-left:#cccccc solid 1px;border-top:#cccccc solid 1px;border-bottom:#cccccc solid 1px;\"><label class='lb'>状态：" + dt.Rows[i]["StudyState"].ToString() + "</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button  class='btn_pr' onclick=\"study('" + dt.Rows[i]["skillid"].ToString() + "')\">开始学习</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button class='btn_pr' onclick=\"exam('" + dt.Rows[i]["skillid"].ToString() + "')\">开始考试</button></td>";
                                 OperateTable += "<td></td>";
                                 //table += OperateTable;
                                 //OperateTable = "";
                             }
                             else
                             {
-                                table += "<td style=\"border-right:#cccccc solid 1px;border-left:#cccccc solid 1px;border-top:#cccccc solid 1px;border-bottom:#cccccc solid 1px;background-image:url(../../../../Content/Images/background/1.png)\"><div style=\"width:240px;height:150px\"><font color='yellow'>" + dt.Rows[i]["SkillName"].ToString() + "</font></div></td>";
+                                table += "<td style=\"border-right:#cccccc solid 1px;border-left:#cccccc solid 1px;border-top:#cccccc solid 1px;border-bottom:#cccccc solid 1px;background-image:url(../../../../Content/Images/background/1.png)\"><div style=\"width:240px;height:150px\"><font size='5' color='yellow'>" + dt.Rows[i]["SkillName"].ToString() + "</font></div></td>";
                                 table += "<td><div style=\"width:50px;height:150px\"></div></td>";
-                                OperateTable += "<td><label>" + dt.Rows[i]["StudyState"].ToString() + "</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick=\"study('" + dt.Rows[i]["skillid"].ToString() + "')\">开始学习</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button onclick=\"exam('" + dt.Rows[i]["skillid"].ToString() + "')\">开始考试</button></td>";
+                                OperateTable += "<td style=\"border-right:#cccccc solid 1px;border-left:#cccccc solid 1px;border-top:#cccccc solid 1px;border-bottom:#cccccc solid 1px;\"><label class='lb'>状态：" + dt.Rows[i]["StudyState"].ToString() + "</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button class='btn_pr' onclick=\"study('" + dt.Rows[i]["skillid"].ToString() + "')\">开始学习</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button class='btn_pr' onclick=\"exam('" + dt.Rows[i]["skillid"].ToString() + "')\">开始考试</button></td>";
                                 OperateTable += "<td></td>";
                             }
                         }
@@ -633,7 +633,116 @@ where ProjectID='{1}' ";
             return Content(aa);
         }
 
+        public string GetGeneralData(string ProjectID)
+        {
+            string sql = @" select sum(aa.Score),sum(aa.getscore) from
+(
+select b.Score,
+getscore=case when (select max(Score) from TR_Paper where FromSource=2 and KnowledgeBaseID=b.SkillID and UserID='{0}')>60 then b.Score else 0 end
+from TR_Project a
+left join TR_ProjectDetail b on a.ProjectID=b.ProjectID
+left join TR_Skill c on b.SkillID=c.SkillID
+where exists (select * from TR_ProjectMember where UserID='{0}' and ProjectID=a.ProjectID) and a.ProjectID='{1}')
+as aa ";
+            sql = string.Format(sql, ManageProvider.Provider.Current().UserId, ProjectID);
+            DataTable dt = ProjectBll.GetDataTable(sql);
+            if(dt.Rows.Count>0)
+            {
+                return dt.Rows[0][0].ToString() + "/" + dt.Rows[0][1].ToString();
+            }
+            else
+            {
+                return "error";
+            }
+        }
 
+        public string GetGeneralData1(string ProjectID)
+        {
+            string sql1 = @"select count(*) from
+(
+select b.Score,
+getscore=case when (select max(Score) from TR_Paper where FromSource=2 and KnowledgeBaseID=b.SkillID and UserID='{0}')>60 then b.Score else 0 end
+from TR_Project a
+left join TR_ProjectDetail b on a.ProjectID=b.ProjectID
+left join TR_Skill c on b.SkillID=c.SkillID
+where exists (select * from TR_ProjectMember where UserID='{0}' and ProjectID=a.ProjectID) and a.ProjectID='{1}')
+as aa";
+            string sql2= @"select count(*) from
+(
+select b.Score,
+getscore=case when (select max(Score) from TR_Paper where FromSource=2 and KnowledgeBaseID=b.SkillID and UserID='{0}')>60 then b.Score else 0 end
+from TR_Project a
+left join TR_ProjectDetail b on a.ProjectID=b.ProjectID
+left join TR_Skill c on b.SkillID=c.SkillID
+where exists (select * from TR_ProjectMember where UserID='{0}' and ProjectID=a.ProjectID) and a.ProjectID='{1}')
+as aa where aa.getscore!=0 ";
+            sql1 = string.Format(sql1,ManageProvider.Provider.Current().UserId,ProjectID);
+            sql2 = string.Format(sql2, ManageProvider.Provider.Current().UserId,ProjectID);
+            DataTable dt1 = ProjectBll.GetDataTable(sql1);
+            DataTable dt2 = ProjectBll.GetDataTable(sql2);
+            return dt1.Rows[0][0].ToString() + "/" + dt2.Rows[0][0].ToString();
+        }
+
+        public string GetGeneralData2(string ProjectID)
+        {
+            string sql1 = @"select count(*)*30 from
+(
+select b.Score,
+getscore=case when (select max(Score) from TR_Paper where FromSource=2 and KnowledgeBaseID=b.SkillID and UserID='{0}')>60 then b.Score else 0 end
+from TR_Project a
+left join TR_ProjectDetail b on a.ProjectID=b.ProjectID
+left join TR_Skill c on b.SkillID=c.SkillID
+where exists (select * from TR_ProjectMember where UserID='{0}' and ProjectID=a.ProjectID) and a.ProjectID='{1}')
+as aa";
+            string sql2 = @"select sum(StudyMin) from TR_UserStudyTime where SkillID in 
+(select b.SkillID
+from TR_Project a
+left join TR_ProjectDetail b on a.ProjectID=b.ProjectID
+left join TR_Skill c on b.SkillID=c.SkillID
+where exists (select * from TR_ProjectMember where UserID='{0}' and ProjectID=a.ProjectID) and a.ProjectID='{1}')
+and UserID='{0}'";
+            sql1 = string.Format(sql1, ManageProvider.Provider.Current().UserId, ProjectID);
+            sql2 = string.Format(sql2, ManageProvider.Provider.Current().UserId, ProjectID);
+            DataTable dt1 = ProjectBll.GetDataTable(sql1);
+            DataTable dt2 = ProjectBll.GetDataTable(sql2);
+            return dt1.Rows[0][0].ToString() + "/" + dt2.Rows[0][0].ToString();
+        }
+
+
+        public string GetPictureData(string ProjectID)
+        {
+            string sql = @" select bb.RealName,isnull(( select sum(aa.getscore) from
+(
+select b.Score,
+getscore=case when (select max(Score) from TR_Paper where FromSource=2 and KnowledgeBaseID=b.SkillID and UserID=bb.UserId)>60 then b.Score else 0 end
+from TR_Project a
+left join TR_ProjectDetail b on a.ProjectID=b.ProjectID
+left join TR_Skill c on b.SkillID=c.SkillID
+where exists (select * from TR_ProjectMember where UserID=bb.UserId and ProjectID=a.ProjectID) and a.ProjectID='{0}')
+as aa ),0) from TR_ProjectMember aa
+left join Base_User bb on aa.UserID=bb.UserId 
+where ProjectID='{0}' ";
+            sql = string.Format(sql, ProjectID);
+            DataTable dt = ProjectBll.GetDataTable(sql);
+            string X = "";
+            string Y = "";
+            string Result = "";
+            if(dt.Rows.Count>0)
+            {
+                for(int i=0;i<dt.Rows.Count;i++)
+                {
+                    X += dt.Rows[i][1].ToString()+",";
+                    Y += dt.Rows[i][0].ToString() + ",";
+                }
+                X = X.Substring(0, X.Length - 1);
+                Y = Y.Substring(0, Y.Length - 1);
+                Result = X + "|" + Y;
+
+            }
+
+            return Result;
+
+        }
 
     }
 }

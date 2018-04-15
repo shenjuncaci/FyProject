@@ -516,7 +516,7 @@ where 1=1 ";
                 }
                 else
                 {
-                    string sql = " select * from base_user where userid='"+array[0]+ "' where Enabled=1 ";
+                    string sql = " select * from base_user where userid='"+array[0]+ "' and Enabled=1 ";
                     DataTable dt = PostBll.GetDataTable(sql);
                     
 

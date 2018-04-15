@@ -72,7 +72,7 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
         }
 
         [HttpPost]
-        public ActionResult SubmitForm(string KeyValue, PM_Project entity, string BuildFormJson, HttpPostedFileBase Filedata, string DetailForm)
+        public ActionResult SubmitForm(string KeyValue, PM_Project entity, string BuildFormJson, HttpPostedFileBase Filedata, string DetailForm,string ActivityForm)
         {
             string ModuleId = DESEncrypt.Decrypt(CookieHelper.GetCookie("ModuleId"));
             IDatabase database = DataFactory.Database();
@@ -104,6 +104,21 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
                         }
                     }
 
+                    database.Delete<PM_ProjectActivity>("ProjectID", KeyValue, isOpenTrans);
+                    List<PM_ProjectActivity> ActivityList = ActivityForm.JonsToList<PM_ProjectActivity>();
+                    index = 1;
+                    foreach (PM_ProjectActivity entityD in ActivityList)
+                    {
+                        if (!string.IsNullOrEmpty(entityD.ActivityContent))
+                        {
+                            entityD.Create();
+                            entityD.ActivityDate = DateTime.Now;
+                            entityD.ProjectID = KeyValue;
+                            database.Insert(entityD, isOpenTrans);
+                            index++;
+                        }
+                    }
+
                     database.Update(entity, isOpenTrans);
 
                 }
@@ -120,6 +135,20 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
                         {
                             entityD.Create();
                             entityD.ProjectID = entity.ProjectID;
+                            database.Insert(entityD, isOpenTrans);
+                            index++;
+                        }
+                    }
+
+                    List<PM_ProjectActivity> ActivityList = ActivityForm.JonsToList<PM_ProjectActivity>();
+                    index = 1;
+                    foreach (PM_ProjectActivity entityD in ActivityList)
+                    {
+                        if (!string.IsNullOrEmpty(entityD.ActivityContent))
+                        {
+                            entityD.Create();
+                            entityD.ActivityDate = DateTime.Now;
+                            entityD.ProjectID = KeyValue;
                             database.Insert(entityD, isOpenTrans);
                             index++;
                         }
@@ -210,6 +239,23 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
                 var JsonData = new
                 {
                     rows = ProjectBll.GetDetailList(KeyValue),
+                };
+                return Content(JsonData.ToJson());
+            }
+            catch (Exception ex)
+            {
+                Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "异常错误：" + ex.Message);
+                return null;
+            }
+        }
+
+        public ActionResult GetActivityList(string KeyValue)
+        {
+            try
+            {
+                var JsonData = new
+                {
+                    rows = ProjectBll.GetActivityList(KeyValue),
                 };
                 return Content(JsonData.ToJson());
             }

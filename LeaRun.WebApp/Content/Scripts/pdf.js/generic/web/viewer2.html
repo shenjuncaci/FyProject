@@ -19,6 +19,43 @@ http://sourceforge.net/adobe/cmap/wiki/License/
 -->
 <script src="../../../jquery/jquery-1.8.2.min.js"></script>
 <script src="../../../learunui-framework.js"></script>
+<style>
+    .btn_pr {
+        background: #3498db;
+        /*background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
+        background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+        background-image: -ms-linear-gradient(top, #3498db, #2980b9);
+        background-image: -o-linear-gradient(top, #3498db, #2980b9);
+        background-image: linear-gradient(to bottom, #3498db, #2980b9);*/
+        /*-webkit-border-radius: 28;
+        -moz-border-radius: 28;
+        border-radius: 28px;*/
+        font-family: "Microsoft YaHei";
+        color: #ffffff;
+        font-size: 11pt;
+        /*padding: 12px 30px 12px 30px;*/
+        text-decoration: none;
+    }
+
+    #hour {
+        font-size: 13pt;
+        color:white;
+    }
+
+    #minute {
+        font-size: 13pt;
+        color: white;
+    }
+
+    #secend {
+        font-size: 13pt;
+        color: white;
+    }
+
+    .maohao{
+        color:white
+    }
+</style>
 
 <html dir="ltr" mozdisallowselectionprint moznomarginboxes>
 <head>
@@ -190,17 +227,19 @@ http://sourceforge.net/adobe/cmap/wiki/License/
                             </div>
                             
                             <div id="TimeCount">
-                                
-                                
-                                    <span id="hour">0</span>
-                                    <span id="minute">0</span>
-                                    <span id="secend">0</span>
-                                
 
-                                
+
+                                <span id="hour">0</span>
+                                <span class="maohao">:</span>
+                                <span id="minute">0</span>
+                                <span class="maohao">:</span>
+                                <span id="secend">0</span>
+
+
+
                             </div>
                             <div>
-                                <input type="button" value="签到退出" onclick="stopCount()" />
+                                <input class="btn_pr" type="button" value="签到退出" onclick="stopCount()" />
                             </div>
                             <a href="#" id="viewBookmark" class="toolbarButton bookmark hiddenSmallView" title="Current view (copy or open in new window)" tabindex="35" data-l10n-id="bookmark">
                                 <span data-l10n-id="bookmark_label">Current View</span>
@@ -544,8 +583,18 @@ http://sourceforge.net/adobe/cmap/wiki/License/
             }
         }
         // 写回到页面中  
-        $("#minute").html(m);
-        $("#hour").html(h);
+        if (m == 0) {
+            $("#minute").html('00');
+        }
+        else {
+            $("#minute").html(m);
+        }
+        if (h == 0) {
+            $("#hour").html('00');
+        }
+        else {
+            $("#hour").html(h);
+        }
     }
 
 

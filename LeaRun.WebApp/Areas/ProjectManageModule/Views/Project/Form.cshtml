@@ -81,6 +81,16 @@
             //this.readOnly = true;
         });
 
+        $('input[id^="ActivityDate"]').each(function () {
+
+            var w = this.value.indexOf("T");
+            if (w > 0) {
+                this.value = this.value.substring(0, w);
+            }
+            //this.disabled = true;
+            //this.readOnly = true;
+        });
+
 
     })
 
@@ -112,6 +122,26 @@
                     array[i] = rowData.UserID;
                 });
             });
+
+            rowindex = 1;
+            AjaxJson("/ProjectManageModule/project/GetActivityList", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                var JsonData = data.rows;
+                //var colorState = "";
+                $.each(JsonData, function (i) {
+
+                    addactivity(rowindex);
+                    var rowData = JsonData[i];
+                    //alert(rowData.FllowStatus);
+                    //alert(rowData.ReviewDepart);ChangeReviewState
+                    $("#ActivityDate➩" + rowindex).val(rowData.ActivityDate);
+                    $("#ActivityContent➩" + rowindex).val(rowData.ActivityContent);
+                    $("#Remark➩" + rowindex).val(rowData.Remark);
+                    
+                    //$("#RelationDID➩" + rowindex).val(rowData.RelationDID);
+                    rowindex++;
+                    
+                });
+            });
         }
     }
     //保存事件
@@ -120,10 +150,12 @@
             return false;
         }
         var DetailForm = GetTableDataJson("#DetailForm");
+        var ActivityForm = GetTableDataJson("#ActivityForm");
         Loading(true, "正在提交数据...");
         window.setTimeout(function () {
             var postData = GetWebControls("#form1");
             postData["DetailForm"] = DetailForm;
+            postData["ActivityForm"] = ActivityForm;
             postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
             AjaxJson("/ProjectManageModule/project/SubmitForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
                 tipDialog(data.Message, 3, data.Code);
@@ -191,16 +223,33 @@
         var td2 = tr.insertCell();
         var td3 = tr.insertCell();
         var td4 = tr.insertCell();
-
-
-
         td1.innerHTML = "<input style=\"width:95%\" readonly id='UserName➩" + i + "' type=\"text\" class=\"txt\"><input readonly id=\"UserID➩" + i + "\" type=\"hidden\" class=\"txt\">";
         td2.innerHTML = "<input id='PostName➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"岗位职责\" checkexpession=\"NotNull\"> ";
         td3.innerHTML = "<input  style=\"width:95%\" id='Duty➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"职责描述\" checkexpession=\"NotNull\">";
         td4.innerHTML = "<button onclick='deleteCurrentRow(this)'>删除</button>";
+    }
 
-        //初始化行;
-        //initRows(tab);
+    function addactivity(i) {
+        var tab = document.getElementById('ActivityForm');
+        var rowIndex = tab.rows.length + 1;
+        if (i == 999) {
+            //999表示是新增，-3表示减去3行标题
+            i = rowIndex - 2;
+        }
+        //添加一行;
+        var tr = tab.insertRow();
+        //tr.onmouseover = tr.className = "displayStyle";
+        //tr.onmouseout = tr.className = "hideStyle";
+        //tr.onclick = function () { this.className = "onClickChangeStyle(this)"; }
+
+        var td1 = tr.insertCell();
+        var td2 = tr.insertCell();
+        var td3 = tr.insertCell();
+        var td4 = tr.insertCell();
+        td1.innerHTML = "<input style=\"width:95%\" placeholder=\"自动生成，无需填写\" readonly  id='ActivityDate➩" + i + "' type=\"text\" class=\"txt\">";
+        td2.innerHTML = "<input id='ActivityContent➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"活动内容\" checkexpession=\"NotNull\"> ";
+        td3.innerHTML = "<input  style=\"width:95%\" id='Remark➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"活动备注\" checkexpession=\"NotNull\">";
+        td4.innerHTML = "<button onclick='deleteCurrentRow(this)'>删除</button>";
     }
 
     function addbatch() {
@@ -231,7 +280,6 @@
             else {
                 top.TipMsg("该用户已存在,不能重复添加", 4000, "error");
             }
-
         }
 
     }
@@ -354,6 +402,17 @@
                     <th style="width:20%">用户名</th>
                     <th style="width:20%">岗位</th>
                     <th style="width:50%">职责描述</th>
+
+                    <th style="width:10%">删除</th>
+                </tr>
+            </table>
+
+            <table id="ActivityForm" class="form-bill">
+                <tr><td colspan="3"><strong>项目活动管理</strong></td><td><a class="button button-caution button-square button-small" onclick="addactivity()">添加</a></td></tr>
+                <tr>
+                    <th style="width:20%">活动日期</th>
+                    <th style="width:20%">活动内容</th>
+                    <th style="width:50%">备注</th>
 
                     <th style="width:10%">删除</th>
                 </tr>

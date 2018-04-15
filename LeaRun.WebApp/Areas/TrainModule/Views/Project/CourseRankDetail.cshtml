@@ -9,237 +9,154 @@
         vertical-align: text-top;
         padding-top: 2px;
     }
+
+    .tools_bar {
+        text-align: center;
+        font-size: 15pt;
+        background-color: #4e72b8;
+        font-family: "Microsoft YaHei";
+        font-weight: bold;
+    }
+
+    .circle {
+        border-radius: 50%;
+        width: 100px;
+        height: 100px;
+        line-height: 100px;
+        text-align: center;
+        margin-right: 100px;
+        margin-left: 50px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        background-color: #E0FFFF;
+        float: left;
+    }
+
+    .circleTop {
+        width: 100px;
+        height: 50px;
+        line-height: 100px;
+        text-align: center;
+        margin-right: 100px;
+        margin-left: 50px;
+        /*margin-top: 20px;
+        margin-bottom: 20px;*/
+        float: left;
+    }
 </style>
+<script src="~/Content/Scripts/jquery.echarts/echarts.js"></script>
+
 <script type="text/javascript">
     $(document).ready(function () {
 
-        GetGrid();
+        GetGeneralData();
 
-        //绑定键盘按下事件
-        $(document).keypress(function (e) {
-            //回车键事件
-            if (e.which == 13) {
-                $("#keywords").focus();
-                $("#keywords").select();
-                $("#btnSearch").click();
-            }
-        });
     });
 
-    var CompanyId = "", DepartmentId = "", DepartmentName = "";
 
 
-    Date.prototype.pattern = function (fmt) {
-        var o = {
-            "M+": this.getMonth() + 1, //月份
-            "d+": this.getDate(), //日
-            "h+": this.getHours() % 12 == 0 ? 12 : this.getHours() % 12, //小时
-            "H+": this.getHours(), //小时
-            "m+": this.getMinutes(), //分
-            "s+": this.getSeconds(), //秒
-            "q+": Math.floor((this.getMonth() + 3) / 3), //季度
-            "S": this.getMilliseconds() //毫秒
-        };
-        var week = {
-            "0": "/u65e5",
-            "1": "/u4e00",
-            "2": "/u4e8c",
-            "3": "/u4e09",
-            "4": "/u56db",
-            "5": "/u4e94",
-            "6": "/u516d"
-        };
-        if (/(y+)/.test(fmt)) {
-            fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
-        }
-        if (/(E+)/.test(fmt)) {
-            fmt = fmt.replace(RegExp.$1, ((RegExp.$1.length > 1) ? (RegExp.$1.length > 2 ? "/u661f/u671f" : "/u5468") : "") + week[this.getDay() + ""]);
-        }
-        for (var k in o) {
-            if (new RegExp("(" + k + ")").test(fmt)) {
-                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    function GetGeneralData() {
+
+        $.ajax({
+            type: "post",
+            url: "/TrainModule/Project/GetGeneralData?ProjectID=" + GetQuery('KeyValue'),
+            async: false,
+            success: function (msg) {
+                $("#yuan2").html(msg);
+            },
+            error: function () {
+                alert("出错了");
             }
-        }
-        return fmt;
-    }
+        });
 
-    //搜索
-    function btn_Search() {
-        var keywords = $("#keywords").val();
-        $("#gridTable").jqGrid('setGridParam', {
-            url: "@Url.Content("~/TrainModule/project/GridCourseDetailListJson")?keywords=" + escape(keywords), page: 1
-        }).trigger('reloadGrid');
-    }
+        $.ajax({
+            type: "post",
+            url: "/TrainModule/Project/GetGeneralData1?ProjectID=" + GetQuery('KeyValue'),
+            async: false,
+            success: function (msg) {
+                $("#yuan1").html(msg);
+            },
+            error: function () {
+                alert("出错了");
+            }
+        });
+
+        $.ajax({
+            type: "post",
+            url: "/TrainModule/Project/GetGeneralData2?ProjectID=" + GetQuery('KeyValue'),
+            async: false,
+            success: function (msg) {
+                $("#yuan3").html(msg);
+            },
+            error: function () {
+                alert("出错了");
+            }
+        });
 
 
-    //加载表格
-    function GetGrid() {
-        var SelectRowIndx;
-        $("#gridTable").jqGrid({
-            url: "@Url.Content("~/TrainModule/project/GridCourseDetailListJson")?KeyValue=" + GetQuery('KeyValue'),
-            datatype: "json",
-            height: $(window).height() - 178,
-            autowidth: true,
-            colModel: [
-                //{ label: '主键', name: 'projectid', index: 'projectid', width: 80, align: 'left', hidden: true },
-                { label: '姓名', name: 'realname', index: 'realname', width: 250, align: 'left' },
-                { label: '需要完成的学分', name: 'planscore', index: 'planscore', width: 250, align: 'left' },
-                { label: '已完成的学分', name: 'score', index: 'score', width: 100, align: 'left' },
+           var X = new Array();
+            var Y = new Array();
+            
+            var durl = encodeURI('@Url.Action("GetPictureData", "Project")?ProjectID=' + GetQuery('KeyValue'));
+        $.ajax({
+            type: "post",
+            url: durl,
+            async: false,
+            success: function (data) {
+                var dataA = new Array();
+                dataA = data.split("|");
+
+                X = dataA[0].split(",");
+               
+                Y = dataA[1].split(",");
+               
+            }
+
+            });
+        var myChart = echarts.init(document.getElementById('main'));
+        option = {
+            title: {
+                text: '课程排名'
                 
-                //{ label: '备注', name: 'remark', index: 'remark', width: 250, align: 'left' },
-                //{ label: '结束时间', name: 'endtime', index: 'endtime', width: 250, align: 'left' },
-            ],
-            viewrecords: true,
-            rowNum: 30,
-            rowList: [30, 50, 100, 500, 1000],
-            pager: "#gridPager",
-            sortname: 'score',
-            sortorder: 'desc',
-            rownumbers: true,
-            shrinkToFit: false,
-            gridview: true,
-            multiselect: false,
-            //cellattr: addCellAttr,
-
-            // useColSpanStyle:true,
-            onSelectRow: function () {
-                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
             },
-            gridComplete: function () {
-                //LoadViewList();
-                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
             },
-            ondblClickRow: function (RowIndx) {
+            legend: {
+                data: ['已获得学分']
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'value',
+                boundaryGap: [0, 0.01]
+            },
+            yAxis: {
+                type: 'category',
+                data: Y
+            },
+            series: [
+                {
+                    name: '以获得学分',
+                    type: 'bar',
+                    data: X
+                }
 
-                var rowData = $(this).jqGrid('getRowData', RowIndx);
+            ]
+        };
 
-                //GetAttachGrid(rowData.skillid);
-
-                var index=layer.open({
-                    type: 2,  //2表示ifrmae弹出层
-                    title: '课程排名',
-                    maxmin: true,
-                    shadeClose: true, //点击遮罩关闭层
-                    area: ['800px', '550px'],
-                    content: 'CourseRankDetail?KeyValue='+rowData.projectid
-                    });
-                //layer.full(index);
-
-            }
-        });
-        columnModelData("#gridTable");
-        //自应高度
-        $(window).resize(function () {
-            $("#gridTable").setGridHeight($(window).height() - 178);
-        });
-
+        myChart.setOption(option);
     }
 
 
-    //高级查询
-    var QueryParamJson = "";
-    function btn_query() {
-        QueryDialog("/Utility/QueryPage", "QueryPage", "查询过滤", 770, 395, function (iframe) {
-            top.frames[iframe].QueryClick(function (JsonData) {
-                QueryParamJson = JsonData;
-                $("#gridTable").jqGrid('setGridParam', {
-                    url: "@Url.Content("~/TrainModule/project/GridPageListJson")?ParameterJson=" + escape(JsonData), page: 1
-                }).trigger('reloadGrid');
-            });
-        });
-    }
 
-    //新增
-    function btn_add() {
-        var url = "/TrainModule/project/Form"
-        openDialog(url, "Form", "新增", 1000, 550, function (iframe) {
-            top.frames[iframe].AcceptClick();
-        });
-    }
-    //编辑
-    function btn_edit() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
-        //alert(KeyValue);
-        if (IsChecked(KeyValue)) {
-            var url = "/TrainModule/project/Form?KeyValue=" + KeyValue;
-            openDialog(url, "Form", "编辑", 1000, 550, function (iframe) {
-                top.frames[iframe].AcceptClick()
-            });
-
-        }
-    }
-
-    //删除
-    function btn_delete() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
-        if (IsDelData(KeyValue)) {
-            var delparm = 'KeyValue=' + KeyValue;
-            delConfig('/TrainModule/project/Delete', delparm, KeyValue.split(",").length);
-        }
-    }
-
-    //导出Excel
-    function btn_derive() {
-        SetDeriveExcel("#gridTable", "快速反应");
-        openDialog("/CommonModule/ExcelImport/DeriveDialog", "DeriveDialog", "快速反应导出", 600, 300, function (iframe) {
-            top.frames[iframe].AcceptClick();
-        });
-    }
-
-    //添加用户
-    function add_user() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
-        if (IsChecked(KeyValue)) {
-            var url = "/TrainModule/project/UserForm?KeyValue=" + KeyValue;
-            openDialog(url, "Form", "编辑", 1000, 350, function (iframe) {
-                top.frames[iframe].AcceptClick()
-            });
-
-        }
-    }
-
-    //刷新
-    function windowload() {
-        $("#gridTable").trigger("reloadGrid"); //重新载入
-    }
-
-
-    //特定单元格添加超链接，可以实现附件下载，后台要把地址传过来
-    function HyperLink() {
-        var data = $("#gridTable").jqGrid("getRowData");
-        for (var i = 0; i < data.length; i++) {
-            data[i].res_ms;
-        }
-    }
-
-    function dateFormat(cellvalue, options, rowObject) {
-        //alert(cellvalue);
-        if (cellvalue == "0001-01-01T00:00:00" || cellvalue == null) {
-            return "";
-        }
-        else {
-            return String(cellvalue).substring(0, 10);
-        }
-    }
-
-    //根据日期判断，文本显示红色
-    function LengthSub(cellvalue, options, rowObject) {
-        var DateNow = new Date();//取今天的日期
-        //alert(rowObject.decidedate);
-        var DecideDate = new Date(Date.parse(rowObject.decidedate));
-
-        if (cellvalue.length > 20) {
-            cellvalue = cellvalue.substring(0, 20) + "....";
-        }
-
-
-        //if (DateNow.pattern("yyyy-MM-dd") > DecideDate.pattern("yyyy-MM-dd"))
-        //{
-        //    cellvalue = "<font color=\"red\">" + cellvalue + "</font>";
-        //}
-
-        return cellvalue;
-    }
 
 
 
@@ -248,39 +165,29 @@
 <!--左边-->
 <!--中间-->
 <div>
-    <div class="btnbartitle">
-        <div>
-            项目管理 <span id="CenterTitle"></span>
-        </div>
-    </div>
-    <!--工具栏-->
-    <div class="tools_bar" style="border-top: none; margin-bottom: 0px;">
-        <div class="PartialButton">
-            @Html.Partial("_PartialButton")
-        </div>
+    @*<div class="btnbartitle">
 
+        </div>*@
+
+    <div class="tools_bar" style="border-top: none; margin-bottom: 0px;">
+        @*<div class="PartialButton">
+                @Html.Partial("_PartialButton")
+            </div>*@
+        课程概况
+    </div>
+    <div>
+        <div class="circleTop">总课程/完成数</div>
+        <div class="circleTop">总学分/获得学分</div>
+        <div class="circleTop">总学时/完成学时</div>
+    </div>
+    <div>
+        <div id="yuan1" class="circle"></div>
+        <div id="yuan2" class="circle">30/20</div>
+        <div id="yuan3" class="circle">30/20</div>
     </div>
     <!--列表-->
-    <div id="grid_List">
-        @*<div class="bottomline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
-            <table border="0" class="form-find" style="height: 45px;">
-                <tr>
-                    <th>
-                        关键字：
-                    </th>
-                    <td>
-                        <input id="keywords" type="text" class="txt" style="width: 200px" />
-                    </td>
-                    <td>
-                        <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
-                    </td>
-                </tr>
-            </table>
-        </div>*@
-        <table id="gridTable"></table>
-        <div id="gridPager"></div>
-    </div>
-    <!--视图-->
+
+    <div id="main" style="width: auto;height:400px"></div>
 
 </div>
 

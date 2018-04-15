@@ -142,6 +142,7 @@
     <Compile Include="FYModule\FY_RapidScore.cs" />
     <Compile Include="ProjectManageModule\PM_Notice.cs" />
     <Compile Include="ProjectManageModule\PM_Project.cs" />
+    <Compile Include="ProjectManageModule\PM_ProjectActivity.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectMember.cs" />
     <Compile Include="ProjectManageModule\PM_PublicFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
