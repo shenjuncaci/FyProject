@@ -638,7 +638,7 @@ where ProjectID='{1}' ";
             string sql = @" select sum(aa.Score),sum(aa.getscore) from
 (
 select b.Score,
-getscore=case when (select max(Score) from TR_Paper where FromSource=2 and KnowledgeBaseID=b.SkillID and UserID='{0}')>60 then b.Score else 0 end
+getscore=case when (select max(Score) from TR_Paper where FromSource=2 and SkillID=b.SkillID and UserID='{0}')>60 then b.Score else 0 end
 from TR_Project a
 left join TR_ProjectDetail b on a.ProjectID=b.ProjectID
 left join TR_Skill c on b.SkillID=c.SkillID
@@ -661,7 +661,7 @@ as aa ";
             string sql1 = @"select count(*) from
 (
 select b.Score,
-getscore=case when (select max(Score) from TR_Paper where FromSource=2 and KnowledgeBaseID=b.SkillID and UserID='{0}')>60 then b.Score else 0 end
+getscore=case when (select max(Score) from TR_Paper where FromSource=2 and SkillID=b.SkillID and UserID='{0}')>60 then b.Score else 0 end
 from TR_Project a
 left join TR_ProjectDetail b on a.ProjectID=b.ProjectID
 left join TR_Skill c on b.SkillID=c.SkillID
@@ -670,7 +670,7 @@ as aa";
             string sql2= @"select count(*) from
 (
 select b.Score,
-getscore=case when (select max(Score) from TR_Paper where FromSource=2 and KnowledgeBaseID=b.SkillID and UserID='{0}')>60 then b.Score else 0 end
+getscore=case when (select max(Score) from TR_Paper where FromSource=2 and SkillID=b.SkillID and UserID='{0}')>60 then b.Score else 0 end
 from TR_Project a
 left join TR_ProjectDetail b on a.ProjectID=b.ProjectID
 left join TR_Skill c on b.SkillID=c.SkillID
@@ -688,7 +688,7 @@ as aa where aa.getscore!=0 ";
             string sql1 = @"select count(*)*30 from
 (
 select b.Score,
-getscore=case when (select max(Score) from TR_Paper where FromSource=2 and KnowledgeBaseID=b.SkillID and UserID='{0}')>60 then b.Score else 0 end
+getscore=case when (select max(Score) from TR_Paper where FromSource=2 and SkillID=b.SkillID and UserID='{0}')>60 then b.Score else 0 end
 from TR_Project a
 left join TR_ProjectDetail b on a.ProjectID=b.ProjectID
 left join TR_Skill c on b.SkillID=c.SkillID
@@ -711,17 +711,18 @@ and UserID='{0}'";
 
         public string GetPictureData(string ProjectID)
         {
-            string sql = @" select bb.RealName,isnull(( select sum(aa.getscore) from
+            string sql = @" select * from ( select bb.RealName,isnull(( select sum(aa.getscore) from
 (
 select b.Score,
-getscore=case when (select max(Score) from TR_Paper where FromSource=2 and KnowledgeBaseID=b.SkillID and UserID=bb.UserId)>60 then b.Score else 0 end
+getscore=case when (select max(Score) from TR_Paper where FromSource=2 and SkillID=b.SkillID and UserID=bb.UserId)>60 then b.Score else 0 end
 from TR_Project a
 left join TR_ProjectDetail b on a.ProjectID=b.ProjectID
 left join TR_Skill c on b.SkillID=c.SkillID
 where exists (select * from TR_ProjectMember where UserID=bb.UserId and ProjectID=a.ProjectID) and a.ProjectID='{0}')
-as aa ),0) from TR_ProjectMember aa
+as aa ),0) score from TR_ProjectMember aa
 left join Base_User bb on aa.UserID=bb.UserId 
-where ProjectID='{0}' ";
+where ProjectID='{0}') as bb order by score asc
+ ";
             sql = string.Format(sql, ProjectID);
             DataTable dt = ProjectBll.GetDataTable(sql);
             string X = "";

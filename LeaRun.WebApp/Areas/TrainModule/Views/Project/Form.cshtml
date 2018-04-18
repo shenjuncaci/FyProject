@@ -59,6 +59,7 @@
 
 <script type="text/javascript">
     var array = new Array();
+    var AllScore = 0;
     //$(document).ready(function () {
 
     //    uploadify();
@@ -106,7 +107,10 @@
                     //$("#RelationDID➩" + rowindex).val(rowData.RelationDID);
                     rowindex++;
                     array[i] = rowData.SkillID;
+
+                    AllScore += Number(rowData.Score);
                 });
+                $("#AllScore").val(AllScore);
             });
         }
     }
@@ -134,6 +138,8 @@
         var tr = obj.parentNode.parentNode;
         var tbody = tr.parentNode;
         tbody.removeChild(tr);
+
+        
         //只剩行首时删除表格
         //if (tbody.rows.length == 1) {
         //    tbody.parentNode.removeChild(tbody);
@@ -168,16 +174,28 @@
         var td1 = tr.insertCell();
         var td2 = tr.insertCell();
         var td3 = tr.insertCell();
+        var td4 = tr.insertCell();
         
 
-
-        td1.innerHTML = "<input style=\"width:95%\" readonly ondblclick='ChooseSkill(" + i + ")' id='SkillName➩" + i + "' type=\"text\" class=\"txt\"><input readonly id=\"SkillID➩" + i + "\" type=\"hidden\" class=\"txt\">";
-        td2.innerHTML = "<select id='Score➩" + i + "' class=\"select\" datacol=\"yes\" err=\"学分\" checkexpession=\"NotNull\"> <option value='1'>1</option><option value='2'>2</option><option value='3'>3</option><option value='4'>4</option><option value='5'>5</option><option value='6'>6</option><option value='7'>7</option><option value='8'>8</option><option value='9'>9</option><option value='10'>10</option></select>";
+        td1.innerHTML = "<input readonly id=\"SortNO➩" + i + "\" class=\"txt\" value=" + i + ">";
+        td2.innerHTML = "<input style=\"width:95%\" readonly ondblclick='ChooseSkill(" + i + ")' id='SkillName➩" + i + "' type=\"text\" class=\"txt\"><input readonly id=\"SkillID➩" + i + "\" type=\"hidden\" class=\"txt\">";
+        td3.innerHTML = "<select onchange=\"ChangeAllScore("+i+")\" id='Score➩" + i + "' class=\"select\" datacol=\"yes\" err=\"学分\" checkexpession=\"NotNull\"> <option value='1'>1</option><option value='2'>2</option><option value='3'>3</option><option value='4'>4</option><option value='5'>5</option><option value='6'>6</option><option value='7'>7</option><option value='8'>8</option><option value='9'>9</option><option value='10'>10</option></select>";
         
-        td3.innerHTML = "<button onclick='deleteCurrentRow(this)'>删除</button>";
+        td4.innerHTML = "<button onclick='deleteCurrentRow(this)'>删除</button>";
 
         //初始化行;
         //initRows(tab);
+    }
+
+    function ChangeAllScore(i) {
+        //AllScore = AllScore + Number($("#Score➩" + i).val());
+        //$("#AllScore").val(AllScore);
+        AllScore = 0;
+        $('select[id^="Score"]').each(function () {
+            //alert(11);
+            AllScore = AllScore + Number(this.value);
+        });
+        $("#AllScore").val(AllScore);
     }
     
     function addbatch() {
@@ -204,6 +222,7 @@
                 addone(999);
                 $("#SkillName➩" + j).val(reValue[i].SkillName);
                 $("#SkillID➩" + j).val(reValue[i].SkillID);
+                ChangeAllScore(0);
             }
             else {
                 top.TipMsg("该技能已存在,不能重复添加", 4000, "error");
@@ -274,16 +293,20 @@
                 <tr><td colspan="2"><strong>题目数据</strong></td><td><a class="button button-caution button-square button-small" onclick="addbatch()">添加</a></td></tr>
                 <tr>
                     @*<th style="width:5%;display:none">题目ID</th>*@
-                    @*<th style="width:10%">序号</th>*@
-                    <th style="width:60%">技能</th>
+                    <th style="width:10%">序号</th>
+                    <th style="width:50%">技能</th>
                     <th style="width:20%">学分</th>
-                    
+
                     <th style="width:20%">删除</th>
                 </tr>
+
             </table>
         </div>
-
         
+        <div style="float:right">
+            总学分：<input readonly id="AllScore" class="txt">  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+        </div>
+
 
 
     </div>

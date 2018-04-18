@@ -46,8 +46,8 @@
         $(function () {
             //$("#boxleft1").height = $(window).height() - $(window).height() + 488 - 50;
             //$("#boxleft2").height = $(window).height() - $(window).height() + 488 - 50;
-            $("#boxleft1").css("height", $(window).height() - $(window).height() + 488 - 180);
-            $("#boxleft2").css("height", $(window).height() - $(window).height() + 488 - 180);
+            $("#boxleft1").css("height", $(window).height() - 430);
+            $("#boxleft2").css("height", $(window).height() - 430);
             onChange();
             //ShortcutsList();
             //GetWaitToDoList();
@@ -401,10 +401,13 @@
 
         window.onresize = function () {
            // alert(121);
-            $("#boxleft1").css("height", $(window).height() - $(window).height() + 488 - 180);
-            $("#boxleft1").css("width", ($(window).width()-50)/2);
-            $("#boxleft2").css("height", $(window).height() - $(window).height() + 488 - 180);
-            $("#boxleft2").css("width", ($(window).width() - 50)/2);
+
+            $("#boxleft1").css("height", $(window).height() - 430);
+            $("#boxleft1").css("width", ($(window).width() - 50) / 2);
+
+            $("#boxleft2").css("height", $(window).height() - 430);
+            $("#boxleft2").css("width", ($(window).width() - 50) / 2);
+
             $("#boxtop").css("width", $(window).width()-50);
         }
     </script>
