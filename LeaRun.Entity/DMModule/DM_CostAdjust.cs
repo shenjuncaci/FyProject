@@ -18,24 +18,20 @@ namespace LeaRun.Entity
     ///		<date>2014.08.11 15:45</date>
     /// </author>
     /// </summary>
-    [Description("培训项目明细表")]
-    [PrimaryKey("ProjectDID")]
-    public class TR_ProjectDetail : BaseEntity
+    [Description("房费调整表")]
+    [PrimaryKey("CostAdjustID")]
+    public class DM_CostAdjust : BaseEntity
     {
 
         [DisplayName("主键")]
-        public string ProjectDID { get; set; }
-        public string ProjectID { get; set; }
-
-        public string SkillID { get; set; }
-
-
-        public int SortNO { get; set; }
-        public int Score { get; set; }
-        
+        public string CostAdjustID { get; set; }
+        public DateTime? AdjustDate { get; set; }
+        public decimal AdjustNum { get; set; }
+       
+        public string UserID { get; set; }
         public string Remark { get; set; }
-        public string SkillName { get; set; }
-        public int RequireScore { get; set; }
+
+
 
 
         #region 扩展操作
@@ -44,13 +40,14 @@ namespace LeaRun.Entity
         /// </summary>
         public override void Create()
         {
-            this.ProjectDID = CommonHelper.GetGuid;
-
+            this.CostAdjustID = CommonHelper.GetGuid;
+            
         }
 
         public override void Modify(string KeyValue)
         {
-            this.ProjectDID = KeyValue;
+            this.CostAdjustID = KeyValue;
+
         }
 
         #endregion

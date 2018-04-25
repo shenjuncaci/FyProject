@@ -113,6 +113,8 @@
             }
 
             });
+        //利用js根据Y轴的内容自动控制高度
+        $("#main").height(Y.length*20);
         var myChart = echarts.init(document.getElementById('main'));
         option = {
             title: {
@@ -140,7 +142,11 @@
             },
             yAxis: {
                 type: 'category',
-                data: Y
+                data: Y,
+                axisLabel: {
+                    interval: 0,//横轴信息全部显示  
+                    //rotate: -90,//-30度角倾斜显示  
+                }  
             },
             series: [
                 {
@@ -152,7 +158,7 @@
 
             ]
         };
-
+        
         myChart.setOption(option);
     }
 

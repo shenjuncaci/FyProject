@@ -35,6 +35,8 @@ namespace LeaRun.Entity
         public string Target { get; set; }
         public string CalculationFormula { get; set; }
         public string DataProvider { get; set; }
+        public string FlowID { get; set; }
+        public int Approvestatus { get; set; }
 
 
         #region 扩展操作
@@ -46,6 +48,7 @@ namespace LeaRun.Entity
             this.ProjectID = CommonHelper.GetGuid;
             this.CreateBy = ManageProvider.Provider.Current().UserId;
             this.CreateDate = DateTime.Now;
+            this.Approvestatus = 0;
             //this.CreateBy
         }
 

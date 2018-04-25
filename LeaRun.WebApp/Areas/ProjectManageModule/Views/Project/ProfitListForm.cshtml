@@ -60,7 +60,6 @@
 
 <script type="text/javascript">
     var array = new Array();
-    var Approvestatus;
     //$(document).ready(function () {
 
     //    uploadify();
@@ -68,51 +67,38 @@
     $(function () {
         BindDepartMent();
         InitControl();
-        $("#DepartMentID").select2();
-        $("#DataProvider").select2();
+        //$("#DepartMentID").select2();
+        //$("#DataProvider").select2();
         //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
         //BindResponseBy();
-        $('input[id$="Date"]').each(function () {
+        //$('input[id$="Date"]').each(function () {
 
-            var w = this.value.indexOf("T");
-            if (w > 0) {
-                this.value = this.value.substring(0, w);
-            }
-            //this.disabled = true;
-            //this.readOnly = true;
-        });
-
-        $('input[id^="ActivityDate"]').each(function () {
-
-            var w = this.value.indexOf("T");
-            if (w > 0) {
-                this.value = this.value.substring(0, w);
-            }
-            //this.disabled = true;
-            //this.readOnly = true;
-        });
-
-        if (Approvestatus == "9") {
-            var t = document.getElementById("main");
-            var a = t.getElementsByTagName("input");
-            var b = t.getElementsByTagName("select");
-            for (var i = 0; i < a.length; i++) {
-                a[i].setAttribute("disabled", "true");
-            }
-            for (var i = 0; i < b.length; i++) {
-                b[i].setAttribute("disabled", "true");
-            }
-
-            t = document.getElementById("DetailForm");
-            a = t.getElementsByTagName("input");
-            b = t.getElementsByTagName("select");
-            for (var i = 0; i < a.length; i++) {
-                a[i].setAttribute("disabled", "true");
-            }
-            for (var i = 0; i < b.length; i++) {
-                b[i].setAttribute("disabled", "true");
-            }
+        //    var w = this.value.indexOf("T");
+        //    if (w > 0) {
+        //        this.value = this.value.substring(0, w);
+        //    }
+        //    //this.disabled = true;
+        //    //this.readOnly = true;
+        //});
+        var t = document.getElementById("main");
+        var a = t.getElementsByTagName("input");
+        var b = t.getElementsByTagName("select");
+        for (var i = 0; i < a.length; i++) {
+            a[i].setAttribute("disabled", "true");
         }
+        for (var i = 0; i < b.length; i++) {
+            b[i].setAttribute("disabled", "true");
+        }
+
+        $('input[id^="ProfitDate"]').each(function () {
+
+            var w = this.value.indexOf("T");
+            if (w > 0) {
+                this.value = this.value.substring(0, w);
+            }
+            //this.disabled = true;
+            //this.readOnly = true;
+        });
 
 
     })
@@ -122,49 +108,30 @@
         if (!!GetQuery('KeyValue')) {
             AjaxJson("/ProjectManageModule/project/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
                 SetWebControls(data);
-                Approvestatus = data.Approvestatus;
+
             });
 
             var rowindex = 1;
             //题目信息
-            AjaxJson("/ProjectManageModule/project/GetDetailList", { KeyValue: GetQuery('KeyValue') }, function (data) {
+            AjaxJson("/ProjectManageModule/project/GetProfitDetailList", { KeyValue: GetQuery('KeyValue') }, function (data) {
                 var JsonData = data.rows;
                 //var colorState = "";
                 $.each(JsonData, function (i) {
 
-                    addone(rowindex);
+                    addprofit(rowindex);
                     var rowData = JsonData[i];
                     //alert(rowData.FllowStatus);
                     //alert(rowData.ReviewDepart);ChangeReviewState
-                    $("#UserID➩" + rowindex).val(rowData.UserID);
-                    $("#UserName➩" + rowindex).val(rowData.UserName);
-                    $("#PostName➩" + rowindex).val(rowData.PostName);
-                    $("#Duty➩" + rowindex).val(rowData.Duty);
-                    //$("#RelationDID➩" + rowindex).val(rowData.RelationDID);
-                    rowindex++;
-                    array[i] = rowData.UserID;
-                });
-            });
-
-            rowindex = 1;
-            AjaxJson("/ProjectManageModule/project/GetActivityList", { KeyValue: GetQuery('KeyValue') }, function (data) {
-                var JsonData = data.rows;
-                //var colorState = "";
-                $.each(JsonData, function (i) {
-
-                    addactivity(rowindex);
-                    var rowData = JsonData[i];
-                    //alert(rowData.FllowStatus);
-                    //alert(rowData.ReviewDepart);ChangeReviewState
-                    $("#ActivityDate➩" + rowindex).val(rowData.ActivityDate);
-                    $("#ActivityContent➩" + rowindex).val(rowData.ActivityContent);
+                    $("#ProfitDate➩" + rowindex).val(rowData.ProfitDate);
+                    $("#ProfitNum➩" + rowindex).val(rowData.ProfitNum);
                     $("#Remark➩" + rowindex).val(rowData.Remark);
-                    
-                    //$("#RelationDID➩" + rowindex).val(rowData.RelationDID);
+                   
                     rowindex++;
                     
                 });
             });
+
+           
         }
     }
     //保存事件
@@ -172,15 +139,15 @@
         if (!CheckDataValid('#form1')) {
             return false;
         }
-        var DetailForm = GetTableDataJson("#DetailForm");
-        var ActivityForm = GetTableDataJson("#ActivityForm");
+        var DetailForm = GetTableDataJson("#ProfitForm");
+        
         Loading(true, "正在提交数据...");
         window.setTimeout(function () {
             var postData = GetWebControls("#form1");
-            postData["DetailForm"] = DetailForm;
-            postData["ActivityForm"] = ActivityForm;
+            postData["ProfitForm"] = DetailForm;
+            
             postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
-            AjaxJson("/ProjectManageModule/project/SubmitForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+            AjaxJson("/ProjectManageModule/project/SubmitProfitForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
                 tipDialog(data.Message, 3, data.Code);
                 top.frames[tabiframeId()].windowload();
                 closeDialog();
@@ -219,18 +186,12 @@
         //removeByValue(array,)
     }
 
-    function removeByValue(arr, val) {
-        for (var i = 0; i < arr.length; i++) {
-            if (arr[i] == val) {
-                arr.splice(i, 1);
-                break;
-            }
-        }
-    }
 
-    function addone(i) {
-        //alert(i);
-        var tab = document.getElementById('DetailForm');
+
+
+    function addprofit(i) {
+
+        var tab = document.getElementById('ProfitForm');
         var rowIndex = tab.rows.length + 1;
         if (i == 999) {
             //999表示是新增，-3表示减去3行标题
@@ -246,76 +207,15 @@
         var td2 = tr.insertCell();
         var td3 = tr.insertCell();
         var td4 = tr.insertCell();
-        td1.innerHTML = "<input style=\"width:95%\" readonly id='UserName➩" + i + "' type=\"text\" class=\"txt\"><input readonly id=\"UserID➩" + i + "\" type=\"hidden\" class=\"txt\">";
-        td2.innerHTML = "<input id='PostName➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"岗位职责\" checkexpession=\"NotNull\"> ";
-        td3.innerHTML = "<input  style=\"width:95%\" id='Duty➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"职责描述\" checkexpession=\"NotNull\">";
+        td1.innerHTML = " <input id='ProfitDate➩"+i+"' type=\"text\" class=\"txt Wdate\" onfocus=\"WdatePicker()\" style=\"background:#E0FFFF\" err=\"登陆日期\" checkexpession=\"NotNull\" />";
+        td2.innerHTML = "<input id='ProfitNum➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"收益金额\" checkexpession=\"NotNull\"> ";
+        td3.innerHTML = "<input  style=\"width:95%\" id='Remark➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"备注\" checkexpession=\"NotNull\">";
         td4.innerHTML = "<button onclick='deleteCurrentRow(this)'>删除</button>";
     }
 
-    function addactivity(i) {
-        var tab = document.getElementById('ActivityForm');
-        var rowIndex = tab.rows.length + 1;
-        if (i == 999) {
-            //999表示是新增，-3表示减去3行标题
-            i = rowIndex - 2;
-        }
-        //添加一行;
-        var tr = tab.insertRow();
-        //tr.onmouseover = tr.className = "displayStyle";
-        //tr.onmouseout = tr.className = "hideStyle";
-        //tr.onclick = function () { this.className = "onClickChangeStyle(this)"; }
-
-        var td1 = tr.insertCell();
-        var td2 = tr.insertCell();
-        var td3 = tr.insertCell();
-        var td4 = tr.insertCell();
-        
-        td1.innerHTML = "<input style=\"width:95%\" placeholder=\"自动生成，无需填写\" readonly  id='ActivityDate➩" + i + "' type=\"text\" class=\"txt\">";
-        td2.innerHTML = "<input id='ActivityContent➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"活动内容\" checkexpession=\"NotNull\"> ";
-        td3.innerHTML = "<input  style=\"width:95%\" id='Remark➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"活动备注\" checkexpession=\"NotNull\">";
-        td4.innerHTML = "<button onclick='deleteCurrentRow(this)'>删除</button>";
-    }
-
-    function addbatch() {
-
-        //////试试用div写
-        layer.open({
-            type: 2,  //2表示ifrmae弹出层
-            title: '用户选择',
-            maxmin: true,
-            shadeClose: true, //点击遮罩关闭层
-            area: ['550px', '350px'],
-            content: 'UserListBatch'
-        });
-    }
-
-    function selectSkillChrome(reValue) {//为打开的窗口定义方法，让打开的窗口关闭时通过window.opener赋值回来并执行
-        for (var i = 0; i < reValue.length; i++) {
+    
 
 
-            var tab = document.getElementById('DetailForm');
-            var rowIndex = tab.rows.length + 1;
-            var j = rowIndex - 2;
-            if (!IsExistItem(j, reValue[i].UserID)) {
-                addone(999);
-                $("#UserName➩" + j).val(reValue[i].UserName);
-                $("#UserID➩" + j).val(reValue[i].UserID);
-            }
-            else {
-                top.TipMsg("该用户已存在,不能重复添加", 4000, "error");
-            }
-        }
-
-    }
-
-    function IsExistItem(index, code) {
-        if (!ArrayExists(array, code)) {
-            array[index] = code;
-            return false;
-        } else {
-            return true;
-        }
-    }
 </script>
 
 
@@ -332,9 +232,6 @@
     </div>
     <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
         <!--基本信息-->
-        <div style="display:none">
-            <input readonly id="Approvestatus" type="text" class="txt" />
-        </div>
         <div id="basic" class="tabPanel">
             <table id="main" class="form">
 
@@ -423,22 +320,11 @@
                 </tr>
             </table>
 
-            <table id="DetailForm" class="form-bill">
-                <tr><td colspan="3"><strong>成员管理</strong></td><td><a class="button button-caution button-square button-small" onclick="addbatch()">添加</a></td></tr>
+            <table id="ProfitForm" class="form-bill">
+                <tr><td colspan="3"><strong>项目收益管理</strong></td><td><a class="button button-caution button-square button-small" onclick="addprofit()">添加</a></td></tr>
                 <tr>
-                    <th style="width:20%">用户名</th>
-                    <th style="width:20%">岗位</th>
-                    <th style="width:50%">职责描述</th>
-
-                    <th style="width:10%">删除</th>
-                </tr>
-            </table>
-
-            <table id="ActivityForm" class="form-bill" style="display:none">
-                <tr><td colspan="3"><strong>项目活动管理</strong></td><td><a class="button button-caution button-square button-small" onclick="addactivity()">添加</a></td></tr>
-                <tr>
-                    <th style="width:20%">活动日期</th>
-                    <th style="width:20%">活动内容</th>
+                    <th style="width:20%">计算日期</th>
+                    <th style="width:20%">收益金额</th>
                     <th style="width:50%">备注</th>
 
                     <th style="width:10%">删除</th>

@@ -55,6 +55,7 @@
     <Compile Include="CommonModule\TestTableBll.cs" />
     <Compile Include="DMModule\DM_AssetsBll.cs" />
     <Compile Include="DMModule\DM_CheckInBll.cs" />
+    <Compile Include="DMModule\DM_CostAdjustBll.cs" />
     <Compile Include="DMModule\DM_DormBll.cs" />
     <Compile Include="DMModule\DM_RoomBll.cs" />
     <Compile Include="DMModule\DM_RoomCostBll.cs" />

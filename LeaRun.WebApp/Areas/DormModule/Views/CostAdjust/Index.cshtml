@@ -67,41 +67,32 @@
     function btn_Search() {
         var keywords = $("#keywords").val();
         $("#gridTable").jqGrid('setGridParam', {
-            url: "@Url.Content("~/ProjectManageModule/Project/GridPageListJson")?keywords=" + escape(keywords), page: 1
+            url: "@Url.Content("~/DormModule/CostAdjust/GridPageListJson")?keywords=" + escape(keywords), page: 1
         }).trigger('reloadGrid');
     }
 
 
-    //加载表格flowstate
+    //加载表格
     function GetGrid() {
         var SelectRowIndx;
         $("#gridTable").jqGrid({
-            url: "@Url.Content("~/ProjectManageModule/Project/GridPageListJson")",
+            url: "@Url.Content("~/DormModule/CostAdjust/GridPageListJson")",
             datatype: "json",
             height: $(window).height() - 178,
             autowidth: true,
             colModel: [
-                { label: '主键', name: 'projectid', index: 'projectid', width: 80, align: 'left', hidden: true },
-                { label: '当前流程', name: 'flowstate', index: 'flowstate', width: 100, align: 'left' },
-                { label: '项目编号', name: 'projectno', index: 'projectno', width: 100, align: 'left' },
-                { label: '部门', name: 'fullname', index: 'fullname', width: 100, align: 'left'},
-                { label: '登陆日期', name: 'createdate', index: 'createdate', width: 100, align: 'left', formatter: dateFormat },
-                { label: '计划完成日期', name: 'planfinishdate', index: 'planfinishdate', width: 100, align: 'left', formatter: dateFormat },
-                { label: '项目名称', name: 'projectname', index: 'projectname', width: 250, align: 'left' },
-                { label: '项目性质', name: 'projectnature', index: 'projectnature', width: 80, align: 'left' },
-                { label: '项目状态', name: 'projectstatus', index: 'projectstatus', width: 80, align: 'left' },
-                { label: '项目指标', name: 'projectindicators', index: 'projectindicators', width: 150, align: 'left' },
-                { label: '基准', name: 'benchmark', index: 'benchmark', width: 150, align: 'left' },
-                { label: '目标', name: 'target', index: 'target', width: 150, align: 'left' },
-                { label: '收益计算/公式说明', name: 'calculationformula', index: 'calculationformula', width: 250, align: 'left' },
-                //{ label: '备注', name: 'remark', index: 'remark', width: 250, align: 'left' },
+                { label: '主键', name: 'costadjustid', index: 'costadjustid', width: 80, align: 'left', hidden: true },
+                { label: '调整日期', name: 'adjustdate', index: 'adjustdate', width: 150, align: 'left', formatter: dateFormat },
+                { label: '住宿人', name: 'personname', index: 'personname', width: 150, align: 'left' },
+                { label: '调整金额', name: 'adjustnum', index: 'adjustnum', width: 150, align: 'left' },
+                { label: '备注', name: 'remark', index: 'remark', width: 250, align: 'left' },
                 //{ label: '结束时间', name: 'endtime', index: 'endtime', width: 250, align: 'left' },
             ],
             viewrecords: true,
             rowNum: 30,
             rowList: [30, 50, 100, 500, 1000],
             pager: "#gridPager",
-            sortname: 'createdate',
+            sortname: 'adjustdate',
             sortorder: 'desc',
             rownumbers: true,
             shrinkToFit: false,
@@ -117,23 +108,6 @@
                 //LoadViewList();
                 $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
             }
-            //ondblClickRow: function (RowIndx) {
-
-            //    var rowData = $(this).jqGrid('getRowData', RowIndx);
-
-            //    //GetAttachGrid(rowData.skillid);
-
-            //    var index=layer.open({
-            //        type: 2,  //2表示ifrmae弹出层
-            //        title: '通知明细',
-            //        maxmin: true,
-            //        shadeClose: true, //点击遮罩关闭层
-            //        area: ['800px', '550px'],
-            //        content: 'NoticeInfo?KeyValue='+rowData.projectid
-            //        });
-            //    //layer.full(index);
-
-            //}
         });
         columnModelData("#gridTable");
         //自应高度
@@ -151,7 +125,7 @@
             top.frames[iframe].QueryClick(function (JsonData) {
                 QueryParamJson = JsonData;
                 $("#gridTable").jqGrid('setGridParam', {
-                    url: "@Url.Content("~/ProjectManageModule/Project/GridPageListJson")?ParameterJson=" + escape(JsonData), page: 1
+                    url: "@Url.Content("~/DormModule/CostAdjust/GridPageListJson")?ParameterJson=" + escape(JsonData), page: 1
                 }).trigger('reloadGrid');
             });
         });
@@ -159,80 +133,38 @@
 
     //新增
     function btn_add() {
-        var url = "/ProjectManageModule/Project/Form"
-        openDialog(url, "Form", "新增", 1000, 550, function (iframe) {
+        var url = "/DormModule/CostAdjust/Form"
+        openDialog(url, "Form", "新增", 1000, 350, function (iframe) {
             top.frames[iframe].AcceptClick();
         });
     }
     //编辑
     function btn_edit() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
-        //alert(KeyValue);
+        var KeyValue = GetJqGridRowValue("#gridTable", "costadjustid");
         if (IsChecked(KeyValue)) {
-            var url = "/ProjectManageModule/Project/Form?KeyValue=" + KeyValue;
-            openDialog(url, "Form", "编辑", 1000, 550, function (iframe) {
+            var url = "/DormModule/CostAdjust/Form?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑", 1000, 350, function (iframe) {
                 top.frames[iframe].AcceptClick()
             });
 
         }
     }
 
-    //处理流程
-    function btn_flow() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
-        //alert(KeyValue);
-        if (IsChecked(KeyValue)) {
-            var url = "/ProjectManageModule/Project/FlowForm?ProjectID=" + KeyValue;
-            Dialog(url, "FlowForm", "编辑", 1000, 550);
-
-        }
-    }
-
-    //打印项目单
-    function btn_print() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
-        if (IsChecked(KeyValue)) {
-            PrintDialog("/ProjectManageModule/Project/PrintForm?KeyValue=" + KeyValue, "PrintPage", "打印当前页", 1000, 500, function (iframe) {
-                top.frames[iframe].SubmitPrint()
-            });
-        }
-    }
-
     //删除
     function btn_delete() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
+        var KeyValue = GetJqGridRowValue("#gridTable", "costadjustid");
         if (IsDelData(KeyValue)) {
             var delparm = 'KeyValue=' + KeyValue;
-            delConfig('/ProjectManageModule/Project/Delete', delparm, KeyValue.split(",").length);
+            delConfig('/DormModule/CostAdjust/Delete', delparm, KeyValue.split(",").length);
         }
     }
 
     //导出Excel
     function btn_derive() {
-        SetDeriveExcel("#gridTable", "项目管理");
-        openDialog("/CommonModule/ExcelImport/DeriveDialog", "DeriveDialog", "项目管理导出", 600, 300, function (iframe) {
+        SetDeriveExcel("#gridTable", "快速反应");
+        openDialog("/CommonModule/ExcelImport/DeriveDialog", "DeriveDialog", "快速反应导出", 600, 300, function (iframe) {
             top.frames[iframe].AcceptClick();
         });
-    }
-
-    //开展活动
-    function btn_activity() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
-        var ActivityState = GetJqGridRowValue("#gridTable", "flowstate");
-
-        if (IsChecked(KeyValue)) {
-            if (ActivityState == "已完成") {
-                var url = "/ProjectManageModule/Project/ActivityForm?KeyValue=" + KeyValue;
-                openDialog(url, "Form", "编辑", 1000, 550, function (iframe) {
-                    top.frames[iframe].AcceptClick()
-                });
-            }
-
-            else {
-                alert("只有审批完成的流程才能开展活动");
-                return false;
-            }
-        }
     }
 
 
@@ -269,9 +201,15 @@
         if (cellvalue.length > 20) {
             cellvalue = cellvalue.substring(0, 20) + "....";
         }
+
+
+        if (DateNow.pattern("yyyy-MM-dd") > DecideDate.pattern("yyyy-MM-dd"))
+        {
+            cellvalue = "<font color=\"red\">" + cellvalue + "</font>";
+        }
+
         return cellvalue;
     }
-
 
 
 
@@ -282,7 +220,7 @@
 <div>
     <div class="btnbartitle">
         <div>
-            项目管理 <span id="CenterTitle"></span>
+            用户列表 <span id="CenterTitle"></span>
         </div>
     </div>
     <!--工具栏-->

@@ -169,6 +169,25 @@
         }
     }
 
+    function btn_derive() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
+        if (IsChecked(KeyValue)) {
+
+            layer.open({
+                type: 2,
+                title: '报表查看',
+                maxmin: true,
+                shadeClose: true, //点击遮罩关闭层
+                area: ['1200px', '600px'],
+                content: 'StudyDetail?ProjectID=' + KeyValue
+            });
+            //window.open(encodeURI("ExcelExportByProject?ProjectID=" + KeyValue));
+           // AddTabMenu("eddb137d-34fc-456e-835e-105d0e762be0", "@Url.Content("~/TrainModule/Project/SkillDetail")?ProjectID=" + rowData.projectid, "学习中心明细", "page_white_edit.png", false);
+        }
+
+
+    }
+
     //删除
     function btn_delete() {
         var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
@@ -178,13 +197,13 @@
         }
     }
 
-    //导出Excel
-    function btn_derive() {
-        SetDeriveExcel("#gridTable", "快速反应");
-        openDialog("/CommonModule/ExcelImport/DeriveDialog", "DeriveDialog", "快速反应导出", 600, 300, function (iframe) {
-            top.frames[iframe].AcceptClick();
-        });
-    }
+    ////导出Excel
+    //function btn_derive() {
+    //    SetDeriveExcel("#gridTable", "快速反应");
+    //    openDialog("/CommonModule/ExcelImport/DeriveDialog", "DeriveDialog", "快速反应导出", 600, 300, function (iframe) {
+    //        top.frames[iframe].AcceptClick();
+    //    });
+    //}
 
     //添加用户
     function add_user() {

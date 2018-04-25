@@ -1,0 +1,101 @@
+﻿@using System.Data
+@{
+    ViewBag.Title = "PrintPage";
+    DataTable dt = ViewData["dt"] as DataTable;
+    
+}
+
+<link href="~/Content/Scripts/jqprint/PrintCss.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+<script src="~/Content/Scripts/learunui-framework.js"></script>
+<script src="~/Content/Scripts/jqprint/jquery.jqprint-0.3.js"></script>
+
+
+<div id="my_area">
+    <div class="logo" style="text-align:center">
+        <img src="~/Content/福耀集团(上海)汽车玻璃有限公司.png" height="50" width="500" style="text-align:center;vertical-align:middle">
+        </br>
+        <h2>8D报告(@dt.Rows[0]["状态"])</h2>
+
+    </div>
+   
+    <div style="text-align:center">
+        <table style="text-align:center;width:80%" align="center" class="gridtable">
+            <tr>
+                <th width="10%">问题描述</th>
+                <td width="90%" colspan="7" id="w1">@dt.Rows[0]["问题描述"]</td>
+            </tr>
+            <tr>
+                <th width="10%">客户</th>
+                <td width="15%">@dt.Rows[0]["客户"]</td>
+                <th width="10%">投诉级别</th>
+                <td width="15%">@dt.Rows[0]["投诉级别"]</td>
+                <th width="10%">产品区域</th>
+                <td width="15%">@dt.Rows[0]["产品区域"]</td>
+                <th width="10%">事发地</th>
+                <td width="15%">@dt.Rows[0]["事发地"]</td>
+            </tr>
+            <tr>
+                <th width="10%">问题类型</th>
+                <td width="15%">@dt.Rows[0]["问题类型"]</td>
+                <th width="10%">问题类别</th>
+                <td width="15%">@dt.Rows[0]["问题类别"]</td>
+                <th width="10%">责任人</th>
+                <td width="15%">@dt.Rows[0]["责任人"]</td>
+                <th width="10%">责任部门</th>
+                <td width="15%">@dt.Rows[0]["责任部门"]</td>
+            </tr>
+
+            <tr>
+                <th width="10%">发生日期</th>
+                <td width="15%">@dt.Rows[0]["发生日期"]</td>
+                <th width="10%">是否重复发生</th>
+                <td width="15%">@dt.Rows[0]["是否重复发生"]</td>
+                <th width="10%">规范要求</th>
+                <td width="15%">@dt.Rows[0]["规范要求"]</td>
+                <th width="10%">实际结果</th>
+                <td width="15%">@dt.Rows[0]["规范操作"]</td>
+            </tr>
+            <tr>
+                <th width="10%">计划完成日期</th>
+                <td width="15%">@dt.Rows[0]["计划完成日期"]</td>
+                <th width="10%">实际完成日期</th>
+                <td width="15%">@dt.Rows[0]["实际完成日期"]</td>
+                <th width="10%"></th>
+                <td width="15%"></td>
+                <th width="10%"></th>
+                <td width="15%"></td>
+            </tr>
+            <tr>
+                <th width="10%">根本原因分析</th>
+                <td width="90%" colspan="7" id="w2">@dt.Rows[0]["根本原因分析"]</td>
+            </tr>
+            <tr>
+                <th width="10%">纠正措施</th>
+                <td width="90%" colspan="7" id="w3">@dt.Rows[0]["纠正措施"]</td>
+            </tr>
+
+
+
+        </table>
+        </div>
+</div>
+
+<script>
+    function SubmitPrint() {
+        $("#my_area").jqprint();
+    }
+
+     $(document).ready(function () {
+
+         var reg = new RegExp('↵', "g");
+         //var temp = document.getElementById("printRemark").value;
+         //alert(temp);
+         document.getElementById("w1").innerHTML = document.getElementById("w1").innerHTML.replace(reg, '</br>');
+         document.getElementById("w2").innerHTML = document.getElementById("w2").innerHTML.replace(reg, '</br>');
+         document.getElementById("w3").innerHTML = document.getElementById("w3").innerHTML.replace(reg, '</br>');
+         //$("#printRemark").val($("#printRemark").val().replace(reg, '</br>'));
+         //alert(11);
+         //value = value.replace(reg, '\r\n');
+    });
+</script>

@@ -1215,12 +1215,15 @@ from V_ExamScore where 1=1 ");
                             if (!string.IsNullOrEmpty(entityD.QuestionID))
                             {
                                 entityD.Modify(entityD.QuestionID);
+                                entityD.SortNO = index;
                                 database.Update(entityD, isOpenTrans);
+
                                 index++;
                             }
                             else
                             {
                                 entityD.Create();
+                                entityD.SortNO = index;
                                 entityD.SkillID = KeyValue;
 
                                 database.Insert(entityD, isOpenTrans);

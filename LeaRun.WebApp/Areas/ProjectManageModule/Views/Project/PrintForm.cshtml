@@ -1,0 +1,98 @@
+﻿@using System.Data
+@{
+    ViewBag.Title = "PrintPage";
+    DataTable dt = ViewData["dt"] as DataTable;
+
+    DataTable dtMember = ViewData["dtMember"] as DataTable;
+
+}
+
+<link href="~/Content/Scripts/jqprint/PrintCss.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+<script src="~/Content/Scripts/learunui-framework.js"></script>
+<script src="~/Content/Scripts/jqprint/jquery.jqprint-0.3.js"></script>
+
+
+<div id="my_area">
+    <div class="logo" style="text-align:center">
+        <img src="~/Content/福耀集团(上海)汽车玻璃有限公司.png" height="50" width="500" style="text-align:center;vertical-align:middle">
+        </br>
+        <h2>@dt.Rows[0]["ProjectName"]</h2>
+
+    </div>
+
+    <div style="text-align:center">
+        <table style="text-align:center;width:80%" align="center" class="gridtable">
+            @*<tr>
+                <th width="10%">问题描述</th>
+                <td width="90%" colspan="7" id="w1">@dt.Rows[0]["问题描述"]</td>
+            </tr>*@
+            <tr>
+                <th width="10%">项目编号</th>
+                <td width="15%">@dt.Rows[0]["ProjectNO"]</td>
+                <th width="10%">登陆日期</th>
+                <td width="15%">@dt.Rows[0]["CreateDate"]</td>
+                <th width="10%">计划完成日期</th>
+                <td width="15%">@dt.Rows[0]["PlanFinishDate"]</td>
+                <th width="10%">所属部门</th>
+                <td width="15%">@dt.Rows[0]["FullName"]</td>
+            </tr>
+            <tr>
+                <th width="10%">数据提供人</th>
+                <td width="15%">@dt.Rows[0]["RealName"]</td>
+                <th width="10%">项目性质</th>
+                <td width="15%">@dt.Rows[0]["ProjectNature"]</td>
+                <th width="10%">基准</th>
+                <td width="15%">@dt.Rows[0]["BenchMark"]</td>
+                <th width="10%">目标</th>
+                <td width="15%">@dt.Rows[0]["Target"]</td>
+            </tr>
+
+            <tr>
+                <th width="10%">项目状态</th>
+                <td width="15%">@dt.Rows[0]["ProjectStatus"]</td>
+                <th width="10%">项目指标</th>
+                <td width="15%">@dt.Rows[0]["ProjectIndicators"]</td>
+                <th width="10%">收益计算公式</th>
+                <td width="15%">@dt.Rows[0]["CalculationFormula"]</td>
+                <th width="10%"></th>
+                <td width="15%"></td>
+            </tr>
+
+            <tr style="height:20px"></tr>
+            <tr>
+                <th>用户名</th><th>岗位</th><th colspan="6">职责描述</th>
+            </tr>
+            @for(int i=0;i<dtMember.Rows.Count;i++)
+            {
+            <tr>
+                <td>@dtMember.Rows[i]["UserName"]</td>
+                <td>>@dtMember.Rows[i]["PostName"]</td>
+                <td colspan="6">@dtMember.Rows[i]["Duty"]</td>
+            </tr>
+            }
+
+
+
+        </table>
+    </div>
+</div>
+
+<script>
+    function SubmitPrint() {
+        $("#my_area").jqprint();
+    }
+
+     $(document).ready(function () {
+
+         var reg = new RegExp('↵', "g");
+         //var temp = document.getElementById("printRemark").value;
+         //alert(temp);
+         document.getElementById("w1").innerHTML = document.getElementById("w1").innerHTML.replace(reg, '</br>');
+         document.getElementById("w2").innerHTML = document.getElementById("w2").innerHTML.replace(reg, '</br>');
+         document.getElementById("w3").innerHTML = document.getElementById("w3").innerHTML.replace(reg, '</br>');
+         //$("#printRemark").val($("#printRemark").val().replace(reg, '</br>'));
+         //alert(11);
+         //value = value.replace(reg, '\r\n');
+    });
+</script>

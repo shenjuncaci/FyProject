@@ -1177,6 +1177,24 @@ from base_day a where 1=1 order by a.basicday ";
         }
 
 
+        //生成一份简易的8D报告
+        public ActionResult PrintPage(string KeyValue)
+        {
+            string sql = @" select RapidState as 状态,a.res_jb as 投诉级别,a.res_area as 产品区域,a.res_dd as 事发地,a.res_type as 问题类型,a.IsCheck as 是否考核,a.res_again as 是否重复发生,
+a.res_ok as 问题类别,b.RealName as 责任人,c.FullName as 责任部门,
+res_kf as 客户,res_ms as 问题描述,CONVERT(varchar(100), res_cdate, 23) as 发生日期,res_fxnode as 根本原因分析,
+res_csnode as 纠正措施,NotCompleteReason as 未按进度完成原因,Action as 对应措施,Requirements as 规范要求,ActualResults as 规范操作,a.PlanTime,a.RealTime,
+CONVERT(varchar(100), a.PlanTime, 23) as 计划完成日期,CONVERT(varchar(100), a.RealTime, 23) as 实际完成日期
+
+from FY_Rapid a 
+left join Base_User b on a.res_cpeo=b.Code left join Base_Department c on b.DepartmentId=c.DepartmentId where 1=1 and a.res_id='{0}' ";
+            sql = string.Format(sql, KeyValue);
+            DataTable dt = rapidbll.GetDataTable(sql);
+            ViewData["dt"] = dt;
+
+            return View();
+        }
+
 
     }
 }

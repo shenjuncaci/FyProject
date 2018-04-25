@@ -158,5 +158,31 @@ where a.ProjectID='{0}'
 ) as a  ");
             return Repository().FindTablePageBySql(strSql.ToString(), parameter.ToArray(), ref jqgridparam);
         }
+
+        public DataTable GetStudyList(string keyword, ref JqGridParam jqgridparam, string ParameterJson,string ProjectID)
+        {
+            StringBuilder strSql = new StringBuilder();
+            List<DbParameter> parameter = new List<DbParameter>();
+            strSql.Append(@"select b.Code,b.RealName,e.FullName,c.ProjectName,d.SkillName,d.Score,StudyTime=(select top 1 StudyMin from TR_UserStudyTime where SkillID=d.SkillID and UserId=a.UserID),
+getscore=case when (select max(Score) from TR_Paper where FromSource=2 and SkillID=d.SkillID and UserID=a.UserId)>=d.RequireScore then d.Score else 0 end,30 as StudyMin,
+examscore=(select max(Score) from TR_Paper where FromSource=2 and SkillID=d.SkillID and UserID=a.UserId)
+from TR_ProjectMember a 
+left join Base_User b on a.UserID=b.UserId
+left join TR_Project c on a.ProjectID=c.ProjectID
+left join TR_ProjectDetail d on c.ProjectID=d.ProjectID
+left join Base_Department e on b.DepartmentId=e.DepartmentId  where 1=1 and c.projectID='"+ProjectID+"'  ");
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                strSql.Append(@" AND (b.Code LIKE @keyword or b.RealName LIKE @keyword or e.FullName LIKE @keyword or c.ProjectName LIKE @keyword 
+                                    )");
+                parameter.Add(DbFactory.CreateDbParameter("@keyword", '%' + keyword + '%'));
+            }
+            if (!string.IsNullOrEmpty(ParameterJson) && ParameterJson.Length > 2)
+            {
+                strSql.Append(ConditionBuilder.GetWhereSql(ParameterJson.JonsToList<Condition>(), out parameter));
+            }
+            return Repository().FindTablePageBySql(strSql.ToString(), parameter.ToArray(), ref jqgridparam);
+        }
+
     }
 }

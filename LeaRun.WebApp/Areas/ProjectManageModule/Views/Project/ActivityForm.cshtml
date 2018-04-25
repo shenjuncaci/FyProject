@@ -1,0 +1,328 @@
+﻿@{
+    ViewBag.Title = "项目管理Form";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+
+}
+
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+<link href="~/Content/Scripts/jquery.select2/css/select2.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery.select2/js/select2.js"></script>
+
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
+
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+
+    input {
+        background: #E0FFFF;
+    }
+
+    textarea {
+        background: #E0FFFF;
+    }
+
+    select {
+        background: #E0FFFF;
+    }
+</style>
+
+
+<script type="text/javascript">
+    var array = new Array();
+    
+    $(function () {
+       
+        InitControl();
+       
+        $('input[id$="Date"]').each(function () {
+
+            var w = this.value.indexOf("T");
+            if (w > 0) {
+                this.value = this.value.substring(0, w);
+            }
+            //this.disabled = true;
+            //this.readOnly = true;
+        });
+
+        $('input[id^="ActivityDate"]').each(function () {
+
+            var w = this.value.indexOf("T");
+            if (w > 0) {
+                this.value = this.value.substring(0, w);
+            }
+        });
+        $('input[id^="PutDate➩"]').each(function () {
+
+            var w = this.value.indexOf("T");
+            if (w > 0) {
+                this.value = this.value.substring(0, w);
+            }
+        });
+        $('input[id^="PlanDate➩"]').each(function () {
+
+            var w = this.value.indexOf("T");
+            if (w > 0) {
+                this.value = this.value.substring(0, w);
+            }
+        });
+
+        $('input[id^="FinishDate➩"]').each(function () {
+
+            var w = this.value.indexOf("T");
+            if (w > 0) {
+                this.value = this.value.substring(0, w);
+            }
+        });
+
+        $("#table tr td").each(function (i) {
+            //自动换换(“#table tr td”).each(function(i){                   //自动换换 
+            (this).css({ "word-break": "break-all", "word-wrap": "break-word" });
+        });
+
+       
+
+
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+
+            var rowindex = 1;
+            rowindex = 1;
+            AjaxJson("/ProjectManageModule/project/GetActivityList", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                var JsonData = data.rows;
+                //var colorState = "";
+                $.each(JsonData, function (i) {
+
+                    addactivity(rowindex);
+                    var rowData = JsonData[i];
+                    //alert(rowData.FllowStatus);
+                    //alert(rowData.ReviewDepart);ChangeReviewState
+                    $("#ActivityDate➩" + rowindex).val(rowData.ActivityDate);
+                    $("#ActivityContent➩" + rowindex).val(rowData.ActivityContent);
+                    $("#Remark➩" + rowindex).val(rowData.Remark);
+
+                    //$("#RelationDID➩" + rowindex).val(rowData.RelationDID);
+                    rowindex++;
+
+                });
+            });
+
+            rowindex = 1;
+            AjaxJson("/ProjectManageModule/project/GetProblemList", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                var JsonData = data.rows;
+                //var colorState = "";
+                $.each(JsonData, function (i) {
+
+                    addproblem(rowindex);
+                    var rowData = JsonData[i];
+                    //alert(rowData.FllowStatus);
+                    //alert(rowData.ReviewDepart);ChangeReviewState
+                    $("#SortNO➩" + rowindex).val(rowData.SortNO);
+                    $("#PutDate➩" + rowindex).val(rowData.PutDate);
+                    $("#ProblemDescripe➩" + rowindex).val(rowData.ProblemDescripe);
+                    $("#PutBy➩" + rowindex).val(rowData.PutBy);
+                    $("#ResponseBy➩" + rowindex).val(rowData.ResponseBy);
+                    $("#PlanDate➩" + rowindex).val(rowData.PlanDate);
+                    $("#FinishDate➩" + rowindex).val(rowData.FinishDate);
+                    $("#FinishState➩" + rowindex).val(rowData.FinishState);
+
+                    $("#Remark➩" + rowindex).val(rowData.Remark);
+                   
+                    //$("#RelationDID➩" + rowindex).val(rowData.RelationDID);
+                    rowindex++;
+
+                });
+            });
+
+            //addproblem
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        
+        var ActivityForm = GetTableDataJson("#ActivityForm");
+        var ProblemForm = GetTableDataJson("#ProblemForm");
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+          
+            postData["ActivityForm"] = ActivityForm;
+            postData["ProblemForm"] = ProblemForm;
+            postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            AjaxJson("/ProjectManageModule/project/SubmitActivityForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+
+
+
+    function deleteCurrentRow(obj) {
+        var tr = obj.parentNode.parentNode;
+        var tbody = tr.parentNode;
+        tbody.removeChild(tr);
+        //只剩行首时删除表格
+        //if (tbody.rows.length == 1) {
+        //    tbody.parentNode.removeChild(tbody);
+        //}
+        //删除数组中的值
+        //removeByValue(array,)
+    }
+
+
+    function addactivity(i) {
+        var tab = document.getElementById('ActivityForm');
+        var rowIndex = tab.rows.length + 1;
+        if (i == 999) {
+            //999表示是新增，-3表示减去3行标题
+            i = rowIndex - 2;
+        }
+        //添加一行;
+        var tr = tab.insertRow();
+        //tr.onmouseover = tr.className = "displayStyle";
+        //tr.onmouseout = tr.className = "hideStyle";
+        //tr.onclick = function () { this.className = "onClickChangeStyle(this)"; }
+
+        var td1 = tr.insertCell();
+        var td2 = tr.insertCell();
+        var td3 = tr.insertCell();
+        var td4 = tr.insertCell();
+        td1.innerHTML = "<input style=\"width:95%\" placeholder=\"自动生成，无需填写\" readonly  id='ActivityDate➩" + i + "' type=\"text\" class=\"txt\">";
+        td2.innerHTML = "<input id='ActivityContent➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"活动内容\" checkexpession=\"NotNull\"> ";
+        td3.innerHTML = "<input  style=\"width:95%\" id='Remark➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"活动备注\" checkexpession=\"NotNull\">";
+        td4.innerHTML = "<button onclick='deleteCurrentRow(this)'>删除</button>";
+    }
+
+    function addproblem(i) {
+        var tab = document.getElementById('ProblemForm');
+        var rowIndex = tab.rows.length + 1;
+        if (i == 999) {
+            //999表示是新增，-3表示减去3行标题
+            i = rowIndex - 2;
+        }
+
+        
+        //添加一行;
+        var tr = tab.insertRow();
+        //tr.onmouseover = tr.className = "displayStyle";
+        //tr.onmouseout = tr.className = "hideStyle";
+        //tr.onclick = function () { this.className = "onClickChangeStyle(this)"; }
+
+        var td1 = tr.insertCell();
+        var td2 = tr.insertCell();
+        var td3 = tr.insertCell();
+        var td4 = tr.insertCell();
+        var td5 = tr.insertCell();
+        var td6 = tr.insertCell();
+        var td7 = tr.insertCell();
+        var td8 = tr.insertCell();
+        var td9 = tr.insertCell();
+        var td10 = tr.insertCell();
+
+        td1.innerHTML = "<input id='SortNO➩" + i + "' style=\"width:95%\" value=\"" + i + "\" type=\"text\" class=\"txt\">";
+        td2.innerHTML = "<input style=\"width:95%\" placeholder=\"自动生成，无需填写\" readonly  id='PutDate➩" + i + "' type=\"text\" class=\"txt\">";
+        td3.innerHTML = "<input  style=\"width:95%\" id='ProblemDescripe➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"问题、解决方案\" checkexpession=\"NotNull\">";
+        td4.innerHTML = "<input  style=\"width:95%\" id='PutBy➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"提出人\" checkexpession=\"NotNull\">";
+        td5.innerHTML = "<input  style=\"width:95%\" id='ResponseBy➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"责任人\" checkexpession=\"NotNull\">";
+        td6.innerHTML = "<input  style=\"width:95%\" id='PlanDate➩" + i + "' class=\"txt Wdate\" onfocus=\"WdatePicker()\"  datacol=\"yes\" err=\"计划完成日期\" checkexpession=\"NotNull\">";
+        //<input id="CreateDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" err="登陆日期" checkexpession="NotNull" />
+        //<select id="DepartMentID" class="select" datacol="yes" err="部门" checkexpession="NotNull" style="width: 96%"></select>
+        td7.innerHTML = "<input  style=\"width:95%\" id='FinishDate➩" + i + "' class=\"txt Wdate\" onfocus=\"WdatePicker()\" datacol=\"yes\">";
+        td8.innerHTML = "<select  style=\"width:95%\" id='FinishState➩" + i + "' class=\"select\" datacol=\"yes\" err=\"完成状态\" checkexpession=\"NotNull\"><option value='进行中'>进行中</option><option value='完成'>完成</option><option value='超期'>超期</option><option value='关闭'>关闭</option></select>";
+        td9.innerHTML = "<input  style=\"width:95%\" id='Remark➩" + i + "' class=\"txt\" datacol=\"yes\">";
+        td10.innerHTML = "<button onclick='deleteCurrentRow(this)'>删除</button>";
+    }
+
+    
+
+
+</script>
+
+
+<form id="form1">
+    <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">基本信息</div>
+
+
+            </div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+        <!--基本信息-->
+        <div style="display:none">
+            <input readonly id="Approvestatus" type="text" class="txt" />
+        </div>
+        <div id="basic" class="tabPanel">
+            <table id="ActivityForm" class="form-bill">
+                <tr><td colspan="3"><strong>项目活动管理</strong></td><td><a class="button button-caution button-square button-small" onclick="addactivity(999)">添加</a></td></tr>
+                <tr>
+                    <th style="width:20%">活动日期</th>
+                    <th style="width:20%">活动内容</th>
+                    <th style="width:50%">备注</th>
+
+                    <th style="width:10%">删除</th>
+                </tr>
+            </table>
+
+            <table id="ProblemForm" class="form-bill">
+                <tr><td colspan="9"><strong>项目问题跟踪</strong></td><td><a class="button button-caution button-square button-small" onclick="addproblem(999)">添加</a></td></tr>
+                <tr>
+                    <th style="width:5%">序号</th>
+                    <th style="width:10%">提出日期</th>
+                    <th style="width:20%">问题&解决方案</th>
+                    <th style="width:10%">提出人</th>
+                    <th style="width:10%">责任人</th>
+                    <th style="width:10%">计划完成日期</th>
+                    <th style="width:10%">完成日期</th>
+                    <th style="width:8%">完成状态</th>
+                    <th style="width:12%">备注</th>
+                    <th style="width:5%">删除</th>
+                </tr>
+            </table>
+        </div>
+
+
+    </div>
+
+</form>

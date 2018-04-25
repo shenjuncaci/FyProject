@@ -126,6 +126,8 @@ namespace LeaRun.WebApp.Areas.TrainModule.Controllers
                         }
                     }
 
+
+
                     database.Insert(entity, isOpenTrans);
 
 
@@ -600,10 +602,18 @@ where ProjectID='{0}' group by UserID     having count(UserID)>1)  ", KeyValue);
         {
             //            Stopwatch watch = CommonHelper.TimerStart();
             string sql = @" select a.SkillName,a.Score as PlanScore,(select max(Score) from TR_Paper where SkillID=a.SkillID and UserID='{0}') as PaperScore,
-case when (select max(Score) from TR_Paper where SkillID=a.SkillID and UserID='{0}')>60 then a.Score 
+case when (select max(Score) from TR_Paper where SkillID=a.SkillID and UserID='{0}')>=a.RequireScore then a.Score 
 else 0 end  as RealScore
 from TR_ProjectDetail a 
-where ProjectID='{1}' ";
+where ProjectID='{1}'
+union
+select '总计',sum(aa.PlanScore),AVG(aa.PaperScore),sum(aa.RealScore) from
+(
+select a.SkillName,a.Score as PlanScore,(select max(Score) from TR_Paper where SkillID=a.SkillID and UserID='{0}') as PaperScore,
+case when (select max(Score) from TR_Paper where SkillID=a.SkillID and UserID='{0}')>=a.RequireScore then a.Score 
+else 0 end  as RealScore
+from TR_ProjectDetail a 
+where ProjectID='{1}') as aa ";
             sql = string.Format(sql, ManageProvider.Provider.Current().UserId, projectid);
             DataTable dt = ProjectBll.GetDataTable(sql);
             //            var JsonData = new
@@ -638,7 +648,7 @@ where ProjectID='{1}' ";
             string sql = @" select sum(aa.Score),sum(aa.getscore) from
 (
 select b.Score,
-getscore=case when (select max(Score) from TR_Paper where FromSource=2 and SkillID=b.SkillID and UserID='{0}')>60 then b.Score else 0 end
+getscore=case when (select max(Score) from TR_Paper where FromSource=2 and SkillID=b.SkillID and UserID='{0}')>=b.RequireScore then b.Score else 0 end
 from TR_Project a
 left join TR_ProjectDetail b on a.ProjectID=b.ProjectID
 left join TR_Skill c on b.SkillID=c.SkillID
@@ -661,7 +671,7 @@ as aa ";
             string sql1 = @"select count(*) from
 (
 select b.Score,
-getscore=case when (select max(Score) from TR_Paper where FromSource=2 and SkillID=b.SkillID and UserID='{0}')>60 then b.Score else 0 end
+getscore=case when (select max(Score) from TR_Paper where FromSource=2 and SkillID=b.SkillID and UserID='{0}')>=b.RequireScore then b.Score else 0 end
 from TR_Project a
 left join TR_ProjectDetail b on a.ProjectID=b.ProjectID
 left join TR_Skill c on b.SkillID=c.SkillID
@@ -670,7 +680,7 @@ as aa";
             string sql2= @"select count(*) from
 (
 select b.Score,
-getscore=case when (select max(Score) from TR_Paper where FromSource=2 and SkillID=b.SkillID and UserID='{0}')>60 then b.Score else 0 end
+getscore=case when (select max(Score) from TR_Paper where FromSource=2 and SkillID=b.SkillID and UserID='{0}')>=b.RequireScore then b.Score else 0 end
 from TR_Project a
 left join TR_ProjectDetail b on a.ProjectID=b.ProjectID
 left join TR_Skill c on b.SkillID=c.SkillID
@@ -688,7 +698,7 @@ as aa where aa.getscore!=0 ";
             string sql1 = @"select count(*)*30 from
 (
 select b.Score,
-getscore=case when (select max(Score) from TR_Paper where FromSource=2 and SkillID=b.SkillID and UserID='{0}')>60 then b.Score else 0 end
+getscore=case when (select max(Score) from TR_Paper where FromSource=2 and SkillID=b.SkillID and UserID='{0}')>=b.RequireScore then b.Score else 0 end
 from TR_Project a
 left join TR_ProjectDetail b on a.ProjectID=b.ProjectID
 left join TR_Skill c on b.SkillID=c.SkillID
@@ -714,7 +724,7 @@ and UserID='{0}'";
             string sql = @" select * from ( select bb.RealName,isnull(( select sum(aa.getscore) from
 (
 select b.Score,
-getscore=case when (select max(Score) from TR_Paper where FromSource=2 and SkillID=b.SkillID and UserID=bb.UserId)>60 then b.Score else 0 end
+getscore=case when (select max(Score) from TR_Paper where FromSource=2 and SkillID=b.SkillID and UserID=bb.UserId)>=b.RequireScore then b.Score else 0 end
 from TR_Project a
 left join TR_ProjectDetail b on a.ProjectID=b.ProjectID
 left join TR_Skill c on b.SkillID=c.SkillID
@@ -743,6 +753,76 @@ where ProjectID='{0}') as bb order by score asc
 
             return Result;
 
+        }
+
+        public ActionResult StudyDetail()
+        {
+            return View();
+        }
+
+
+        public ActionResult GridStudyListJson(string keywords, string CompanyId, string DepartmentId, JqGridParam jqgridparam, string ParameterJson,string ProjectID)
+        {
+            try
+            {
+                Stopwatch watch = CommonHelper.TimerStart();
+                DataTable ListData = ProjectBll.GetStudyList(keywords, ref jqgridparam, ParameterJson,ProjectID);
+                var JsonData = new
+                {
+                    total = jqgridparam.total,
+                    page = jqgridparam.page,
+                    records = jqgridparam.records,
+                    costtime = CommonHelper.TimerEnd(watch),
+                    rows = ListData,
+                };
+                return Content(JsonData.ToJson());
+            }
+            catch (Exception ex)
+            {
+                Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "异常错误：" + ex.Message);
+                return null;
+            }
+        }
+
+        public void ExcelExport(string condition,string ProjectID)
+        {
+            ExcelHelper ex = new ExcelHelper();
+            string sql = @"select b.Code as 工号,b.RealName as 姓名,e.FullName as 部门,c.ProjectName as 项目,d.SkillName as 课程,30 as 要求学时,
+完成学时=(select top 1 StudyMin from TR_UserStudyTime where SkillID=d.SkillID and UserId=a.UserID),d.Score as 学分, 
+获得学分=case when (select max(Score) from TR_Paper where FromSource=2 and SkillID=d.SkillID and UserID=a.UserId)>=d.RequireScore then d.Score else 0 end,
+考试成绩=(select max(Score) from TR_Paper where FromSource=2 and SkillID=d.SkillID and UserID=a.UserId)
+from TR_ProjectMember a 
+left join Base_User b on a.UserID=b.UserId
+left join TR_Project c on a.ProjectID=c.ProjectID
+left join TR_ProjectDetail d on c.ProjectID=d.ProjectID
+left join Base_Department e on b.DepartmentId=e.DepartmentId  where 1=1   ";
+            sql += " and c.projectid='"+ProjectID+"' ";
+            if (!string.IsNullOrEmpty(condition))
+            {
+                sql += @"AND (b.Code LIKE '%{0}%' or b.RealName LIKE '%{0}%' or e.FullName LIKE '%{0}%' or c.ProjectName LIKE '%{0}%' 
+                                    )";
+                sql = string.Format(sql, condition);
+                
+            }
+            DataTable ListData = ProjectBll.GetDataTable(sql);
+            ex.EcportExcel(ListData, "学习情况导出"+DateTime.Now.ToString());
+        }
+
+        public void ExcelExportByProject(string ProjectID)
+        {
+            ExcelHelper ex = new ExcelHelper();
+            string sql = @"select b.Code as 工号,b.RealName as 姓名,e.FullName as 部门,c.ProjectName as 项目,d.SkillName as 课程,30 as 要求学时,
+完成学时=(select top 1 StudyMin from TR_UserStudyTime where SkillID=d.SkillID and UserId=a.UserID),d.Score as 学分, 
+获得学分=case when (select max(Score) from TR_Paper where FromSource=2 and SkillID=d.SkillID and UserID=a.UserId)>=d.RequireScore then d.Score else 0 end,
+考试成绩=(select max(Score) from TR_Paper where FromSource=2 and SkillID=d.SkillID and UserID=a.UserId)
+from TR_ProjectMember a 
+left join Base_User b on a.UserID=b.UserId
+left join TR_Project c on a.ProjectID=c.ProjectID
+left join TR_ProjectDetail d on c.ProjectID=d.ProjectID
+left join Base_Department e on b.DepartmentId=e.DepartmentId  where 1=1  ";
+            sql = sql + " and c.projectid='"+ProjectID+"' ";
+            DataTable ListData = ProjectBll.GetDataTable(sql);
+            ex.EcportExcel(ListData, "学习情况导出" + DateTime.Now.ToString());
         }
 
     }

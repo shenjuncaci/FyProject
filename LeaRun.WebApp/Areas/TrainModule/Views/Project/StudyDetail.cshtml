@@ -1,0 +1,175 @@
+﻿@{
+    ViewBag.Title = "工序信息";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<style>
+    .ui-jqgrid tr.jqgrow td {
+        white-space: normal !important;
+        height: auto;
+        vertical-align: text-top;
+        padding-top: 2px;
+    }
+</style>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        GetGrid();
+
+        //绑定键盘按下事件
+        $(document).keypress(function (e) {
+            //回车键事件
+            if (e.which == 13) {
+                $("#keywords").focus();
+                $("#keywords").select();
+                $("#btnSearch").click();
+            }
+        });
+    });
+
+    var CompanyId = "", DepartmentId = "", DepartmentName = "";
+
+
+    Date.prototype.pattern = function (fmt) {
+        var o = {
+            "M+": this.getMonth() + 1, //月份
+            "d+": this.getDate(), //日
+            "h+": this.getHours() % 12 == 0 ? 12 : this.getHours() % 12, //小时
+            "H+": this.getHours(), //小时
+            "m+": this.getMinutes(), //分
+            "s+": this.getSeconds(), //秒
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+            "S": this.getMilliseconds() //毫秒
+        };
+        var week = {
+            "0": "/u65e5",
+            "1": "/u4e00",
+            "2": "/u4e8c",
+            "3": "/u4e09",
+            "4": "/u56db",
+            "5": "/u4e94",
+            "6": "/u516d"
+        };
+        if (/(y+)/.test(fmt)) {
+            fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        }
+        if (/(E+)/.test(fmt)) {
+            fmt = fmt.replace(RegExp.$1, ((RegExp.$1.length > 1) ? (RegExp.$1.length > 2 ? "/u661f/u671f" : "/u5468") : "") + week[this.getDay() + ""]);
+        }
+        for (var k in o) {
+            if (new RegExp("(" + k + ")").test(fmt)) {
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+            }
+        }
+        return fmt;
+    }
+
+    //搜索
+    function btn_Search() {
+        var keywords = $("#keywords").val();
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "@Url.Content("~/TrainModule/project/GridStudyListJson")?keywords=" + escape(keywords) + "&ProjectID=" + GetQuery('ProjectID'), page: 1
+        }).trigger('reloadGrid');
+    }
+
+
+    //加载表格
+    function GetGrid() {
+        var SelectRowIndx;
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/TrainModule/project/GridStudyListJson")?ProjectID=" + GetQuery('ProjectID'),
+            datatype: "json",
+            height: $(window).height() - 178,
+            autowidth: true,
+            colModel: [
+               
+                { label: '工号', name: 'code', index: 'code', width: 100, align: 'left' },
+                { label: '姓名', name: 'realname', index: 'realname', width: 100, align: 'left' },
+                { label: '部门', name: 'fullname', index: 'fullname', width: 100, align: 'left' },
+                { label: '项目名称', name: 'projectname', index: 'projectname', width: 150, align: 'left' },
+                { label: '课程', name: 'skillname', index: 'skillname', width: 250, align: 'left' },
+                { label: '要求学时(min)', name: 'studymin', index: 'studymin', width: 100, align: 'left' },
+                { label: '完成学时(min)', name: 'studytime', index: 'studytime', width: 100, align: 'left' },
+                { label: '学分', name: 'score', index: 'score', width: 100, align: 'left' },
+                { label: '获得学分', name: 'getscore', index: 'getscore', width: 100, align: 'left' },
+                { label: '考试成绩', name: 'examscore', index: 'examscore', width: 100, align: 'left' },
+                //{ label: '结束时间', name: 'endtime', index: 'endtime', width: 250, align: 'left' },
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 1000],
+            pager: "#gridPager",
+            sortname: 'code',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            multiselect: false,
+            //cellattr: addCellAttr,
+
+            // useColSpanStyle:true,
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            },
+            gridComplete: function () {
+                //LoadViewList();
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            }
+        });
+        columnModelData("#gridTable");
+        //自应高度
+        $(window).resize(function () {
+            $("#gridTable").setGridHeight($(window).height() - 178);
+        });
+
+    }
+
+
+    function btn_derive() {
+        var keywords = $("#keywords").val();
+        window.open(encodeURI("ExcelExport?condition=" + keywords + "&ProjectID=" + GetQuery('ProjectID')));
+
+    }
+
+
+
+</script>
+
+<!--左边-->
+<!--中间-->
+<div>
+    @*<div class="btnbartitle">
+        <div>
+            学习情况列表 <span id="CenterTitle"></span>
+        </div>
+    </div>*@
+    <!--工具栏-->
+    <div class="tools_bar" style="border-top: none; margin-bottom: 0px;">
+        <div class="PartialButton">
+            <a id="lr-derive" onclick="btn_derive()" class="tools_btn"><span><b style="background: url('../../Content/Images/Icon16/excel_exports.png') 50% 4px no-repeat;">导出</b></span></a>
+        </div>
+
+    </div>
+    <!--列表-->
+    <div id="grid_List">
+        <div class="bottomline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+            <table border="0" class="form-find" style="height: 45px;">
+                <tr>
+                    <th>
+                        关键字：
+                    </th>
+                    <td>
+                        <input id="keywords" type="text" class="txt" style="width: 200px" />
+                    </td>
+                    <td>
+                        <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <table id="gridTable"></table>
+        <div id="gridPager"></div>
+    </div>
+    <!--视图-->
+
+</div>
+

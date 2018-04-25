@@ -19,7 +19,7 @@ namespace LeaRun.Business
         {
             StringBuilder strSql = new StringBuilder();
             List<DbParameter> parameter = new List<DbParameter>();
-            strSql.Append(@" select a.*,b.fullname from pm_project a left join base_department b on a.departmentid=b.departmentid where 1=1   ");
+            strSql.Append(@" select dbo.GetFlowState(a.flowid) as flowstate,a.*,b.fullname from pm_project a left join base_department b on a.departmentid=b.departmentid where 1=1   ");
             if (!string.IsNullOrEmpty(keyword))
             {
                 strSql.Append(keyword);
@@ -56,10 +56,20 @@ namespace LeaRun.Business
         {
             StringBuilder strSql = new StringBuilder();
             List<DbParameter> parameter = new List<DbParameter>();
-            strSql.Append(@"select * from PM_ProjectActivity where ProjectID=@ProjectID");
+            strSql.Append(@"select * from PM_ProjectActivity where ProjectID=@ProjectID  order by ActivityDate ");
             //strSql.Append(" AND CustomExamID = @CustomExamID and IsEnabe=1 order by SortNO ");
             parameter.Add(DbFactory.CreateDbParameter("@ProjectID", KeyValue));
             return DataFactory.Database().FindListBySql<PM_ProjectActivity>(strSql.ToString(), parameter.ToArray());
+        }
+
+        public List<PM_ProjectProblem> GetProblemList(string KeyValue)
+        {
+            StringBuilder strSql = new StringBuilder();
+            List<DbParameter> parameter = new List<DbParameter>();
+            strSql.Append(@"select * from PM_ProjectProblem where ProjectID=@ProjectID  order by SortNO ");
+            //strSql.Append(" AND CustomExamID = @CustomExamID and IsEnabe=1 order by SortNO ");
+            parameter.Add(DbFactory.CreateDbParameter("@ProjectID", KeyValue));
+            return DataFactory.Database().FindListBySql<PM_ProjectProblem>(strSql.ToString(), parameter.ToArray());
         }
 
         public DataTable GetUserList(string keyword, ref JqGridParam jqgridparam, string ParameterJson)
@@ -76,6 +86,34 @@ namespace LeaRun.Business
                 strSql.Append(ConditionBuilder.GetWhereSql(ParameterJson.JonsToList<Condition>(), out parameter));
             }
             return Repository().FindTablePageBySql(strSql.ToString(), parameter.ToArray(), ref jqgridparam);
+        }
+
+
+        public DataTable GetProfitList(string keyword, ref JqGridParam jqgridparam, string ParameterJson)
+        {
+            StringBuilder strSql = new StringBuilder();
+            List<DbParameter> parameter = new List<DbParameter>();
+            strSql.AppendFormat(@" select a.*,b.fullname from pm_project a left join base_department b on a.departmentid=b.departmentid 
+where 1=1 and  DataProvider='{0}'  ",ManageProvider.Provider.Current().UserId);
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                strSql.Append(keyword);
+            }
+            if (!string.IsNullOrEmpty(ParameterJson) && ParameterJson.Length > 2)
+            {
+                strSql.Append(ConditionBuilder.GetWhereSql(ParameterJson.JonsToList<Condition>(), out parameter));
+            }
+            return Repository().FindTablePageBySql(strSql.ToString(), parameter.ToArray(), ref jqgridparam);
+        }
+
+        public List<PM_ProjectProfit> GetProfitDetailList(string KeyValue)
+        {
+            StringBuilder strSql = new StringBuilder();
+            List<DbParameter> parameter = new List<DbParameter>();
+            strSql.Append(@"select * from pm_projectProfit where ProjectID=@ProjectID order by ProfitDate ");
+            //strSql.Append(" AND CustomExamID = @CustomExamID and IsEnabe=1 order by SortNO ");
+            parameter.Add(DbFactory.CreateDbParameter("@ProjectID", KeyValue));
+            return DataFactory.Database().FindListBySql<PM_ProjectProfit>(strSql.ToString(), parameter.ToArray());
         }
 
     }

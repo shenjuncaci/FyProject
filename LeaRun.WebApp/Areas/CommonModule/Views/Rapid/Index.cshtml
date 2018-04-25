@@ -1062,6 +1062,13 @@ border-top:1px solid #E8E8E8;
             }
         }
     }
+
+    function btn_Print() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "res_id");
+        PrintDialog("/CommonModule/Rapid/PrintPage?KeyValue=" + KeyValue, "PrintPage", "打印当前页", 1000, 500, function (iframe) {
+            top.frames[iframe].SubmitPrint()
+        });
+    }
 </script>
 
     <!--左边-->
@@ -1124,7 +1131,7 @@ border-top:1px solid #E8E8E8;
             <div id="gridPager"></div>
         </div>
         <!--视图-->
-        <div>
+       
             
     </div>
 @*<div id="layout" class="layout">

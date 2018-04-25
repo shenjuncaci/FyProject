@@ -104,6 +104,7 @@
                     $("#SkillID➩" + rowindex).val(rowData.SkillID);
                     $("#SkillName➩" + rowindex).val(rowData.SkillName);
                     $("#Score➩" + rowindex).val(rowData.Score);
+                    $("#RequireScore➩" + rowindex).val(rowData.RequireScore);
                     //$("#RelationDID➩" + rowindex).val(rowData.RelationDID);
                     rowindex++;
                     array[i] = rowData.SkillID;
@@ -175,13 +176,14 @@
         var td2 = tr.insertCell();
         var td3 = tr.insertCell();
         var td4 = tr.insertCell();
+        var td5 = tr.insertCell();
         
 
         td1.innerHTML = "<input readonly id=\"SortNO➩" + i + "\" class=\"txt\" value=" + i + ">";
         td2.innerHTML = "<input style=\"width:95%\" readonly ondblclick='ChooseSkill(" + i + ")' id='SkillName➩" + i + "' type=\"text\" class=\"txt\"><input readonly id=\"SkillID➩" + i + "\" type=\"hidden\" class=\"txt\">";
-        td3.innerHTML = "<select onchange=\"ChangeAllScore("+i+")\" id='Score➩" + i + "' class=\"select\" datacol=\"yes\" err=\"学分\" checkexpession=\"NotNull\"> <option value='1'>1</option><option value='2'>2</option><option value='3'>3</option><option value='4'>4</option><option value='5'>5</option><option value='6'>6</option><option value='7'>7</option><option value='8'>8</option><option value='9'>9</option><option value='10'>10</option></select>";
-        
-        td4.innerHTML = "<button onclick='deleteCurrentRow(this)'>删除</button>";
+        td3.innerHTML = "<select onchange=\"ChangeAllScore(" + i + ")\" id='Score➩" + i + "' class=\"select\" datacol=\"yes\" err=\"学分\" checkexpession=\"NotNull\"> <option value='1'>1</option><option value='2'>2</option><option value='3'>3</option><option value='4'>4</option><option value='5'>5</option><option value='6'>6</option><option value='7'>7</option><option value='8'>8</option><option value='9'>9</option><option value='10'>10</option></select>";
+        td4.innerHTML = "<select id='RequireScore➩" + i + "' class=\"select\" datacol=\"yes\" err=\"考核要求\" checkexpession=\"NotNull\"> <option value='60'>要求达到60分</option><option value='70'>要求达到70分</option><option value='80'>要求达到80分</option><option value='90'>要求达到90分</option></select>";
+        td5.innerHTML = "<button onclick='deleteCurrentRow(this)'>删除</button>";
 
         //初始化行;
         //initRows(tab);
@@ -290,21 +292,21 @@
                 </tr>
             </table>
             <table id="DetailForm" class="form-bill">
-                <tr><td colspan="2"><strong>题目数据</strong></td><td><a class="button button-caution button-square button-small" onclick="addbatch()">添加</a></td></tr>
+                <tr><td colspan="2"><strong>课程目录</strong></td><td><a class="button button-caution button-square button-small" onclick="addbatch()">添加</a></td></tr>
                 <tr>
                     @*<th style="width:5%;display:none">题目ID</th>*@
                     <th style="width:10%">序号</th>
-                    <th style="width:50%">技能</th>
-                    <th style="width:20%">学分</th>
-
-                    <th style="width:20%">删除</th>
+                    <th style="width:40%">课程</th>
+                    <th style="width:10%">学分</th>
+                    <th style="width:20%">考核要求</th>
+                    <th style="width:10%">删除</th>
                 </tr>
 
             </table>
         </div>
         
         <div style="float:right">
-            总学分：<input readonly id="AllScore" class="txt">  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            总学分：<input readonly id="AllScore" class="txt">   &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp;
         </div>
 
 

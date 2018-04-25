@@ -143,9 +143,15 @@ namespace LeaRun.Business
 
                     //几个特殊节点的处理
                     //责任人节点，选择表单中的责任人
-                    if (dtDetail.Rows[i]["CurrentPostID"].ToString() == "1538456f-0a50-4f1f-a6e2-5b3a5862f53a"|| dtDetail.Rows[i]["CurrentPostID"].ToString() == "3efe8c99-fcaa-4efd-9523-ef0fa652557c")
+                    if (dtDetail.Rows[i]["CurrentPostID"].ToString() == "1538456f-0a50-4f1f-a6e2-5b3a5862f53a"|| dtDetail.Rows[i]["CurrentPostID"].ToString() == "3efe8c99-fcaa-4efd-9523-ef0fa652557c"
+                        || dtDetail.Rows[i]["CurrentPostID"].ToString() == "893b3b24-4f61-413d-8298-fe3237e3e790")
                     {
                         entityD.ApproveBy = NodeUser;
+                    }
+                    //部门负责人节点，特殊处理
+                    else if(dtDetail.Rows[i]["CurrentPostID"].ToString() == "42ffa89f-b40b-4260-a9b2-974f3585e05f")
+                    {
+                        entityD.ApproveBy = GetDepartMentMaster();
                     }
                     else
                     {
@@ -192,6 +198,20 @@ namespace LeaRun.Business
             string sql = "select UserId from Base_ObjectUserRelation where Category=3 and ObjectId='"+PostID+"'";
             DataTable dt = Repository().FindDataSetBySql(sql).Tables[0];
             if(dt.Rows.Count>0)
+            {
+                ID = dt.Rows[0][0].ToString();
+            }
+            return ID;
+        }
+
+        public string GetDepartMentMaster()
+        {
+            string ID = "";
+            string sql = @" select a.UserId from Base_ObjectUserRelation a
+left join Base_User b on a.UserId=b.UserId
+ where a.ObjectId='91c17ca4-0cbf-43fa-829e-3021b055b6c4' and b.DepartmentId='"+ManageProvider.Provider.Current().DepartmentId+"' ";
+            DataTable dt = Repository().FindDataSetBySql(sql).Tables[0];
+            if (dt.Rows.Count > 0)
             {
                 ID = dt.Rows[0][0].ToString();
             }

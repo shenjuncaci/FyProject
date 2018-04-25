@@ -146,6 +146,7 @@
     <Compile Include="Areas\CommonModule\Controllers\ModuleController.cs" />
     <Compile Include="Areas\CommonModule\Controllers\SysLogController.cs" />
     <Compile Include="Areas\CommonModule\Controllers\ViewController.cs" />
+    <Compile Include="Areas\DormModule\Controllers\CostAdjustController.cs" />
     <Compile Include="Areas\DormModule\Controllers\DormController.cs" />
     <Compile Include="Areas\DormModule\Controllers\RoomController.cs" />
     <Compile Include="Areas\DormModule\Controllers\RoomCostController.cs" />
@@ -9355,6 +9356,15 @@
     <Content Include="Areas\TrainModule\Views\Project\PersonalLearning.cshtml" />
     <Content Include="Areas\ProjectManageModule\Views\Project\UserListBatch.cshtml" />
     <Content Include="Areas\ProjectManageModule\Views\PublicFile\Index.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Rapid\PrintPage.cshtml" />
+    <Content Include="Areas\TrainModule\Views\Project\StudyDetail.cshtml" />
+    <Content Include="Areas\ProjectManageModule\Views\Project\ProfitList.cshtml" />
+    <Content Include="Areas\ProjectManageModule\Views\Project\ProfitListForm.cshtml" />
+    <Content Include="Areas\DormModule\Views\CostAdjust\Index.cshtml" />
+    <Content Include="Areas\DormModule\Views\CostAdjust\Form.cshtml" />
+    <Content Include="Areas\ProjectManageModule\Views\Project\FlowForm.cshtml" />
+    <Content Include="Areas\ProjectManageModule\Views\Project\PrintForm.cshtml" />
+    <Content Include="Areas\ProjectManageModule\Views\Project\ActivityForm.cshtml" />
     <None Include="Properties\PublishProfiles\LR-FDMS.pubxml" />
     <Content Include="Views\Home\SkinIndex.cshtml" />
     <Content Include="Views\Login\Default.cshtml" />

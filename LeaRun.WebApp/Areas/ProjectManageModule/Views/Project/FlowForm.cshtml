@@ -1,0 +1,94 @@
+﻿@using LeaRun.Entity;
+@using LeaRun.Utilities;
+@{
+    ViewBag.Title = "FlowForm";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+    FlowDisplay flow = ViewData["flow"] as FlowDisplay;
+}
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+<h2>流程信息</h2>
+<div id="flow" class="tabPanel">
+    <table class="form">
+        <tr>
+            <td colspan="6">流程模板:   @flow.FlowName   &nbsp;&nbsp;&nbsp;&nbsp; 状态:@flow.ApprovestatusCN  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;当前审批人: @flow.RealName</td>
+        </tr>
+        @for (int i = 0; i < flow.LogList.Count; i++)
+        {
+            <tr>
+                <td width="10%"><b>节点岗位:</b></td>
+                <td width="20%">@flow.LogList[i].FullName </td>
+                <td width="10%"><b>节点操作者：</b></td>
+                <td width="25%">@flow.LogList[i].RealName </td>
+                <td width="10%"><b>状态:</b></td>
+                <td width="25%">@flow.LogList[i].Approvestatus</td>
+            </tr>
+
+        }
+    </table>
+
+    @if (flow.Approvestatus == 0)
+    {
+        <a class="button button-caution button-square button-small" onclick="submit(0)">提交</a>
+    }
+    else if (flow.Approvestatus == 7 && flow.CurrentPerson == ManageProvider.Provider.Current().UserId)
+    {
+        <a class="button button-caution button-square button-small" onclick="submit(1)">审批</a>
+        <a class="button button-caution button-square button-small" onclick="submit(-1)">退回</a>
+    }
+    else if (flow.Approvestatus == 7 && ManageProvider.Provider.Current().ObjectId.IndexOf(flow.CurrentPost) > 0)
+    {
+        <a class="button button-caution button-square button-small" onclick="submit(2)">（代）审批</a>
+        <a class="button button-caution button-square button-small" onclick="submit(-2)">（代）退回</a>
+    }
+    </br>
+    </br>
+
+
+    @if (flow.Approvestatus == 0)
+    {
+        <a class="button button-glow button-rounded button-raised button-small">发起人提交</a> <a>--></a>
+    }
+    else
+    {
+        <a class="button button-glow button-border button-rounded button-small">发起人提交</a> <a>--></a>
+    }
+    @for (int i = 0; i < flow.LogList.Count; i++)
+    {
+        if (flow.LogList[i].FullName == flow.FullName)
+        {
+            <a class="button button-glow button-rounded button-raised button-small">@flow.LogList[i].FullName</a> <a>--></a>
+        }
+        else
+        {
+            <a class="button button-glow button-border button-rounded button-small">@flow.LogList[i].FullName</a> <a>--></a>
+        }
+    }
+    @if (flow.Approvestatus == 9)
+    {
+        <a class="button button-glow button-rounded button-raised button-small">结束</a>
+    }
+    else
+    {
+        <a class="button button-glow button-border button-rounded button-small">结束</a>
+    }
+</div>
+
+<script>
+
+
+    function submit(number)
+    {
+        //alert(GetQuery('ProjectID'));
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = "";
+            
+            AjaxJson("/ProjectManageModule/Project/submit?KeyValue=" + GetQuery('ProjectID') + "&FlowID=" + "@flow.FlowID" + "&type=" + number, postData, function (data) {
+                tipDialog("处理成功", 3, 1);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+
+</script>

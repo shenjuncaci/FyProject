@@ -293,27 +293,7 @@
 
     function submit(number)
     {
-        //alert(number);
-        @*var durl = encodeURI('@Url.Action("submit", "HrProblem")?KeyValue=' + '@flow.FlowID' + '&type=' + number);
-        $.ajax({
-            type: "post",
-            url: durl,
-            async: false,
-            success: function (msg) {
-                if (msg >= 0) {
 
-                    alert("成功");
-
-                    //closeDialog();
-                }
-                else {
-                    alert("出错了！");
-                }
-            },
-            error: function () {
-                alert("出错了");
-            }
-        });*@
 
         if (!CheckDataValid('#form1')) {
             return false;
