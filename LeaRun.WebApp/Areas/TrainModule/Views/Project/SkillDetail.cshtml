@@ -76,7 +76,21 @@
 
     function study(skillid)
     {
-        var reValue = window.showModalDialog('FileList?SkillID=' + skillid, window, 'dialogWidth=800px;dialogHeight=500px;status:1;title:0;');
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '技能选择',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['800px', '500px'],
+            content: 'FileList?SkillID=' + skillid
+        });
+        
+        //FullDialog(url, "StudyForm", "学习");
+
+    }
+
+    function StudyForm(reValue, skillid) {
+        //var reValue = window.showModalDialog('FileList?SkillID=' + skillid, window, 'dialogWidth=800px;dialogHeight=500px;status:1;title:0;');
         if (reValue == undefined) {
             alert("请选择一个教材");
             return false;
@@ -84,8 +98,7 @@
         if (reValue[3] == "流程类") {
             window.open("/Resource/Document/NetworkDisk/KnowledgeBase/" + reValue[0]);
         }
-        else if (reValue[3] == "视频文件")
-        {
+        else if (reValue[3] == "视频文件") {
             var url = "/TrainModule/Project/ViewVideo?VideoSrc=" + reValue[0] + "&SkillID=" + skillid;
             FullDialog(url, "Form", "查看视频");
         }
@@ -103,8 +116,6 @@
                 }
             });
         }
-        //FullDialog(url, "StudyForm", "学习");
-
     }
 
     function apply(skillid)

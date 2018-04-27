@@ -41,8 +41,8 @@
                 arr[2] = rowData.fileextensions;
                 arr[3] = rowData.skilltype;
 
-                window.returnValue = arr;
-                window.close();
+                parent.StudyForm(arr, GetQuery('SkillID'));
+                parent.layer.close(index);
             }
         });
     }

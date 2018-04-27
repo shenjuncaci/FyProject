@@ -37,7 +37,12 @@ namespace LeaRun.Entity
         public string DataProvider { get; set; }
         public string FlowID { get; set; }
         public int Approvestatus { get; set; }
+        public string Master { get; set; }
+        public string Phone { get; set; }
+        public string Descripe { get; set; }
 
+        public string ExpectedInput { get; set; }
+        public string ExpectedEarnings { get; set; }
 
         #region 扩展操作
         /// <summary>

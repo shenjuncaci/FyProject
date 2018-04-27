@@ -145,8 +145,10 @@
     <Compile Include="ProjectManageModule\PM_Project.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectActivity.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectMember.cs" />
+    <Compile Include="ProjectManageModule\PM_ProjectPlan.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectProblem.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectProfit.cs" />
+    <Compile Include="ProjectManageModule\PM_ProjectTarget.cs" />
     <Compile Include="ProjectManageModule\PM_PublicFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TCModule\TC_AttachContract.cs" />

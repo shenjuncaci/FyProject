@@ -246,3 +246,16 @@ input.disabled{cursor:not-allowed;display:block;overflow:hidden;color:#666;backg
 .optionTag span{left: 25px; /* 三角形居中显示 */ margin-left: -10px; /* 三角形居中显示 */ top: -19px; width: 0px; height: 0px; font-size: 0px; border-top-color: transparent; border-right-color: transparent; border-bottom-color: rgb(255,255,255); border-left-color: transparent; border-top-width: 10px; border-right-width: 10px; border-bottom-width: 10px; border-left-width: 10px; border-top-style: dashed; border-right-style: dashed; border-bottom-style: solid; border-left-style: dashed; position: absolute;}
 .optionTag b{display: block; width:24px; height:24px; background:url(../images/ui_close.png) repeat-x; top: -12px; right:-12px; position: absolute; cursor: pointer;}
 /*选择标签*/
+
+/*新增明细表样式2018-04-26*/
+
+.formdetail {
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+    border-collapse: collapse;
+    border-width: 3px 1px 1px;
+    border-right: 1px solid #ccc;
+   
+}
+

@@ -799,7 +799,7 @@ left join Base_Department e on b.DepartmentId=e.DepartmentId  where 1=1   ";
             sql += " and c.projectid='"+ProjectID+"' ";
             if (!string.IsNullOrEmpty(condition))
             {
-                sql += @"AND (b.Code LIKE '%{0}%' or b.RealName LIKE '%{0}%' or e.FullName LIKE '%{0}%' or c.ProjectName LIKE '%{0}%' 
+                sql += @"AND (b.Code LIKE '%{0}%' or b.RealName LIKE '%{0}%' or e.FullName LIKE '%{0}%' or c.ProjectName LIKE '%{0}%' or e.FullName LIKE '%{0}%' or d.SkillName LIKE '%{0}%'
                                     )";
                 sql = string.Format(sql, condition);
                 

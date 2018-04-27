@@ -116,5 +116,23 @@ where 1=1 and  DataProvider='{0}'  ",ManageProvider.Provider.Current().UserId);
             return DataFactory.Database().FindListBySql<PM_ProjectProfit>(strSql.ToString(), parameter.ToArray());
         }
 
+        public List<PM_ProjectPlan> GetProjectPlanList(string KeyValue)
+        {
+            StringBuilder strSql = new StringBuilder();
+            List<DbParameter> paramter = new List<DbParameter>();
+            strSql.Append(@"select * from PM_ProjectPlan where ProjectID=@ProjectID order by PlanStartDate");
+            paramter.Add(DbFactory.CreateDbParameter("@ProjectID", KeyValue));
+            return DataFactory.Database().FindListBySql<PM_ProjectPlan>(strSql.ToString(), paramter.ToArray());
+        }
+
+        public List<PM_ProjectTarget> GetProjectTargetList(string KeyValue)
+        {
+            StringBuilder strSql = new StringBuilder();
+            List<DbParameter> paramter = new List<DbParameter>();
+            strSql.Append(@"select * from PM_ProjectTarget where ProjectID=@ProjectID order by TargetContent");
+            paramter.Add(DbFactory.CreateDbParameter("@ProjectID", KeyValue));
+            return DataFactory.Database().FindListBySql<PM_ProjectTarget>(strSql.ToString(), paramter.ToArray());
+        }
+
     }
 }

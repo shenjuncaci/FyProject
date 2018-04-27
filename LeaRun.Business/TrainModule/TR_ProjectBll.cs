@@ -173,7 +173,7 @@ left join TR_ProjectDetail d on c.ProjectID=d.ProjectID
 left join Base_Department e on b.DepartmentId=e.DepartmentId  where 1=1 and c.projectID='"+ProjectID+"'  ");
             if (!string.IsNullOrEmpty(keyword))
             {
-                strSql.Append(@" AND (b.Code LIKE @keyword or b.RealName LIKE @keyword or e.FullName LIKE @keyword or c.ProjectName LIKE @keyword 
+                strSql.Append(@" AND (b.Code LIKE @keyword or b.RealName LIKE @keyword or e.FullName LIKE @keyword or c.ProjectName LIKE @keyword or e.FullName LIKE @keyword or d.SkillName LIKE @keyword
                                     )");
                 parameter.Add(DbFactory.CreateDbParameter("@keyword", '%' + keyword + '%'));
             }

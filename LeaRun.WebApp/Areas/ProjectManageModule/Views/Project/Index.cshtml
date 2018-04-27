@@ -192,7 +192,7 @@
     function btn_print() {
         var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
         if (IsChecked(KeyValue)) {
-            PrintDialog("/ProjectManageModule/Project/PrintForm?KeyValue=" + KeyValue, "PrintPage", "打印当前页", 1000, 500, function (iframe) {
+            PrintDialog("/ProjectManageModule/Project/PrintForm?KeyValue=" + KeyValue, "PrintPage", "打印当前页", 1000, 750, function (iframe) {
                 top.frames[iframe].SubmitPrint()
             });
         }

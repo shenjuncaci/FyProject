@@ -73,7 +73,7 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
         }
 
         [HttpPost]
-        public ActionResult SubmitForm(string KeyValue, PM_Project entity, string BuildFormJson, HttpPostedFileBase Filedata, string DetailForm,string ActivityForm)
+        public ActionResult SubmitForm(string KeyValue, PM_Project entity, string BuildFormJson, HttpPostedFileBase Filedata, string DetailForm,string PlanForm,string TargetForm)
         {
             string ModuleId = DESEncrypt.Decrypt(CookieHelper.GetCookie("ModuleId"));
             IDatabase database = DataFactory.Database();
@@ -105,7 +105,35 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
                         }
                     }
 
-                    
+                    database.Delete<PM_ProjectPlan>("ProjectID", KeyValue, isOpenTrans);
+                    List<PM_ProjectPlan> PlanList = PlanForm.JonsToList<PM_ProjectPlan>();
+                    index = 1;
+                    foreach (PM_ProjectPlan entityD in PlanList)
+                    {
+                        if (!string.IsNullOrEmpty(entityD.ProjectCycle))
+                        {
+                            entityD.Create();
+                            entityD.ProjectID = KeyValue;
+                            database.Insert(entityD, isOpenTrans);
+                            index++;
+                        }
+                    }
+
+                    database.Delete<PM_ProjectTarget>("ProjectID", KeyValue, isOpenTrans);
+                    List<PM_ProjectTarget> TargetList = TargetForm.JonsToList<PM_ProjectTarget>();
+                    index = 1;
+                    foreach (PM_ProjectTarget entityD in TargetList)
+                    {
+                        if (!string.IsNullOrEmpty(entityD.BaseNum))
+                        {
+                            entityD.Create();
+                            entityD.ProjectID = KeyValue;
+                            database.Insert(entityD, isOpenTrans);
+                            index++;
+                        }
+                    }
+
+
 
                     database.Update(entity, isOpenTrans);
 
@@ -131,7 +159,36 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
                         }
                     }
 
-                   
+
+                    database.Delete<PM_ProjectPlan>("ProjectID", KeyValue, isOpenTrans);
+                    List<PM_ProjectPlan> PlanList = PlanForm.JonsToList<PM_ProjectPlan>();
+                    index = 1;
+                    foreach (PM_ProjectPlan entityD in PlanList)
+                    {
+                        if (!string.IsNullOrEmpty(entityD.ProjectCycle))
+                        {
+                            entityD.Create();
+                            entityD.ProjectID = KeyValue;
+                            database.Insert(entityD, isOpenTrans);
+                            index++;
+                        }
+                    }
+
+                    database.Delete<PM_ProjectTarget>("ProjectID", KeyValue, isOpenTrans);
+                    List<PM_ProjectTarget> TargetList = TargetForm.JonsToList<PM_ProjectTarget>();
+                    index = 1;
+                    foreach (PM_ProjectTarget entityD in TargetList)
+                    {
+                        if (!string.IsNullOrEmpty(entityD.BaseNum))
+                        {
+                            entityD.Create();
+                            entityD.ProjectID = KeyValue;
+                            database.Insert(entityD, isOpenTrans);
+                            index++;
+                        }
+                    }
+
+
 
                     database.Insert(entity, isOpenTrans);
 
@@ -472,7 +529,7 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
         public ActionResult PrintForm(string KeyValue)
         {
             string sql = @"  select ProjectNO,ProjectName,a.CreateDate,PlanFinishDate,
- a.ProjectNature,a.ProjectStatus,a.ProjectIndicators,a.BenchMark,a.Target,a.CalculationFormula ,c.RealName,b.FullName
+ a.ProjectNature,a.ProjectStatus,a.ProjectIndicators,a.BenchMark,a.Target,a.CalculationFormula ,c.RealName,b.FullName,a.Descripe,a.Master,a.Phone,a.ExpectedInput,a.ExpectedEarnings
  from PM_Project a
  left join Base_Department b on a.DepartMentID=b.DepartmentId
  left join Base_User c on a.DataProvider=c.UserId
@@ -482,14 +539,65 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
             string sqlMember = @"  select UserName,PostName,Duty from PM_ProjectMember where ProjectID='"+KeyValue+"' ";
             DataTable dtMember = ProjectBll.GetDataTable(sqlMember);
 
+            string sqlPlan = @" select ProjectCycle,CONVERT(varchar(100), PlanStartDate, 23) as PlanStartDate,CONVERT(varchar(100), PlanEndDate, 23) as PlanEndDate from PM_ProjectPlan where ProjectID='" + KeyValue+"' order by PlanStartDate ";
+            DataTable dtPlan = ProjectBll.GetDataTable(sqlPlan);
+
+            string sqlTarget = @" select TargetContent,BaseNum,TargetNum,Remark from PM_ProjectTarget where ProjectID='"+KeyValue+"' order by TargetContent ";
+            DataTable dtTarget = ProjectBll.GetDataTable(sqlTarget);
+
+            string sqlFlow = @"select case when IsFinish=1 then b.Approvestatus else '未审核' end from Base_FlowLog a left join Base_FlowLogDetail b on a.FlowID=b.FlowID 
+where a.NoteID='{0}'
+order by b.StepNO";
+            sqlFlow = string.Format(sqlFlow, KeyValue);
+            DataTable dtFlow = ProjectBll.GetDataTable(sqlFlow);
+
             ViewData["dt"] = dt;
             ViewData["dtMember"] = dtMember;
+            ViewData["dtPlan"] = dtPlan;
+            ViewData["dtTarget"] = dtTarget;
+            ViewData["dtFlow"] = dtFlow;
+
             return View();
         }
 
         public ActionResult ActivityForm()
         {
             return View();
+        }
+
+
+        public ActionResult GetPlanList(string KeyValue)
+        {
+            try
+            {
+                var JsonData = new
+                {
+                    rows = ProjectBll.GetProjectPlanList(KeyValue),
+                };
+                return Content(JsonData.ToJson());
+            }
+            catch (Exception ex)
+            {
+                Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "异常错误：" + ex.Message);
+                return null;
+            }
+        }
+
+        public ActionResult GetTargetList(string KeyValue)
+        {
+            try
+            {
+                var JsonData = new
+                {
+                    rows = ProjectBll.GetProjectTargetList(KeyValue),
+                };
+                return Content(JsonData.ToJson());
+            }
+            catch (Exception ex)
+            {
+                Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "异常错误：" + ex.Message);
+                return null;
+            }
         }
 
 
