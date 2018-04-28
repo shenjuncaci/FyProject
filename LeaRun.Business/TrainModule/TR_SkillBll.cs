@@ -74,6 +74,16 @@ namespace LeaRun.Business
             return Repository().FindDataSetByProc("SkillMatrix", parameter.ToArray()).Tables[0];
         }
 
+        //人员多功能报表
+        public DataTable GetMultifunctionData(string DepartmentID)
+        {
+            StringBuilder strSql = new StringBuilder();
+            List<DbParameter> parameter = new List<DbParameter>();
+            parameter.Add(DbFactory.CreateDbParameter("@DepartmentID", DepartmentID));
+
+            return Repository().FindDataSetByProc("MultifunctionMatrix", parameter.ToArray()).Tables[0];
+        }
+
         //修改技能矩阵的制作思路,选出基本的框架，内里的数据根据行列在一个个计算，效率不敢恭维，幸好服务器的配置高
         public DataTable GetSkill(string DepartmentID)
         {

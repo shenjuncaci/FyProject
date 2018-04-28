@@ -212,255 +212,6 @@ from Base_Department a where DepartmentId='{0}' ";
         //技能矩阵报表,思路非常复杂，如要修改，只能gg
         public ActionResult SkillMatrix(string DepartmentID)
         {
-            
-//            try
-//            {
-
-//                if (DepartmentID == null) { DepartmentID = ManageProvider.Provider.Current().DepartmentId; }
-//                double srd = 0;
-//                string[] strColumns = null;
-//                DataTable dt = SkillBll.GetSkillMatrixData(DepartmentID);
-//                string SkillName = "";
-//                string SkillID = "";
-//                string SkillWeight = "";
-//                string SkillRequire = "";
-//                string[] SkillArrary = new string[4];
-
-//                //拼接最终的字符串
-//                string table = "";
-//                table += " <table id=\"mytable\" class=\"gridtable\" width=\"90%\"> ";
-
-//                //表头信息存储在dt的标题中
-//                //第一步，获取dt的标题到一个数组中
-//                if (dt.Columns.Count > 0)
-//                {
-//                    int columnNum = 0;
-//                    columnNum = dt.Columns.Count;
-//                    strColumns = new string[columnNum];
-//                    table += "<tr>";
-                    
-//                    for (int i = 0; i < dt.Columns.Count - 1; i++)
-//                    {
-//                        strColumns[i] = dt.Columns[i].ColumnName;
-
-//                        if (i >= 5)
-//                        {
-//                            table += "<th><h4>" + strColumns[i].Substring(0, strColumns[i].IndexOf('*')) + "</h4></th>";
-//                        }
-//                        else
-//                        {
-//                            if (i == 0)
-//                            { }
-//                            else
-//                            {
-//                                if (i == 1)
-//                                {
-//                                    table += "<th>工号</th>";
-//                                }
-//                                else if (i == 2)
-//                                {
-//                                    table += "<th><h4>姓名</h4></th>";
-//                                }
-//                                else if(i==3)
-//                                {
-//                                    table += "<th><h4>岗位</h4></th>";
-//                                }
-//                                else if(i==4)
-//                                {
-//                                    table += "<th><h4>胜任度</h4></th>";
-//                                    table += "<th><h4>主管评价</h4></th>";
-//                                    table += "<th><h4>考试结果</h4></th>";
-//                                }
-//                                else
-//                                {
-//                                    table += "<th><h4>胜任度</h4></th>";
-//                                }
-
-
-//                            }
-//                        }
-
-//                    }
-                    
-//                    table += "</tr>";
-//                }
-
-//                ViewData["strColumns"] = strColumns;
-
-//                //至此，表头信息搞定
-
-//                //第二部，更新内部数据
-//                string SqlIsIN = "";
-//                int SrdFz = 0;
-//                int SrdFm = 0;
-
-//                int Evaluate = 0;
-//                if (dt.Rows.Count > 0)
-//                {
-//                    for (int j = 0; j < dt.Rows.Count; j++)
-//                    {
-//                        SrdFz = 0;
-//                        SrdFm = 0;
-//                        Evaluate = 0;
-//                        table += "<tr>";
-//                        for (int k = 0; k < dt.Columns.Count - 1; k++)
-//                        {
-
-//                            if (k < 5)
-//                            {
-//                                if (k == 0)
-//                                { }
-//                                else
-//                                {
-//                                    if (k == 5)
-//                                    {
-//                                        table += "胜任度内容";
-//                                    }
-//                                    else if(k==4)
-//                                    {
-//                                        if(dt.Rows[j][k].ToString()=="")
-//                                        {
-//                                            dt.Rows[j][k] = "0";
-//                                        }
-//                                        Evaluate = Convert.ToInt32(dt.Rows[j][k].ToString());
-//                                        if (Convert.ToInt32(dt.Rows[j][k].ToString())>=90)
-//                                        {
-//                                            table += "综合胜任度";
-//                                            table += "<td bgcolor=\"green\">" + dt.Rows[j][k].ToString() + "%</td>";
-//                                            table += "胜任度内容";
-//                                        }
-//                                        else if(Convert.ToInt32(dt.Rows[j][k].ToString()) >= 80)
-//                                        {
-//                                            table += "综合胜任度";
-//                                            table += "<td bgcolor=\"yellow\">" + dt.Rows[j][k].ToString() + "%</td>";
-//                                            table += "胜任度内容";
-//                                        }
-//                                        else
-//                                        {
-//                                            table += "综合胜任度";
-//                                            table += "<td bgcolor=\"red\">" + dt.Rows[j][k].ToString() + "%</td>";
-//                                            table += "胜任度内容";
-//                                        }
-//                                    }
-//                                    else
-//                                    {
-//                                        table += "<td>" + dt.Rows[j][k].ToString() + "</td>";
-//                                    }
-//                                }
-//                            }
-
-//                            else
-//                            {
-//                                SkillArrary = dt.Columns[k].ToString().Split('*');
-//                                //判断如果单元格是空的话，就去判断下该用户是否有权限
-//                                SqlIsIN = @" select e.SkillRequire,e.SkillWeight
-//from TR_UserPost a 
-//left join TR_PostDepartmentRelation b on a.DepartmentPostID=b.RelationID
-//left join TR_Post c on b.PostID=c.PostID 
-//left join Base_User d on a.UserID=d.UserId
-//left join TR_PostDepartmentRelationDetail e on e.RelationID=b.RelationID
-//left join tr_skill f on e.SkillID=f.SkillID
-//where f.SkillID is not null and f.IsExam=0 and f.SkillID='" + SkillArrary[1] + "' and d.UserId='" + dt.Rows[j][0].ToString() + "' and c.PostName='" + dt.Rows[j]["PostName"].ToString() + "' ";
-//                                DataTable dtIsIN = SkillBll.GetDataTable(SqlIsIN);
-
-//                                if (dt.Rows[j][k].ToString() == "")
-//                                {
-                                    
-//                                    if (dtIsIN.Rows.Count > 0)
-//                                    {
-//                                        table += "<td width=\"5%\" bgcolor=\"red\" title=\"要求分数:" + dtIsIN.Rows[0]["SkillRequire"].ToString() + "\">";
-//                                        dt.Rows[j][k] = "1";
-//                                        table += "0";
-//                                        SrdFz += 0;
-//                                        SrdFm += Convert.ToInt32(dtIsIN.Rows[0]["SkillWeight"].ToString());
-//                                    }
-//                                    else
-//                                    {
-//                                        table += "<td width=\"5%\">NA";
-//                                        table += "";
-//                                    }
-
-//                                }
-//                                else
-//                                {
-//                                    //int test3 = Convert.ToInt32(100.00);
-//                                    //string aa = dt.Rows[j][k].ToString();
-//                                    //int test = Convert.ToInt32(dt.Rows[j][k]);
-//                                    //int test2 = Convert.ToInt32(SkillArrary[3]);
-//                                    SrdFz += Convert.ToInt32(dtIsIN.Rows[0]["SkillWeight"].ToString()) * Convert.ToInt32(dt.Rows[j][k]);
-//                                    SrdFm += Convert.ToInt32(dtIsIN.Rows[0]["SkillWeight"].ToString());
-
-//                                    if (Convert.ToInt32(dt.Rows[j][k]) > Convert.ToInt32(dtIsIN.Rows[0]["SkillRequire"].ToString()))
-//                                    {
-//                                        table += "<td width=\"5%\" bgcolor=\"green\" title=\"要求分数:" + dtIsIN.Rows[0]["SkillRequire"].ToString() + "\">" + dt.Rows[j][k].ToString();
-
-//                                    }
-//                                    else
-//                                    {
-//                                        if (Convert.ToInt32(dt.Rows[j][k]) > (Convert.ToInt32(dtIsIN.Rows[0]["SkillRequire"].ToString()) - 10))
-//                                        {
-//                                            table += "<td width=\"5%\" bgcolor=\"yellow\" title=\"要求分数:" + dtIsIN.Rows[0]["SkillRequire"].ToString() + "\" > " + dt.Rows[j][k].ToString();
-//                                        }
-//                                        else
-//                                        {
-//                                            table += "<td width=\"5%\" bgcolor=\"red\" title=\"要求分数:" + dtIsIN.Rows[0]["SkillRequire"].ToString() + "\">" + dt.Rows[j][k].ToString();
-//                                        }
-//                                    }
-//                                }
-
-//                                table += "</td>";
-//                            }
-//                        }
-//                        double srdL = Math.Round(1.0 * SrdFz / SrdFm, 0);
-//                        double srdZh = Math.Round(1.0 * (srdL + Evaluate) / 2, 0);
-//                        if (srdL > 90)
-//                        {
-//                            table = table.Replace("胜任度内容", "<td width=\"5%\" bgcolor=\"green\" title=\"" + "(技能1权重*考试分+...+技能n权重*考试分）/（技能1权重+...+技能n权重)/100" + "\">" + srdL + "%</td>");
-//                            //table += "<td width=\"5%\" bgcolor=\"green\" title=\"" + "(技能1权重*考试分+...+技能n权重*考试分）/（技能1权重+...+技能n权重)/100"+"\">" + srdL + "%</td>";
-//                        }
-//                        else
-//                        {
-//                            if (srdL > 80)
-//                            {
-//                                table = table.Replace("胜任度内容", "<td width=\"5%\" bgcolor=\"yellow\" title=\"" + "(技能1权重*考试分+...+技能n权重*考试分）/（技能1权重+...+技能n权重)/100" + "\">" + srdL + "%</td>");
-//                                //table += "<td width=\"5%\" bgcolor=\"yellow\" title=\"" + "(技能1权重*考试分+...+技能n权重*考试分）/（技能1权重+...+技能n权重)/100" + "\">" + srdL + "%</td>";
-//                            }
-//                            else
-//                            {
-//                                table = table.Replace("胜任度内容", "<td width=\"5%\" bgcolor=\"red\" title=\"" + "(技能1权重*考试分+...+技能n权重*考试分）/（技能1权重+...+技能n权重)/100" + "\">" + srdL + "%</td>");
-//                                //table += "<td width=\"5%\" bgcolor=\"red\" title=\"" + "(技能1权重*考试分+...+技能n权重*考试分）/（技能1权重+...+技能n权重)/100" + "\">" + srdL + "%</td>";
-//                            }
-//                        }
-
-//                        if (srdZh > 90)
-//                        {
-//                            table = table.Replace("综合胜任度", "<td width=\"5%\" bgcolor=\"green\" >" + srdZh + "%</td>");
-//                            //table += "<td width=\"5%\" bgcolor=\"green\" title=\"" + "(技能1权重*考试分+...+技能n权重*考试分）/（技能1权重+...+技能n权重)/100"+"\">" + srdL + "%</td>";
-//                        }
-//                        else
-//                        {
-//                            if (srdZh > 80)
-//                            {
-//                                table = table.Replace("综合胜任度", "<td width=\"5%\" bgcolor=\"yellow\" >" + srdZh + "%</td>");
-//                                //table += "<td width=\"5%\" bgcolor=\"yellow\" title=\"" + "(技能1权重*考试分+...+技能n权重*考试分）/（技能1权重+...+技能n权重)/100" + "\">" + srdL + "%</td>";
-//                            }
-//                            else
-//                            {
-//                                table = table.Replace("综合胜任度", "<td width=\"5%\" bgcolor=\"red\">" + srdZh + "%</td>");
-//                                //table += "<td width=\"5%\" bgcolor=\"red\" title=\"" + "(技能1权重*考试分+...+技能n权重*考试分）/（技能1权重+...+技能n权重)/100" + "\">" + srdL + "%</td>";
-//                            }
-//                        }
-
-//                        table += "</tr>";
-//                    }
-//                }
-//                ViewData["table"] = table;
-//                ViewData["dt"] = dt;
-//            }
-//            catch(Exception ex)
-//            {
-//                ViewData["table"] = "无数据";
-//            }
             return View();
         }
 
@@ -648,6 +399,118 @@ and f.SkillID = '" + SkillArrary[1] + "' and d.UserId = '" + dt.Rows[j][0].ToStr
             }
         }
 
+        public ActionResult MultiFunctionMatrix(string DepartmentID)
+        {
+            return View();
+        }
+
+        public string MultiFunctionMatrixData(string DepartmentID)
+        {
+            try
+            {
+                if (DepartmentID == null || DepartmentID == "") { DepartmentID = ManageProvider.Provider.Current().DepartmentId; }
+                DataTable dt = SkillBll.GetMultifunctionData(DepartmentID);
+
+                string[] SkillArrary = new string[2];
+                string[] strColumns = null;
+
+                string table = "";
+
+                //为了配合列数来调整每一个th的宽度~~~
+                int tempwidth = dt.Columns.Count * 4;
+                if (tempwidth > 100)
+                {
+                    tempwidth = 100;
+                }
+
+                table += " <table id=\"mytable\" class=\"gridtable\" width=\"" + tempwidth + "%\"> ";
+
+                if (dt.Columns.Count>0)
+                {
+                    int columnNum = dt.Columns.Count;
+                    strColumns = new string[columnNum];
+                    table += "<tr>";
+                    for(int i=0;i<dt.Columns.Count;i++)
+                    {
+                        strColumns[i] = dt.Columns[i].ColumnName;
+                        if (i>=2)
+                        {
+                            table += "<th><h4>" + strColumns[i].Substring(0, strColumns[i].IndexOf('*')) + "</h4></th>";
+                        }
+                        else
+                        {
+                            if(i==0)
+                            {
+                                table += "<th><h4>工号</h4></th>";
+                            }
+                            else if(i==1)
+                            {
+                                table += "<th><h4>姓名</h4></th>";
+                            }
+                        }
+                    }
+                    table += "</tr>";
+                }
+
+                string GetPostCompetence = "";
+
+                if (dt.Rows.Count>0)
+                {
+                    for(int j=0;j<dt.Rows.Count;j++)
+                    {
+                        table += "<tr>";
+                        for(int k=0;k<dt.Columns.Count;k++)
+                        {
+                            if(k<2)
+                            {
+                                table += "<td bgcolor=\"dedede\">" + dt.Rows[j][k].ToString() + "</td>";
+                            }
+                            else
+                            {
+                                SkillArrary = dt.Columns[k].ToString().Split('*');
+                                GetPostCompetence = " select dbo.GetPostCompetence('{0}','{1}') ";
+                                GetPostCompetence = string.Format(GetPostCompetence, SkillArrary[1], dt.Rows[j][0].ToString());
+                                DataTable dtPostCompetence = SkillBll.GetDataTable(GetPostCompetence);
+                                if (dtPostCompetence.Rows[0][0].ToString() == "")
+                                {
+                                    table += "<td width=\"5%\">" + dtPostCompetence.Rows[0][0].ToString() + "</td>";
+                                }
+                                else
+                                {
+                                    if(Convert.ToInt32(dtPostCompetence.Rows[0][0].ToString())>=90)
+                                    {
+                                        table += "<td width=\"5%\" style=\"font-size:35px\">●</td>";
+                                    }
+                                    else if(Convert.ToInt32(dtPostCompetence.Rows[0][0].ToString()) >= 80)
+                                    {
+                                        table += "<td width=\"5%\"  style=\"font-size:35px\">◕</td>";
+                                    }
+                                    else if (Convert.ToInt32(dtPostCompetence.Rows[0][0].ToString()) >= 60)
+                                    {
+                                        table += "<td width=\"5%\"  style=\"font-size:35px\">◑</td>";
+                                    }
+                                    else if (Convert.ToInt32(dtPostCompetence.Rows[0][0].ToString()) >= 40)
+                                    {
+                                        table += "<td width=\"5%\" style=\"font-size:35px\">◔</td>";
+                                    }
+                                    else
+                                    {
+                                        table += "<td width=\"5%\" style=\"font-size:35px\">○</td>";
+                                    }
+                                }
+                            }
+                        }
+                        table += "</tr>";
+                    }
+                }
+
+                return table;
+            }
+            catch(Exception ex)
+            {
+                return ex.Message;
+            }
+        }
 
         public ActionResult DepartmentJson()
         {

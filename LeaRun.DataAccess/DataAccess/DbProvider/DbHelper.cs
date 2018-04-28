@@ -336,6 +336,12 @@ namespace LeaRun.DataAccess
                 log.Error(ex.Message);
                 throw;
             }
+            finally
+            {
+                //释放资源
+                conn.Close();
+                cmd.Dispose();
+            }
         }
         /// <summary>
         /// 依靠数据库连接字符串connectionString,

@@ -324,6 +324,13 @@ namespace LeaRun.WebApp.Areas.DormModule.Controllers
             return View();
         }
 
+        public ActionResult RoomType()
+        {
+            string sql = " select distinct RoomType from DM_Room where 1=1  ";
+            DataTable dt = RoomBll.GetDataTable(sql);
+            return Content(dt.ToJson());
+        }
+
 
 
 
