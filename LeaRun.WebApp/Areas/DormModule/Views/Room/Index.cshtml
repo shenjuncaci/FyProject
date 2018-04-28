@@ -73,6 +73,8 @@
         var RoomNO = $("#RoomNO").val();
         var UserName = $("#UserName").val();
         var RoomType = $("#RoomType").val();
+        var Commodity = $("#Commodity").val();
+
         if (CheckIsNullNoTip(RoomNO)) {
             keywords += " and a.roomno like '%" + RoomNO + "%' ";
         }
@@ -83,6 +85,9 @@
 
         if (CheckIsNullNoTip(RoomType)) {
             keywords += " and a.RoomType='" + RoomType + "' ";
+        }
+        if (CheckIsNullNoTip(Commodity)) {
+            keywords += " and exists (select * from DM_CheckIn where RoomID=a.roomid and (PersonSex like '%" + Commodity + "%')) ";
         }
 
         $("#gridTable").jqGrid('setGridParam', {
@@ -316,10 +321,20 @@
                     </td>
 
                     <th>
-                       房间类型：
+                        房间类型：
                     </th>
                     <td>
-                        <select id="RoomType" class="txtselect">
+                        <select id="RoomType" class="txtselect"></select>
+                    </td>
+
+                    <th>
+                        住宿情况：
+                    </th>
+                    <td>
+                        <select id="Commodity" class="txtselect">
+                            <option value="">==请选择==</option>
+                            <option value="男">有男生住</option>
+                            <option value="女">有女生住</option>
                             
                         </select>
                     </td>
