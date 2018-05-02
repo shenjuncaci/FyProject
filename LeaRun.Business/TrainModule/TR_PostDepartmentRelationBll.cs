@@ -58,7 +58,7 @@ namespace LeaRun.Business
         {
             StringBuilder strSql = new StringBuilder();
             List<DbParameter> parameter = new List<DbParameter>();
-            strSql.Append(@"SELECT * FROM TR_EvaluateDetail WHERE 1=1 ");
+            strSql.Append(@"SELECT * FROM TR_EvaluateDetail WHERE 1=1 and Enabled=1 ");
             strSql.Append(" AND UserPostRelationID = @UserPostRelationID ");
             strSql.Append(" order by SkillWeight desc ");
             parameter.Add(DbFactory.CreateDbParameter("@UserPostRelationID", RelationID));

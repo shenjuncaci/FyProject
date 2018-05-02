@@ -326,21 +326,21 @@ values(newid(),'{0}','{1}',getdate(),1,'',getdate(),'人员调动','{2}','待审
                 //首先插入数据
                 StringBuilder strSql = new StringBuilder();
                 strSql.AppendFormat(@" insert into TR_EvaluateDetail 
-select  NEWID(),'{0}',d.SkillID,d.SkillName,0,c.SkillWeight from TR_UserPost a
+select  NEWID(),'{0}',d.SkillID,d.SkillName,0,c.SkillWeight,1 from TR_UserPost a
 left join TR_PostDepartmentRelation b on a.DepartmentPostID=b.RelationID
 left join TR_PostDepartmentRelationDetail c on b.RelationID=c.RelationID
 left join TR_Skill d on c.SkillID=d.SkillID
 where a.UserPostRelationID='{0}'
-and not exists (select * from TR_EvaluateDetail where UserPostRelationID='{0}' and skillid=d.SkillID) 
+and not exists (select * from TR_EvaluateDetail where UserPostRelationID='{0}' and skillid=d.SkillID and Enabled=1) 
  ",
 RelationID);
                 //删除岗位对应关系中不存在的数据
-                strSql.AppendFormat(@" delete from TR_EvaluateDetail where UserPostRelationID='{0}' and skillid not in (
+                strSql.AppendFormat(@" update  TR_EvaluateDetail set Enabled=0 where UserPostRelationID='{0}' and skillid not in (
 select  d.SkillID from TR_UserPost a
 left join TR_PostDepartmentRelation b on a.DepartmentPostID=b.RelationID
 left join TR_PostDepartmentRelationDetail c on b.RelationID=c.RelationID
 left join TR_Skill d on c.SkillID=d.SkillID
-where a.UserPostRelationID='{0}') ",RelationID);
+where a.UserPostRelationID='{0}') ", RelationID);
                 PostDepartRelationBll.ExecuteSql(strSql);
                 var JsonData = new
                 {
@@ -501,7 +501,7 @@ from Base_Department a where DepartmentId='{0}' ";
         {
             StringBuilder sb = new StringBuilder();
             string sql = @" select a.RelationID,b.PostName,c.UserPostRelationID from TR_PostDepartmentRelation a left join TR_Post b on a.PostID=b.PostID left join TR_UserPost c on
-a.RelationID=c.DepartmentPostID and c.userid='"+UserID+ "' and c.IsMain='" + IsMain + "' where a.DepartmentID='" + ManageProvider.Provider.Current().DepartmentId+"'  ";
+a.RelationID=c.DepartmentPostID and c.userid='"+UserID+ "' and c.IsMain='" + IsMain + "' and c.IsEnable=1 where a.DepartmentID='" + ManageProvider.Provider.Current().DepartmentId+ "'   ";
             DataTable dt = PostDepartRelationBll.GetDataTable(sql);
             foreach (DataRow dr in dt.Rows)
             {
@@ -528,7 +528,9 @@ a.RelationID=c.DepartmentPostID and c.userid='"+UserID+ "' and c.IsMain='" + IsM
                 {
                     return Content(new JsonMessage { Success = false, Code = "-1", Message = "主岗只能有一个" }.ToString());
                 }
-                strSql.AppendFormat(@"delete from TR_UserPost where UserID='{0}' and IsMain={1} ", UserID,IsMain);
+                strSql.AppendFormat(@" delete from TR_UserPost  where UserID='{0}' and IsMain={1} and IsEnable=0 ", UserID, IsMain);
+
+                strSql.AppendFormat(@" update TR_UserPost set IsEnable=0  where UserID='{0}' and IsMain={1} ", UserID,IsMain);
                 for (int i = 0; i < array.Length - 1; i++)
                 {
                     

@@ -335,8 +335,8 @@ left join TR_Post c on b.PostID = c.PostID
 left join Base_User d on a.UserID = d.UserId
 left join TR_PostDepartmentRelationDetail e on e.RelationID = b.RelationID
 left join tr_skill f on e.SkillID = f.SkillID
-left join TR_EvaluateDetail g on g.UserPostRelationID=a.UserPostRelationID and g.SkillID=f.SkillID
-where f.SkillID is not null 
+left join TR_EvaluateDetail g on g.UserPostRelationID=a.UserPostRelationID and g.SkillID=f.SkillID and g.Enabled=1
+where f.SkillID is not null  and a.IsEnable=1
 and f.SkillID = '" + SkillArrary[1] + "' and d.UserId = '" + dt.Rows[j][0].ToString() + "' and c.PostName = '" + dt.Rows[j]["PostName"].ToString() + "'";
                                     SqlIsIN = string.Format(SqlIsIN, Year);
                                     DtIsIn = SkillBll.GetDataTable(SqlIsIN);
