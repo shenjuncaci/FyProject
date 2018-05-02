@@ -513,5 +513,94 @@ from fy_plandetail a left join FY_Process b on a.processid=b.ProcessID where a.p
 
             return result;
         }
+
+        public ActionResult DormPage()
+        {
+            return View();
+        }
+
+        public ActionResult InertRepair()
+        {
+            return View();
+        }
+
+        public ActionResult DormList()
+        {
+            string sql = " select DormID,DormName from dm_dorm ";
+            DataTable dt = SkillBll.GetDataTable(sql);
+            return Content(dt.ToJson());
+        }
+
+        public string InsertRepairAjax(string Dorm,string RoomNO,string PhoneNumber,string Descripe)
+        {
+            IDatabase database = DataFactory.Database();
+            DbTransaction isOpenTrans = database.BeginTrans();
+            DM_RoomRepair entity = new DM_RoomRepair();
+            entity.DormID = Dorm;
+            entity.RoomNO = RoomNO;
+            entity.MobilePhone = PhoneNumber;
+            entity.RepairDescripe = Descripe;
+            entity.RepairDate = DateTime.Now;
+            entity.UserCode = ManageProvider.Provider.Current().Code;
+            entity.UserName = ManageProvider.Provider.Current().UserName;
+
+            
+
+            entity.Create();
+
+
+            database.Insert(entity, isOpenTrans);
+
+            database.Commit();
+            return "1";
+        }
+
+        public ActionResult ProcessRepairIndex()
+        {
+            string sql = @" select top 10 RepairDescripe+' '+'('+CONVERT(varchar(100),RepairDate, 23)+')' from DM_RoomRepair a
+where a.RepairState='维修中' and a.createby='" + ManageProvider.Provider.Current().UserName+ "' order by RepairDate desc ";
+            DataTable dt = SkillBll.GetDataTable(sql);
+
+            string table = "<ul data-role=\"listview\">";
+            
+            if (dt.Rows.Count>0)
+            {
+                for(int i=0;i<dt.Rows.Count;i++)
+                {
+                    table += " <li>"+dt.Rows[i][0]+"</li> ";
+                }
+            }
+            else
+            {
+                table = "没有数据";
+            }
+            table += "</ul>";
+            ViewData["data"] = table;
+            return View();
+        }
+
+        public ActionResult CompleteRepairIndex()
+        {
+            string sql = @" select top 10 RepairDescripe+' '+'('+CONVERT(varchar(100),RepairDate, 23)+')' from DM_RoomRepair a
+where a.RepairState='已完成' and a.createby='" + ManageProvider.Provider.Current().UserName + "' order by RepairDate desc ";
+            DataTable dt = SkillBll.GetDataTable(sql);
+
+            string table = "<ul data-role=\"listview\">";
+
+            if (dt.Rows.Count > 0)
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    table += " <li>" + dt.Rows[i][0] + "</li> ";
+                }
+            }
+            else
+            {
+                table = "没有数据";
+            }
+            table += "</ul>";
+            ViewData["data"] = table;
+            return View();
+        }
     }
 }

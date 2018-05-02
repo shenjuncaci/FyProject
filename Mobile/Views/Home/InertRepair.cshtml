@@ -1,0 +1,93 @@
+﻿
+@{
+    ViewBag.Title = "InertRepair";
+
+}
+<link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+<link href="~/Content/Styles/learunui-accordion.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+<script src="~/Content/Scripts/learunui-framework.js"></script>
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+
+<link href="~/Content/Scripts/jquery.mobile/jquery.mobile-1.4.5.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery.mobile/jquery.mobile-1.4.5.js"></script>
+<body>
+    <div data-role="page">
+
+        <div data-role="header">
+            <a href="#" data-role="button" data-rel="back" data-icon="arrow-l">后退</a><h1>新增报修</h1>
+        </div>
+
+        <div data-role="content" id="mm">
+            <fieldset data-role="fieldcontain">
+                <label for="fname">楼栋号:</label><select id="DormID" name="switch"> </select>
+                <label for="fname">房间号:</label><input type="text" id="RoomNO" err="房间号" checkexpession="NotNull">
+
+                <label for="fname">手机号:</label><input type="text" id="PhoneNumber" err="手机号" checkexpession="NotNull">
+
+                <label for="fname">故障描述:</label><input type="text" id="Descripe" err="故障描述" checkexpession="NotNull">
+
+            </fieldset>
+
+
+
+
+                <button id="insert">提交</button>
+
+        </div>
+
+        <div data-role="footer">
+            <h1>develop by--shenjun</h1>
+        </div>
+
+    </div>
+
+</body>
+
+<script>
+    $(document).ready(function () {
+        //alert(11);
+        BindData();
+
+    })
+
+    $("#insert").on("tap", function () {
+        //alert($("#Descripe").val());
+        var postData = {
+            Dorm: $("#DormID").val(),
+            RoomNO: $("#RoomNO").val(),
+            PhoneNumber: $("#PhoneNumber").val(),
+            Descripe: $("#Descripe").val()
+        }
+
+        $.ajax({
+            type: "post",
+            url: "/Home/InsertRepairAjax",
+            data: postData,
+            async: false,
+            success: function (rs) {
+                alert("提交成功");
+                window.location.href = '@Url.Content("~/Home/ProcessRepairIndex")';
+            },
+            error: function () {
+                alert("出错了");
+            }
+        })
+    })
+
+
+        function BindData() {
+
+            $("#DormID").html("");
+
+            $("#DormID").append("<option value=''>==请选择==</option>");
+            AjaxJson("/Home/DormList", {}, function (DataJson) {
+                $.each(DataJson, function (i) {
+                    $("#DormID").append($("<option></option>").val(DataJson[i].DormID).html(DataJson[i].DormName));
+                });
+            });
+        }
+
+
+        
+</script>

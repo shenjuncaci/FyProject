@@ -9115,6 +9115,10 @@
     <Content Include="Views\Home\AuditPage.cshtml" />
     <Content Include="Views\Home\AuditDetailPage.cshtml" />
     <Content Include="Views\Home\ProblemResponse.cshtml" />
+    <Content Include="Views\Home\DormPage.cshtml" />
+    <Content Include="Views\Home\InertRepair.cshtml" />
+    <Content Include="Views\Home\ProcessRepairIndex.cshtml" />
+    <Content Include="Views\Home\CompleteRepairIndex.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -1,0 +1,39 @@
+﻿
+@{
+    ViewBag.Title = "DormPage";
+}
+
+<body>
+    <div data-role="page">
+
+        <div data-role="header">
+            <h1>报修列表</h1>
+        </div>
+
+        <div data-role="content">
+            <a onclick="InsertRepair()" data-role="button" data-icon="refresh">新增报修</a>
+            <a onclick="ProcessRepairIndex()" data-role="button" data-icon="refresh">处理中报修（最近10条）</a>
+            <a onclick="CompleteRepairIndex()" data-role="button" data-icon="refresh">已完成报修（最近10条）</a>
+        </div>
+
+        <div data-role="footer">
+            <h1>develop by--shenjun</h1>
+        </div>
+
+    </div>
+
+</body>
+<script>
+    function InsertRepair() {
+        window.location.href = '@Url.Content("~/Home/InertRepair")';
+    }
+
+
+    function ProcessRepairIndex() {
+        window.location.href = '@Url.Content("~/Home/ProcessRepairIndex")';
+    }
+
+    function CompleteRepairIndex() {
+        window.location.href = '@Url.Content("~/Home/CompleteRepairIndex")';
+    }
+</script>

@@ -13,6 +13,7 @@
         <div data-role="content">
             <a href="FirstPage" data-role="button" data-icon="refresh">标准化培训</a>
             <a href="AuditPage" data-role="button" data-icon="refresh">分层审核</a>
+            <a href="DormPage" data-role="button" data-icon="refresh">宿舍报修</a>
         </div>
 
         <div data-role="footer">
@@ -85,6 +86,19 @@
                 alert("出错了");
             }
         });*@
+    }
+
+    function InsertRepair() {
+        window.location.href = '@Url.Content("~/Home/InertRepair")';
+    }
+
+
+    function ProcessRepairIndex() {
+        window.location.href = '@Url.Content("~/Home/ProcessRepairIndex")';
+    }
+
+    function CompleteRepairIndex() {
+        window.location.href = '@Url.Content("~/Home/CompleteRepairIndex")';
     }
 </script>
 
