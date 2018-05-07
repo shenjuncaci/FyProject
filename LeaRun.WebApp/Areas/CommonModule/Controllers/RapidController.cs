@@ -630,6 +630,81 @@ group by FullName ";
             return result;
         }
 
+
+        public string ProblemCompleteCount()
+        {
+            string result = "";
+            string temp1 = "";
+            string temp2 = "";
+            string temp3 = "";
+            string temp4 = "";
+            //string sql = "select count(*) as cishu,fullname from RapidList_New where YEAR(res_cdate)='" + year + 
+            //    "' group by fullname ";
+            string sql = @"select count(distinct a.res_id),count(distinct b.res_id),realname,(select count(res_id) from RapidList_New where RealName=a.realname and RapidState='已完成') from [RapidList_New] a 
+left join [OverdueList] b on a.res_id=b.res_id where a.RapidState!='已完成'
+group by realname ";
+            //sql = string.Format(sql, year);
+            DataTable dt = rapidbll.GetDataTable(sql);
+            if (dt.Rows.Count > 0)
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    temp1 = temp1 + dt.Rows[i][0] + ",";
+                    temp2 = temp2 + dt.Rows[i][1] + ",";
+                    temp3 = temp3 + dt.Rows[i][2] + ",";
+                    temp4 = temp4 + dt.Rows[i][3] + ",";
+
+                }
+                temp1 = temp1.Substring(0, temp1.Length - 1);
+                temp2 = temp2.Substring(0, temp2.Length - 1);
+                temp3 = temp3.Substring(0, temp3.Length - 1);
+                temp4 = temp4.Substring(0, temp4.Length - 1);
+            }
+            result = temp1 + "|" + temp2 + "|" + temp3+"|"+temp4;
+            return result;
+        }
+
+        public string GeneralProblemCompleteCount()
+        {
+            string result = "";
+            string temp1 = "";
+            string temp2 = "";
+            string temp3 = "";
+            string temp4 = "";
+            //string sql = "select count(*) as cishu,fullname from RapidList_New where YEAR(res_cdate)='" + year + 
+            //    "' group by fullname ";
+            string sql = @"select a.allcount,a.overcount,b.RealName,finishcount from
+(
+select count(GeneralProblemID) allcount,
+(select count(*) from FY_GeneralProblem 
+where ResponseBy=a.ResponseBy and FinishStatus!='已完成' and GETDATE()>PlanFinishDt) overcount,
+(select count(*) from FY_GeneralProblem 
+where ResponseBy=a.ResponseBy and FinishStatus='已完成') finishcount,
+ResponseBy 
+from FY_GeneralProblem a where FinishStatus!='已完成'
+group by ResponseBy) as a left join Base_User b on a.ResponseBy=b.Code  ";
+            //sql = string.Format(sql, year);
+            DataTable dt = rapidbll.GetDataTable(sql);
+            if (dt.Rows.Count > 0)
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    temp1 = temp1 + dt.Rows[i][0] + ",";
+                    temp2 = temp2 + dt.Rows[i][1] + ",";
+                    temp3 = temp3 + dt.Rows[i][2] + ",";
+                    temp4 = temp4 + dt.Rows[i][3] + ",";
+
+                }
+                temp1 = temp1.Substring(0, temp1.Length - 1);
+                temp2 = temp2.Substring(0, temp2.Length - 1);
+                temp3 = temp3.Substring(0, temp3.Length - 1);
+                temp4 = temp4.Substring(0, temp4.Length - 1);
+            }
+            result = temp1 + "|" + temp2 + "|" + temp3+"|"+temp4;
+            return result;
+        }
+
+
         #region highcharts需要的json数据格式
         public string DataTableToJson(DataTable dt)
         {

@@ -35,7 +35,7 @@
         var ResultArr = new Array();
         ResultArr[0] = StartCode;
         ResultArr[1] = EndCode;
-        window.returnValue = ResultArr;
-        window.close();
+        parent.addOnCodeParent(ResultArr);
+        parent.layer.close(index);
     }
 </script>

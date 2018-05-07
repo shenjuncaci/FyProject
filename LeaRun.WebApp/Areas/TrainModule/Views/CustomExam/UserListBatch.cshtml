@@ -3,6 +3,8 @@
     Layout = "~/Views/Shared/_LayoutIndex.cshtml";
 }
 <script>
+
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
     $(function () {
         $("#keywords").focus();
         
@@ -114,8 +116,10 @@
         }
         //console.log(Result);
         //alert(ResultArr[0] + ',' + ResultArr[1] + ',' + ResultArr[2])
-        window.returnValue = UserID;
-        window.close();
+        parent.addbatchParent(UserID);
+        parent.layer.close(index);
+        //window.returnValue = UserID;
+        //window.close();
     }
 </script>
 <div class="border" style="margin: 1px; border-bottom: none; margin-bottom: 0px;">

@@ -8256,6 +8256,7 @@
     <Content Include="Content\Scripts\echarts\jquery.flexslider.js" />
     <Content Include="Content\Scripts\echarts\jquery.js" />
     <Content Include="Content\Scripts\echarts\require.js" />
+    <Content Include="Content\Scripts\exif.js" />
     <Content Include="Content\Scripts\FlexPaper\FlexPaperViewer.swf" />
     <Content Include="Content\Scripts\FlexPaper\flexpaper_flash.js" />
     <Content Include="Content\Scripts\FlexPaper\pdf2swf.exe" />
@@ -8386,6 +8387,15 @@
     <Content Include="Content\Scripts\jquery.fullcalendar\lib\moment.min.js" />
     <Content Include="Content\Scripts\jquery.fullcalendar\locale-all.js" />
     <Content Include="Content\Scripts\jquery.fullcalendar\moment.min.js" />
+    <Content Include="Content\Scripts\jquery.layer\layer.js" />
+    <Content Include="Content\Scripts\jquery.layer\mobile\layer.js" />
+    <Content Include="Content\Scripts\jquery.layer\mobile\need\layer.css" />
+    <Content Include="Content\Scripts\jquery.layer\theme\default\icon-ext.png" />
+    <Content Include="Content\Scripts\jquery.layer\theme\default\icon.png" />
+    <Content Include="Content\Scripts\jquery.layer\theme\default\layer.css" />
+    <Content Include="Content\Scripts\jquery.layer\theme\default\loading-0.gif" />
+    <Content Include="Content\Scripts\jquery.layer\theme\default\loading-1.gif" />
+    <Content Include="Content\Scripts\jquery.layer\theme\default\loading-2.gif" />
     <Content Include="Content\Scripts\jquery.mobile\jquery.mobile-1.4.5.css" />
     <Content Include="Content\Scripts\jquery.mobile\jquery.mobile-1.4.5.js" />
     <Content Include="Content\Scripts\jquery.mobile\jquery.mobile-1.4.5.min.css" />
@@ -9119,6 +9129,7 @@
     <Content Include="Views\Home\InertRepair.cshtml" />
     <Content Include="Views\Home\ProcessRepairIndex.cshtml" />
     <Content Include="Views\Home\CompleteRepairIndex.cshtml" />
+    <Content Include="Views\Home\showPicture.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

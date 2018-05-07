@@ -3,14 +3,30 @@
     ViewBag.Title = "InertRepair";
 
 }
-<link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
-<link href="~/Content/Styles/learunui-accordion.css" rel="stylesheet" />
-<script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
-<script src="~/Content/Scripts/learunui-framework.js"></script>
-<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
 
+<style>
+    .addBorder {
+        border: 1px solid #ccc;
+    }
+
+    #imgDiv {
+        width: 100px;
+        height: 100px;
+    }
+
+    #imgContent {
+        width: 100%;
+        height: 100%;
+    }  
+</style>
 <link href="~/Content/Scripts/jquery.mobile/jquery.mobile-1.4.5.css" rel="stylesheet" />
+<script src="~/Content/Scripts/learunui-framework.js"></script>
+
+
+
 <script src="~/Content/Scripts/jquery.mobile/jquery.mobile-1.4.5.js"></script>
+
+@*<script src="~/Content/Scripts/exif.js"></script>*@
 <body>
     <div data-role="page">
 
@@ -18,29 +34,38 @@
             <a href="#" data-role="button" data-rel="back" data-icon="arrow-l">后退</a><h1>新增报修</h1>
         </div>
 
-        <div data-role="content" id="mm">
-            <fieldset data-role="fieldcontain">
-                <label for="fname">楼栋号:</label><select id="DormID" name="switch"> </select>
-                <label for="fname">房间号:</label><input type="text" id="RoomNO" err="房间号" checkexpession="NotNull">
+        <div data-role="content">
 
-                <label for="fname">手机号:</label><input type="text" id="PhoneNumber" err="手机号" checkexpession="NotNull">
+            <label for="fname">楼栋号:</label><select id="DormID"> </select>
+            <label for="fname">房间号:</label><input type="text" id="RoomNO" err="房间号" checkexpession="NotNull">
 
-                <label for="fname">故障描述:</label><input type="text" id="Descripe" err="故障描述" checkexpession="NotNull">
+            <label for="fname">手机号:</label><input type="text" id="PhoneNumber" err="手机号" checkexpession="NotNull">
 
-            </fieldset>
+            <label for="fname">故障描述:</label><select id="Descripe"> </select>
 
+            <form id="imgForm">
+                <label for="fname">图片上传:</label>
 
-
+                <input onchange="loadPicture()" type="file" name="file" id="file">
 
                 <button id="insert">提交</button>
+            </form>
+
+
+
+            <div class="addBorder" id="imgDiv">
+                <img id="imgContent">
+            </div>
 
         </div>
-
+       
         <div data-role="footer">
             <h1>develop by--shenjun</h1>
         </div>
 
     </div>
+
+   
 
 </body>
 
@@ -51,13 +76,28 @@
 
     })
 
+
+    function CheckIsNullNoTip(id) {
+        var isOK = true;
+        if (id == undefined || id == "" || id == 'null' || id == 'undefined' || id == '&nbsp;') {
+            isOK = false;
+            //tipDialog('请填写开始条件', 4, 'warning');
+        }
+        return isOK;
+    }
+
     $("#insert").on("tap", function () {
+        if (CheckIsNullNoTip($("#DormID").val()) == false || CheckIsNullNoTip($("#DormID").val()) == false || CheckIsNullNoTip($("#PhoneNumber").val()) == false || CheckIsNullNoTip($("#Descripe").val()) == false || CheckIsNullNoTip($("#imgContent")[0].src) == false) {
+            alert("请填写完整数据再提交");
+            return false;
+        }
         //alert($("#Descripe").val());
         var postData = {
             Dorm: $("#DormID").val(),
             RoomNO: $("#RoomNO").val(),
             PhoneNumber: $("#PhoneNumber").val(),
-            Descripe: $("#Descripe").val()
+            Descripe: $("#Descripe").val(),
+            Picture: $("#imgContent")[0].src
         }
 
         $.ajax({
@@ -75,6 +115,8 @@
         })
     })
 
+    //UploadPicture
+
 
         function BindData() {
 
@@ -86,8 +128,60 @@
                     $("#DormID").append($("<option></option>").val(DataJson[i].DormID).html(DataJson[i].DormName));
                 });
             });
+
+            $("#Descripe").html("");
+
+            $("#Descripe").append("<option value=''>==请选择==</option>");
+            AjaxJson("/Home/RepairDescripeList", {}, function (DataJson) {
+                $.each(DataJson, function (i) {
+                    $("#Descripe").append($("<option></option>").val(DataJson[i].Code).html(DataJson[i].FullName));
+                });
+            });
         }
 
 
+    $("#UploadPicture").on("tap", function () {
+        var file = $("#imgForm").find("input")[0].files[0];
+        //alert(file);
+        //创建读取文件的对象  
+        var reader = new FileReader();
+
+        //创建文件读取相关的变量  
+        var imgFile;
+
+        //为文件读取成功设置事件  
+        reader.onload = function (e) {
+            //alert('文件读取完成');
+            imgFile = e.target.result;
+            
+            
+            $("#imgContent").attr('src', imgFile);
+        };
+
+        //正式读取文件  
+        reader.readAsDataURL(file);
         
+    }
+    )
+
+    function loadPicture() {
+        var file = $("#imgForm").find("input")[0].files[0];
+        //alert(file);
+        //创建读取文件的对象  
+        var reader = new FileReader();
+
+        //创建文件读取相关的变量  
+        var imgFile;
+
+        //为文件读取成功设置事件  
+        reader.onload = function (e) {
+            //alert('文件读取完成');
+            imgFile = e.target.result;
+            console.log(imgFile);
+            $("#imgContent").attr('src', imgFile);
+        };
+
+        //正式读取文件  
+        reader.readAsDataURL(file);
+    }
 </script>

@@ -8775,6 +8775,7 @@
     <Content Include="Content\Scripts\tree\images\loading.gif" />
     <Content Include="Content\Scripts\tree\tree.css" />
     <Content Include="Content\Scripts\tree\tree.js" />
+    <Content Include="Content\Scripts\uploadify\css\iconfont.css" />
     <Content Include="Content\Scripts\uploadify\jquery.uploadify.js" />
     <Content Include="Content\Scripts\uploadify\jquery.uploadify.min.js" />
     <Content Include="Content\Scripts\uploadify\uploadify-cancel.png" />
@@ -9366,6 +9367,8 @@
     <Content Include="Areas\ProjectManageModule\Views\Project\PrintForm.cshtml" />
     <Content Include="Areas\ProjectManageModule\Views\Project\ActivityForm.cshtml" />
     <Content Include="Areas\TrainModule\Views\Skill\MultiFunctionMatrix.cshtml" />
+    <Content Include="Content\Scripts\uploadify\css\iconfont.ttf" />
+    <Content Include="Content\Scripts\uploadify\css\iconfont.woff" />
     <None Include="Properties\PublishProfiles\LR-FDMS.pubxml" />
     <Content Include="Views\Home\SkinIndex.cshtml" />
     <Content Include="Views\Login\Default.cshtml" />

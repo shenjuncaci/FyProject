@@ -11,7 +11,7 @@
     <div data-role="page">
 
         <div data-role="header">
-            <a href="#" data-role="button" data-rel="back" data-icon="arrow-l">后退</a><h1>已完成列表</h1>
+            <a href="DormPage" data-role="button"  data-icon="arrow-l">后退</a><h1>已完成列表</h1>
         </div>
 
         <div data-role="content">
@@ -24,4 +24,19 @@
 
     </div>
 </body>
+
+<script>
+    function InsertRepair() {
+        window.location.href = '@Url.Content("~/Home/InertRepair")';
+    }
+
+
+    function ProcessRepairIndex() {
+        window.location.href = '@Url.Content("~/Home/ProcessRepairIndex")';
+    }
+
+    function CompleteRepairIndex() {
+        window.location.href = '@Url.Content("~/Home/CompleteRepairIndex")';
+    }
+</script>
 

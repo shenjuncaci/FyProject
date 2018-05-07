@@ -43,6 +43,8 @@ namespace LeaRun.Entity
         public string Remark { get; set; }
         public DateTime? FinishDt { get; set; }
 
+        public string CreateByID { get; set; }
+
 
         #region 扩展操作
         /// <summary>
@@ -52,6 +54,7 @@ namespace LeaRun.Entity
         {
             this.RoomRepairID = CommonHelper.GetGuid;
             this.CreateBy = ManageProvider.Provider.Current().UserName;
+            this.CreateByID = ManageProvider.Provider.Current().UserId;
             this.CreateDt = DateTime.Now;
             this.RepairState = "维修中";
             

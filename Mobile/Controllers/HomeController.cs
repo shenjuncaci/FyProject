@@ -11,6 +11,7 @@ using System.Data;
 using System.Data.Common;
 using LeaRun.DataAccess;
 using LeaRun.Repository;
+using System.IO;
 
 namespace Mobile.Controllers
 {
@@ -531,11 +532,45 @@ from fy_plandetail a left join FY_Process b on a.processid=b.ProcessID where a.p
             return Content(dt.ToJson());
         }
 
-        public string InsertRepairAjax(string Dorm,string RoomNO,string PhoneNumber,string Descripe)
+        public string InsertRepairAjax(string Dorm,string RoomNO,string PhoneNumber,string Descripe,string Picture)
         {
+            string fileGuid = CommonHelper.GetGuid;
+            //long filesize = Filedata.ContentLength;
+            string FileEextension = ".jpg";
+            string uploadDate = DateTime.Now.ToString("yyyyMMdd");
+            //string UserId = ManageProvider.Provider.Current().UserId;
+            string virtualPath= string.Format("~/Resource/Document/NetworkDisk/{0}/{1}{2}", "RoomRepair", fileGuid, FileEextension);
+
+            string realPath = string.Format(@"D:\LeaRun\Resource\Document\NetworkDisk\{0}\{1}{2}", "RoomRepair", fileGuid, FileEextension);
+
+            //string fullFileName = this.Server.MapPath(virtualPath);
+            ////创建文件夹，保存文件
+            //realPath = Path.GetDirectoryName(fullFileName);
+            //先处理图片文件
+            string temp = Picture.Substring(23);
+            byte[] arr2 = Convert.FromBase64String(Picture.Substring(23));
+            using (MemoryStream ms2 = new MemoryStream(arr2))
+            {
+                System.Drawing.Bitmap bmp2 = new System.Drawing.Bitmap(ms2);
+
+
+
+
+
+                bmp2.Save(realPath, System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                bmp2.Dispose();
+                ms2.Close();
+            }
+
+
             IDatabase database = DataFactory.Database();
             DbTransaction isOpenTrans = database.BeginTrans();
+
+            
+
             DM_RoomRepair entity = new DM_RoomRepair();
+            entity.Create();
             entity.DormID = Dorm;
             entity.RoomNO = RoomNO;
             entity.MobilePhone = PhoneNumber;
@@ -543,13 +578,16 @@ from fy_plandetail a left join FY_Process b on a.processid=b.ProcessID where a.p
             entity.RepairDate = DateTime.Now;
             entity.UserCode = ManageProvider.Provider.Current().Code;
             entity.UserName = ManageProvider.Provider.Current().UserName;
-
-            
-
-            entity.Create();
-
-
             database.Insert(entity, isOpenTrans);
+
+
+            DM_RoomRepairPicture entityD = new DM_RoomRepairPicture();
+            entityD.Create();
+            entityD.PictureUrl = virtualPath;
+            entityD.RoomRepairID = entity.RoomRepairID;
+
+            database.Insert(entityD, isOpenTrans);
+
 
             database.Commit();
             return "1";
@@ -557,24 +595,24 @@ from fy_plandetail a left join FY_Process b on a.processid=b.ProcessID where a.p
 
         public ActionResult ProcessRepairIndex()
         {
-            string sql = @" select top 10 RepairDescripe+' '+'('+CONVERT(varchar(100),RepairDate, 23)+')' from DM_RoomRepair a
+            string sql = @" select top 10 RepairDescripe+' '+'('+CONVERT(varchar(100),RepairDate, 23)+')',roomrepairid from DM_RoomRepair a
 where a.RepairState='维修中' and a.createby='" + ManageProvider.Provider.Current().UserName+ "' order by RepairDate desc ";
             DataTable dt = SkillBll.GetDataTable(sql);
 
-            string table = "<ul data-role=\"listview\">";
+            string table = "<ol data-role=\"listview\">";
             
             if (dt.Rows.Count>0)
             {
                 for(int i=0;i<dt.Rows.Count;i++)
                 {
-                    table += " <li>"+dt.Rows[i][0]+"</li> ";
+                    table += " <li onClick=\"showPicture('"+dt.Rows[i][1]+"')\">"+dt.Rows[i][0]+"</li> ";
                 }
             }
             else
             {
                 table = "没有数据";
             }
-            table += "</ul>";
+            table += "</ol>";
             ViewData["data"] = table;
             return View();
         }
@@ -585,7 +623,7 @@ where a.RepairState='维修中' and a.createby='" + ManageProvider.Provider.Curr
 where a.RepairState='已完成' and a.createby='" + ManageProvider.Provider.Current().UserName + "' order by RepairDate desc ";
             DataTable dt = SkillBll.GetDataTable(sql);
 
-            string table = "<ul data-role=\"listview\">";
+            string table = "<ol data-role=\"listview\">";
 
             if (dt.Rows.Count > 0)
             {
@@ -598,8 +636,29 @@ where a.RepairState='已完成' and a.createby='" + ManageProvider.Provider.Curr
             {
                 table = "没有数据";
             }
-            table += "</ul>";
+            table += "</ol>";
             ViewData["data"] = table;
+            return View();
+        }
+
+        public ActionResult RepairDescripeList()
+        {
+            string sql = @"select a.Code,a.FullName from Base_DataDictionaryDetail a 
+left join Base_DataDictionary b on a.DataDictionaryId=b.DataDictionaryId
+where b.FullName='故障类型' order by a.SortCode ";
+            DataTable dt = SkillBll.GetDataTable(sql);
+            return Content(dt.ToJson());
+        }
+
+        public ActionResult showPicture(string ID)
+        {
+            string sql = " select * from DM_RoomRepairPicture where RoomRepairID='"+ID+"'  ";
+            return View();
+        }
+
+        public ActionResult test(HttpPostedFileBase Filedata)
+        {
+            HttpPostedFileBase file = Request.Files["file"];
             return View();
         }
     }

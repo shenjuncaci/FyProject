@@ -81,6 +81,7 @@
     <Compile Include="DMModule\DM_Room.cs" />
     <Compile Include="DMModule\DM_RoomCost.cs" />
     <Compile Include="DMModule\DM_RoomRepair.cs" />
+    <Compile Include="DMModule\DM_RoomRepairPicture.cs" />
     <Compile Include="ExampleModule\Base_Email.cs" />
     <Compile Include="ExampleModule\Base_EmailAccessory.cs" />
     <Compile Include="ExampleModule\Base_EmailAddressee.cs" />

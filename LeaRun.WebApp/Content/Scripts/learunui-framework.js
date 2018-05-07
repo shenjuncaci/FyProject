@@ -854,7 +854,7 @@ function CheckIsNull(id) {
 
 function CheckIsNullNoTip(id) {
     var isOK = true;
-    if (id == undefined || id == "" || id == 'null' || id == 'undefined') {
+    if (id == undefined || id == "" || id == 'null' || id == 'undefined' || id=='&nbsp;') {
         isOK = false;
         //tipDialog('请填写开始条件', 4, 'warning');
     }

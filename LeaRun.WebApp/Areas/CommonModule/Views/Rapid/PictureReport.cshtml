@@ -18,6 +18,8 @@
                     </td></tr></table></div>
 <div id="main" style="width: auto;height:400px"></div>
 <div id="main2" style="width: auto;height:400px"></div>
+<div id="main3" style="width: auto;height:400px"></div>
+<div id="main4" style="width: auto;height:400px"></div>
     <script type="text/javascript">
        
 
@@ -145,7 +147,179 @@
                     data: DataForMyChart2
                 }
             ]
-        })
+            })
+
+
+
+            //第三个图表
+            var X = new Array();
+            var Y = new Array();
+            var Y2 = new Array();
+            var Y3 = new Array();
+            var durl = encodeURI('@Url.Action("ProblemCompleteCount", "Rapid")');
+        $.ajax({
+            type: "post",
+            url: durl,
+            async: false,
+            success: function (data) {
+                var dataA = new Array();
+                dataA = data.split("|");
+
+                X = dataA[2].split(",");
+                Y2 = dataA[1].split(",");
+                Y = dataA[0].split(",");
+                Y3 = dataA[3].split(",");
+                //for(var i=0;i<X.length;i++)
+                //{
+                //    X[i] = X[i] + "月份";
+                //}
+            }
+
+        });
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main3'));
+        // 指定图表的配置项和数据
+        var option = {
+            color: ['green','#3398DB','red'],
+            title: {
+                text: '各责任人快反问题汇总'
+            },
+            tooltip: {},
+            legend: {
+                data: ['完成问题数','进行中问题数','超期问题数']
+            },
+            xAxis: {
+                splitLine: {
+                    show: true,
+                    interval: 0,
+                },
+                data: X
+            },
+            yAxis: {
+                //type: 'value',
+                //boundaryGap: [0, 0.01]
+                boundaryGap: false
+            },
+            series: [
+                {
+                    name: '完成问题数',
+                    type: 'bar',
+                    data: Y3,
+                    itemStyle: { normal: { label: { show: true, position: 'top' } } }
+                },
+                {
+                name: '进行中问题数',
+                type: 'bar',
+                data: Y,
+                itemStyle: { normal: { label: { show: true, position: 'top' } } }
+            },
+                {
+                    name: '超期问题数',
+                    type: 'bar',
+                    data: Y2,
+                    itemStyle: { normal: { label: { show: true, position: 'top' } } }
+                }
+            //{
+
+            //    name: '已完成问题数',
+            //    type: 'bar',
+            //    data: Y
+            //},
+            ]
+        };
+
+        // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+
+
+            //第四个图表
+            var X = new Array();
+            var Y = new Array();
+            var Y2 = new Array();
+            var Y3 = new Array();
+            var durl = encodeURI('@Url.Action("GeneralProblemCompleteCount", "Rapid")');
+        $.ajax({
+            type: "post",
+            url: durl,
+            async: false,
+            success: function (data) {
+                var dataA = new Array();
+                dataA = data.split("|");
+
+                X = dataA[2].split(",");
+                Y2 = dataA[1].split(",");
+                Y = dataA[0].split(",");
+                Y3 = dataA[3].split(",");
+                //for(var i=0;i<X.length;i++)
+                //{
+                //    X[i] = X[i] + "月份";
+                //}
+                //alert(Y3);
+            }
+
+        });
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main4'));
+        // 指定图表的配置项和数据
+        var option = {
+            color: ['green','#3398DB','red'],
+            title: {
+                text: '各责任人一般问题汇总'
+            },
+            tooltip: {},
+            legend: {
+                data: ['完成问题数','进行中问题数','超期问题数']
+            },
+            xAxis: {
+                splitLine: {
+                    show: true,
+                    interval: 0,
+                },
+                data: X
+            },
+            yAxis: {
+                //type: 'value',
+                //boundaryGap: [0, 0.01]
+                //boundaryGap: [0, 0.01],
+                //axisLine: true
+                //axisLine.show: true
+               
+                //splitArea: {
+                //    show: true,
+                //    interval: 0,
+                //}
+            },
+            series: [
+                {
+                    name: '完成问题数',
+                    type: 'bar',
+                    data: Y3,
+                    itemStyle: { normal: { label: { show: true, position: 'top' } } }
+                },
+                {
+                name: '进行中问题数',
+                type: 'bar',
+                data: Y,
+                itemStyle: { normal: { label: { show: true, position: 'top' } } }
+            },
+                {
+                    name: '超期问题数',
+                    type: 'bar',
+                    data: Y2,
+                    itemStyle: { normal: { label: { show: true, position: 'top' } } }
+                }
+            //{
+
+            //    name: '已完成问题数',
+            //    type: 'bar',
+            //    data: Y
+            //},
+            ]
+        };
+
+        // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+
         }
 
     </script>

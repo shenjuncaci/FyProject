@@ -78,7 +78,7 @@
         var rowIndex = tab.rows.length + 1;
         if (i == 999) {
             //999表示是新增，-3表示减去3行标题
-            i = rowIndex - 2;
+            i = rowIndex - 1;
         }
         //添加一行;
         var tr = tab.insertRow();
@@ -130,43 +130,79 @@
 
     function addbatch()
     {
-        var reValue = window.showModalDialog('UserListBatch', window, 'dialogWidth=800px;dialogHeight=500px;status:1;title:0;');
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '技能选择',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['800px', '500px'],
+            content: 'UserListBatch'
+        });
+        //var reValue = window.showModalDialog('UserListBatch', window, 'dialogWidth=800px;dialogHeight=500px;status:1;title:0;');
+        
+    }
+
+    function addbatchParent(reValue) {
         if (reValue == undefined) {
             return false;
         }
         var postData = { UserID: reValue };
         AjaxJson("/TrainModule/CustomExam/InsertUser?KeyValue=" + GetQueryNew('KeyValue'), postData, function (data) {
             tipDialog(data.Message, 3, data.Code);
-            top.frames[tabiframeId()].windowload();
+            //top.frames[tabiframeId()].windowload();
             //closeDialog();
+            $("#DetailForm tr:not(:first)").remove();
+            InitControl();
         });
     }
 
     function addOnDept()
     {
-        var reValue = window.showModalDialog('DeptListBatch', window, 'dialogWidth=800px;dialogHeight=500px;status:1;title:0;');
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '技能选择',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['800px', '500px'],
+            content: 'DeptListBatch'
+        });
+        //var reValue = window.showModalDialog('DeptListBatch', window, 'dialogWidth=800px;dialogHeight=500px;status:1;title:0;');
+        
+    }
+
+    function addOnDeptParent(reValue) {
         if (reValue == undefined) {
             return false;
         }
         var postData = { DepartID: reValue };
         AjaxJson("/TrainModule/CustomExam/InsertUserOnDept?KeyValue=" + GetQueryNew('KeyValue'), postData, function (data) {
-            tipDialog(data.Message, 3, data.Code);
-            top.frames[tabiframeId()].windowload();
-            //closeDialog();
+            $("#DetailForm tr:not(:first)").remove();
+            InitControl();
         });
     }
 
     function addOnCode()
     {
-        var reValue = window.showModalDialog('CodeForm', window, 'dialogWidth=800px;dialogHeight=500px;status:1;title:0;');
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '技能选择',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['800px', '500px'],
+            content: 'CodeForm'
+        });
+        
+        
+    }
+
+    function addOnCodeParent(reValue) {
         if (reValue == undefined) {
             return false;
         }
         var postData = { StartCode: reValue[0], EndCode: reValue[1] };
         AjaxJson("/TrainModule/CustomExam/InsertUserOnCode?KeyValue=" + GetQueryNew('KeyValue'), postData, function (data) {
-            tipDialog(data.Message, 3, data.Code);
-            top.frames[tabiframeId()].windowload();
-            //closeDialog();
+            $("#DetailForm tr:not(:first)").remove();
+            InitControl();
         });
     }
 
@@ -182,16 +218,16 @@
             </tr>
         </table>
         <div id="Fixed">
-            <button onclick="addbatch()">添加</button>
-            <button onclick="addOnDept()">按部门添加</button>
-            <button onclick="addOnCode()">按工号段添加</button>
+            <a onclick="addbatch()">添加</a>
+            <a onclick="addOnDept()">按部门添加</a>
+            <a onclick="addOnCode()">按工号段添加</a>
             @*<a class="button button-caution button-square button-small" onclick="addone(999)">添加</a>
             <a class="button button-caution button-square button-small" onclick="addbatch()">批量</a>*@
         </div>
         <div style="height:20px">
         </div>
         <table id="DetailForm" class="form-bill">
-            <tr><td colspan="3"><strong>岗位包含技能</strong></td></tr>
+            @*<tr><td colspan="3"><strong>岗位包含技能</strong></td></tr>*@
             <tr>
                 <th style="width:20%">工号</th>
                 <th style="width:30%">姓名</th>

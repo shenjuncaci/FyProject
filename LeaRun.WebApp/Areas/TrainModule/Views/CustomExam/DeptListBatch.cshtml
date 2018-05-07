@@ -110,8 +110,8 @@
         }
         //console.log(Result);
         //alert(ResultArr[0] + ',' + ResultArr[1] + ',' + ResultArr[2])
-        window.returnValue = departmentid;
-        window.close();
+        parent.addbatchParent(departmentid);
+        parent.layer.close(index);
     }
 </script>
 <div class="border" style="margin: 1px; border-bottom: none; margin-bottom: 0px;">

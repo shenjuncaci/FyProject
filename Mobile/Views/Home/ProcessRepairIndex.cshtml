@@ -3,6 +3,9 @@
     ViewBag.Title = "ProcessRepairIndex";
 }
 
+<link href="~/Content/Scripts/jquery.layer/mobile/need/layer.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery.layer/mobile/layer.js"></script>
+
 <h2>ProcessRepairIndex</h2>
 
 
@@ -11,7 +14,7 @@
     <div data-role="page">
 
         <div data-role="header">
-            <a href="#" data-role="button" data-rel="back" data-icon="arrow-l">后退</a><h1>处理中列表</h1>
+            <a href="DormPage" data-role="button" data-icon="arrow-l">后退</a><h1>处理中列表</h1>
         </div>
 
         <div data-role="content">
@@ -24,4 +27,25 @@
 
     </div>
 </body>
+
+
+
+<script>
+    function showPicture(RepairID) {
+//点击li显示图片
+    }
+
+    function InsertRepair() {
+        window.location.href = '@Url.Content("~/Home/InertRepair")';
+    }
+
+
+    function ProcessRepairIndex() {
+        window.location.href = '@Url.Content("~/Home/ProcessRepairIndex")';
+    }
+
+    function CompleteRepairIndex() {
+        window.location.href = '@Url.Content("~/Home/CompleteRepairIndex")';
+    }
+</script>
 

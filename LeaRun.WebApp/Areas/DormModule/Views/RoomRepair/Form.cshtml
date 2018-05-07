@@ -4,6 +4,7 @@
     string UserName = ViewData["UserName"] as string;
 }
 
+<link href="~/Content/Scripts/uploadify/css/iconfont.css" rel="stylesheet" />
 <link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
 <script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>
 
@@ -64,7 +65,11 @@
     //});
     $(function () {
         BindData();
+        GetPicture();
+        uploadify();
         InitControl();
+        
+        
         //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
         //BindResponseBy();
 
@@ -77,11 +82,33 @@
             AjaxJson("/DormModule/RoomRepair/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
                 SetWebControls(data);
 
+                if (data.RepairState == "已完成") {
+                    var t = document.getElementById("main");
+                    var a = t.getElementsByTagName("input");
+                    var b = t.getElementsByTagName("select");
+                    for (var i = 0; i < a.length; i++) {
+                        a[i].setAttribute("disabled", "true");
+                    }
+                    for (var i = 0; i < b.length; i++) {
+                        b[i].setAttribute("disabled", "true");
+                    }
+                    $("#uploadify").css("display", "none");
+                    $(".test").css("display", "none");
+                }
             });
         }
     }
     //保存事件
     function AcceptClick() {
+        
+        if ($("#RepairDescripe").val() == "其他") {
+            //alert(CheckIsNullNoTip($("#Remark").val()));
+            if (!CheckIsNullNoTip($("#Remark").val())) {
+                alert("故障类型选择其他时，请把详细内容填入备注中");
+                return false;
+            }
+        }
+
         if (!CheckDataValid('#form1')) {
             return false;
         }
@@ -107,8 +134,142 @@
                 $("#DormID").append($("<option></option>").val(DataJson[i].DormID).html(DataJson[i].DormName));
             });
         });
+
+        $("#RepairDescripe").html("");
+
+        $("#RepairDescripe").append("<option value=''>==请选择==</option>");
+        AjaxJson("/DormModule/RoomRepair/RepairDescripeList", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#RepairDescripe").append($("<option></option>").val(DataJson[i].Code).html(DataJson[i].FullName));
+            });
+        });
     }
 
+
+    var index_uploadify = 1;
+    function uploadify() {
+
+        $("#uploadify").uploadify({
+
+            uploader: '/DormModule/RoomRepair/SubmitUploadify?FolderId=' + GetQuery('KeyValue'),
+            swf: '/Content/Scripts/uploadify/uploadify.swf',
+            buttonText: "选择图片",
+            fileTypeExts: "*.jpg;*.png;*.jpeg;*.JPG",
+            height: 24,
+            width: 70,
+            fileSizeLimit: 140960,
+            onFallback: function () {
+                alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+            },
+            onUploadSuccess: function (file, data, response) {
+                GetPicture();
+            }
+        });
+    }
+
+    //获取所有改单的图片
+    function GetPicture() {
+        $("#js_showImgs").html('');
+        AjaxJson("/DormModule/RoomRepair/GetExistsPicture?RoomRepairID=" + GetQuery('KeyValue'), {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                AddImage(DataJson[i].PictureUrl, DataJson[i].RoomRepairPictureID, "js_showImgs", i);
+            });
+        })
+     }
+
+
+    /*********************
+* 图片预览
+* imgUrl 图片路径
+* imgName 图片隐藏域id
+* renderTo 图片预览追加位置id
+* index 用于多图片时修改div的class
+**********************/
+    window.AddImage = function (imgUrl, imgName, renderTo, index) {
+        imgUrl = imgUrl.replace(/~/g, "");
+        index++;
+        var imgItem = '<div class="album-image  album-image' + index + '" >' +
+            '        <div style="height:120px;">' +
+            '       <input type="hidden" id="' + imgName + '"   value="' + imgUrl + '"/>' +
+            '            <img src="' + imgUrl + '" >' +
+            '        </div>' +
+            '    <div class="test" title="删除">' +
+            '        <span class="image-options text-right" onClick="deletePicture(\'' + imgName + '\')">' +
+            '            删除' +
+            '        </span>' +
+            '        <div class="clearfix"></div>' +
+            '    </div>' +
+            '    </div>';
+        $("#" + renderTo).append(imgItem);
+        //移除预览图片,此部分不需要，每次去后台删除，再重新加载所有图片
+        //$("#" + renderTo).find(".album-tools").click(function () {
+        //    //获取上传文件的属性
+        //    var data = $('#uploadify').data('uploadify');
+        //    var settings = data.settings;
+        //    //获取当前设置的上传文件数限制
+        //    var uploadLimit = settings.uploadLimit;
+        //    //重置上传限制
+        //    $('#uploadify').uploadify('settings', 'uploadLimit', ++uploadLimit);
+        //    //移除图片元素
+        //    $("#" + renderTo).find(".album-image" + index + "").remove();
+        //})
+    }
+
+    function deletePicture(imgID) {
+        //alert(imgID);
+
+        AjaxJson("/DormModule/RoomRepair/DeleteFile", { KeyValue: imgID }, function (data) {
+            $("#js_showImgs").html("");
+            GetPicture();
+        });
+    }
+
+
+    $(function () {
+        $("img").click(function () {
+            var _this = $(this);//将当前的pimg元素作为_this传入函数  
+            imgShow("#outerdiv", "#innerdiv", "#bigimg", _this);
+        });
+    });
+
+    function imgShow(outerdiv, innerdiv, bigimg, _this) {
+        var src = _this.attr("src");//获取当前点击的pimg元素中的src属性  
+        $(bigimg).attr("src", src);//设置#bigimg元素的src属性  
+
+        /*获取当前点击图片的真实大小，并显示弹出层及大图*/
+        $("<img/>").attr("src", src).load(function () {
+            var windowW = $(window).width();//获取当前窗口宽度  
+            var windowH = $(window).height();//获取当前窗口高度  
+            var realWidth = this.width;//获取图片真实宽度  
+            var realHeight = this.height;//获取图片真实高度  
+            var imgWidth, imgHeight;
+            var scale = 0.8;//缩放尺寸，当图片真实宽度和高度大于窗口宽度和高度时进行缩放  
+
+            if (realHeight > windowH * scale) {//判断图片高度  
+                imgHeight = windowH * scale;//如大于窗口高度，图片高度进行缩放  
+                imgWidth = imgHeight / realHeight * realWidth;//等比例缩放宽度  
+                if (imgWidth > windowW * scale) {//如宽度扔大于窗口宽度  
+                    imgWidth = windowW * scale;//再对宽度进行缩放  
+                }
+            } else if (realWidth > windowW * scale) {//如图片高度合适，判断图片宽度  
+                imgWidth = windowW * scale;//如大于窗口宽度，图片宽度进行缩放  
+                imgHeight = imgWidth / realWidth * realHeight;//等比例缩放高度  
+            } else {//如果图片真实高度和宽度都符合要求，高宽不变  
+                imgWidth = realWidth;
+                imgHeight = realHeight;
+            }
+            $(bigimg).css("width", imgWidth);//以最终的宽度对图片缩放  
+
+            var w = (windowW - imgWidth) / 2;//计算图片与窗口左边距  
+            var h = (windowH - imgHeight) / 2;//计算图片与窗口上边距  
+            $(innerdiv).css({ "top": h, "left": w });//设置#innerdiv的top和left属性  
+            $(outerdiv).fadeIn("fast");//淡入显示#outerdiv及.pimg  
+        });
+
+        $(outerdiv).click(function () {//再次点击淡出消失弹出层  
+            $(this).fadeOut("fast");
+        });
+    }  
 </script>
 
 
@@ -126,7 +287,7 @@
     <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
         <!--基本信息-->
         <div id="basic" class="tabPanel">
-            <table class="form">
+            <table id="main" class="form">
 
                 <tr>
                     <th class="formTitle">楼栋：</th>
@@ -139,13 +300,14 @@
                     </td>
                     <th class="formTitle">报修日期</th>
                     <td class="formValue">
-                    <input id="RepairDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /></td>
+                        <input id="RepairDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" />
+                    </td>
                 </tr>
 
                 <tr>
                     <th class="formTitle">工号：</th>
                     <td class="formValue">
-                       
+
                         <input id="UserCode" type="text" class="txt" datacol="yes" err="工号" checkexpession="NotNull" />
                     </td>
                     <th class="formTitle">姓名</th>
@@ -161,13 +323,13 @@
                 <tr>
                     <th class="formTitle">故障描述：</th>
                     <td class="formValue" colspan="3">
-
-                        <input id="RepairDescripe" type="text" class="txt" datacol="yes" err="故障描述" checkexpession="NotNull" />
+                        <select id="RepairDescripe" class="select" datacol="yes" err="故障描述" checkexpession="NotNull"></select>
+                        @*<input id="RepairDescripe" type="text" class="txt" datacol="yes" err="故障描述" checkexpession="NotNull" />*@
                     </td>
-                    
+
                     <th class="formTitle">维修状态</th>
                     <td class="formValue">
-                        <input placeholder="物管处填写" id="RepairState" type="text" class="txt" datacol="yes"/>
+                        <input readonly placeholder="物管处填写" id="RepairState" type="text" class="txt" datacol="yes" />
                     </td>
                 </tr>
 
@@ -175,11 +337,19 @@
                     <th class="formTitle">备注：</th>
                     <td class="formValue" colspan="3">
 
-                        <input id="Remark" type="text" class="txt" datacol="yes" err="备注" checkexpession="NotNull" />
+                        <input id="Remark" type="text" class="txt" datacol="yes"/>
 
                     </td>
 
 
+                </tr>
+                <tr>
+                    <th class="formTitle">上传图片：</th>
+                    <td class="formValue" colspan="3">
+
+                        <input type="file" name="uploadify" id="uploadify" />
+
+                    </td>
                 </tr>
 
             </table>
@@ -188,4 +358,12 @@
 
     </div>
 
+
+    <div id="js_showImgs"></div>
+
+    <div id="outerdiv" style="position:fixed;top:0;left:0;background:rgba(0,0,0,0.7);z-index:2;width:100%;height:100%;display:none;">
+        <div id="innerdiv" style="position:absolute;">
+            <img id="bigimg" style="border:5px solid #fff;" src="" />
+        </div>
+    </div>
 </form>

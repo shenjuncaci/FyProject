@@ -163,6 +163,96 @@ namespace LeaRun.WebApp.Areas.DormModule.Controllers
             return "1";
         }
 
+        public ActionResult SubmitUploadify(string FolderId, HttpPostedFileBase Filedata)
+        {
+            try
+            {
+
+                Thread.Sleep(1000);////延迟500毫秒
+                DM_RoomRepairPicture entity = new DM_RoomRepairPicture();
+                
+
+                string IsOk = "";
+                //没有文件上传，直接返回
+                if (Filedata == null || string.IsNullOrEmpty(Filedata.FileName) || Filedata.ContentLength == 0)
+                {
+                    return HttpNotFound();
+                }
+                //获取文件完整文件名(包含绝对路径)
+                //文件存放路径格式：/Resource/Document/NetworkDisk/{日期}/{guid}.{后缀名}
+                //例如：/Resource/Document/Email/20130913/43CA215D947F8C1F1DDFCED383C4D706.jpg
+                string fileGuid = CommonHelper.GetGuid;
+                long filesize = Filedata.ContentLength;
+                string FileEextension = Path.GetExtension(Filedata.FileName);
+                string uploadDate = DateTime.Now.ToString("yyyyMMdd");
+                //string UserId = ManageProvider.Provider.Current().UserId;
+
+                string virtualPath = string.Format("~/Resource/Document/NetworkDisk/{0}/{1}{2}", "RoomRepair", fileGuid, FileEextension);
+                //rapidentity.res_msfj = virtualPath;
+
+                string fullFileName = this.Server.MapPath(virtualPath);
+                //创建文件夹，保存文件
+                string path = Path.GetDirectoryName(fullFileName);
+                Directory.CreateDirectory(path);
+                if (!System.IO.File.Exists(fullFileName))
+                {
+                    Filedata.SaveAs(fullFileName);
+                    try
+                    {
+                        entity.Create();
+                        entity.RoomRepairID = FolderId;
+                        entity.PictureUrl = virtualPath;
+                        DataFactory.Database().Insert<DM_RoomRepairPicture>(entity);
+                    }
+                    catch (Exception ex)
+                    {
+                        IsOk = ex.Message;
+                        System.IO.File.Delete(virtualPath);
+                    }
+                }
+                var JsonData = new
+                {
+                    Status = IsOk,
+                    NetworkFile = entity,
+                };
+                return Content(JsonData.ToJson());
+
+
+            }
+            catch (Exception ex)
+            {
+                return Content(ex.Message);
+            }
+        }
+
+
+
+        public ActionResult GetExistsPicture(string RoomRepairID)
+        {
+            string sql = " select * from DM_RoomRepairPicture where RoomRepairID='{0}'  ";
+            sql = string.Format(sql, RoomRepairID);
+            DataTable dt = RoomRepairBll.GetDataTable(sql);
+            return Content(dt.ToJson());
+        }
+
+        public ActionResult DeleteFile(string KeyValue)
+        {
+            StringBuilder strsql = new StringBuilder();
+            strsql.AppendFormat(@" delete from DM_RoomRepairPicture  where RoomRepairPictureID='{0}' ",KeyValue);
+            RoomRepairBll.ExecuteSql(strsql);
+            return Content(new JsonMessage { Success = true, Code = "1", Message = "删除成功。" }.ToString());
+
+        }
+
+        public ActionResult RepairDescripeList()
+        {
+            string sql = @"select a.Code,a.FullName from Base_DataDictionaryDetail a 
+left join Base_DataDictionary b on a.DataDictionaryId=b.DataDictionaryId
+where b.FullName='故障类型' order by a.SortCode ";
+            DataTable dt = RoomRepairBll.GetDataTable(sql);
+            return Content(dt.ToJson());
+        }
+
 
 
 
