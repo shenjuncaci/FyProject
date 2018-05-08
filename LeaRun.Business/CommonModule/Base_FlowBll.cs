@@ -358,6 +358,127 @@ left join Base_User b on a.UserId=b.UserId
 
         }
 
-        
+
+
+
+
+
+        //提交流程，返回流程状态，int类型
+        public int SubmitFlow(string FlowID,string ProcessOpinion)
+        {
+            string strSql = " select a.*,b.FullName,c.RealName from Base_Flowlog a " +
+                "left join Base_Post b on a.currentpost=b.PostId left join Base_User c on a.currentperson=c.UserId" +
+                " where flowid='" + FlowID + "' ";
+            string strSqlDetail = " select a.*,b.FullName,c.RealName from base_flowlogdetail a " +
+                "left join Base_Post b on a.approvepost=b.PostId left join Base_User c on a.approveby=c.UserId " +
+                "where flowid='" + FlowID + "' order by a.stepno ";
+            DataTable dt = Repository().FindDataSetBySql(strSql).Tables[0];
+            DataTable dtDetail = Repository().FindDataSetBySql(strSqlDetail).Tables[0];
+            Base_FlowLog bfl = DtConvertHelper.ConvertToModel<Base_FlowLog>(dt, 0);
+            IList<Base_FlowLogDetail> bfldlist = DtConvertHelper.ConvertToModelList<Base_FlowLogDetail>(dtDetail);
+
+            if (bfl.Approvestatus == 0)
+            {
+                //为0表示未提交，明细表无需操作，主表状态修改即可
+                bfl.Approvestatus = 7;
+                bfl.CurrentPerson = bfldlist[0].ApproveBy;
+                bfl.CurrentPost = bfldlist[0].ApprovePost;
+                bfldlist[0].Approvestatus = "等待操作";
+                DataFactory.Database().Update<Base_FlowLogDetail>(bfldlist[0]);
+            }
+            //if(bfl.Approvestatus==7)
+            else
+            {
+                //7为待审核的状态
+                for (int i = 0; i < bfldlist.Count; i++)
+                {
+                    if (bfldlist[i].IsFinish == 0)
+                    {
+                        if (i == bfldlist.Count - 1) //等于最大的时候表示审批完成以后流程结束
+                        {
+                            bfl.Approvestatus = 9;
+                            bfldlist[i].IsFinish = 1;
+                            bfldlist[i].Approvestatus = ManageProvider.Provider.Current().UserName + " 审批通过"+"("+ProcessOpinion+")";
+                            bfl.CurrentPost = "";
+                            bfl.CurrentPerson = "";
+                        }
+                        else
+                        {
+                            bfl.Approvestatus = 7;
+                            bfldlist[i].IsFinish = 1;
+                            bfldlist[i].Approvestatus = ManageProvider.Provider.Current().UserName + " 审批通过" + "(" + ProcessOpinion + ")";
+                            bfl.CurrentPerson = bfldlist[i + 1].ApproveBy;
+                            bfl.CurrentPost = bfldlist[i + 1].ApprovePost;
+                        }
+                        DataFactory.Database().Update<Base_FlowLogDetail>(bfldlist[i]);
+                        //跳出循环
+                        break;
+                    }
+                }
+            }
+            //if(bfl.Approvestatus==-1)
+            //{
+            //    //表示流程被退回
+            //    if()
+            //}
+
+            DataFactory.Database().Update<Base_FlowLog>(bfl);
+            return bfl.Approvestatus;
+        }
+
+        //流程退回
+        public int RejectFlow(string FlowID,string ProcessOpinion)
+        {
+            string strSql = " select a.*,b.FullName,c.RealName from Base_Flowlog a " +
+                "left join Base_Post b on a.currentpost=b.PostId left join Base_User c on a.currentperson=c.UserId" +
+                " where flowid='" + FlowID + "' ";
+            string strSqlDetail = " select a.*,b.FullName,c.RealName from base_flowlogdetail a " +
+                "left join Base_Post b on a.approvepost=b.PostId left join Base_User c on a.approveby=c.UserId " +
+                "where flowid='" + FlowID + "' order by a.stepno ";
+            DataTable dt = Repository().FindDataSetBySql(strSql).Tables[0];
+            DataTable dtDetail = Repository().FindDataSetBySql(strSqlDetail).Tables[0];
+            Base_FlowLog bfl = DtConvertHelper.ConvertToModel<Base_FlowLog>(dt, 0);
+            IList<Base_FlowLogDetail> bfldlist = DtConvertHelper.ConvertToModelList<Base_FlowLogDetail>(dtDetail);
+            if (bfl.Approvestatus != 7)
+            {
+                return 0;  //只有在进行中的流程可以退回
+            }
+            else
+            {
+                for (int i = 0; i < bfldlist.Count; i++)
+                {
+                    if (bfldlist[i].IsFinish == 0)
+                    {
+                        if (i == 0)
+                        {
+                            //如果在第一步就被退回，只需要修改主表的状态
+                            bfl.Approvestatus = 0;
+                            bfl.CurrentPerson = "";
+                            bfl.CurrentPost = "";
+                            bfldlist[i].Approvestatus = ManageProvider.Provider.Current().UserName + " 退回" + "(" + ProcessOpinion + ")";
+                            DataFactory.Database().Update<Base_FlowLogDetail>(bfldlist[i]);
+                        }
+                        else
+                        {
+                            //如果不是第一步的话，上一节点的操作者状态需要修改
+                            bfl.Approvestatus = 7;
+                            bfldlist[i].Approvestatus = ManageProvider.Provider.Current().UserName + " 退回" + "(" + ProcessOpinion + ")";
+                            bfldlist[i - 1].IsFinish = 0;
+                            bfldlist[i - 1].Approvestatus = "等待操作";
+                            bfl.CurrentPost = bfldlist[i - 1].ApprovePost;
+                            bfl.CurrentPerson = bfldlist[i - 1].ApproveBy;
+                            DataFactory.Database().Update<Base_FlowLogDetail>(bfldlist[i]);
+                            DataFactory.Database().Update<Base_FlowLogDetail>(bfldlist[i - 1]);
+                        }
+                        break;
+                    }
+                }
+            }
+            DataFactory.Database().Update<Base_FlowLog>(bfl);
+            return bfl.Approvestatus;
+
+        }
+
+
     }
 }

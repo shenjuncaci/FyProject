@@ -1,5 +1,5 @@
 ﻿//=====================================================================================
-// created by shenjun 20180315
+// created by shenjun 201706019
 //=====================================================================================
 
 using LeaRun.DataAccess.Attributes;
@@ -11,19 +11,28 @@ using System.Text;
 
 namespace LeaRun.Entity
 {
-    [Description("项目管理项目收益表")]
-    [PrimaryKey("ProjectProfitID")]
-    public class PM_ProjectProfit : BaseEntity
+    /// <summary>
+    /// 用户管理
+    /// <author>
+    ///		<name>she</name>
+    ///		<date>2014.08.11 15:45</date>
+    /// </author>
+    /// </summary>
+    [Description("产线对应岗位表")]
+    [PrimaryKey("LinePostID")]
+    public class FY_LinePost : BaseEntity
     {
+
         [DisplayName("主键")]
-        public string ProjectProfitID { get; set; }
+        public string LinePostID { get; set; }
 
-        public string ProjectID { get; set; }
+        public string LineID { get; set; }
+        public string PostID { get; set; }
+        public string PostName { get; set; }
 
-        public decimal ProfitNum { get; set; }
-        public decimal ProfitNum2 { get; set; }
-        public DateTime? ProfitDate { get; set; }
-        public string Remark { get; set; }
+
+
+
 
         #region 扩展操作
         /// <summary>
@@ -31,12 +40,14 @@ namespace LeaRun.Entity
         /// </summary>
         public override void Create()
         {
-            this.ProjectProfitID = CommonHelper.GetGuid;
+            this.LinePostID = CommonHelper.GetGuid;
+
+            //this.CreateBy
         }
 
         public override void Modify(string KeyValue)
         {
-            this.ProjectProfitID = KeyValue;
+            this.LinePostID = KeyValue;
 
         }
 

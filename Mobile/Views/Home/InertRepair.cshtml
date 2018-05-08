@@ -43,6 +43,8 @@
 
             <label for="fname">故障描述:</label><select id="Descripe"> </select>
 
+            <label for="fname">备注:</label><input type="text" id="Remark">
+
             <form id="imgForm">
                 <label for="fname">图片上传:</label>
 
@@ -86,10 +88,17 @@
         return isOK;
     }
 
+    //|| CheckIsNullNoTip($("#imgContent")[0].src) == false 去除图片必填的检测
     $("#insert").on("tap", function () {
-        if (CheckIsNullNoTip($("#DormID").val()) == false || CheckIsNullNoTip($("#DormID").val()) == false || CheckIsNullNoTip($("#PhoneNumber").val()) == false || CheckIsNullNoTip($("#Descripe").val()) == false || CheckIsNullNoTip($("#imgContent")[0].src) == false) {
+        if (CheckIsNullNoTip($("#DormID").val()) == false || CheckIsNullNoTip($("#DormID").val()) == false || CheckIsNullNoTip($("#PhoneNumber").val()) == false || CheckIsNullNoTip($("#Descripe").val()) == false ) {
             alert("请填写完整数据再提交");
             return false;
+        }
+        if ($("#Descripe").val() == "其他") {
+            if (CheckIsNullNoTip($("#Remark").val()) == false) {
+                alert("当故障类型为其他时，请再备注中详细描述故障情况")
+                return false;
+            }
         }
         //alert($("#Descripe").val());
         var postData = {
@@ -97,6 +106,7 @@
             RoomNO: $("#RoomNO").val(),
             PhoneNumber: $("#PhoneNumber").val(),
             Descripe: $("#Descripe").val(),
+            Remark: $("#Remark").val(),
             Picture: $("#imgContent")[0].src
         }
 

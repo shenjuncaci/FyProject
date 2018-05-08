@@ -567,7 +567,7 @@ where a.DepartmentId='" + ManageProvider.Provider.Current().DepartmentId + "'";
             string sqlPost = @" select ProcessName from FY_Process where DepartMentID='" + ManageProvider.Provider.Current().DepartmentId + "' and ProcessName!='通用'  ";
             DataTable dtPost = PlanBll.GetDataTable(sqlPost);
 
-            string sqlLine = @"select LineName from FY_ProduceLine where DepartmentID='" + ManageProvider.Provider.Current().DepartmentId + "'";
+            string sqlLine = @"select LineName,LineID from FY_ProduceLine where DepartmentID='" + ManageProvider.Provider.Current().DepartmentId + "'";
             DataTable dtLine = PlanBll.GetDataTable(sqlLine);
             Random ra = new Random();
             int aa = ra.Next(dtPost.Rows.Count);
@@ -594,8 +594,8 @@ where a.DepartmentId='" + ManageProvider.Provider.Current().DepartmentId + "'";
                     {
                         aa = ra.Next(dtPost.Rows.Count);
                         bb = ra.Next(dtLine.Rows.Count);
-                        InsertSql.AppendFormat("insert into fy_plan (PlanID,UserID,Plandate,PlanContent,DepartmentID,ResponseByID,BackColor,GroupID,line) values(newid(),'{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}')",
-                            ManageProvider.Provider.Current().UserId, mindt, dtPost.Rows[aa]["ProcessName"].ToString(),
+                        InsertSql.AppendFormat("insert into fy_plan (PlanID,UserID,Plandate,PlanContent,DepartmentID,ResponseByID,BackColor,GroupID,line) values(newid(),'{0}','{1}',{2},'{3}','{4}','{5}','{6}','{7}')",
+                            ManageProvider.Provider.Current().UserId, mindt, "(select top 1 PostName from FY_LinePost where LineID='"+ dtLine.Rows[bb]["LineID"].ToString() + "' order by NEWID())",
                             ManageProvider.Provider.Current().DepartmentId, "",
                             dt.Rows[i]["BackColor"].ToString(), dt.Rows[i]["GroupUserId"].ToString(),
                             dtLine.Rows[bb]["LineName"].ToString());
@@ -644,8 +644,8 @@ where a.DepartmentId='" + ManageProvider.Provider.Current().DepartmentId + "'";
                 bb = ra.Next(dtLine.Rows.Count);
                 if (mindt2.DayOfWeek.ToString() != "Sunday" && mindt2.DayOfWeek.ToString() != "Saturday")
                 {
-                    InsertSql.AppendFormat("insert into fy_plan (PlanID,UserID,Plandate,PlanContent,DepartmentID,ResponseByID,BackColor,GroupID,line) values(newid(),'{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}')",
-                    ManageProvider.Provider.Current().UserId, mindt2, dtPost.Rows[aa]["ProcessName"].ToString(),
+                    InsertSql.AppendFormat("insert into fy_plan (PlanID,UserID,Plandate,PlanContent,DepartmentID,ResponseByID,BackColor,GroupID,line) values(newid(),'{0}','{1}',{2},'{3}','{4}','{5}','{6}','{7}')",
+                    ManageProvider.Provider.Current().UserId, mindt2, "(select top 1 PostName from FY_LinePost where LineID='" + dtLine.Rows[bb]["LineID"].ToString() + "' order by NEWID())",
                     ManageProvider.Provider.Current().DepartmentId, ManageProvider.Provider.Current().UserId,
                     "grey", "",
                     dtLine.Rows[bb]["LineName"].ToString());

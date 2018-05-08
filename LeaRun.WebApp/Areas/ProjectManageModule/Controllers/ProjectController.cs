@@ -500,7 +500,7 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
             return View();
         }
 
-        public int submit(string KeyValue,string FlowID,string type)
+        public int submit(string KeyValue,string FlowID,string type,string ProcessOpinion)
         {
 
             int a = 0;
@@ -513,11 +513,11 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
             //FY_ObjectTracking entity = DataFactory.Database().FindEntity<FY_ObjectTracking>(KeyValue);
             if (type == "-1" || type == "-2")
             {
-                a = FlowBll.RejectFlow(FlowID);
+                a = FlowBll.RejectFlow(FlowID,ProcessOpinion);
             }
             else
             {
-                a = FlowBll.SubmitFlow(FlowID);
+                a = FlowBll.SubmitFlow(FlowID,ProcessOpinion);
             }
             strSql.AppendFormat(@" update PM_Project set Approvestatus='{0}' where ProjectID='{1}'  ",a,KeyValue);
 

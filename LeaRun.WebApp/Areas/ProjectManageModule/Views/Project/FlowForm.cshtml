@@ -29,19 +29,24 @@
     @if (flow.Approvestatus == 0)
     {
         <a class="button button-caution button-square button-small" onclick="submit(0)">提交</a>
+        <div><b>处理意见(选填)：</b><input id="ProcessOpinion" type="text" /></div>
+
     }
     else if (flow.Approvestatus == 7 && flow.CurrentPerson == ManageProvider.Provider.Current().UserId)
     {
         <a class="button button-caution button-square button-small" onclick="submit(1)">审批</a>
         <a class="button button-caution button-square button-small" onclick="submit(-1)">退回</a>
+        <div><b>处理意见(选填)：</b><input id="ProcessOpinion" type="text" /></div>
     }
     else if (flow.Approvestatus == 7 && ManageProvider.Provider.Current().ObjectId.IndexOf(flow.CurrentPost) > 0)
     {
         <a class="button button-caution button-square button-small" onclick="submit(2)">（代）审批</a>
         <a class="button button-caution button-square button-small" onclick="submit(-2)">（代）退回</a>
+        <div><b>处理意见(选填)：</b><input id="ProcessOpinion" type="text" /></div>
     }
-    </br>
-    </br>
+
+    <br>
+    <br>
 
 
     @if (flow.Approvestatus == 0)
@@ -71,7 +76,10 @@
     {
         <a class="button button-glow button-border button-rounded button-small">结束</a>
     }
+
+
 </div>
+
 
 <script>
 
@@ -81,8 +89,8 @@
         //alert(GetQuery('ProjectID'));
         Loading(true, "正在提交数据...");
         window.setTimeout(function () {
-            var postData = "";
-            
+            var postData = { ProcessOpinion: $("#ProcessOpinion").val()};
+
             AjaxJson("/ProjectManageModule/Project/submit?KeyValue=" + GetQuery('ProjectID') + "&FlowID=" + "@flow.FlowID" + "&type=" + number, postData, function (data) {
                 tipDialog("处理成功", 3, 1);
                 top.frames[tabiframeId()].windowload();

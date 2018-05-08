@@ -3,7 +3,7 @@
     Layout = "~/Views/Shared/_LayoutForm.cshtml";
     string UserName = ViewData["UserName"] as string;
 }
-
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
 <link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
 <script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>
 
@@ -58,6 +58,8 @@
 
 
 <script type="text/javascript">
+    var temp = 0;
+    var array = new Array();
     //$(document).ready(function () {
 
     //    uploadify();
@@ -78,17 +80,50 @@
                 SetWebControls(data);
 
             });
+
+            var rowindex = 1;
+            //评审明细信息
+            AjaxJson("/FYModule/ProduceLine/GetDetailList", { LineID: GetQuery('KeyValue') }, function (data) {
+                var JsonData = data.rows;
+                //var colorState = "";
+                $.each(JsonData, function (i) {
+
+                    addone(rowindex);
+                    var rowData = JsonData[i];
+                    //alert(rowData.FllowStatus);
+                    //alert(rowData.ReviewDepart);ChangeReviewState
+                    $("#PostID➩" + rowindex).val(rowData.PostID);
+                    $("#PostName➩" + rowindex).val(rowData.PostName);
+
+                    //将已有skillID存放到一个Array里面，在新增的时候判断是否新增重复的skill，重复的话return false
+                    array[i] = rowData.PostID;
+                   
+
+
+                    rowindex++;
+
+                });
+            });
+
         }
     }
     //保存事件
     function AcceptClick() {
+        //alert(temp);
+        if (temp == 1) {
+            alert("请先关闭岗位选择窗口");
+            return false;
+        }
         if (!CheckDataValid('#form1')) {
             return false;
         }
         Loading(true, "正在提交数据...");
         window.setTimeout(function () {
+            var DetailForm = GetTableDataJson("#DetailForm");
+            //var postData = { RelationID: GetQueryNew('KeyValue'), DetailForm: DetailForm }
             var postData = GetWebControls("#form1");
             postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            postData["DetailForm"] = DetailForm;
             AjaxJson("/FYModule/ProduceLine/SubmitForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
                 tipDialog(data.Message, 3, data.Code);
                 top.frames[tabiframeId()].windowload();
@@ -96,6 +131,105 @@
             });
         }, 200);
     }
+
+
+
+    function addbatch() {
+        temp = 1;
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '岗位选择',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['550px', '350px'],
+            content: 'PostListBatch',
+            end: function () {
+                temp = 0;
+            }
+
+        });
+
+
+        return false;
+    }
+
+
+    function IsExistItem(index, code) {
+        if (!ArrayExists(array, code)) {
+            array[index] = code;
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    function PostConfirm(reValue) {
+        for (var i = 0; i < reValue.length; i++) {
+
+
+            var tab = document.getElementById('DetailForm');
+            var rowIndex = tab.rows.length + 1;
+            var j = rowIndex - 2;
+            if (!IsExistItem(j, reValue[i].PostID)) {
+                addone(999);
+                $("#PostID➩" + j).val(reValue[i].PostID);
+                $("#PostName➩" + j).val(reValue[i].PostName);
+            }
+            else {
+                top.TipMsg("该岗位已存在,不能重复添加", 4000, "error");
+            }
+
+        }
+    }
+
+    function deleteCurrentRow(obj) {
+        var tr = obj.parentNode.parentNode;
+        var tbody = tr.parentNode;
+        tbody.removeChild(tr);
+        //只剩行首时删除表格
+        //if (tbody.rows.length == 1) {
+        //    tbody.parentNode.removeChild(tbody);
+        //}
+        //删除数组中的值
+        //removeByValue(array,)
+    }
+
+    function removeByValue(arr, val) {
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i] == val) {
+                arr.splice(i, 1);
+                break;
+            }
+        }
+    }
+
+    function addone(i) {
+        //alert(i);
+        var tab = document.getElementById('DetailForm');
+        var rowIndex = tab.rows.length + 1;
+        if (i == 999) {
+            //999表示是新增，-3表示减去3行标题
+            i = rowIndex - 2;
+        }
+        //添加一行;
+        var tr = tab.insertRow();
+        //tr.onmouseover = tr.className = "displayStyle";
+        //tr.onmouseout = tr.className = "hideStyle";
+        //tr.onclick = function () { this.className = "onClickChangeStyle(this)"; }
+
+        var td1 = tr.insertCell();
+        var td2 = tr.insertCell();
+       
+
+
+        td1.innerHTML = "<input style=\"width:95%\" readonly id='PostName➩" + i + "' type=\"text\" class=\"txt\"><input readonly id=\"PostID➩" + i + "\" type=\"hidden\" class=\"txt\">";
+       
+       
+        td2.innerHTML = "<button onclick='deleteCurrentRow(this)'>删除</button>";
+
+        
+    }
+
 
 
 
@@ -126,6 +260,15 @@
 
                 </tr>
 
+            </table>
+
+            <table id="DetailForm" class="form-bill">
+                <tr><td><strong>生产线包含岗位列表</strong></td><td><a class="button button-caution button-square button-small" onclick="addbatch()">添加</a></td></tr>
+                <tr>
+                    <th style="width:70%">岗位名称</th>
+                    
+                    <th style="width:30%">删除</th>
+                </tr>
             </table>
         </div>
 

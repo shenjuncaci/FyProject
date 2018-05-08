@@ -65,7 +65,7 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
         }
 
         [HttpPost]
-        public ActionResult SubmitForm(string KeyValue, FY_ProduceLine entity, string BuildFormJson, HttpPostedFileBase Filedata)
+        public ActionResult SubmitForm(string KeyValue, FY_ProduceLine entity, string BuildFormJson, HttpPostedFileBase Filedata,string DetailForm)
         {
             string ModuleId = DESEncrypt.Decrypt(CookieHelper.GetCookie("ModuleId"));
             IDatabase database = DataFactory.Database();
@@ -80,6 +80,21 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
                         throw new Exception("无权限编辑信息");
                     }
 
+                    database.Delete<FY_LinePost>("LineID", KeyValue, isOpenTrans);
+                    List<FY_LinePost> DetailList = DetailForm.JonsToList<FY_LinePost>();
+                    int index = 1;
+                    foreach (FY_LinePost entityD in DetailList)
+                    {
+                        if (!string.IsNullOrEmpty(entityD.PostName))
+                        {
+                            entityD.Create();
+                            entityD.LineID = KeyValue;
+                            database.Insert(entityD, isOpenTrans);
+                            index++;
+                        }
+                    }
+                    
+
 
                     entity.Modify(KeyValue);
 
@@ -89,6 +104,22 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
                 }
                 else
                 {
+
+                    database.Delete<FY_LinePost>("LineID", KeyValue, isOpenTrans);
+                    List<FY_LinePost> DetailList = DetailForm.JonsToList<FY_LinePost>();
+                    int index = 1;
+                    foreach (FY_LinePost entityD in DetailList)
+                    {
+                        if (!string.IsNullOrEmpty(entityD.PostName))
+                        {
+                            entityD.Create();
+                            entityD.LineID = KeyValue;
+                            database.Insert(entityD, isOpenTrans);
+                            index++;
+                        }
+                    }
+
+
                     entity.Create();
 
 
@@ -153,6 +184,28 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
         {
             string[] array = KeyValue.Split(',');
             Base_SysLogBll.Instance.WriteLog<FY_Post>(array, IsOk.ToString(), Message);
+        }
+
+        public ActionResult PostListBatch()
+        {
+            return View();
+        }
+
+        public ActionResult GetDetailList(string LineID)
+        {
+            try
+            {
+                var JsonData = new
+                {
+                    rows = PostBll.GetDetailList(LineID),
+                };
+                return Content(JsonData.ToJson());
+            }
+            catch (Exception ex)
+            {
+                Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "异常错误：" + ex.Message);
+                return null;
+            }
         }
 
 

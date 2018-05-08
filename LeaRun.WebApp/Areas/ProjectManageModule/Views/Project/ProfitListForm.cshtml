@@ -124,6 +124,7 @@
                     //alert(rowData.ReviewDepart);ChangeReviewState
                     $("#ProfitDate➩" + rowindex).val(rowData.ProfitDate);
                     $("#ProfitNum➩" + rowindex).val(rowData.ProfitNum);
+                    $("#ProfitNum2➩" + rowindex).val(rowData.ProfitNum2);
                     $("#Remark➩" + rowindex).val(rowData.Remark);
                    
                     rowindex++;
@@ -207,10 +208,12 @@
         var td2 = tr.insertCell();
         var td3 = tr.insertCell();
         var td4 = tr.insertCell();
+        var td5 = tr.insertCell();
         td1.innerHTML = " <input id='ProfitDate➩"+i+"' type=\"text\" class=\"txt Wdate\" onfocus=\"WdatePicker()\" style=\"background:#E0FFFF\" err=\"登陆日期\" checkexpession=\"NotNull\" />";
-        td2.innerHTML = "<input id='ProfitNum➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"收益金额\" checkexpession=\"NotNull\"> ";
-        td3.innerHTML = "<input  style=\"width:95%\" id='Remark➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"备注\" checkexpession=\"NotNull\">";
-        td4.innerHTML = "<button onclick='deleteCurrentRow(this)'>删除</button>";
+        td2.innerHTML = "<input id='ProfitNum➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"数据1\" checkexpession=\"NotNull\"> ";
+        td3.innerHTML = "<input id='ProfitNum2➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"数据2\" checkexpession=\"NotNull\"> ";
+        td4.innerHTML = "<input  style=\"width:95%\" id='Remark➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"备注\" checkexpession=\"NotNull\">";
+        td5.innerHTML = "<button onclick='deleteCurrentRow(this)'>删除</button>";
     }
 
     
@@ -242,89 +245,21 @@
                         <input readonly id="ProjectNO" type="text" class="txt" value="@ViewBag.BillNo" style="width: 95%" />
 
                     </td>
-
-                    <th class="formTitle">部门</th>
-                    <td class="formValue">
-                        <select id="DepartMentID" class="select" datacol="yes" err="部门" checkexpession="NotNull" style="width: 96%"></select>
-                    </td>
-                </tr>
-                <tr>
-                    <th class="formTitle">登陆日期：</th>
-                    <td class="formValue">
-                        <input id="CreateDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" err="登陆日期" checkexpession="NotNull" />
-                    </td>
-
-                    <th class="formTitle">计划完成日期：</th>
-                    <td class="formValue">
-                        <input id="PlanFinishDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" err="计划完成日期" checkexpession="NotNull" />
-                    </td>
-                </tr>
-                <tr>
                     <th class="formTitle">项目名称：</th>
                     <td class="formValue" colspan="1">
 
                         <input id="ProjectName" type="text" class="txt" datacol="yes" err="项目名称" checkexpession="NotNull" />
                     </td>
-                    <th class="formTitle">数据提供：</th>
-                    <td class="formValue">
-                        <select id="DataProvider" class="select" datacol="yes" err="数据提供" checkexpession="NotNull" style="width: 96%"></select>
-                    </td>
                 </tr>
 
-                <tr>
-                    <th class="formTitle">项目性质：</th>
-                    <td class="formValue">
-
-                        <select id="ProjectNature" class="select" datacol="yes" err="项目性质" checkexpession="NotNull" style="width: 96%">
-                            <option value="">==请选择==</option>
-                            <option value="物耗">物耗</option>
-                            <option value="采购">采购</option>
-                            <option value="能耗">能耗</option>
-                            <option value="物流">物流</option>
-                            <option value="成品率">成品率</option>
-                            <option value="工厂费用">工厂费用</option>
-                            <option value="质量">质量</option>
-                            <option value="效率">效率</option>
-                            <option value="资金">资金</option>
-                            <option value="其他">其他</option>
-                        </select>
-                    </td>
-
-                    <th class="formTitle">项目状态：</th>
-                    <td class="formValue">
-                        <input id="ProjectStatus" type="text" class="txt" datacol="yes" err="项目状态" checkexpession="NotNull" />
-                    </td>
-                </tr>
-                <tr>
-                    <th class="formTitle">基准：</th>
-                    <td class="formValue">
-                        <input id="BenchMark" type="text" class="txt" datacol="yes" err="基准" checkexpession="NotNull" />
-                    </td>
-
-                    <th class="formTitle">目标：</th>
-                    <td class="formValue">
-                        <input id="Target" type="text" class="txt" datacol="yes" err="目标" checkexpession="NotNull" />
-                    </td>
-                </tr>
-
-                <tr>
-                    <th class="formTitle">项目指标：</th>
-                    <td class="formValue">
-                        <input id="ProjectIndicators" type="text" class="txt" datacol="yes" err="项目指标" checkexpession="NotNull" />
-                    </td>
-
-                    <th class="formTitle">收益计算公式&说明：</th>
-                    <td class="formValue">
-                        <input id="CalculationFormula" type="text" class="txt" datacol="yes" err="收益计算公式" checkexpession="NotNull" />
-                    </td>
-                </tr>
             </table>
 
             <table id="ProfitForm" class="form-bill">
                 <tr><td colspan="3"><strong>项目收益管理</strong></td><td><a class="button button-caution button-square button-small" onclick="addprofit()">添加</a></td></tr>
                 <tr>
                     <th style="width:20%">计算日期</th>
-                    <th style="width:20%">收益金额</th>
+                    <th style="width:10%">数据1</th>
+                    <th style="width:10%">数据2</th>
                     <th style="width:50%">备注</th>
 
                     <th style="width:10%">删除</th>

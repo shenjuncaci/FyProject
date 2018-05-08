@@ -19,7 +19,7 @@ namespace LeaRun.Business
         {
             StringBuilder strSql = new StringBuilder();
             List<DbParameter> parameter = new List<DbParameter>();
-            strSql.Append(@"select * from FY_ProduceLine where 1=1 and DepartmentID='"+ManageProvider.Provider.Current().DepartmentId+"' ");
+            strSql.Append(@"select *,(SELECT '[ '+PostName+' ]' FROM FY_LinePost where lineid=a.lineid FOR XML PATH('') ) as postname from FY_ProduceLine a where 1=1 and DepartmentID='" + ManageProvider.Provider.Current().DepartmentId+"' ");
             if (!string.IsNullOrEmpty(keyword))
             {
                 strSql.Append(@" AND (LineName LIKE @keyword
@@ -42,6 +42,16 @@ namespace LeaRun.Business
         {
             int result = Repository().ExecuteBySql(sql);
             return result;
+        }
+
+        public List<FY_LinePost> GetDetailList(string LineID)
+        {
+            StringBuilder strSql = new StringBuilder();
+            List<DbParameter> parameter = new List<DbParameter>();
+            strSql.Append(@"SELECT * FROM FY_LinePost WHERE 1=1");
+            strSql.Append(" AND LineID = @LineID  ");
+            parameter.Add(DbFactory.CreateDbParameter("@LineID", LineID));
+            return DataFactory.Database().FindListBySql<FY_LinePost>(strSql.ToString(), parameter.ToArray());
         }
     }
 }

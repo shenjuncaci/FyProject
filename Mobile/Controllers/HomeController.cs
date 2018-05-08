@@ -532,35 +532,41 @@ from fy_plandetail a left join FY_Process b on a.processid=b.ProcessID where a.p
             return Content(dt.ToJson());
         }
 
-        public string InsertRepairAjax(string Dorm,string RoomNO,string PhoneNumber,string Descripe,string Picture)
+        public string InsertRepairAjax(string Dorm,string RoomNO,string PhoneNumber,string Descripe,string Picture,string Remark)
         {
-            string fileGuid = CommonHelper.GetGuid;
-            //long filesize = Filedata.ContentLength;
-            string FileEextension = ".jpg";
-            string uploadDate = DateTime.Now.ToString("yyyyMMdd");
-            //string UserId = ManageProvider.Provider.Current().UserId;
-            string virtualPath= string.Format("~/Resource/Document/NetworkDisk/{0}/{1}{2}", "RoomRepair", fileGuid, FileEextension);
 
-            string realPath = string.Format(@"D:\LeaRun\Resource\Document\NetworkDisk\{0}\{1}{2}", "RoomRepair", fileGuid, FileEextension);
-
-            //string fullFileName = this.Server.MapPath(virtualPath);
-            ////创建文件夹，保存文件
-            //realPath = Path.GetDirectoryName(fullFileName);
-            //先处理图片文件
-            string temp = Picture.Substring(23);
-            byte[] arr2 = Convert.FromBase64String(Picture.Substring(23));
-            using (MemoryStream ms2 = new MemoryStream(arr2))
+            string virtualPath = "";
+            //图片上传
+            if (Picture != "")
             {
-                System.Drawing.Bitmap bmp2 = new System.Drawing.Bitmap(ms2);
+                string fileGuid = CommonHelper.GetGuid;
+                //long filesize = Filedata.ContentLength;
+                string FileEextension = ".jpg";
+                string uploadDate = DateTime.Now.ToString("yyyyMMdd");
+                //string UserId = ManageProvider.Provider.Current().UserId;
+                 virtualPath = string.Format("~/Resource/Document/NetworkDisk/{0}/{1}{2}", "RoomRepair", fileGuid, FileEextension);
+
+                string realPath = string.Format(@"D:\LeaRun\Resource\Document\NetworkDisk\{0}\{1}{2}", "RoomRepair", fileGuid, FileEextension);
+
+                //string fullFileName = this.Server.MapPath(virtualPath);
+                ////创建文件夹，保存文件
+                //realPath = Path.GetDirectoryName(fullFileName);
+                //先处理图片文件
+                string temp = Picture.Substring(23);
+                byte[] arr2 = Convert.FromBase64String(Picture.Substring(23));
+                using (MemoryStream ms2 = new MemoryStream(arr2))
+                {
+                    System.Drawing.Bitmap bmp2 = new System.Drawing.Bitmap(ms2);
 
 
 
 
 
-                bmp2.Save(realPath, System.Drawing.Imaging.ImageFormat.Jpeg);
+                    bmp2.Save(realPath, System.Drawing.Imaging.ImageFormat.Jpeg);
 
-                bmp2.Dispose();
-                ms2.Close();
+                    bmp2.Dispose();
+                    ms2.Close();
+                }
             }
 
 
@@ -578,15 +584,18 @@ from fy_plandetail a left join FY_Process b on a.processid=b.ProcessID where a.p
             entity.RepairDate = DateTime.Now;
             entity.UserCode = ManageProvider.Provider.Current().Code;
             entity.UserName = ManageProvider.Provider.Current().UserName;
+            entity.Remark = Remark;
             database.Insert(entity, isOpenTrans);
 
+            if (Picture != "")
+            {
+                DM_RoomRepairPicture entityD = new DM_RoomRepairPicture();
+                entityD.Create();
+                entityD.PictureUrl = virtualPath;
+                entityD.RoomRepairID = entity.RoomRepairID;
 
-            DM_RoomRepairPicture entityD = new DM_RoomRepairPicture();
-            entityD.Create();
-            entityD.PictureUrl = virtualPath;
-            entityD.RoomRepairID = entity.RoomRepairID;
-
-            database.Insert(entityD, isOpenTrans);
+                database.Insert(entityD, isOpenTrans);
+            }
 
 
             database.Commit();

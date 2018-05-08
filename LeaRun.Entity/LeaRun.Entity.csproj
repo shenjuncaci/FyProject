@@ -132,6 +132,7 @@
     <Compile Include="FYModule\FY_CusInfo.cs" />
     <Compile Include="FYModule\FY_GeneralProblem.cs" />
     <Compile Include="FYModule\FY_HrProblem.cs" />
+    <Compile Include="FYModule\FY_LinePost.cs" />
     <Compile Include="FYModule\FY_ObjectTracking.cs" />
     <Compile Include="FYModule\FY_Plan.cs" />
     <Compile Include="FYModule\FY_Post.cs" />

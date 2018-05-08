@@ -9369,6 +9369,7 @@
     <Content Include="Areas\TrainModule\Views\Skill\MultiFunctionMatrix.cshtml" />
     <Content Include="Content\Scripts\uploadify\css\iconfont.ttf" />
     <Content Include="Content\Scripts\uploadify\css\iconfont.woff" />
+    <Content Include="Areas\FYModule\Views\ProduceLine\PostListBatch.cshtml" />
     <None Include="Properties\PublishProfiles\LR-FDMS.pubxml" />
     <Content Include="Views\Home\SkinIndex.cshtml" />
     <Content Include="Views\Login\Default.cshtml" />
