@@ -65,44 +65,42 @@
 
     //搜索
     function btn_Search() {
-        var keywords = $("#keywords").val();
+        var keywords = "";
+        if (CheckIsNullNoTip($("#txtStartDate").val())) {
+            keywords += " and CreateDt>='" + $("#txtStartDate").val()+"'";
+        }
+        if (CheckIsNullNoTip($("#txtEndDate").val())) {
+            keywords += " and CreateDt<='" + $("#txtEndDate").val()+"'";
+        }
+        //alert(keywords);
         $("#gridTable").jqGrid('setGridParam', {
-            url: "@Url.Content("~/ProjectManageModule/Project/GridPageListJson")?keywords=" + escape(keywords), page: 1
+            url: "@Url.Content("~/FYModule/HrProblem/GridReportListJson")?keywords=" + escape(keywords), page: 1
         }).trigger('reloadGrid');
     }
 
 
-    //加载表格flowstate
+    //加载表格
     function GetGrid() {
         var SelectRowIndx;
         $("#gridTable").jqGrid({
-            url: "@Url.Content("~/ProjectManageModule/Project/GridPageListJson")",
+            url: "@Url.Content("~/FYModule/HrProblem/GridReportListJson")",
             datatype: "json",
             height: $(window).height() - 178,
             autowidth: true,
             colModel: [
-                { label: '主键', name: 'projectid', index: 'projectid', width: 80, align: 'left', hidden: true },
-                { label: '当前流程', name: 'flowstate', index: 'flowstate', width: 100, align: 'left' },
-                { label: '项目编号', name: 'projectno', index: 'projectno', width: 100, align: 'left' },
-                { label: '部门', name: 'fullname', index: 'fullname', width: 100, align: 'left'},
-                { label: '登陆日期', name: 'createdate', index: 'createdate', width: 100, align: 'left', formatter: dateFormat },
-                { label: '计划完成日期', name: 'planfinishdate', index: 'planfinishdate', width: 100, align: 'left', formatter: dateFormat },
-                { label: '项目名称', name: 'projectname', index: 'projectname', width: 250, align: 'left' },
-                { label: '项目性质', name: 'projectnature', index: 'projectnature', width: 80, align: 'left' },
-                { label: '项目状态', name: 'projectstatus', index: 'projectstatus', width: 80, align: 'left' },
-                { label: '项目指标', name: 'projectindicators', index: 'projectindicators', width: 150, align: 'left' },
-                { label: '基准', name: 'benchmark', index: 'benchmark', width: 150, align: 'left' },
-                { label: '目标', name: 'target', index: 'target', width: 150, align: 'left' },
-                { label: '收益计算/公式说明', name: 'calculationformula', index: 'calculationformula', width: 250, align: 'left' },
-                //{ label: '备注', name: 'remark', index: 'remark', width: 250, align: 'left' },
-                //{ label: '结束时间', name: 'endtime', index: 'endtime', width: 250, align: 'left' },
+              
+                { label: '问题小类', name: 'problemtyped', index: 'problemtyped', width: 250, align: 'left' },
+                { label: '问题条数', name: 'hrcount', index: 'hrcount', width: 80, align: 'left' },
+                { label: '问题回复率', name: 'replyrate', index: 'replyrate', width: 130, align: 'left',formatter:performat },
+                { label: '问题措施完成率', name: 'completerate', index: 'completerate', width: 130, align: 'left', formatter: performat },
+                
             ],
             viewrecords: true,
             rowNum: 30,
             rowList: [30, 50, 100, 500, 1000],
             pager: "#gridPager",
-            sortname: 'createdate',
-            sortorder: 'desc',
+            sortname: 'problemtyped',
+            sortorder: 'asc',
             rownumbers: true,
             shrinkToFit: false,
             gridview: true,
@@ -117,23 +115,6 @@
                 //LoadViewList();
                 $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
             }
-            //ondblClickRow: function (RowIndx) {
-
-            //    var rowData = $(this).jqGrid('getRowData', RowIndx);
-
-            //    //GetAttachGrid(rowData.skillid);
-
-            //    var index=layer.open({
-            //        type: 2,  //2表示ifrmae弹出层
-            //        title: '通知明细',
-            //        maxmin: true,
-            //        shadeClose: true, //点击遮罩关闭层
-            //        area: ['800px', '550px'],
-            //        content: 'NoticeInfo?KeyValue='+rowData.projectid
-            //        });
-            //    //layer.full(index);
-
-            //}
         });
         columnModelData("#gridTable");
         //自应高度
@@ -151,7 +132,7 @@
             top.frames[iframe].QueryClick(function (JsonData) {
                 QueryParamJson = JsonData;
                 $("#gridTable").jqGrid('setGridParam', {
-                    url: "@Url.Content("~/ProjectManageModule/Project/GridPageListJson")?ParameterJson=" + escape(JsonData), page: 1
+                    url: "@Url.Content("~/FYModule/Process/GridPageListJson")?ParameterJson=" + escape(JsonData), page: 1
                 }).trigger('reloadGrid');
             });
         });
@@ -159,80 +140,48 @@
 
     //新增
     function btn_add() {
-        var url = "/ProjectManageModule/Project/Form"
-        openDialog(url, "Form", "新增", 1000, 550, function (iframe) {
+        var url = "/FYModule/Process/Form"
+        openDialog(url, "Form", "新增", 650, 350, function (iframe) {
             top.frames[iframe].AcceptClick();
         });
     }
     //编辑
     function btn_edit() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
-        //alert(KeyValue);
+        var KeyValue = GetJqGridRowValue("#gridTable", "processid");
         if (IsChecked(KeyValue)) {
-            var url = "/ProjectManageModule/Project/Form?KeyValue=" + KeyValue;
-            openDialog(url, "Form", "编辑", 1000, 550, function (iframe) {
+            var url = "/FYModule/Process/Form?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑", 650, 350, function (iframe) {
                 top.frames[iframe].AcceptClick()
             });
 
         }
     }
-
-    //处理流程
-    function btn_flow() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
-        //alert(KeyValue);
+    //添加检查明细
+    function btn_AddItem()
+    {
+        var KeyValue = GetJqGridRowValue("#gridTable", "processid");
         if (IsChecked(KeyValue)) {
-            var url = "/ProjectManageModule/Project/FlowForm?ProjectID=" + KeyValue;
-            Dialog(url, "FlowForm", "编辑", 1000, 550);
-
-        }
-    }
-
-    //打印项目单
-    function btn_print() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
-        if (IsChecked(KeyValue)) {
-            PrintDialog("/ProjectManageModule/Project/PrintForm?KeyValue=" + KeyValue, "PrintPage", "打印当前页", 1000, 750, function (iframe) {
-                top.frames[iframe].SubmitPrint()
+            var url = "/FYModule/Process/FormAddItem?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑", 650, 350, function (iframe) {
+                top.frames[iframe].AcceptClick();
             });
         }
     }
-
     //删除
     function btn_delete() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
+        var KeyValue = GetJqGridRowValue("#gridTable", "processid");
         if (IsDelData(KeyValue)) {
             var delparm = 'KeyValue=' + KeyValue;
-            delConfig('/ProjectManageModule/Project/Delete', delparm, KeyValue.split(",").length);
+            delConfig('/FYModule/Process/Delete', delparm, KeyValue.split(",").length);
         }
     }
 
     //导出Excel
     function btn_derive() {
-        SetDeriveExcel("#gridTable", "项目管理");
-        openDialog("/CommonModule/ExcelImport/DeriveDialog", "DeriveDialog", "项目管理导出", 600, 300, function (iframe) {
+        SetDeriveExcel("#gridTable", "快速反应");
+        openDialog("/CommonModule/ExcelImport/DeriveDialog", "DeriveDialog", "快速反应导出", 600, 300, function (iframe) {
             top.frames[iframe].AcceptClick();
         });
-    }
-
-    //开展活动
-    function btn_activity() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
-        var ActivityState = GetJqGridRowValue("#gridTable", "flowstate");
-
-        if (IsChecked(KeyValue)) {
-            if (ActivityState == "已完成") {
-                var url = "/ProjectManageModule/Project/ActivityForm?KeyValue=" + KeyValue;
-                openDialog(url, "Form", "编辑", 1000, 550, function (iframe) {
-                    top.frames[iframe].AcceptClick()
-                });
-            }
-
-            else {
-                alert("只有审批完成的流程才能开展活动");
-                return false;
-            }
-        }
     }
 
 
@@ -260,6 +209,10 @@
         }
     }
 
+    function performat(cellvalue, options, rowObject) {
+        return cellvalue + '%';
+    }
+
     //根据日期判断，文本显示红色
     function LengthSub(cellvalue, options, rowObject) {
         var DateNow = new Date();//取今天的日期
@@ -269,15 +222,14 @@
         if (cellvalue.length > 20) {
             cellvalue = cellvalue.substring(0, 20) + "....";
         }
-        return cellvalue;
-    }
 
-    function btn_upload() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
-        var url = "/ProjectManageModule/Project/Uploadify?FolderId=" + KeyValue;
-        Dialog(url, "Uploadify", "上传文件", 500, 350, function (iframe) {
-            top.frames[iframe].AcceptClick()
-        });
+
+        if (DateNow.pattern("yyyy-MM-dd") > DecideDate.pattern("yyyy-MM-dd"))
+        {
+            cellvalue = "<font color=\"red\">" + cellvalue + "</font>";
+        }
+
+        return cellvalue;
     }
 
 
@@ -289,27 +241,34 @@
 <div>
     <div class="btnbartitle">
         <div>
-            项目管理 <span id="CenterTitle"></span>
+            问题统计及分类分析 <span id="CenterTitle"></span>
         </div>
     </div>
     <!--工具栏-->
-    <div class="tools_bar" style="border-top: none; margin-bottom: 0px;">
-        <div class="PartialButton">
-            @Html.Partial("_PartialButton")
-        </div>
+    @*<div class="tools_bar" style="border-top: none; margin-bottom: 0px;">
+            <div class="PartialButton">
+                @Html.Partial("_PartialButton")
+            </div>
 
-    </div>
+        </div>*@
     <!--列表-->
     <div id="grid_List">
         <div class="bottomline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
             <table border="0" class="form-find" style="height: 45px;">
                 <tr>
                     <th>
-                        关键字：
+                        开始日期：
                     </th>
                     <td>
-                        <input id="keywords" type="text" class="txt" style="width: 200px" />
+                        <input id="txtStartDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="width: 200px;border:1px,solid" />
                     </td>
+                    <th>
+                        结束日期：
+                    </th>
+                    <td>
+                        <input id="txtEndDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="width: 200px;border:1px,solid" />
+                    </td>
+
                     <td>
                         <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
                     </td>

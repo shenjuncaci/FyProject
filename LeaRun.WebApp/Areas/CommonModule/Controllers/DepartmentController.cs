@@ -127,6 +127,21 @@ namespace LeaRun.WebApp.Areas.CommonModule.Controllers
             };
             return Content(JsonData.ToJson());
         }
+
+        /// <summary>
+        /// 【部门管理】返回表格JONS
+        /// </summary>
+        /// <param name="CompanyId">公司ID</param>
+        /// <returns></returns>
+        public ActionResult GridPartDeptJson()
+        {
+            DataTable ListData = base_departmentbll.GetPartDeptList();
+            var JsonData = new
+            {
+                rows = ListData,
+            };
+            return Content(JsonData.ToJson());
+        }
         /// <summary>
         /// 【部门管理】根据公司id获取部门列表返回树JONS
         /// </summary>
@@ -209,6 +224,11 @@ namespace LeaRun.WebApp.Areas.CommonModule.Controllers
             return View();
         }
 
+        public ActionResult UserList2()
+        {
+            return View();
+        }
+
         public ActionResult GetUserList()
         {
             StringBuilder sb = new StringBuilder();
@@ -241,6 +261,7 @@ namespace LeaRun.WebApp.Areas.CommonModule.Controllers
                 }
                 else
                 {
+                    
                     //修改选择的用户到这个部门
                     strSql.AppendFormat(@" update base_user set DepartmentId='{1}' where UserId='{0}'  ",array[0],DepartmentID);
                     //删除原来这个部门下面的车间主任
@@ -248,10 +269,44 @@ namespace LeaRun.WebApp.Areas.CommonModule.Controllers
                     //给新选择的用户添加车间主任的权限
                     strSql.AppendFormat(@"delete from Base_ObjectUserRelation where  ObjectId='91c17ca4-0cbf-43fa-829e-3021b055b6c4' and UserId='{0}' ",array[0]);
                     strSql.AppendFormat(@"insert into Base_ObjectUserRelation values(NEWID(),2,'91c17ca4-0cbf-43fa-829e-3021b055b6c4','{0}',1,GETDATE(),'{1}','{2}') ", array[0],ManageProvider.Provider.Current().UserId,ManageProvider.Provider.Current().UserName);
+                    //删除这个部门的监管信息
+                    strSql.AppendFormat(@" delete from Base_PartDept where deptid='{0}' ",DepartmentID);
                     database.ExecuteBySql(strSql);
                     return Content(new JsonMessage { Success = true, Code = 1.ToString(), Message = "操作成功。" }.ToString());
                 }
                 
+            }
+            catch (Exception ex)
+            {
+                return Content(new JsonMessage { Success = false, Code = "-1", Message = "操作失败，错误：" + ex.Message }.ToString());
+            }
+        }
+
+        public ActionResult UserListSubmit2(string DepartmentID,string ObjectId)
+        {
+            try
+            {
+                IDatabase database = DataFactory.Database();
+                StringBuilder strSql = new StringBuilder();
+                string[] array = ObjectId.Split(',');
+
+                if (array.Length > 2)
+                {
+                    return Content(new JsonMessage { Success = true, Code = "-1", Message = "操作失败,一次只能选择一个用户。" }.ToString());
+                }
+                else
+                {
+
+                    
+                    //给新选组的用户添加一条兼管记录，监管当前部门，不管有没有都监管
+                    //当然先要把原来的记录删掉
+
+                    strSql.AppendFormat(@" delete from  Base_PartDept where userid='{0}' and deptid='{1}' ", array[0], DepartmentID);
+                    strSql.AppendFormat(@" insert into Base_PartDept values(newid(),'{0}','{1}',(select fullname from base_department where departmentid='{1}')) ", array[0], DepartmentID);
+                    database.ExecuteBySql(strSql);
+                    return Content(new JsonMessage { Success = true, Code = 1.ToString(), Message = "操作成功。" }.ToString());
+                }
+
             }
             catch (Exception ex)
             {

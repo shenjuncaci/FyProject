@@ -114,8 +114,15 @@ namespace LeaRun.Business
                                                 d.Enabled ,					--有效
                                                 d.SortCode,                 --排序吗
                                                 d.Remark,					--说明
-(select top 1 RealName+'('+code+')' from Base_User a left join Base_ObjectUserRelation b on a.UserId=b.UserId where b.ObjectId='91c17ca4-0cbf-43fa-829e-3021b055b6c4' 
-and a.departmentid=d.DepartmentId) as WorkShopDirector
+(select top 1 name 
+from
+(
+select RealName+'('+code+')' as name from Base_User a left join Base_ObjectUserRelation b on a.UserId=b.UserId where b.ObjectId='91c17ca4-0cbf-43fa-829e-3021b055b6c4' 
+and a.departmentid=d.departmentid
+union 
+select RealName+'('+code+')' from Base_PartDept a left join Base_User b on a.UserID=b.UserId
+where DeptID=d.departmentid
+) as a) as WorkShopDirector
                                       FROM      Base_Department d
                                                 LEFT JOIN Base_Company c ON c.CompanyId = d.CompanyId
                                     ) T WHERE 1=1 ");
@@ -193,6 +200,13 @@ and a.departmentid=d.DepartmentId) as WorkShopDirector
         {
             StringBuilder strSql = new StringBuilder();
             strSql.Append(@"select * from Base_User where Enabled=1");
+            return Repository().FindTableBySql(strSql.ToString());
+        }
+
+        public DataTable GetPartDeptList()
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.AppendFormat(@"select deptid,deptname from base_partdept where UserID='{0}' ",ManageProvider.Provider.Current().UserId);
             return Repository().FindTableBySql(strSql.ToString());
         }
     }

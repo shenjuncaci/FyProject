@@ -65,6 +65,7 @@
     <Compile Include="CommonModule\Base_FormAttributeValue.cs" />
     <Compile Include="CommonModule\Base_InterfaceManage.cs" />
     <Compile Include="CommonModule\Base_InterfaceManageParameter.cs" />
+    <Compile Include="CommonModule\Base_PartDept.cs" />
     <Compile Include="CommonModule\Base_Shortcuts.cs" />
     <Compile Include="CommonModule\Base_BackupJob.cs" />
     <Compile Include="CommonModule\Base_CodeRule.cs" />
@@ -146,6 +147,7 @@
     <Compile Include="ProjectManageModule\PM_Notice.cs" />
     <Compile Include="ProjectManageModule\PM_Project.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectActivity.cs" />
+    <Compile Include="ProjectManageModule\PM_ProjectFile.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectMember.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectPlan.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectProblem.cs" />

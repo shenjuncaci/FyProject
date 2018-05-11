@@ -27,6 +27,9 @@
     <script src="~/Content/Scripts/datepicker/WdatePicker.js"></script>
     <!--日期组件start-->
     <script src="~/Content/Scripts/Index.js"></script>
+    <link href="~/Content/Scripts/jquery.layer/theme/default/layer.css" rel="stylesheet" />
+    <script src="~/Content/Scripts/jquery.layer/layer.js"></script>
+
     <script>
         /**初始化**/
         $(document).ready(function () {
@@ -152,6 +155,8 @@
                     }
                 });
             })
+            //alert(html);
+            //$("#accordion").val("");
             $("#accordion").append(html);
         }
         //树形菜单
@@ -171,6 +176,56 @@
             $("#" + ModuleId).treeview(itemtree);
         }
         /*导航菜单end====================*/
+
+        function DeptChange() {
+            $.ajax({
+                type: "post",
+                url: "/Home/IsPartDept",
+                async: false,
+                success: function (msg) {
+                    if (msg == 1) {
+                        
+                        layer.open({
+                            type: 2,  //2表示ifrmae弹出层
+                            title: '部门选择',
+                            maxmin: true,
+                            shadeClose: true, //点击遮罩关闭层
+                            area: ['550px', '350px'],
+                            content: 'PartDeptSelect',
+                            end: function () {
+
+                            }
+
+                        });
+                    }
+                    else {
+                        alert("你没有兼职的部门，无需切换。");
+                    }
+                },
+                error: function () {
+                    alert("出错了");
+                }
+            });
+           // alert("测试看看");
+        }
+
+        function ChangeDept(DeptID) {
+            $.ajax({
+                type: "post",
+                data: { DepartmentID: DeptID },
+                url: "/Home/ChangeDept",
+                async: false,
+                success: function (msg) {
+                    //重新加载菜单
+                    //GetAccordionMenu();
+                    //$("#accordion li:first").find('div').trigger("click");//默认第一个展开
+                    GetTreeMenu("04c66f31-c639-413b-bdde-26ab8935e9e6");
+                },
+                error: function () {
+                    alert("出错了");
+                }
+            });
+        }
     </script>
 </head>
 <body onbeforeunload="PageClose()" onselectstart="return false;" style="-moz-user-select: none; overflow: hidden;">
@@ -228,9 +283,9 @@
                         </div>
                     </a>
                 </li>
-                <li id="metnav_5" class="list" onclick="PersonCenter()">
+                <li id="metnav_5" class="list" onclick="DeptChange()">
                     <a id="nav_5">
-                        <span class="c5"></span>个人中心
+                        <span class="c5"></span>切换部门
                     </a>
                 </li>
                 <li id="metnav_4" class="list" onclick="IndexOut();">

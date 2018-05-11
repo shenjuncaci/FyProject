@@ -271,6 +271,18 @@
         $("#grid_View").html(html);
     }
     /*视图end=========================================================================*/
+
+    //添加监管部门
+    function btn_partdept() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "userid");
+        if (IsChecked(KeyValue)) {
+            var url = "/CommonModule/User/PartDeptForm?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑", 1000, 550, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+
+        }
+    }
 </script>
 <div id="layout" class="layout">
     <!--左边-->

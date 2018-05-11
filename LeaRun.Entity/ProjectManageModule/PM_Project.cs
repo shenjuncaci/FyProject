@@ -43,6 +43,7 @@ namespace LeaRun.Entity
 
         public string ExpectedInput { get; set; }
         public string ExpectedEarnings { get; set; }
+        public int Direction { get; set; }
 
         #region 扩展操作
         /// <summary>

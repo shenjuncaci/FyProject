@@ -201,7 +201,7 @@ namespace LeaRun.WebApp.Areas.DormModule.Controllers
                 keywords = DateTime.Now.Month.ToString() + "-" + DateTime.Now.Month.ToString();
             }
 
-           
+            keywords = keywords.Replace("-0", "-");
             DataTable ListData = RoomCostBll.GetRoomCostJson(keywords);
             ExcelHelper ex = new ExcelHelper();
             ex.EcportExcel(ListData, "个人房费导出");

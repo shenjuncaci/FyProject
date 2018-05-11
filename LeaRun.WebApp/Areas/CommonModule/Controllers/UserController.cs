@@ -302,5 +302,53 @@ namespace LeaRun.WebApp.Areas.CommonModule.Controllers
             }
         }
         #endregion
+
+        public ActionResult PartDeptForm()
+        {
+            return View();
+        }
+
+        public ActionResult GetDetailList(string UserID)
+        {
+            try
+            {
+                var JsonData = new
+                {
+                    rows = base_userbll.GetDetailList(UserID),
+                };
+                return Content(JsonData.ToJson());
+            }
+            catch (Exception ex)
+            {
+                Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "“Ï≥£¥ÌŒÛ£∫" + ex.Message);
+                return null;
+            }
+        }
+
+        public ActionResult DeptListBatch()
+        {
+            return View();
+        }
+
+        public ActionResult SubmitDetailForm(string KeyValue,string BuildFormJson, HttpPostedFileBase Filedata, string DetailForm)
+        {
+            IDatabase database = DataFactory.Database();
+            DbTransaction isOpenTrans = database.BeginTrans();
+            database.Delete<Base_PartDept>("UserID", KeyValue, isOpenTrans);
+            List<Base_PartDept> DetailList = DetailForm.JonsToList<Base_PartDept>();
+            int index = 1;
+            foreach (Base_PartDept entityD in DetailList)
+            {
+                if (!string.IsNullOrEmpty(entityD.DeptName))
+                {
+                    entityD.Create();
+                    entityD.UserID = KeyValue;
+                    database.Insert(entityD, isOpenTrans);
+                    index++;
+                }
+            }
+            database.Commit();
+            return Content(new JsonMessage { Success = true, Code = "1", Message = "±‡º≠≥…π¶" }.ToString());
+        }
     }
 }

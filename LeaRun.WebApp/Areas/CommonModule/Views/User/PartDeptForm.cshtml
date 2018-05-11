@@ -1,0 +1,265 @@
+﻿@{
+    ViewBag.Title = "工序明细";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+    string UserName = ViewData["UserName"] as string;
+}
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+<link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
+<script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>
+
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
+
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+
+    input {
+        background: #E0FFFF;
+    }
+
+    textarea {
+        background: #E0FFFF;
+    }
+
+    select {
+        background: #E0FFFF;
+    }
+</style>
+
+
+<script type="text/javascript">
+    var temp = 0;
+    var array = new Array();
+    //$(document).ready(function () {
+
+    //    uploadify();
+    //});
+    $(function () {
+
+        InitControl();
+        //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
+        //BindResponseBy();
+
+
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            //AjaxJson("/FYModule/ProduceLine/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+            //    SetWebControls(data);
+
+            //});
+
+            var rowindex = 1;
+            //评审明细信息
+            AjaxJson("/CommonModule/User/GetDetailList", { UserID: GetQuery('KeyValue') }, function (data) {
+                var JsonData = data.rows;
+                //var colorState = "";
+                $.each(JsonData, function (i) {
+
+                    addone(rowindex);
+                    var rowData = JsonData[i];
+                    //alert(rowData.FllowStatus);
+                    //alert(rowData.ReviewDepart);ChangeReviewState
+                    $("#DeptID➩" + rowindex).val(rowData.DeptID);
+                    $("#DeptName➩" + rowindex).val(rowData.DeptName);
+
+                    //将已有skillID存放到一个Array里面，在新增的时候判断是否新增重复的skill，重复的话return false
+                    array[i] = rowData.DeptID;
+
+
+
+                    rowindex++;
+
+                });
+            });
+
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        //alert(temp);
+       
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var DetailForm = GetTableDataJson("#DetailForm");
+            //var postData = { RelationID: GetQueryNew('KeyValue'), DetailForm: DetailForm }
+            var postData = GetWebControls("#form1");
+            postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            postData["DetailForm"] = DetailForm;
+            AjaxJson("/CommonModule/User/SubmitDetailForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+
+
+
+    function addbatch() {
+        
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '部门选择',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['550px', '350px'],
+            content: 'DeptListBatch',
+            end: function () {
+               
+            }
+
+        });
+
+
+        return false;
+    }
+
+
+    function IsExistItem(index, code) {
+        if (!ArrayExists(array, code)) {
+            array[index] = code;
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    function PostConfirm(reValue) {
+        for (var i = 0; i < reValue.length; i++) {
+
+
+            var tab = document.getElementById('DetailForm');
+            var rowIndex = tab.rows.length + 1;
+            var j = rowIndex - 2;
+            if (!IsExistItem(j, reValue[i].DepartmentID)) {
+                addone(999);
+                $("#DeptID➩" + j).val(reValue[i].DepartmentID);
+                $("#DeptName➩" + j).val(reValue[i].DepartmentName);
+            }
+            else {
+                top.TipMsg("该部门已存在,不能重复添加", 4000, "error");
+            }
+
+        }
+    }
+
+    function deleteCurrentRow(obj) {
+        var tr = obj.parentNode.parentNode;
+        var tbody = tr.parentNode;
+        tbody.removeChild(tr);
+        //只剩行首时删除表格
+        //if (tbody.rows.length == 1) {
+        //    tbody.parentNode.removeChild(tbody);
+        //}
+        //删除数组中的值
+        //removeByValue(array,)
+    }
+
+    function removeByValue(arr, val) {
+        for (var i = 0; i < arr.length; i++) {
+            if (arr[i] == val) {
+                arr.splice(i, 1);
+                break;
+            }
+        }
+    }
+
+    function addone(i) {
+        //alert(i);
+        var tab = document.getElementById('DetailForm');
+        var rowIndex = tab.rows.length + 1;
+        if (i == 999) {
+            //999表示是新增，-3表示减去3行标题
+            i = rowIndex - 2;
+        }
+        //添加一行;
+        var tr = tab.insertRow();
+        //tr.onmouseover = tr.className = "displayStyle";
+        //tr.onmouseout = tr.className = "hideStyle";
+        //tr.onclick = function () { this.className = "onClickChangeStyle(this)"; }
+
+        var td1 = tr.insertCell();
+        var td2 = tr.insertCell();
+
+
+
+        td1.innerHTML = "<input style=\"width:95%\" readonly id='DeptName➩" + i + "' type=\"text\" class=\"txt\"><input readonly id=\"DeptID➩" + i + "\" type=\"hidden\" class=\"txt\">";
+
+
+        td2.innerHTML = "<button onclick='deleteCurrentRow(this)'>删除</button>";
+
+
+    }
+
+
+
+
+</script>
+
+
+<form id="form1">
+    <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">基本信息</div>
+
+
+            </div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+        <!--基本信息-->
+        <div id="basic" class="tabPanel">
+            
+
+            <table id="DetailForm" class="form-bill">
+                <tr><td><strong>兼职部门列表</strong></td><td><a class="button button-caution button-square button-small" onclick="addbatch()">添加</a></td></tr>
+                <tr>
+                    <th style="width:70%">部门</th>
+
+                    <th style="width:30%">删除</th>
+                </tr>
+            </table>
+        </div>
+
+
+    </div>
+
+</form>

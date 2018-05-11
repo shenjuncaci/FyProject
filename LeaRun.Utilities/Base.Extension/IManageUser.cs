@@ -71,5 +71,9 @@ namespace LeaRun.Utilities
         /// 获取组ID，用于分层审核的时候排计划
         /// </summary>
         public string GroupID { get; set; }
+        /// <summary>
+        /// 获取所属部门名称，用于显示
+        /// </summary>
+        public string DepartmentName { get; set; }
     }
 }

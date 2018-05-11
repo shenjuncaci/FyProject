@@ -467,8 +467,20 @@
                 <tr>
                     <th class="formTitle">项目名称：</th>
                     <td class="formValue" colspan="1">
-
-                        <input id="ProjectName" type="text" class="txt" datacol="yes" err="项目名称" checkexpession="NotNull" />
+                        <table style="width:100%">
+                            <tr>
+                            <td class="formValue" style="width:60%"><input id="ProjectName" type="text" class="txt" datacol="yes" err="项目名称" checkexpession="NotNull" /></td>
+                            <th class="formTitle" style="width:15%">方向：</th>
+                            <td class="formValue" style="width:25%">
+                                <select id="Direction" class="select" datacol="yes" err="方向：" checkexpession="NotNull" style="width: 96%">
+                                        <option value="">==请选择==</option>
+                                        <option value="1">1</option>
+                                        <option value="-1">-1</option>
+                                </select>
+                            </td>
+                            </tr>
+                        </table>
+                        
                     </td>
                     <th class="formTitle">数据提供：</th>
                     <td class="formValue">

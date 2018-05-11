@@ -99,6 +99,8 @@ namespace LeaRun.Business
             strSql.Append(" ORDER BY  M.SortCode ASC ");
             return DataFactory.Database().FindListBySql<Base_Module>(strSql.ToString());
         }
+
+        
         /// <summary>
         /// 根据对象Id获取模块权限列表
         /// </summary>

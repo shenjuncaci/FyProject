@@ -187,6 +187,7 @@ namespace LeaRun.WebApp.Controllers
                             imanageuser.DepartmentId = base_user.DepartmentId;
                             imanageuser.ObjectId = base_objectuserrelationbll.GetObjectId(imanageuser.UserId);
                             imanageuser.GroupID = base_objectuserrelationbll.GetGroupID(imanageuser.UserId);
+                            imanageuser.DepartmentName=base_objectuserrelationbll.GetDepartmentName(base_user.DepartmentId);
                             imanageuser.IPAddress = IPAddress;
                             imanageuser.IPAddressName = IPAddressName;
                             imanageuser.IsSystem = false;

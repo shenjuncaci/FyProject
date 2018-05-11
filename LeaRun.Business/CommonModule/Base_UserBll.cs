@@ -287,5 +287,15 @@ or dbo.fn_GetPinyin(RealName) like @keyword)");
             }
             return Repository().FindTableBySql(strSql.ToString(), parameter.ToArray());
         }
+
+        public List<Base_PartDept> GetDetailList(string UserID)
+        {
+            StringBuilder strSql = new StringBuilder();
+            List<DbParameter> parameter = new List<DbParameter>();
+            strSql.Append(@"SELECT * FROM Base_PartDept WHERE 1=1");
+            strSql.Append(" AND UserID = @UserID  ");
+            parameter.Add(DbFactory.CreateDbParameter("@UserID", UserID));
+            return DataFactory.Database().FindListBySql<Base_PartDept>(strSql.ToString(), parameter.ToArray());
+        }
     }
 }

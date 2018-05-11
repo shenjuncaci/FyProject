@@ -620,6 +620,35 @@ group by a.ProblemType ";
             return result;
         }
 
+        public ActionResult TotalReport()
+        {
+            return View();
+        }
+
+        public ActionResult GridReportListJson(string keywords, string CompanyId, string DepartmentId,
+           JqGridParam jqgridparam, string ParameterJson)
+        {
+            try
+            {
+                Stopwatch watch = CommonHelper.TimerStart();
+                DataTable ListData = PostBll.GetReportList(keywords, ref jqgridparam, ParameterJson);
+                var JsonData = new
+                {
+                    total = jqgridparam.total,
+                    page = jqgridparam.page,
+                    records = jqgridparam.records,
+                    costtime = CommonHelper.TimerEnd(watch),
+                    rows = ListData,
+                };
+                return Content(JsonData.ToJson());
+            }
+            catch (Exception ex)
+            {
+                Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "异常错误：" + ex.Message);
+                return null;
+            }
+        }
+
 
     }
 }

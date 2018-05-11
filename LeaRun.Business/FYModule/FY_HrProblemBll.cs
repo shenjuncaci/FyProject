@@ -76,5 +76,50 @@ where 1=1  ");
             int result = Repository().ExecuteBySql(sql);
             return result;
         }
+
+        public DataTable GetReportList(string keyword, ref JqGridParam jqgridparam, string ParameterJson)
+        {
+            if(keyword==null)
+            {
+                keyword = "";
+            }
+            StringBuilder strSql = new StringBuilder();
+            List<DbParameter> parameter = new List<DbParameter>();
+            strSql.AppendFormat(@"select * from ( select ProblemTypeD,hrcount,cast(replyrate/hrcount as decimal(18,2)) as replyrate,cast(completerate/hrcount as decimal(18,2)) as completerate
+from
+(
+select ProblemTypeD,sum(cast(replyrate as decimal(18,2))) as replyrate,sum(cast(completerate as decimal(18,2))) as completerate,((select count(*) from FY_HrProblem where ProblemTypeD=a.ProblemTypeD)) as hrcount 
+from (
+select ProblemTypeD,isnull(left(ReplyCompleteRate,len(ReplyCompleteRate)-1),0) as replyrate,isnull(left(CompleteRate,len(CompleteRate)-1),0) as completerate from FY_HrProblem where 1=1 {0}
+) as a
+group by ProblemTypeD
+) as aa
+union
+select '综合',sum(hrcount),cast(sum(replyrate)/sum(hrcount) as decimal(18,2)),cast(sum(completerate)/sum(hrcount) as decimal(18,2))
+from 
+(select ProblemTypeD,hrcount,cast(replyrate/hrcount as decimal(18,2)) as replyrate,cast(completerate/hrcount as decimal(18,2)) as completerate
+from
+(
+select ProblemTypeD,sum(cast(replyrate as decimal(18,2))) as replyrate,sum(cast(completerate as decimal(18,2))) as completerate,((select count(*) from FY_HrProblem where ProblemTypeD=a.ProblemTypeD)) as hrcount 
+from (
+select ProblemTypeD,isnull(left(ReplyCompleteRate,len(ReplyCompleteRate)-1),0) as replyrate,isnull(left(CompleteRate,len(CompleteRate)-1),0) as completerate from FY_HrProblem  where 1=1 {0}
+) as a
+group by ProblemTypeD
+) as aa) as aaa where 1=1 and hrcount!=0 ) as aaaa", keyword);
+           
+
+            //if(string.IsNullOrEmpty(keyword))
+            //{
+            //    strSql.Append(keyword);
+            //}
+
+
+
+            if (!string.IsNullOrEmpty(ParameterJson) && ParameterJson.Length > 2)
+            {
+                strSql.Append(ConditionBuilder.GetWhereSql(ParameterJson.JonsToList<Condition>(), out parameter));
+            }
+            return Repository().FindTablePageBySql(strSql.ToString(), parameter.ToArray(), ref jqgridparam);
+        }
     }
 }

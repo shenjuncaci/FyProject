@@ -116,7 +116,7 @@ namespace LeaRun.WebApp.Controllers
         {
             string ObjectId = ManageProvider.Provider.Current().ObjectId;
             List<Base_Module> list = base_modulepermissionbll.GetModuleList(ObjectId).FindAll(t => t.Enabled == 1);
-            return Content(list.ToJson().Replace("&nbsp;", ""));
+            return Content(list.ToJson().Replace("&nbsp;", "").Replace("分层审核","分层审核"+"("+ManageProvider.Provider.Current().DepartmentName+")"));
         }
         #endregion
 
@@ -173,7 +173,7 @@ namespace LeaRun.WebApp.Controllers
                 tree.img = item.Icon != null ? "/Content/Images/Icon16/" + item.Icon : item.Icon;
                 TreeList.Add(tree);
             }
-            return Content(TreeList.TreeToJson(ModuleId));
+            return Content(TreeList.TreeToJson(ModuleId).Replace("分层审核", "分层审核" + "(" + ManageProvider.Provider.Current().DepartmentName + ")"));
         }
         #endregion
 
@@ -350,6 +350,51 @@ namespace LeaRun.WebApp.Controllers
                 Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "异常错误：" + ex.Message);
                 return null;
             }
+        }
+
+        public int IsPartDept()
+        {
+            IDatabase database = DataFactory.Database();
+            string sql = " select * from base_partdept where UserID='"+ManageProvider.Provider.Current().UserId+"'  ";
+            DataTable dt = database.FindDataSetBySql(sql).Tables[0];
+            if(dt.Rows.Count>0)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+        public ActionResult PartDeptSelect()
+        {
+            return View();
+        }
+
+        public int ChangeDept(string DepartmentID)
+        {
+            Base_ObjectUserRelationBll base_objectuserrelationbll = new Base_ObjectUserRelationBll();
+            ManageProvider.Provider.Current().DepartmentId = DepartmentID;
+            IManageUser imanageuser = new IManageUser();
+            imanageuser.UserId = ManageProvider.Provider.Current().UserId;
+            imanageuser.Account = ManageProvider.Provider.Current().Account;
+            imanageuser.UserName = ManageProvider.Provider.Current().UserName;
+            imanageuser.Gender = ManageProvider.Provider.Current().Gender;
+            imanageuser.Password = ManageProvider.Provider.Current().Password;
+            imanageuser.Code = ManageProvider.Provider.Current().Code;
+            imanageuser.Secretkey = ManageProvider.Provider.Current().Secretkey;
+            imanageuser.LogTime = DateTime.Now;
+            imanageuser.CompanyId = ManageProvider.Provider.Current().CompanyId;
+            imanageuser.DepartmentId = DepartmentID;
+            imanageuser.ObjectId = ManageProvider.Provider.Current().ObjectId;
+            imanageuser.GroupID = ManageProvider.Provider.Current().GroupID;
+            imanageuser.IPAddress = ManageProvider.Provider.Current().IPAddress;
+            imanageuser.IPAddressName = ManageProvider.Provider.Current().IPAddressName;
+            imanageuser.IsSystem = ManageProvider.Provider.Current().IsSystem;
+            imanageuser.DepartmentName = base_objectuserrelationbll.GetDepartmentName(DepartmentID);
+            ManageProvider.Provider.AddCurrent(imanageuser);
+            return 0;
         }
     }
 }

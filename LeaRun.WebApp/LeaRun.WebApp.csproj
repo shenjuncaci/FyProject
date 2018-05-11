@@ -9370,10 +9370,16 @@
     <Content Include="Content\Scripts\uploadify\css\iconfont.ttf" />
     <Content Include="Content\Scripts\uploadify\css\iconfont.woff" />
     <Content Include="Areas\FYModule\Views\ProduceLine\PostListBatch.cshtml" />
+    <Content Include="Areas\CommonModule\Views\User\PartDeptForm.cshtml" />
+    <Content Include="Areas\CommonModule\Views\User\DeptListBatch.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Department\UserList2.cshtml" />
+    <Content Include="Areas\ProjectManageModule\Views\Project\Uploadify.cshtml" />
+    <Content Include="Areas\FYModule\Views\HrProblem\TotalReport.cshtml" />
     <None Include="Properties\PublishProfiles\LR-FDMS.pubxml" />
     <Content Include="Views\Home\SkinIndex.cshtml" />
     <Content Include="Views\Login\Default.cshtml" />
     <Content Include="Views\Shared\_FlowInfo.cshtml" />
+    <Content Include="Views\Home\PartDeptSelect.cshtml" />
     <None Include="Views\Utility\PrintPage.cshtml" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>

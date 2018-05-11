@@ -101,6 +101,19 @@
             });
         }
     }
+
+    //增加一个设置监管车间主任的权限
+    function btn_addCJZR2() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "departmentid");
+        if (IsChecked(KeyValue)) {
+
+            var url = "/CommonModule/Department/UserList2?KeyValue=" + KeyValue;
+
+            openDialog(url, "UserList", "设置监管", 625, 350, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
     //刷新
     function windowload() {
         $("#gridTable").trigger("reloadGrid"); //重新载入  

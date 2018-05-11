@@ -204,6 +204,22 @@ namespace LeaRun.Business
                 return "";
             }
         }
+
+        public string GetDepartmentName(string DepartmentID)
+        {
+            StringBuilder strSql = new StringBuilder();
+            List<DbParameter> parameter = new List<DbParameter>();
+            strSql.Append(" select fullname from base_department where departmentid='" + DepartmentID + "'  ");
+            DataTable dt = Repository().FindTableBySql(strSql.ToString(), parameter.ToArray());
+            if(dt.Rows.Count>0)
+            {
+                return dt.Rows[0][0].ToString();
+            }
+            else
+            {
+                return "";
+            }
+        }
         /// <summary>
         /// 根据对象Id 获取用户列表
         /// </summary>
