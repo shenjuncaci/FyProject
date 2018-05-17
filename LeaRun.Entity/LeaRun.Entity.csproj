@@ -58,6 +58,7 @@
     <Compile Include="BaseUtility\BaseEntity.cs" />
     <Compile Include="BaseUtility\DataContext.cs" />
     <Compile Include="CommonModule\Base_Flow.cs" />
+    <Compile Include="CommonModule\Base_FlowApprove.cs" />
     <Compile Include="CommonModule\Base_FlowLog.cs" />
     <Compile Include="CommonModule\Base_FlowLogDetail.cs" />
     <Compile Include="CommonModule\Base_FlowStep.cs" />
@@ -147,6 +148,8 @@
     <Compile Include="ProjectManageModule\PM_Notice.cs" />
     <Compile Include="ProjectManageModule\PM_Project.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectActivity.cs" />
+    <Compile Include="ProjectManageModule\PM_ProjectActivityMember.cs" />
+    <Compile Include="ProjectManageModule\PM_ProjectEndFile.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectFile.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectMember.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectPlan.cs" />

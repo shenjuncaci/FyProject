@@ -1,0 +1,222 @@
+﻿@{
+    ViewBag.Title = "文件中心管理/文件上传";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+@*<link href="~/Content/Styles/buttons.css" rel="stylesheet" />*@
+<!--上传文件组件start-->
+<link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
+<script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>
+<!--上传文件组件end-->
+<style>
+    .button {
+        background-color: #5EB34A; /* Green */
+        border: none;
+        color: white;
+        height: 26px;
+        width: 70px;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 5px;
+        font-size: 12px;
+        font-family: 微软雅黑;
+    }
+</style>
+<script>
+    $(function () {
+
+        uploadify();
+        GetFile();
+    });
+    //上传文件
+    var index_uploadify = 1;
+    function uploadify() {
+        
+        $("#uploadify").uploadify({
+
+            uploader: '/ProjectManageModule/Project/SubmitUploadifyEnd?FolderId=' + GetQuery('FolderId'),
+            swf: '/Content/Scripts/uploadify/uploadify.swf',
+            buttonText: "上传文件",
+            //fileTypeExts: "*.pdf",
+            height: 24,
+            width: 70,
+            fileSizeLimit: 140960,
+            onFallback: function () {
+                alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+            },
+            onUploadSuccess: function (file, data, response) {
+                $('.drag-tip').remove();
+                $("#grid tbody").html("");
+                GetFile();
+                @*var DataJson = JSON.parse(data);
+                var html = "";
+                html += '<tr>';
+                if (DataJson.NetworkFile.Icon == "new") {
+                    html += '<td style="width: 16px;"><img src="@Url.Content("~/Content/Images/Icon32/page_white.png")" /></td>';
+                } else {
+                    html += '<td style="width: 16px;"><img src="../../Content/Images/Icon32/file_extension_' + DataJson.NetworkFile.Icon + '.png" /></td>';
+                }
+                html += '<td style="width: 320px;"><div id="divFileName">' + DataJson.NetworkFile.FileName + '</div></td>';
+                html += '<td style="width: 70px;">' + DataJson.NetworkFile.FileSize + '</td>';
+                if (DataJson.Status > 0) {
+                    html += '<td title="上传成功" style="width: 26px;"><img src="@Url.Content("~/Content/Images/Icon16/accept.png")" /></td>';
+                } else {
+                    html += '<td title=' + DataJson.Status + ' style="width: 26px;"></td>';
+                }
+                html += '</tr>';
+                $("#grid tbody").prepend(html);*@
+                //top.frames[tabiframeId()].GetAttachGrid(GetQuery('FolderId'));
+            }
+        });
+    }
+
+    //获取原来的文件
+    function GetFile()
+    {
+        var html = "";
+        AjaxJson("/ProjectManageModule/Project/GetExistsListEnd", { ProjectID:GetQuery('FolderId')}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                html += '<tr>';
+                if (DataJson[i].Icon == "new") {
+                    html += '<td style="width: 16px;"><img src="@Url.Content("~/Content/Images/Icon32/page_white.png")" /></td>';
+                } else {
+                    html += '<td style="width: 16px;"><img src="../../Content/Images/Icon32/file_extension_' + DataJson[i].Icon + '.png" /></td>';
+                }
+                html += '<td style="width: 320px;"><div id="divFileName">' + DataJson[i].FileName + '</div></td>';
+                html += '<td style="width: 70px;">' + DataJson[i].FileSize + '</td>';
+                //alert(DataJson[i].canDel);
+                if (DataJson[i].canDel == "1") {
+                    html += '<td onclick="del(\'' + DataJson[i].FileID + '\')" style="width: 70px;"><img src="@Url.Content("~/Content/Images/Icon16/cross.png")" /></td>';
+                }
+                else
+                {
+                    //document.getElementById("uploadify").style.display = "none";
+                    $("#uploadify").css("display", "none");
+                    $("#endproject").css("display", "none");
+                    
+                }
+                html += '<td onclick="download(\'' + DataJson[i].FileID + '\')" style="width: 70px;"><img src="@Url.Content("~/Content/Images/Icon16/arrow_down.png")" /></td>';
+                html += '<td onclick="View(\'' + DataJson[i].FileID +'\')" style="width: 70px;"><img src="@Url.Content("~/Content/Images/Icon16/application_form_magnify.png")" /></td>';
+                @*if (DataJson.Status > 0) {
+                    html += '<td title="上传成功" style="width: 26px;"><img src="@Url.Content("~/Content/Images/Icon16/accept.png")" /></td>';
+                } else {
+                    html += '<td title=' + DataJson.Status + ' style="width: 26px;"></td>';
+                }*@
+                html += '</tr>';
+
+            });
+            $("#grid tbody").prepend(html);
+        })
+    }
+
+    function download(FileID)
+    {
+        var url = '/ProjectManageModule/Project/DownloadEnd?KeyValue=' + FileID;
+        location.href = url;
+    }
+
+    function del(FileID)
+    {
+        AjaxJson("/ProjectManageModule/Project/DeleteFileEnd", { NetworkFileId: FileID }, function (data) {
+            $("#grid tbody").html("");
+            GetFile();
+        });
+    }
+
+    function View(FileID) {
+        $.ajax({
+            type: "post",
+            url: "/ProjectManageModule/Project/CheckFileNameEnd?FileID=" + FileID,
+            async: false,
+            success: function (msg) {
+                var url = "/Content/Scripts/pdf.js/generic/web/viewer.html?file=" + msg;
+                Dialog(url, "StudyForm", "在线查看文件",1000,800);
+            },
+            error: function () {
+                alert("出错了");
+            }
+        });
+    }
+
+    function EndProject() {
+        //alert(GetQuery('FolderId'));
+        var postdata = { ProjectID: GetQuery('FolderId') };
+        $.ajax({
+            type: "post",
+            data: postdata,
+            url: "/ProjectManageModule/Project/EndProjectAjax",
+            async: false,
+            success: function (msg) {
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            },
+            error: function () {
+                alert("出错了");
+            }
+        });
+    }
+
+</script>
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
+
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+</style>
+<form id="form1" style="margin: 10px">
+    <div style="height: 29px;">
+        <div style="float:left;">
+            <input id="uploadify" name="uploadify" type="file" />
+        </div>
+        <div style="float:left;">
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <button id="endproject" onclick="EndProject()" class="button">项目结案</button>
+        </div>
+        @*<div style="float: right; line-height: 26px; color: #3083eb; cursor: pointer;">
+            上传必知
+        </div>*@
+    </div>
+    <div class="border background" style="height: 298px; overflow: auto; overflow-y: hidden">
+        <div class="upload-item">
+            <table id="grid" style="width: 100%; border-collapse: collapse;">
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="drag-tip" style="text-align: center; padding-top: 100px;">
+            @*<h1 style="color: #666; font-size: 20px; font-family: Microsoft Yahei; padding-bottom: 2px;">试试将电脑里的文件拖拽到此上传</h1>*@
+            @*<p style="color: #666; font-size: 12px;">
+                    （您的浏览器不支持此拖拽功能）
+                </p>*@
+
+        </div>
+    </div>
+</form>

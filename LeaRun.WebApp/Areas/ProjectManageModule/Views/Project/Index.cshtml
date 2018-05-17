@@ -183,7 +183,7 @@
         //alert(KeyValue);
         if (IsChecked(KeyValue)) {
             var url = "/ProjectManageModule/Project/FlowForm?ProjectID=" + KeyValue;
-            Dialog(url, "FlowForm", "编辑", 1000, 550);
+            Dialog(url, "FlowForm", "流程处理", 1000, 550);
 
         }
     }
@@ -221,9 +221,29 @@
         var ActivityState = GetJqGridRowValue("#gridTable", "flowstate");
 
         if (IsChecked(KeyValue)) {
-            if (ActivityState == "已完成") {
+            if (ActivityState == "已完成" || ActivityState == "已结案") {
                 var url = "/ProjectManageModule/Project/ActivityForm?KeyValue=" + KeyValue;
                 openDialog(url, "Form", "编辑", 1000, 550, function (iframe) {
+                    top.frames[iframe].AcceptClick()
+                });
+            }
+
+            else {
+                alert("只有审批完成的流程才能开展活动");
+                return false;
+            }
+        }
+    }
+
+    //结案管理
+    function btn_endproject() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
+        var ActivityState = GetJqGridRowValue("#gridTable", "flowstate");
+
+        if (IsChecked(KeyValue)) {
+            if (ActivityState == "已完成" || ActivityState == "已结案") {
+                var url = "/ProjectManageModule/Project/EndProject?FolderId=" + KeyValue;
+                openDialog(url, "Form", "编辑", 500, 550, function (iframe) {
                     top.frames[iframe].AcceptClick()
                 });
             }

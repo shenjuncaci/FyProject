@@ -11,23 +11,18 @@ using System.Text;
 
 namespace LeaRun.Entity
 {
-    [Description("项目管理活动表")]
-    [PrimaryKey("ProjectActivityID")]
-    public class PM_ProjectActivity : BaseEntity
+    [Description("项目管理每次活动成员表")]
+    [PrimaryKey("ProjectActivityMemberID")]
+    public class PM_ProjectActivityMember : BaseEntity
     {
-
         [DisplayName("主键")]
+        public string ProjectActivityMemberID { get; set; }
+
         public string ProjectActivityID { get; set; }
 
-        public string ProjectID { get; set; }
-        public DateTime? ActivityDate { get; set; }
-        public string ActivityContent { get; set; }
-        public string Remark { get; set; }
-        public string PictureUrl { get; set; }
+        public string UserID { get; set; }
 
-        public virtual string Member { get; set; }
-        public virtual string MemberID { get; set; }
-        public virtual string picsrc { get; set; }
+       
 
 
         #region 扩展操作
@@ -36,12 +31,13 @@ namespace LeaRun.Entity
         /// </summary>
         public override void Create()
         {
-            this.ProjectActivityID = CommonHelper.GetGuid;
+            this.ProjectActivityMemberID = CommonHelper.GetGuid;
         }
 
         public override void Modify(string KeyValue)
         {
-            this.ProjectActivityID = KeyValue;
+            this.ProjectActivityMemberID = KeyValue;
+
         }
 
         #endregion

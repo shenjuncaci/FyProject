@@ -4,14 +4,15 @@
 }
 <link href="~/Content/Styles/buttons.css" rel="stylesheet" />
 <script>
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
     //var CompanyId = GetQuery('CompanyId');                //公司主键
-    var ChangeID = GetQueryNew('KeyValue');                      //用户主键
+    var ProjectActivityID = GetQuery('KeyValue');                      //用户主键
     $(function () {
         GetList();
     })
     //加载角色,加入了ViewData["role"]细化权限，分层审核车间主任可以添加或者删除分层审核车间班长的权限
     function GetList() {
-        getAjax("/FYModule/Change/GetUserList", { ChangeID: GetQueryNew('KeyValue') }, function (data) {
+        getAjax("/ProjectManageModule/Project/GetUserList", { ProjectActivityID: GetQuery('KeyValue') }, function (data) {
             $(".sys_spec_text").html(data);
         });
         $("#RoleList li").click(function () {
@@ -55,13 +56,16 @@
 
     function UserListSubmit()
     {
-        Loading(true, "正在提交数据...");
+       // Loading(true, "正在提交数据...");
         var ObjectId = ""; $('.sys_spec_text .selected a').each(function () { ObjectId += $(this).attr('id') + ","; });
-        var postData = { ChangeID: ChangeID, ObjectId: ObjectId }
-        AjaxJson("/FYModule/Change/UserListSubmit", postData, function (data) {
-            //Loading(false);
-            window.close();
-        });
+        var Namestring = ""; $('.sys_spec_text .selected a').each(function () { Namestring += $(this).attr('name') + ","; });
+        parent.GetUser(ObjectId, Namestring, GetQuery('index'));
+        parent.layer.close(index);
+        //var postData = { ProjectActivityID: ProjectActivityID, ObjectId: ObjectId }
+        //AjaxJson("/ProjectManageModule/Project/UserListSubmit", postData, function (data) {
+        //    //Loading(false);
+        //    parent.layer.close(index);
+        //});
 
     }
 
@@ -97,4 +101,5 @@
         <ul class="sys_spec_text"></ul>
     </div>
     <div><button class="button button-primary button-square button-small" id="btn_delay" onclick="UserListSubmit()">确认</button></div>
+   
 </div>

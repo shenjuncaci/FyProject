@@ -23,5 +23,7 @@ namespace LeaRun.Entity
         public string FlowName { get; set; }
 
         public IList<FlowDetailDisplay> LogList { get; set; }
+
+        public IList<Base_flowApprove> ApproveList { get; set; }
     }
 }

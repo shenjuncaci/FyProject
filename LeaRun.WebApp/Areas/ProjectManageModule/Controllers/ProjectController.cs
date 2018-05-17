@@ -29,6 +29,7 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
         PM_ProjectBll ProjectBll = new PM_ProjectBll();
         Base_FlowBll FlowBll = new Base_FlowBll();
         PM_ProjectFileBll ProjectFileBll = new PM_ProjectFileBll();
+        PM_ProjectEndFileBll ProjectEndFileBll = new PM_ProjectEndFileBll();
         //
 
         public ActionResult Index()
@@ -231,9 +232,58 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
                     {
                         if (!string.IsNullOrEmpty(entityD.ActivityContent))
                         {
+                            database.Delete<PM_ProjectActivityMember>("ProjectActivityID", entityD.ProjectActivityID, isOpenTrans);
                             entityD.Create();
                             entityD.ActivityDate = DateTime.Now;
                             entityD.ProjectID = KeyValue;
+
+                           
+                            #region 图片处理，采用base64的方式转码解码
+                            string virtualPath = "";
+                            //图片上传
+                            if (!string.IsNullOrEmpty(entityD.picsrc))
+                            {
+                                //删除老的图片
+                                string FilePath = this.Server.MapPath(entityD.PictureUrl);
+                                if (System.IO.File.Exists(FilePath))
+                                    System.IO.File.Delete(FilePath);
+
+                                string fileGuid = CommonHelper.GetGuid;
+                                //long filesize = Filedata.ContentLength;
+                                string FileEextension = ".jpg";
+                                string uploadDate = DateTime.Now.ToString("yyyyMMdd");
+                                //string UserId = ManageProvider.Provider.Current().UserId;
+                                virtualPath = string.Format("~/Resource/Document/NetworkDisk/{0}/{1}{2}", "ProjectActivity", fileGuid, FileEextension);
+
+                                string realPath = string.Format(@"D:\LeaRun\Resource\Document\NetworkDisk\{0}\{1}{2}", "ProjectActivity", fileGuid, FileEextension);
+
+                                //string fullFileName = this.Server.MapPath(virtualPath);
+                                ////创建文件夹，保存文件
+                                //realPath = Path.GetDirectoryName(fullFileName);
+                                //先处理图片文件
+                                string temp = entityD.picsrc.Substring(23);
+                                byte[] arr2 = Convert.FromBase64String(entityD.picsrc.Substring(23));
+                                using (MemoryStream ms2 = new MemoryStream(arr2))
+                                {
+                                    System.Drawing.Bitmap bmp2 = new System.Drawing.Bitmap(ms2);
+                                    bmp2.Save(realPath, System.Drawing.Imaging.ImageFormat.Jpeg);
+                                    bmp2.Dispose();
+                                    ms2.Close();
+                                }
+                                entityD.PictureUrl = virtualPath;
+                            }
+                            #endregion
+                            
+
+                            string[] UserArr = entityD.MemberID.Split(',');
+                            for (int j=0; j < UserArr.Length - 1;j++)
+                            {
+                                PM_ProjectActivityMember entityDD = new PM_ProjectActivityMember();
+                                entityDD.Create();
+                                entityDD.UserID = UserArr[j];
+                                entityDD.ProjectActivityID = entityD.ProjectActivityID;
+                                database.Insert(entityDD, isOpenTrans);
+                            }
                             
                             database.Insert(entityD, isOpenTrans);
                             index++;
@@ -247,6 +297,7 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
                     {
                         if (!string.IsNullOrEmpty(entityD.ProblemDescripe))
                         {
+
                             entityD.Create();
                             entityD.PutDate = DateTime.Now;
                             entityD.ProjectID = KeyValue;
@@ -501,7 +552,7 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
             return View();
         }
 
-        public int submit(string KeyValue,string FlowID,string type,string ProcessOpinion)
+        public int submit(string KeyValue,string FlowID,string type,string ProcessOpinion,string RejectNO)
         {
 
             int a = 0;
@@ -514,7 +565,7 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
             //FY_ObjectTracking entity = DataFactory.Database().FindEntity<FY_ObjectTracking>(KeyValue);
             if (type == "-1" || type == "-2")
             {
-                a = FlowBll.RejectFlow(FlowID,ProcessOpinion);
+                a = FlowBll.RejectFlow(FlowID,ProcessOpinion,RejectNO);
             }
             else
             {
@@ -608,8 +659,20 @@ order by b.StepNO";
 
         public ActionResult GetExistsList(string ProjectID)
         {
-            string sql = @" select a.*,case when (b.CreateBy='{1}' or (exists (select * from Base_ObjectUserRelation where ObjectId='15342978-8090-4244-96ec-947472346fff' and UserId='{1}')) and b.Approvestatus='9' ) then 1 else 0 end as canDel 
+            string sql = @" select a.*,case when (b.CreateBy='{1}' or (exists (select * from Base_ObjectUserRelation where ObjectId='15342978-8090-4244-96ec-947472346fff' and UserId='{1}'))) and b.Approvestatus!='9'  then 1 else 0 end as canDel 
 from pm_projectfile a 
+left join pm_project b on a.projectid=b.projectid
+
+where 1=1 and a.projectid='{0}' ";
+            sql = string.Format(sql, ProjectID, ManageProvider.Provider.Current().UserId);
+            DataTable dt = ProjectBll.GetDataTable(sql);
+            return Content(dt.ToJson());
+        }
+
+        public ActionResult GetExistsListEnd(string ProjectID)
+        {
+            string sql = @" select a.*,case when b.isend=1 then 0 else 1 end as canDel 
+from pm_projectendfile a 
 left join pm_project b on a.projectid=b.projectid
 
 where 1=1 and a.projectid='{0}' ";
@@ -621,6 +684,17 @@ where 1=1 and a.projectid='{0}' ";
         public void Download(string KeyValue)
         {
             PM_ProjectFile entity = ProjectFileBll.Repository().FindEntity(KeyValue);
+            string filename = Server.UrlDecode(entity.FileName);//返回客户端文件名称
+            string filepath = Server.UrlDecode(entity.FilePath);//文件虚拟路径
+            if (FileDownHelper.FileExists(filepath))
+            {
+                FileDownHelper.DownLoadold(filepath, filename);
+            }
+        }
+
+        public void DownloadEnd(string KeyValue)
+        {
+            PM_ProjectEndFile entity = ProjectEndFileBll.Repository().FindEntity(KeyValue);
             string filename = Server.UrlDecode(entity.FileName);//返回客户端文件名称
             string filepath = Server.UrlDecode(entity.FilePath);//文件虚拟路径
             if (FileDownHelper.FileExists(filepath))
@@ -646,9 +720,95 @@ where 1=1 and a.projectid='{0}' ";
             }
         }
 
+        public ActionResult DeleteFileEnd(string NetworkFileId)
+        {
+            try
+            {
+                PM_ProjectEndFile entity = ProjectEndFileBll.Repository().FindEntity(NetworkFileId);
+                ProjectFileBll.Repository().Delete(NetworkFileId);
+                string FilePath = this.Server.MapPath(entity.FilePath);
+                if (System.IO.File.Exists(FilePath))
+                    System.IO.File.Delete(FilePath);
+                return Content(new JsonMessage { Success = true, Code = "1", Message = "删除成功。" }.ToString());
+            }
+            catch (Exception ex)
+            {
+                return Content(new JsonMessage { Success = false, Code = "-1", Message = "操作失败：" + ex.Message }.ToString());
+            }
+        }
+
         public string CheckFileName(string FileID)
         {
             string sql = "select * from PM_ProjectFile where FileID='" + FileID + "'";
+            DataTable dt = ProjectBll.GetDataTable(sql);
+            if (dt.Rows.Count > 0)
+            {
+                if (dt.Rows[0]["FileExtensions"].ToString() == ".pdf")
+                {
+                    if (DirFileHelper.IsExistFile(System.Web.HttpContext.Current.Request.PhysicalApplicationPath + "\\Content\\Scripts\\pdf.js\\generic\\web\\" + dt.Rows[0]["FileID"].ToString() + ".pdf"))
+                    {
+                        return dt.Rows[0]["FileID"].ToString() + ".pdf";
+                    }
+                    else
+                    {
+                        DirFileHelper.CopyFile(dt.Rows[0]["FilePath"].ToString().Replace("~/", ""), "Content\\Scripts\\pdf.js\\generic\\web\\" + dt.Rows[0]["FileID"].ToString() + ".pdf");
+                        return dt.Rows[0]["FileID"].ToString() + ".pdf";
+                    }
+                }
+                else
+                {
+                    //将word转换为pdf再返回路径
+                    if (dt.Rows[0]["FileExtensions"].ToString() == ".doc" || dt.Rows[0]["FileExtensions"].ToString() == ".docx")
+                    {
+                        if (DirFileHelper.IsExistFile(System.Web.HttpContext.Current.Request.PhysicalApplicationPath + "\\Content\\Scripts\\pdf.js\\generic\\web\\" + dt.Rows[0]["FileID"].ToString() + ".pdf"))
+                        {
+                            return dt.Rows[0]["FileID"].ToString() + ".pdf";
+                        }
+                        else
+                        {
+                            ToPDFHelper.ConvertWord2Pdf(dt.Rows[0]["FilePath"].ToString().Replace("~/", ""), "Content\\Scripts\\pdf.js\\generic\\web\\" + dt.Rows[0]["FileID"].ToString() + ".pdf");
+                            return dt.Rows[0]["FileID"].ToString() + ".pdf";
+                        }
+                    }
+                    else if (dt.Rows[0]["FileExtensions"].ToString() == ".xls" || dt.Rows[0]["FileExtensions"].ToString() == ".xlsx")
+                    {
+                        if (DirFileHelper.IsExistFile(System.Web.HttpContext.Current.Request.PhysicalApplicationPath + "\\Content\\Scripts\\pdf.js\\generic\\web\\" + dt.Rows[0]["FileID"].ToString() + ".pdf"))
+                        {
+                            return dt.Rows[0]["FileID"].ToString() + ".pdf";
+                        }
+                        else
+                        {
+                            ToPDFHelper.ConvertExcel2Pdf(dt.Rows[0]["FilePath"].ToString().Replace("~/", ""), "Content\\Scripts\\pdf.js\\generic\\web\\" + dt.Rows[0]["FileID"].ToString() + ".pdf");
+                            return dt.Rows[0]["FileID"].ToString() + ".pdf";
+                        }
+                    }
+                    else if (dt.Rows[0]["FileExtensions"].ToString() == ".ppt" || dt.Rows[0]["FileExtensions"].ToString() == ".pptx")
+                    {
+                        if (DirFileHelper.IsExistFile(System.Web.HttpContext.Current.Request.PhysicalApplicationPath + "\\Content\\Scripts\\pdf.js\\generic\\web\\" + dt.Rows[0]["FileID"].ToString() + ".pdf"))
+                        {
+                            return dt.Rows[0]["FileID"].ToString() + ".pdf";
+                        }
+                        else
+                        {
+                            ToPDFHelper.ConvertPowerPoint2Pdf(dt.Rows[0]["FilePath"].ToString().Replace("~/", ""), "Content\\Scripts\\pdf.js\\generic\\web\\" + dt.Rows[0]["FileID"].ToString() + ".pdf");
+                            return dt.Rows[0]["FileID"].ToString() + ".pdf";
+                        }
+                    }
+                    else
+                    {
+                        return "0";
+                    }
+                }
+            }
+            else
+            {
+                return "0";
+            }
+        }
+
+        public string CheckFileNameEnd(string FileID)
+        {
+            string sql = "select * from PM_ProjectEndFile where FileID='" + FileID + "'";
             DataTable dt = ProjectBll.GetDataTable(sql);
             if (dt.Rows.Count > 0)
             {
@@ -786,6 +946,77 @@ where 1=1 and a.projectid='{0}' ";
             }
         }
 
+        public ActionResult SubmitUploadifyEnd(string FolderId, HttpPostedFileBase Filedata)
+        {
+            try
+            {
+                Thread.Sleep(1000);////延迟500毫秒
+                PM_ProjectEndFile entity = new PM_ProjectEndFile();
+                string IsOk = "";
+                //没有文件上传，直接返回
+                if (Filedata == null || string.IsNullOrEmpty(Filedata.FileName) || Filedata.ContentLength == 0)
+                {
+                    return HttpNotFound();
+                }
+                //获取文件完整文件名(包含绝对路径)
+                //文件存放路径格式：/Resource/Document/NetworkDisk/{日期}/{guid}.{后缀名}
+                //例如：/Resource/Document/Email/20130913/43CA215D947F8C1F1DDFCED383C4D706.jpg
+                string fileGuid = CommonHelper.GetGuid;
+                long filesize = Filedata.ContentLength;
+                string FileEextension = Path.GetExtension(Filedata.FileName);
+                string uploadDate = DateTime.Now.ToString("yyyyMMdd");
+                //string UserId = ManageProvider.Provider.Current().UserId;
+
+                string virtualPath = string.Format("~/Resource/Document/NetWorkDisk/ProjectFileEnd/{0}{1}", fileGuid, FileEextension);
+                string fullFileName = this.Server.MapPath(virtualPath);
+                //创建文件夹，保存文件
+                string path = Path.GetDirectoryName(fullFileName);
+                Directory.CreateDirectory(path);
+                if (!System.IO.File.Exists(fullFileName))
+                {
+                    Filedata.SaveAs(fullFileName);
+                    try
+                    {
+
+                        //文件信息写入数据库
+                        entity.Create();
+                        entity.FilePath = virtualPath;
+                        entity.ProjectID = FolderId;
+                        entity.FileName = Filedata.FileName;
+                        //entity.FilePath = virtualPath;
+                        entity.FileSize = filesize.ToString();
+                        entity.FileExtensions = FileEextension;
+                        string _FileType = "";
+                        string _Icon = "";
+                        this.DocumentType(FileEextension, ref _FileType, ref _Icon);
+                        entity.Icon = _Icon;
+                        entity.FileType = _FileType;
+                        IsOk = DataFactory.Database().Insert<PM_ProjectEndFile>(entity).ToString();
+                    }
+                    catch (Exception ex)
+                    {
+                        IsOk = ex.Message;
+                        //System.IO.File.Delete(virtualPath);
+                    }
+                }
+
+                StringBuilder strSql = new StringBuilder();
+                //strSql.AppendFormat(@"update VP_RiskDownFollow set RealFinishDt=GETDATE() where FollowID='{0}'", FolderId);
+                //RiskDownFollowBll.ExecuteSql(strSql);
+
+                var JsonData = new
+                {
+                    Status = IsOk,
+                    NetworkFile = entity,
+                };
+                return Content(JsonData.ToJson());
+            }
+            catch (Exception ex)
+            {
+                return Content(ex.Message);
+            }
+        }
+
         public void DocumentType(string Eextension, ref string FileType, ref string Icon)
         {
             string _FileType = "";
@@ -882,5 +1113,95 @@ where 1=1 and a.projectid='{0}' ";
             Icon = _Icon;
         }
 
+
+        public ActionResult UserInfo()
+        {
+            return View();
+        }
+
+        public ActionResult GetUserList(string ProjectActivityID)
+        {
+            StringBuilder sb = new StringBuilder();
+            string sql = "  select a.*,b.ProjectActivityID from Base_User a left join PM_ProjectActivityMember b on a.UserId=b.UserID and b.ProjectActivityID='" + ProjectActivityID + "' where a.Enabled=1 ";
+            DataTable dt = ProjectBll.GetDataTable(sql);
+            foreach (DataRow dr in dt.Rows)
+            {
+                string strchecked = "";
+                if (!string.IsNullOrEmpty(dr["ProjectActivityID"].ToString()))//判断是否选中
+                {
+                    strchecked = "selected";
+                }
+                sb.Append("<li title=\"" + dr["RealName"] + "(" + dr["Code"] + ")" + "\" class=\"" + strchecked + "\">");
+                sb.Append("<a id=\"" + dr["UserId"] + "\" name=\""+ dr["RealName"] + "\"><img src=\"../../Content/Images/Icon16/role.png \">" + dr["RealName"] + "</a><i></i>");
+                sb.Append("</li>");
+            }
+            return Content(sb.ToString());
+        }
+
+        /// <summary>
+        /// 添加评审人，模态窗口提交以后的方法
+        /// </summary>
+        /// <param name="ChangeID"></param>
+        /// <param name="ObjectId"></param>
+        /// <returns></returns>
+        public ActionResult UserListSubmit(string ProjectActivityID, string ObjectId)
+        {
+            try
+            {
+
+                StringBuilder strSql = new StringBuilder();
+                string[] array = ObjectId.Split(',');
+
+                strSql.AppendFormat(@"delete from PM_ProjectActivityMember where ProjectActivityID='{0}' ", ProjectActivityID);
+
+                for (int i = 0; i < array.Length - 1; i++)
+                {
+                    strSql.AppendFormat(@"insert into PM_ProjectActivityMember values(NEWID(),'{0}','{1}')", ProjectActivityID, array[i]);
+                }
+                ProjectBll.ExecuteSql(strSql);
+                return Content(new JsonMessage { Success = true, Code = 1.ToString(), Message = "操作成功。" }.ToString());
+
+            }
+            catch (Exception ex)
+            {
+                return Content(new JsonMessage { Success = false, Code = "-1", Message = "操作失败，错误：" + ex.Message }.ToString());
+            }
+        }
+
+        public string GetUserString(string ProjectActivityID)
+        {
+            string Result = "";
+            string temp1 = "";
+            string temp2 = "";
+            string sql = "   select b.UserID,b.RealName from PM_ProjectActivitymember a left join Base_User b on a.userid=b.UserId where a.projectactivityid='{0}' ";
+            sql = string.Format(sql, ProjectActivityID);
+            DataTable dt = ProjectBll.GetDataTable(sql);
+            if(dt.Rows.Count>0)
+            {
+               for(int i=0;i<dt.Rows.Count;i++)
+                {
+                    temp1+= dt.Rows[i][0].ToString() + ",";
+                    temp2 += dt.Rows[i][1].ToString() + ",";
+                   
+                }
+                temp1 = temp1.Substring(0, temp1.Length - 1);
+                temp2 = temp2.Substring(0, temp2.Length - 1);
+            }
+            Result += temp1 +"|"+ temp2;
+            return Result;
+        }
+
+        //结案管理
+        public ActionResult EndProject(string KeyValue)
+        {
+            return View();
+        }
+
+        public int EndProjectAjax(string ProjectID)
+        {
+            StringBuilder strSql = new StringBuilder();
+            strSql.AppendFormat(" update PM_Project set IsENd=1,enddate=getdate() where projectID='{0}' ",ProjectID);
+            return ProjectBll.ExecuteSql(strSql);
+        }
     }
 }

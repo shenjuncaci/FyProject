@@ -19,7 +19,8 @@ namespace LeaRun.Business
         {
             StringBuilder strSql = new StringBuilder();
             List<DbParameter> parameter = new List<DbParameter>();
-            strSql.Append(@" select dbo.GetFlowState(a.flowid) as flowstate,a.*,b.fullname from pm_project a left join base_department b on a.departmentid=b.departmentid where 1=1   ");
+            strSql.Append(@" select case when a.isend=1 then '已结案' else dbo.GetFlowState(a.flowid) end as flowstate,a.*,b.fullname 
+from pm_project a left join base_department b on a.departmentid=b.departmentid where 1=1   ");
             if (!string.IsNullOrEmpty(keyword))
             {
                 strSql.Append(keyword);

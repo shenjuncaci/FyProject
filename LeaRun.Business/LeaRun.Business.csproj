@@ -105,6 +105,7 @@
     <Compile Include="FYModule\FY_ProduceLineBll.cs" />
     <Compile Include="ProjectManageModule\PM_NoticeBll.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectBll.cs" />
+    <Compile Include="ProjectManageModule\PM_ProjectEndFileBll.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectFileBll.cs" />
     <Compile Include="ProjectManageModule\PM_PublicFileBll.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

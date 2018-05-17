@@ -8,6 +8,10 @@
 <link href="~/Content/Scripts/jquery.select2/css/select2.css" rel="stylesheet" />
 <script src="~/Content/Scripts/jquery.select2/js/select2.js"></script>
 
+<link href="~/Content/Scripts/jquery.ssiupload/css/bootstrap.min.css" rel="stylesheet" />
+<link href="~/Content/Scripts/jquery.ssiupload/css/style.css" rel="stylesheet" />
+<link href="~/Content/Scripts/jquery.ssiupload/css/ssi-uploader.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery.ssiupload/js/ssi-uploader.js"></script>
 <style>
     #grid td {
         text-align: left;
@@ -54,6 +58,20 @@
 
     select {
         background: #E0FFFF;
+    }
+
+    .addBorder {
+        border: 1px solid #ccc;
+    }
+
+    #imgDiv {
+        width: 100px;
+        height: 100px;
+    }
+
+    #imgContent {
+        width: 100%;
+        height: 100%;
     }
 </style>
 
@@ -118,7 +136,7 @@
     //得到一个对象实体
     function InitControl() {
         if (!!GetQuery('KeyValue')) {
-
+            var MemberArr;
             var rowindex = 1;
             rowindex = 1;
             AjaxJson("/ProjectManageModule/project/GetActivityList", { KeyValue: GetQuery('KeyValue') }, function (data) {
@@ -128,12 +146,29 @@
 
                     addactivity(rowindex);
                     var rowData = JsonData[i];
-                    //alert(rowData.FllowStatus);
+                    //alert(rowData.PictureUrl);
                     //alert(rowData.ReviewDepart);ChangeReviewState
+                    $("#ProjectActivityID➩" + rowindex).val(rowData.ProjectActivityID);
                     $("#ActivityDate➩" + rowindex).val(rowData.ActivityDate);
                     $("#ActivityContent➩" + rowindex).val(rowData.ActivityContent);
                     $("#Remark➩" + rowindex).val(rowData.Remark);
+                    $("#PictureUrl➩" + rowindex).val(rowData.PictureUrl);
 
+                    $("#pic➩" + rowindex).attr('src',rowData.PictureUrl.replace("~",""));
+                    //每次循环以后再次使用ajax，获取活动人员的明细数据
+                    $.ajax({
+                        type: "post",
+                        url: "/ProjectManageModule/project/GetUserString?ProjectActivityID=" + rowData.ProjectActivityID,
+                        async: false,
+                        success: function (msg) {
+                            MemberArr = msg.split("|");
+                            $("#MemberID➩" + rowindex).val(MemberArr[0]);
+                            $("#Member➩" + rowindex).val(MemberArr[1]);
+                        },
+                        error: function () {
+                            alert("出错了");
+                        }
+                    });
                     //$("#RelationDID➩" + rowindex).val(rowData.RelationDID);
                     rowindex++;
 
@@ -147,6 +182,7 @@
                 $.each(JsonData, function (i) {
 
                     addproblem(rowindex);
+                    //$("#ResponseBy➩" + i).select2();
                     var rowData = JsonData[i];
                     //alert(rowData.FllowStatus);
                     //alert(rowData.ReviewDepart);ChangeReviewState
@@ -160,8 +196,12 @@
                     $("#FinishState➩" + rowindex).val(rowData.FinishState);
 
                     $("#Remark➩" + rowindex).val(rowData.Remark);
-                   
-                    //$("#RelationDID➩" + rowindex).val(rowData.RelationDID);
+                   //Member
+
+
+                    $("#ResponseBy➩" + rowindex).select2();
+
+
                     rowindex++;
 
                 });
@@ -225,18 +265,29 @@
         var td2 = tr.insertCell();
         var td3 = tr.insertCell();
         var td4 = tr.insertCell();
-        td1.innerHTML = "<input style=\"width:95%\" placeholder=\"自动生成，无需填写\" readonly  id='ActivityDate➩" + i + "' type=\"text\" class=\"txt\">";
+        var td5 = tr.insertCell();
+        var td6 = tr.insertCell();
+        var td7 = tr.insertCell();
+
+        td1.innerHTML = "<input style=\"width:95%\" placeholder=\"自动生成，无需填写\" readonly  id='ActivityDate➩" + i + "' type=\"text\" class=\"txt\"><input hidden=\"true\" id='ProjectActivityID➩" + i + "' class=\"txt\">";
         td2.innerHTML = "<input id='ActivityContent➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"活动内容\" checkexpession=\"NotNull\"> ";
         td3.innerHTML = "<input  style=\"width:95%\" id='Remark➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"活动备注\" checkexpession=\"NotNull\">";
-        td4.innerHTML = "<button onclick='deleteCurrentRow(this)'>删除</button>";
+        td4.innerHTML = "<input readonly style=\"width:95%\" id='Member➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"参会人员\" onClick=\"ChooseMember(" + i + ")\" checkexpession=\"NotNull\"><input hidden=\"true\" readonly style=\"width:95%\" id='MemberID➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"参会人员ID\" onClick=\"ChooseMember(" + i + ")\" checkexpession=\"NotNull\">";
+        td5.innerHTML = "<input style=\"width:100%\" onchange=\"loadpicture(" + i + ")\" type=\"file\" name=\"file\" id=\"file➩" + i + "\">";
+        td6.innerHTML = "<img id=\"pic➩" + i + "\" style=\"width:100%;height:120px\" src=\"\"><input hidden=\"true\" id=\"picsrc➩" + i + "\" class=\"txt\"><input hidden=\"true\" id=\"PictureUrl➩" + i +"\" class=\"txt\">";
+        td7.innerHTML = "<button onclick='deleteCurrentRow(this)'>删除</button>";
+
+        //$('#ssi-upload➩' + i).ssi_uploader({ url: '#', dropZone: false, allowed: ['jpg', 'gif', 'txt', 'png', 'pdf'] });
     }
 
     function addproblem(i) {
+        var temp = 0;
         var tab = document.getElementById('ProblemForm');
         var rowIndex = tab.rows.length + 1;
         if (i == 999) {
             //999表示是新增，-3表示减去3行标题
             i = rowIndex - 2;
+            temp = 1;
         }
 
         
@@ -255,24 +306,91 @@
         var td7 = tr.insertCell();
         var td8 = tr.insertCell();
         var td9 = tr.insertCell();
-        var td10 = tr.insertCell();
+        //var td10 = tr.insertCell();
 
         td1.innerHTML = "<input id='SortNO➩" + i + "' style=\"width:95%\" value=\"" + i + "\" type=\"text\" class=\"txt\">";
         td2.innerHTML = "<input style=\"width:95%\" placeholder=\"自动生成，无需填写\" readonly  id='PutDate➩" + i + "' type=\"text\" class=\"txt\">";
         td3.innerHTML = "<input  style=\"width:95%\" id='ProblemDescripe➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"问题、解决方案\" checkexpession=\"NotNull\">";
-        td4.innerHTML = "<input  style=\"width:95%\" id='PutBy➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"提出人\" checkexpession=\"NotNull\">";
-        td5.innerHTML = "<input  style=\"width:95%\" id='ResponseBy➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"责任人\" checkexpession=\"NotNull\">";
-        td6.innerHTML = "<input  style=\"width:95%\" id='PlanDate➩" + i + "' class=\"txt Wdate\" onfocus=\"WdatePicker()\"  datacol=\"yes\" err=\"计划完成日期\" checkexpession=\"NotNull\">";
+        //td4.innerHTML = "<input hidden=\"true\" style=\"width:95%\" id='PutBy➩" + i + "' class=\"txt\" datacol=\"yes\">";
+       
+        td4.innerHTML = "<select id=\"ResponseBy➩"+i+"\" class=\"txtselect\" err=\"责任人\" checkexpession=\"NotNull\" style=\"width:150px\"></select>";
+        td5.innerHTML = "<input  style=\"width:95%\" id='PlanDate➩" + i + "' class=\"txt Wdate\" onfocus=\"WdatePicker()\"  datacol=\"yes\" err=\"计划完成日期\" checkexpession=\"NotNull\">";
         //<input id="CreateDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" err="登陆日期" checkexpession="NotNull" />
         //<select id="DepartMentID" class="select" datacol="yes" err="部门" checkexpession="NotNull" style="width: 96%"></select>
-        td7.innerHTML = "<input  style=\"width:95%\" id='FinishDate➩" + i + "' class=\"txt Wdate\" onfocus=\"WdatePicker()\" datacol=\"yes\">";
-        td8.innerHTML = "<select  style=\"width:95%\" id='FinishState➩" + i + "' class=\"select\" datacol=\"yes\" err=\"完成状态\" checkexpession=\"NotNull\"><option value='进行中'>进行中</option><option value='完成'>完成</option><option value='超期'>超期</option><option value='关闭'>关闭</option></select>";
-        td9.innerHTML = "<input  style=\"width:95%\" id='Remark➩" + i + "' class=\"txt\" datacol=\"yes\">";
-        td10.innerHTML = "<button onclick='deleteCurrentRow(this)'>删除</button>";
+        td6.innerHTML = "<input  style=\"width:95%\" id='FinishDate➩" + i + "' class=\"txt Wdate\" onfocus=\"WdatePicker()\" datacol=\"yes\">";
+        td7.innerHTML = "<select  style=\"width:95%\" id='FinishState➩" + i + "' class=\"select\" datacol=\"yes\" err=\"完成状态\" checkexpession=\"NotNull\"><option value='进行中'>进行中</option><option value='完成'>完成</option><option value='超期'>超期</option><option value='关闭'>关闭</option></select>";
+        td8.innerHTML = "<input  style=\"width:95%\" id='Remark➩" + i + "' class=\"txt\" datacol=\"yes\">";
+        td9.innerHTML = "<button onclick='deleteCurrentRow(this)'>删除</button>";
+
+        BindData(i);
+
+        if (temp == 1) {
+            $("#ResponseBy➩" + i).select2();
+        }
+        
+
+    }
+
+    function ChooseMember(i) {
+
+        var index = layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '通知明细',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['800px', '550px'],
+            content: 'UserInfo?KeyValue=' + $("#ProjectActivityID➩" + i).val() + '&index=' + i
+        });
+        //alert(i);
+    }
+
+    function GetUser(ObjectID, NameString, i) {
+        //alert(i);
+        //alert(NameString);
+        $("#Member➩" + i).val(NameString);
+        $("#MemberID➩" + i).val(ObjectID);
+       
+    }
+
+    function loadpicture(i) {
+        var obj = document.getElementById("file➩" + i);
+        var file = obj.files[0];
+        //alert(file);
+        //创建读取文件的对象  
+        var reader = new FileReader();
+
+        //创建文件读取相关的变量  
+        var imgFile;
+
+        //为文件读取成功设置事件  
+        reader.onload = function (e) {
+            //alert('文件读取完成');
+            imgFile = e.target.result;
+            //console.log(imgFile);
+            $("#pic➩" + i).attr('src', imgFile);
+            $("#picsrc➩" + i).val(imgFile);
+        };
+
+        //正式读取文件  
+        reader.readAsDataURL(file);
+
+    }
+
+    function BindData(j) {
+        $("#ResponseBy➩" + j).html("");
+
+        $("#ResponseBy➩" + j).append("<option value=''>==请选择==</option>");
+        AjaxJson("/VPModule/VerifyPost/ResponseJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#ResponseBy➩" + j).append($("<option></option>").val(DataJson[i].userid).html(DataJson[i].name));
+            });
+           
+        })
+        
+       
     }
 
     
-
 
 </script>
 
@@ -295,13 +413,15 @@
         </div>
         <div id="basic" class="tabPanel">
             <table id="ActivityForm" class="form-bill">
-                <tr><td colspan="3"><strong>项目活动管理</strong></td><td><a class="button button-caution button-square button-small" onclick="addactivity(999)">添加</a></td></tr>
+                <tr><td colspan="6"><strong>项目活动管理</strong></td><td><a class="button button-caution button-square button-small" onclick="addactivity(999)">添加</a></td></tr>
                 <tr>
-                    <th style="width:20%">活动日期</th>
+                    <th style="width:10%">活动日期</th>
                     <th style="width:20%">活动内容</th>
-                    <th style="width:50%">备注</th>
-
-                    <th style="width:10%">删除</th>
+                    <th style="width:30%">备注</th>
+                    <th style="width:15%">参加人员</th>
+                    <th style="width:10%">活动照片</th>
+                    <th style="width:10%">照片预览</th>
+                    <th style="width:5%">删除</th>
                 </tr>
             </table>
 
@@ -310,8 +430,8 @@
                 <tr>
                     <th style="width:5%">序号</th>
                     <th style="width:10%">提出日期</th>
-                    <th style="width:20%">问题&解决方案</th>
-                    <th style="width:10%">提出人</th>
+                    <th style="width:30%">问题&解决方案</th>
+                    @*<th style="width:10%;display:none">提出人</th>*@
                     <th style="width:10%">责任人</th>
                     <th style="width:10%">计划完成日期</th>
                     <th style="width:10%">完成日期</th>

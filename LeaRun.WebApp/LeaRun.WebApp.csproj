@@ -8496,6 +8496,15 @@
     <Content Include="Content\Scripts\jquery.select2\js\select2.full.min.js" />
     <Content Include="Content\Scripts\jquery.select2\js\select2.js" />
     <Content Include="Content\Scripts\jquery.select2\js\select2.min.js" />
+    <Content Include="Content\Scripts\jquery.ssiupload\css\bootstrap.min.css" />
+    <Content Include="Content\Scripts\jquery.ssiupload\css\images\sprite.png" />
+    <Content Include="Content\Scripts\jquery.ssiupload\css\ssi-uploader.css" />
+    <Content Include="Content\Scripts\jquery.ssiupload\css\ssi-uploader.min.css" />
+    <Content Include="Content\Scripts\jquery.ssiupload\css\style.css" />
+    <Content Include="Content\Scripts\jquery.ssiupload\js\bootstrap.min.js" />
+    <Content Include="Content\Scripts\jquery.ssiupload\js\jquery-2.1.1.min.js" />
+    <Content Include="Content\Scripts\jquery.ssiupload\js\ssi-uploader.js" />
+    <Content Include="Content\Scripts\jquery.ssiupload\js\ssi-uploader.min.js" />
     <Content Include="Content\Scripts\jquery.time\jquery-clock-timepicker.js" />
     <Content Include="Content\Scripts\jquery.time\jquery-clock-timepicker.min.js" />
     <Content Include="Content\Scripts\jquery.triangle\css\index.css" />
@@ -9375,6 +9384,11 @@
     <Content Include="Areas\CommonModule\Views\Department\UserList2.cshtml" />
     <Content Include="Areas\ProjectManageModule\Views\Project\Uploadify.cshtml" />
     <Content Include="Areas\FYModule\Views\HrProblem\TotalReport.cshtml" />
+    <Content Include="Areas\ProjectManageModule\Views\Project\UserInfo.cshtml" />
+    <Content Include="Content\Scripts\jquery.ssiupload\css\images\Thumbs.db" />
+    <Content Include="Content\Scripts\jquery.ssiupload\css\ssi-uploader.min.css.map" />
+    <Content Include="Content\Scripts\jquery.ssiupload\js\ssi-uploader.min.js.map" />
+    <Content Include="Areas\ProjectManageModule\Views\Project\EndProject.cshtml" />
     <None Include="Properties\PublishProfiles\LR-FDMS.pubxml" />
     <Content Include="Views\Home\SkinIndex.cshtml" />
     <Content Include="Views\Login\Default.cshtml" />

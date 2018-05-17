@@ -61,21 +61,21 @@
 
             @if (flow.Approvestatus == 0)
             {
-                <a class="button button-glow button-rounded button-raised button-small">发起人提交</a> <a>--></a>
+                <a class="button button-glow button-rounded button-raised button-small" id="-1" onclick="ChangeColor(this.id)">发起人提交</a> <a>--></a>
             }
             else
             {
-                <a class="button button-glow button-border button-rounded button-small">发起人提交</a> <a>--></a>
+                <a class="button button-glow button-border button-rounded button-small" id="-1" onclick="ChangeColor(this.id)">发起人提交</a> <a>--></a>
             }
             @for (int i = 0; i < flow.LogList.Count; i++)
             {
                 if (flow.LogList[i].FullName == flow.FullName)
                 {
-                    <a class="button button-glow button-rounded button-raised button-small">@flow.LogList[i].FullName</a> <a>--></a>
+                    <a class="button button-glow button-rounded button-raised button-small" id="@flow.LogList[i].StepNO" onclick="ChangeColor(this.id)">@flow.LogList[i].FullName</a> <a>--></a>
                 }
                 else
                 {
-                    <a class="button button-glow button-border button-rounded button-small">@flow.LogList[i].FullName</a> <a>--></a>
+                    <a class="button button-glow button-border button-rounded button-small"  id="@flow.LogList[i].StepNO"  onclick="ChangeColor(this.id)">@flow.LogList[i].FullName</a> <a>--></a>
                 }
             }
             @if (flow.Approvestatus == 9)
@@ -89,19 +89,73 @@
 
 
         </div>
+<br>
+<br>
+<h2>签署记录</h2>
+<div>
+    @if (flow.ApproveList.Count>0)
+    {
+        for(int i=0;i<flow.ApproveList.Count;i++)
+        {
+            <div>@flow.ApproveList[i].Approvestatus   &nbsp;&nbsp;操作日期：@flow.ApproveList[i].ApproveDate</div><br>
+
+        }
+    }
+    else
+    {
+        <div>暂无签署记录</div>
+    }
+</div>
 
 
-        <script>
-
+<script>
+    var tempid = "";
+    function ChangeColor(id) {
+        //alert(id);
+        if (id == tempid) {
+            $("#" + id).css("background-color", "white");
+        }
+        else {
+            $("#" + tempid).css("background-color", "white");
+            $("#" + id).css("background-color", "red");
+            tempid = id;
+            
+        }
+        
+    }
 
     function submit(number)
     {
+        if (number == -1 || number == -2) {
+            if (tempid == "") {
+                alert("请先选择要退回到哪一个节点");
+                return false;
+            }
+            else
+            {
+                var activeid = document.getElementsByClassName("button-raised")[0].id;
+                if (tempid >= activeid) {
+                    alert("只能退回到当前节点以前的节点");
+                    return false;
+                }
+            }
+            
+        }
+        
+        //alert(activeid);
+        //$(".button-raised")
+        //var a = $(".button-raised");
+        //$(a[i].val());
+        //console.log($(".button-raised"));
+        //alert($(".button-raised")[0].val());
+        //return false;
+
         //alert(GetQuery('ProjectID'));
         Loading(true, "正在提交数据...");
         window.setTimeout(function () {
             var postData = { ProcessOpinion: $("#ProcessOpinion").val()};
 
-            AjaxJson("/ProjectManageModule/Project/submit?KeyValue=" + GetQuery('ProjectID') + "&FlowID=" + "@flow.FlowID" + "&type=" + number, postData, function (data) {
+            AjaxJson("/ProjectManageModule/Project/submit?KeyValue=" + GetQuery('ProjectID') + "&FlowID=" + "@flow.FlowID" + "&type=" + number + "&RejectNO=" + tempid, postData, function (data) {
                 tipDialog("处理成功", 3, 1);
                 top.frames[tabiframeId()].windowload();
                 closeDialog();
@@ -109,4 +163,4 @@
         }, 200);
     }
 
-        </script>
+</script>
