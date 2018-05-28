@@ -11,6 +11,9 @@
 <script src="~/Content/Scripts/jquery.fullcalendar/fullcalendar.js"></script>
 <link href="~/Content/Styles/buttons.css" rel="stylesheet" />
 <script src="~/Content/Scripts/datepicker/WdatePicker.js"></script>
+<link href="~/Content/Scripts/jquery.layer/theme/default/layer.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery.layer/layer.js"></script>
+
 <style>
     /*div {
         display: inline
@@ -91,7 +94,7 @@
                         TempObject["id"] = id[i];
                         nowDate = new Date(Date.parse(start[i]));
                         if (nowDate.pattern("yyyy-MM-dd") < myDate.pattern("yyyy-MM-dd")) {
-                            
+
                             if (content[i] != "休息" && content[i] != "已完成") {
                                 //color[i] = "red";
                                 content[i] = "未完成";
@@ -131,7 +134,7 @@
                             TempObject["backgroundColor"] = color[i];
                         }
 
-                        
+
 
                         eventData.push(TempObject);
                         //alert(eventData[i].title);
@@ -229,7 +232,7 @@
             },*@
             eventClick: function (event, jsEvent, view) {
                 var myDate = new Date();
-                myDate.setDate(myDate.getDate() - 1);  
+                myDate.setDate(myDate.getDate() - 1);
                 //myDate.toLocaleDateString();
                 //alert(myDate.getDate());
                 var plandate = new Date(Date.parse(event.start));
@@ -239,18 +242,34 @@
                         return false;
                     }
                     // 1号
-                
 
-                var obj = new Array();
-                var reValue = window.showModalDialog('UpdatePlan?id=' + event.id, window, 'dialogWidth=400px;dialogHeight=200px;status:1;title:0;');
+                layer.open({
+                    type: 2,  //2表示ifrmae弹出层
+                    title: '计划明细',
+                    maxmin: true,
+                    shadeClose: true, //点击遮罩关闭层
+                    area: ['400px', '200px'],
+                    content: 'UpdatePlan?id=' + event.id
+                });
+
+                //var obj = new Array();
+                //var reValue = window.showModalDialog('UpdatePlan?id=' + event.id, window, 'dialogWidth=400px;dialogHeight=200px;status:1;title:0;');
                 //var reValue = Dialog('UpdatePlan?id=' + event.id, "test", "test", 400, 200)
                 //alert(reValue);
-                if (reValue == undefined) {
+
+            }
+        });
+
+        //alert(eventData);
+    }
+
+    function eventCilckAjax(reValue,id) {
+        if (reValue == undefined) {
                     return false;
                 }
                 if (reValue == "del") {
                     if (confirm("确认要删除？")) {
-                        var durl = encodeURI('@Url.Action("DeleteEventData", "Plan")?id=' + event.id);
+                        var durl = encodeURI('@Url.Action("DeleteEventData", "Plan")?id=' + id);
                         $.ajax({
                             type: "post",
                             url: durl,
@@ -279,7 +298,7 @@
                 else if (reValue == "leave")
                 {
                     if (confirm("是否确认休息？")) {
-                        var durl = encodeURI('@Url.Action("LeaveEventData", "Plan")?id=' + event.id);
+                        var durl = encodeURI('@Url.Action("LeaveEventData", "Plan")?id=' + id);
                         $.ajax({
                             type: "post",
                             url: durl,
@@ -309,7 +328,7 @@
                 else
                 {
 
-                    var durl = encodeURI('@Url.Action("UpdateEventData", "Plan")?PlanContent=' + reValue[0] + '&PlanID=' + event.id + '&Line=' + reValue[1]);
+                    var durl = encodeURI('@Url.Action("UpdateEventData", "Plan")?PlanContent=' + reValue[0] + '&PlanID=' + id + '&Line=' + reValue[1]);
                 $.ajax({
                     type: "post",
                     url: durl,
@@ -333,10 +352,6 @@
                 });
 
                 }
-            }
-        });
-
-        //alert(eventData);
     }
 
 
@@ -344,7 +359,7 @@
     function ChangMonth(date)
     {
         var myDate = new Date();
-        myDate.setDate(myDate.getDate());  
+        myDate.setDate(myDate.getDate());
         //alert(11);
         var eventData = new Array();
         var id = new Array();
@@ -468,7 +483,7 @@
         BindData();
         loadData();
         //HideButton();
-        
+
 
     });
 
@@ -689,7 +704,7 @@
         var result = DataChangzhang;
         //有#的时候会报错，先替换，后台再替换回来
         result = result.replace('#', '|');
-        
+
         //alert(result);
         //ajax提交
         var durl = encodeURI('@Url.Action("SubmitOtherData", "Plan")?result=' + result);
@@ -797,7 +812,7 @@
     function AjaxLoadData(date)
     {
         var myDate = new Date();
-        myDate.setDate(myDate.getDate());  
+        myDate.setDate(myDate.getDate());
         //alert(11);
         var eventData = new Array();
         var id = new Array();
@@ -883,18 +898,17 @@
 </script>
 <style>
 
-	body {
-		margin: 40px 10px;
-		padding: 0;
-		font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
-		font-size: 14px;
-	}
+    body {
+        margin: 40px 10px;
+        padding: 0;
+        font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+        font-size: 14px;
+    }
 
-	#calendar {
-		max-width: 900px;
-		margin: 0 auto;
-	}
-
+    #calendar {
+        max-width: 900px;
+        margin: 0 auto;
+    }
 </style>
 <body>
     <div id="info" style="float:left;width:30%">
@@ -903,20 +917,20 @@
             <tr style="display:none">
                 <td style="display:none"><input id="ID1" type="text" class="txt" /></td>
                 <th class="formTitle" style="width:25%;text-align:left">厂长：</th>
-               
-                    
-                    
-                <th class="formTitle"  style="width:25%;text-align:left">审核内容：</th>
-                
-                <th class="formTitle"  style="width:25%;text-align:left">生产线：</th>
-                
+
+
+
+                <th class="formTitle" style="width:25%;text-align:left">审核内容：</th>
+
+                <th class="formTitle" style="width:25%;text-align:left">生产线：</th>
+
                 <th class="formTitle" style="width:25%;text-align:left">日期：</th>
-                
+
             </tr>
             <tr style="display:none">
                 <td class="formValue" style="width:15%">
-                   <select id="Name1" class="txtselect"></select>
-             </td>
+                    <select id="Name1" class="txtselect"></select>
+                </td>
                 <td class="formValue" style="width:15%">
 
                     <select id="Audit1" class="txtselect"></select>
@@ -929,115 +943,115 @@
                 </td>
             </tr>
             @*<tr style="display:none">
-        <td style="display:none"><input id="ID2" type="text" class="txt" /></td>
-        <th class="formTitle" style="text-align:left">车间主任：</th>
+                    <td style="display:none"><input id="ID2" type="text" class="txt" /></td>
+                    <th class="formTitle" style="text-align:left">车间主任：</th>
 
-        <th class="formTitle" style="text-align:left">审核内容：</th>
+                    <th class="formTitle" style="text-align:left">审核内容：</th>
 
-        <th class="formTitle" style="text-align:left">生产线：</th>
+                    <th class="formTitle" style="text-align:left">生产线：</th>
 
-        <th class="formTitle" style="text-align:left">日期：</th>
+                    <th class="formTitle" style="text-align:left">日期：</th>
 
-    </tr>
-    <tr style="display:none">
-        <td class="formValue">
-            <select id="Name2" class="txtselect"></select>
-        </td>
-        <td class="formValue">
-            <select id="Audit2" class="txtselect"></select>
-        </td>
-        <td class="formValue">
-            <select id="Line2" class="txtselect"></select>
-        </td>
-        <td class="formValue" style="width:15%">
-            <input id="Date2" type="text" class="txt Wdate" onfocus="WdatePicker()" />
-        </td>
-    </tr>
-    <tr style="display:none">
-        <td style="display:none"><input id="ID3" type="text" class="txt" /></td>
-        <th class="formTitle" style="text-align:left">车间主任：</th>
+                </tr>
+                <tr style="display:none">
+                    <td class="formValue">
+                        <select id="Name2" class="txtselect"></select>
+                    </td>
+                    <td class="formValue">
+                        <select id="Audit2" class="txtselect"></select>
+                    </td>
+                    <td class="formValue">
+                        <select id="Line2" class="txtselect"></select>
+                    </td>
+                    <td class="formValue" style="width:15%">
+                        <input id="Date2" type="text" class="txt Wdate" onfocus="WdatePicker()" />
+                    </td>
+                </tr>
+                <tr style="display:none">
+                    <td style="display:none"><input id="ID3" type="text" class="txt" /></td>
+                    <th class="formTitle" style="text-align:left">车间主任：</th>
 
-        <th class="formTitle" style="text-align:left">审核内容：</th>
+                    <th class="formTitle" style="text-align:left">审核内容：</th>
 
-        <th class="formTitle" style="text-align:left">生产线：</th>
+                    <th class="formTitle" style="text-align:left">生产线：</th>
 
-        <th class="formTitle" style="text-align:left">日期：</th>
+                    <th class="formTitle" style="text-align:left">日期：</th>
 
-    </tr>
-    <tr style="display:none">
-        <td class="formValue">
-            <select id="Name3" class="txtselect"></select>
-        </td>
-        <td class="formValue">
-            <select id="Audit3" class="txtselect"></select>
-        </td>
-        <td class="formValue">
-            <select id="Line3" class="txtselect"></select>
-        </td>
-        <td class="formValue" style="width:15%">
-            <input id="Date3" type="text" class="txt Wdate" onfocus="WdatePicker()" />
-        </td>
-    </tr>
-    <tr style="display:none">
-        <td style="display:none"><input id="ID4" type="text" class="txt" /></td>
-        <th class="formTitle" style="text-align:left">车间主任：</th>
+                </tr>
+                <tr style="display:none">
+                    <td class="formValue">
+                        <select id="Name3" class="txtselect"></select>
+                    </td>
+                    <td class="formValue">
+                        <select id="Audit3" class="txtselect"></select>
+                    </td>
+                    <td class="formValue">
+                        <select id="Line3" class="txtselect"></select>
+                    </td>
+                    <td class="formValue" style="width:15%">
+                        <input id="Date3" type="text" class="txt Wdate" onfocus="WdatePicker()" />
+                    </td>
+                </tr>
+                <tr style="display:none">
+                    <td style="display:none"><input id="ID4" type="text" class="txt" /></td>
+                    <th class="formTitle" style="text-align:left">车间主任：</th>
 
-        <th class="formTitle" style="text-align:left">审核内容：</th>
+                    <th class="formTitle" style="text-align:left">审核内容：</th>
 
-        <th class="formTitle" style="text-align:left">生产线：</th>
+                    <th class="formTitle" style="text-align:left">生产线：</th>
 
-        <th class="formTitle" style="text-align:left">日期：</th>
+                    <th class="formTitle" style="text-align:left">日期：</th>
 
-    </tr>
-    <tr style="display:none">
-        <td class="formValue">
-            <select id="Name4" class="txtselect"></select>
-        </td>
-        <td class="formValue">
-            <select id="Audit4" class="txtselect"></select>
-        </td>
-        <td class="formValue">
-            <select id="Line4" class="txtselect"></select>
-        </td>
-        <td class="formValue" style="width:15%">
+                </tr>
+                <tr style="display:none">
+                    <td class="formValue">
+                        <select id="Name4" class="txtselect"></select>
+                    </td>
+                    <td class="formValue">
+                        <select id="Audit4" class="txtselect"></select>
+                    </td>
+                    <td class="formValue">
+                        <select id="Line4" class="txtselect"></select>
+                    </td>
+                    <td class="formValue" style="width:15%">
 
-            <input id="Date4" type="text" class="txt Wdate" onfocus="WdatePicker()" />
-        </td>
-    </tr>
-    <tr style="display:none">
-        <td style="display:none"><input id="ID5" type="text" class="txt" /></td>
-        <th class="formTitle" style="text-align:left">车间主任：</th>
+                        <input id="Date4" type="text" class="txt Wdate" onfocus="WdatePicker()" />
+                    </td>
+                </tr>
+                <tr style="display:none">
+                    <td style="display:none"><input id="ID5" type="text" class="txt" /></td>
+                    <th class="formTitle" style="text-align:left">车间主任：</th>
 
-        <th class="formTitle" style="text-align:left">审核内容：</th>
+                    <th class="formTitle" style="text-align:left">审核内容：</th>
 
-        <th class="formTitle" style="text-align:left">生产线：</th>
+                    <th class="formTitle" style="text-align:left">生产线：</th>
 
-        <th class="formTitle" style="text-align:left">日期：</th>
+                    <th class="formTitle" style="text-align:left">日期：</th>
 
-    </tr>
-    <tr style="display:none">
-        <td class="formValue">
-            <select id="Name5" class="txtselect"></select>
-        </td>
-        <td class="formValue">
-            <select id="Audit5" class="txtselect"></select>
-        </td>
-        <td class="formValue">
-            <select id="Line5" class="txtselect"></select>
-        </td>
-        <td class="formValue" style="width:15%">
+                </tr>
+                <tr style="display:none">
+                    <td class="formValue">
+                        <select id="Name5" class="txtselect"></select>
+                    </td>
+                    <td class="formValue">
+                        <select id="Audit5" class="txtselect"></select>
+                    </td>
+                    <td class="formValue">
+                        <select id="Line5" class="txtselect"></select>
+                    </td>
+                    <td class="formValue" style="width:15%">
 
-            <input id="Date5" type="text" class="txt Wdate" onfocus="WdatePicker()" />
-        </td>
-    </tr>*@
+                        <input id="Date5" type="text" class="txt Wdate" onfocus="WdatePicker()" />
+                    </td>
+                </tr>*@
 
         </table>
         @*<button class="button button-primary button-square button-small" onclick="confirmall()">确认</button>*@
     </div>
     <div style="float:right;width:70%">
-	     <div id='calendar'>
-       
-         </div>
+        <div id='calendar'>
+
+        </div>
     </div>
 
 </body>

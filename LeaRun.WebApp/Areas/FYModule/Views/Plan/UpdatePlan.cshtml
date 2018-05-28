@@ -40,20 +40,27 @@
 </table>
 
 <div align=center valign=middle>
-    <button class="button button-primary button-square button-small" onclick="cancel()">取消</button>
+    @*<button class="button button-primary button-square button-small" onclick="cancel()">取消</button>*@
     <button class="button button-primary button-square button-small" onclick="confirm()">确认</button>
     <button class="button button-caution button-square button-small" onclick="leave()">休息</button>
     <button class="button button-caution button-square button-small" onclick="del()">删除</button>
 </div>
 <script>
+
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+
     function del() {
-        window.returnValue = "del";
-        window.close();
+        //window.returnValue = "del";
+        //window.close();
+        parent.eventCilckAjax("del",GetQuery('id'));
+        parent.layer.close(index);
     }
     function leave()
     {
-        window.returnValue = "leave";
-        window.close();
+        //window.returnValue = "leave";
+        //window.close();
+        parent.eventCilckAjax("leave",GetQuery('id'));
+        parent.layer.close(index);
     }
 
     function cancel() {
@@ -71,8 +78,10 @@
         var ResultArr = new Array();
         ResultArr[0] = _EventName;
         ResultArr[1] = _Line;
-        window.returnValue = ResultArr;
-        window.close();
+        parent.eventCilckAjax(ResultArr,GetQuery('id'));
+        parent.layer.close(index);
+        //window.returnValue = ResultArr;
+        //window.close();
     }
     function BindEvent() {
 

@@ -189,10 +189,19 @@
 
     function showtend(veridypostid)
     {
-        var reValue = window.showModalDialog('TrendPicture?id=' + veridypostid , window, 'dialogWidth=1000px;dialogHeight=500px;status:1;title:0;');
-        if (reValue == undefined) {
-            return false;
-        }
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '技能选择',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['1000px', '500px'],
+            content: 'TrendPicture?id=' + veridypostid
+        });
+
+        //var reValue = window.showModalDialog('TrendPicture?id=' + veridypostid , window, 'dialogWidth=1000px;dialogHeight=500px;status:1;title:0;');
+        //if (reValue == undefined) {
+        //    return false;
+        //}
     }
 
     function dateFormat(cellvalue, options, rowObject) {

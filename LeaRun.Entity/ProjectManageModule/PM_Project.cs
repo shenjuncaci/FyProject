@@ -29,6 +29,7 @@ namespace LeaRun.Entity
         public DateTime? PlanFinishDate { get; set; }
         public string ProjectName { get; set; }
         public string ProjectNature { get; set; }
+        public string ProjectNatureD { get; set; }
         public string ProjectStatus { get; set; }
         public string ProjectIndicators { get; set; }
         public string BenchMark { get; set; }

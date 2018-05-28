@@ -357,6 +357,7 @@
 
     function lengthFormat(cellvalue, options, rowObject)
     {
+        cellvalue=cellvalue.replace(/↵/g, "");
         if (cellvalue.length > 30)
         {
             return cellvalue.substring(0, 30) + "......";

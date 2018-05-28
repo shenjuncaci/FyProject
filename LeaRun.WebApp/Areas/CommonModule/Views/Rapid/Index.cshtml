@@ -90,7 +90,7 @@ border-top:1px solid #E8E8E8;
         $("#gridTable").jqGrid({
             url: "@Url.Content("~/CommonModule/Rapid/GridPageListJson")",
             datatype: "json",
-            height: $(window).height() - 198,
+            height: $(window).height() - 200,
             //width:'100%',
             autowidth: true,
             colModel: [
@@ -437,13 +437,29 @@ border-top:1px solid #E8E8E8;
 
     function showfcsh(processid)
     {
-        var obj = new Array();
-        var reValue = window.showModalDialog('FormForRapid?tag=edit' + '&ProcessID=' + processid + '&rapidID=' + GetJqGridRowValue("#gridTable", "res_id") + '&state=只读', window, 'dialogWidth=650px;dialogHeight=400px;status:1;title:0;');
+        //var obj = new Array();
+        //var reValue = window.showModalDialog('FormForRapid?tag=edit' + '&ProcessID=' + processid + '&rapidID=' + GetJqGridRowValue("#gridTable", "res_id") + '&state=只读', window, 'dialogWidth=650px;dialogHeight=400px;status:1;title:0;');
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '分层审核明细',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['650px', '400px'],
+            content: 'FormForRapid?tag=edit' + '&ProcessID=' + processid + '&rapidID=' + GetJqGridRowValue("#gridTable", "res_id") + '&state=只读'
+        });
        
     }
     function showverifypost(verifypostid) {
-        var obj = new Array();
-        var reValue = window.showModalDialog('FormForVerifyPost?tag=edit' + '&VerifyPostID=' + verifypostid + '&rapidID=' + GetJqGridRowValue("#gridTable", "res_id") + '&state=只读', window, 'dialogWidth=650px;dialogHeight=400px;status:1;title:0;');
+        //var obj = new Array();
+        //var reValue = window.showModalDialog('FormForVerifyPost?tag=edit' + '&VerifyPostID=' + verifypostid + '&rapidID=' + GetJqGridRowValue("#gridTable", "res_id") + '&state=只读', window, 'dialogWidth=650px;dialogHeight=400px;status:1;title:0;');
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '岗位验证明细',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['650px', '400px'],
+            content: 'FormForVerifyPost?tag=edit' + '&VerifyPostID=' + verifypostid + '&rapidID=' + GetJqGridRowValue("#gridTable", "res_id") + '&state=只读'
+        });
 
     }
 

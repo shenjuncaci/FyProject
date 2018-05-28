@@ -65,7 +65,17 @@
 
     //搜索
     function btn_Search() {
-        var keywords = $("#keywords").val();
+        var keywords = "";
+        if (CheckIsNullNoTip($("#RepairState").val())) {
+            keywords += " and RepairState='" + $("#RepairState").val() + "' ";
+        }
+        if (CheckIsNullNoTip($("#UserName").val())) {
+            keywords += " and (UserName like '%" + $("#UserName").val() + "%' or UserCode like '%" + $("#UserName").val()+"%') ";
+        }
+        if (CheckIsNullNoTip($("#RoomNO").val())) {
+            keywords += " and roomno like '%" + $("#RoomNO").val()+"%' ";
+        }
+
         $("#gridTable").jqGrid('setGridParam', {
             url: "@Url.Content("~/DormModule/RoomRepair/GridPageListJson")?keywords=" + escape(keywords), page: 1
         }).trigger('reloadGrid');
@@ -282,10 +292,27 @@
             <table border="0" class="form-find" style="height: 45px;">
                 <tr>
                     <th>
-                        关键字：
+                        维修状态：
                     </th>
                     <td>
-                        <input id="keywords" type="text" class="txt" style="width: 200px" />
+                        <select id="RepairState" class="txtselect">
+                            <option value="">==请选择==</option>
+                            <option value="维修中">维修中</option>
+                            <option value="已完成">已完成</option>
+
+                        </select>
+                    </td>
+                    <th>
+                        报修人姓名/工号：
+                    </th>
+                    <td>
+                        <input id="UserName" type="text" class="txt" style="width: 200px" />
+                    </td>
+                    <th>
+                        房间号：
+                    </th>
+                    <td>
+                        <input id="RoomNO" type="text" class="txt" style="width: 200px" />
                     </td>
                     <td>
                         <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />

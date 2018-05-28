@@ -27,11 +27,15 @@
         var keywords = "";
         var UserName = $("#UserName").val();
         var UserCode = $("#UserCode").val();
+        var UserDept = $("#UserDept").val();
         if (CheckIsNullNoTip(UserName)) {
             keywords += " and realname like '%" + UserName + "%' ";
         }
         if (CheckIsNullNoTip(UserCode)) {
             keywords += " and code like '%" + UserCode + "%' ";
+        }
+        if (CheckIsNullNoTip(UserDept)) {
+            keywords += " and b.fullname like '%" + UserDept + "%' ";
         }
 
         $("#gridTable").jqGrid('setGridParam', {
@@ -44,7 +48,7 @@
         $("#gridTable").jqGrid({
             url: "@Url.Content("~/ProjectManageModule/Project/GetUserListJson")",
             datatype: "json",
-            height: 230,
+            height: 430,
             autowidth: true,
             colModel: [
                 { label: '用户主键', name: 'userid', hidden: true },
@@ -148,6 +152,12 @@
                 </th>
                 <td>
                     <input id="UserCode" type="text" class="txt" style="width: 50px" />
+                </td>
+                <th>
+                    所属部门：
+                </th>
+                <td>
+                    <input id="UserDept" type="text" class="txt" style="width: 50px" />
                 </td>
                 <td>
                     <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />

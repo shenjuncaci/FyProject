@@ -44,6 +44,7 @@ namespace LeaRun.Entity
         public DateTime? FinishDt { get; set; }
 
         public string CreateByID { get; set; }
+        public string RepairRemark { get; set; }
 
 
         #region 扩展操作

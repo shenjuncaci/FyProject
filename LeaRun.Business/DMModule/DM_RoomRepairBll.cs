@@ -27,8 +27,7 @@ where 1=1 ");
             }
             if (!string.IsNullOrEmpty(keyword))
             {
-                strSql.Append(@" AND (UserName LIKE @keyword or RepairState like @keyword
-                                    )");
+                strSql.Append(keyword);
                 parameter.Add(DbFactory.CreateDbParameter("@keyword", '%' + keyword + '%'));
             }
 

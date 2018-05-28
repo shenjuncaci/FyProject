@@ -64,5 +64,42 @@ namespace LeaRun.Business
             }
             return result;
         }
+
+        //按年重置的4位流水号
+        public string CodeByYear(string NoteName)
+        {
+            string result = "";
+            string sql = "select BeginName,YEAR(ModifyDt) as Year,CurrentNo from Base_NoteNO where NoteName='" + NoteName + "'";
+            StringBuilder strSql = new StringBuilder();
+
+            DataTable dt = GetDataTable(sql);
+            if (dt.Rows.Count > 0)
+            {
+               
+                //按年累计，则判断年份和当前时间的年份是否一样
+                if (dt.Rows[0]["Year"].ToString() == DateTime.Now.Year.ToString())
+                {
+                    string last = "";
+                    if (dt.Rows[0]["CurrentNo"].ToString().Length < 4)
+                    {
+                        int Num = 4 - dt.Rows[0]["CurrentNo"].ToString().Length;
+                        for (int i = 0; i < Num; i++)
+                        {
+                            last += "0";
+                        }
+                    }
+                    result += dt.Rows[0]["BeginName"].ToString() + DateTime.Now.Year.ToString() + last + dt.Rows[0]["CurrentNo"].ToString();
+                    strSql.AppendFormat(@"update base_NoteNO set currentno=currentno+1 where NoteName='{0}'", NoteName);
+                    ExecuteSql(strSql);
+                }
+                else
+                {
+                    result += dt.Rows[0]["BeginName"].ToString() + DateTime.Now.Year.ToString() + "0001";
+                    strSql.AppendFormat(@"update base_NoteNO set currentno=2,ModifyDt='{1}' where NoteName='{0}'", NoteName, DateTime.Now);
+                    ExecuteSql(strSql);
+                }
+            }
+            return result;
+        }
     }
 }

@@ -8,11 +8,12 @@
 <!--上传文件组件end-->
 <style>
     .button {
+        float: right;
         background-color: #5EB34A; /* Green */
         border: none;
         color: white;
-        height: 26px;
-        width: 70px;
+        height: 25px;
+        width: 75px;
         text-align: center;
         text-decoration: none;
         border-radius: 5px;
@@ -66,9 +67,23 @@
 
     function SubmitVideo()
     {
-        var obj = new Array();
-        var reValue = window.showModalDialog('UpdateVideo?ID=' + GetQuery('FolderId'), obj, 'dialogWidth=400px;dialogHeight=200px;');
+        //alert(11);
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '技能选择',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['450px', '250px'],
+            content: 'UpdateVideo?ID=' + GetQuery('FolderId')
+        });
+        return false;
+        //var obj = new Array();
+        //var reValue = window.showModalDialog('UpdateVideo?ID=' + GetQuery('FolderId'), obj, 'dialogWidth=400px;dialogHeight=200px;');
 
+       
+    }
+
+    function SubmitVideoAjax(reValue) {
         if (reValue == undefined) {
             return false;
         }
@@ -126,10 +141,11 @@
         <div style="float: left;">
             <input id="uploadify" name="uploadify" type="file" />
         </div>
+        &nbsp;&nbsp;&nbsp;&nbsp;
         <div style="float:left;">
             &nbsp;&nbsp;&nbsp;&nbsp;
-            <button id="submitVideo" onclick="SubmitVideo()" class="button">上传视频</button>
-            </div>
+            <a id="submitVideo" onclick="SubmitVideo()" class="button">上传视频</a>
+        </div>
         @*<div style="float: right; line-height: 26px; color: #3083eb; cursor: pointer;">
             上传必知
         </div>*@

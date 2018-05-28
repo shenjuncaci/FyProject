@@ -68,7 +68,8 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
             string KeyValue = Request["KeyValue"];
             if (string.IsNullOrEmpty(KeyValue))
             {
-                ViewBag.BillNo = notenobll.Code("ProjectNO");
+                //生成单号放到新建保存的地方
+                //ViewBag.BillNo = notenobll.CodeByYear("ProjectNO");
                 ViewBag.CreateUserName = ManageProvider.Provider.Current().UserName;
             }
             return View();
@@ -142,9 +143,9 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
                 }
                 else
                 {
-
+                    Base_NoteNOBll notenobll = new Base_NoteNOBll();
                     entity.Create();
-
+                    entity.ProjectNO= notenobll.CodeByYear("ProjectNO");
                     //新建单据的时候，注册流程】
                     entity.FlowID = FlowBll.RegistFlow("Sj_ProjectManage", entity.ProjectID, entity.DataProvider);
 
@@ -380,8 +381,7 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
 
         public ActionResult UserJson()
         {
-            string sql = @"select userid,realname from Base_User where Enabled=1 and 
-(DepartmentId = '5bce3524-2835-46c9-af3a-90250f2cf198' or DepartmentId in (select DepartmentId from Base_Department where ParentId = '5bce3524-2835-46c9-af3a-90250f2cf198') )";
+            string sql = @"select userid,realname from Base_User where Enabled=1  ";
             DataTable dt = ProjectBll.GetDataTable(sql);
             return Content(dt.ToJson());
         }
@@ -1202,6 +1202,24 @@ where 1=1 and a.projectid='{0}' ";
             StringBuilder strSql = new StringBuilder();
             strSql.AppendFormat(" update PM_Project set IsENd=1,enddate=getdate() where projectID='{0}' ",ProjectID);
             return ProjectBll.ExecuteSql(strSql);
+        }
+
+        public ActionResult ProjectNatureJson()
+        {
+            string sql = "select Code,FullName from Base_DataDictionaryDetail where DataDictionaryId='721fa6dd-1acf-426a-a025-db6a9608ad0b' and ParentId='0' ";
+            DataTable dt = ProjectBll.GetDataTable(sql);
+            return Content(dt.ToJson());
+        }
+
+        public ActionResult ProjectNatureDJson(string ParentId)
+        {
+            string sql = "select Code,FullName from Base_DataDictionaryDetail where DataDictionaryId='721fa6dd-1acf-426a-a025-db6a9608ad0b' and ParentID!='0'  ";
+            if(ParentId!=null&&ParentId!=""&&ParentId!="Undefined")
+            {
+                sql = sql + " and ParentId in (select DataDictionaryDetailId from Base_DataDictionaryDetail where code='"+ParentId+"') ";
+            }
+            DataTable dt = ProjectBll.GetDataTable(sql);
+            return Content(dt.ToJson());
         }
     }
 }
