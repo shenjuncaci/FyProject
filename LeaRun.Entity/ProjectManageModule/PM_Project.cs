@@ -46,6 +46,7 @@ namespace LeaRun.Entity
         public string ExpectedEarnings { get; set; }
         public int Direction { get; set; }
 
+        public decimal Constant { get; set; }
         #region 扩展操作
         /// <summary>
         /// 新增调用

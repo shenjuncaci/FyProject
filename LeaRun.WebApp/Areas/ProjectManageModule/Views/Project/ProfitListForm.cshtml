@@ -146,7 +146,7 @@
         window.setTimeout(function () {
             var postData = GetWebControls("#form1");
             postData["ProfitForm"] = DetailForm;
-            
+            postData["Constant"] = $("#Constant").val();
             postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
             AjaxJson("/ProjectManageModule/project/SubmitProfitForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
                 tipDialog(data.Message, 3, data.Code);
@@ -242,13 +242,23 @@
                     <th class="formTitle">项目编号：</th>
                     <td class="formValue">
 
-                        <input readonly id="ProjectNO" type="text" class="txt" value="@ViewBag.BillNo" style="width: 95%" />
+                        <input readonly id="ProjectNO" type="text" class="txt" style="width: 95%" />
 
                     </td>
                     <th class="formTitle">项目名称：</th>
                     <td class="formValue" colspan="1">
 
                         <input id="ProjectName" type="text" class="txt" datacol="yes" err="项目名称" checkexpession="NotNull" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">项目常量：</th>
+                    <td class="formValue" colspan="1">
+
+                        <input id="Constant" type="text" class="txt" datacol="yes" err="项目常量" checkexpession="NotNull" />
+                    </td>
+                    <th class="formTitle"></th>
+                    <td class="formValue" colspan="1">                
                     </td>
                 </tr>
 
@@ -258,8 +268,10 @@
                 <tr><td colspan="3"><strong>项目收益管理</strong></td><td><a class="button button-caution button-square button-small" onclick="addprofit()">添加</a></td></tr>
                 <tr>
                     <th style="width:20%">计算日期</th>
-                    <th style="width:10%">数据1</th>
-                    <th style="width:10%">数据2</th>
+                    <th style="width:10%">改进后实际</th>
+                    <th style="width:10%">变量</th>
+                    <th style="width:10%">收益</th>
+                    <th style="width:10%">项目状态</th>
                     <th style="width:50%">备注</th>
 
                     <th style="width:10%">删除</th>

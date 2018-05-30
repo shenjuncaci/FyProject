@@ -29,6 +29,10 @@ from pm_project a left join base_department b on a.departmentid=b.departmentid w
             {
                 strSql.Append(ConditionBuilder.GetWhereSql(ParameterJson.JonsToList<Condition>(), out parameter));
             }
+            if(ManageProvider.Provider.Current().ObjectId.IndexOf("15342978-8090-4244-96ec-947472346fff")<0)
+            {
+                strSql.Append(@" and exists (select * from PM_ProjectMember where ProjectID=a.projectid and UserID='"+ManageProvider.Provider.Current().UserId+"') ");
+            }
             return Repository().FindTablePageBySql(strSql.ToString(), parameter.ToArray(), ref jqgridparam);
         }
 
@@ -73,7 +77,7 @@ from pm_project a left join base_department b on a.departmentid=b.departmentid w
             return DataFactory.Database().FindListBySql<PM_ProjectProblem>(strSql.ToString(), parameter.ToArray());
         }
 
-        public DataTable GetUserList(string keyword, ref JqGridParam jqgridparam, string ParameterJson)
+        public DataTable GetUserList(string keyword, ref JqGridParam jqgridparam, string ParameterJson,string ProjectID)
         {
             StringBuilder strSql = new StringBuilder();
             List<DbParameter> parameter = new List<DbParameter>();

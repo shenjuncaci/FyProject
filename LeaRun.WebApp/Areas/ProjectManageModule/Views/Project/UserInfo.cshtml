@@ -12,7 +12,7 @@
     })
     //加载角色,加入了ViewData["role"]细化权限，分层审核车间主任可以添加或者删除分层审核车间班长的权限
     function GetList() {
-        getAjax("/ProjectManageModule/Project/GetUserList", { ProjectActivityID: GetQuery('KeyValue') }, function (data) {
+        getAjax("/ProjectManageModule/Project/GetUserList", { ProjectActivityID: GetQuery('KeyValue'), ProjectID: GetQuery('ProjectID') }, function (data) {
             $(".sys_spec_text").html(data);
         });
         $("#RoleList li").click(function () {

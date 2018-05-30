@@ -33,7 +33,7 @@ namespace LeaRun.Entity
         public string PersonSex { get; set; }
         public string PersonDept { get; set; }
         public string RoomID { get; set; }
-
+        public string Telpone {get;set;}
 
 
 

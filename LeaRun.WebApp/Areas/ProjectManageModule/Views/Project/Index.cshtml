@@ -65,7 +65,29 @@
 
     //搜索
     function btn_Search() {
-        var keywords = $("#keywords").val();
+        var keywords = "";
+        var ProjectNO = $("#ProjectNO").val();
+        var ProjectName = $("#ProjectName").val();
+        var ProjectState = $("#ProjectState").val();
+        if (CheckIsNullNoTip(ProjectNO)) {
+            keywords = keywords + " and ProjectNO like '%" + ProjectNO + "%' ";
+        }
+        if (CheckIsNullNoTip(ProjectName)) {
+            keywords = keywords + " and ProjectName like '%" + ProjectName + "%' ";
+        }
+        if (CheckIsNullNoTip(ProjectState)) {
+            if (ProjectState == "1") {
+                keywords = keywords + " and isend=1 ";
+            }
+            else if (ProjectState == "0")
+            {
+                keywords = keywords + " and Approvestatus in (0,7) and (isend!=1 or IsEnd is null) ";
+            }
+            else {
+                keywords = keywords + " and Approvestatus='" + ProjectState + "' and (isend!=1 or IsEnd is null) ";
+            }
+        }
+
         $("#gridTable").jqGrid('setGridParam', {
             url: "@Url.Content("~/ProjectManageModule/Project/GridPageListJson")?keywords=" + escape(keywords), page: 1
         }).trigger('reloadGrid');
@@ -325,10 +347,28 @@
             <table border="0" class="form-find" style="height: 45px;">
                 <tr>
                     <th>
-                        关键字：
+                        项目编号：
                     </th>
                     <td>
-                        <input id="keywords" type="text" class="txt" style="width: 200px" />
+                        <input id="ProjectNO" type="text" class="txt" style="width: 100px" />
+                    </td>
+                    <th>
+                        项目名称：
+                    </th>
+                    <td>
+                        <input id="ProjectName" type="text" class="txt" style="width: 100px" />
+                    </td>
+                    <th>
+                        项目状态：
+                    </th>
+                    <td>
+                        <select id="ProjectState" class="select">
+                            <option value="">==请选择==</option>
+                            <option value="0">未提交</option>
+                            <option value="9">已登陆</option>
+                            <option value="-2">已终止</option>
+                            <option value="1">已结案</option>
+                        </select>
                     </td>
                     <td>
                         <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />

@@ -41,15 +41,17 @@
         <div>
             <a class="button  button-primary button-rounded button-small" onclick="submit(1)">审批</a>
             <a class="button  button-primary button-rounded button-small" onclick="submit(-1)">退回</a>
-            </div>
+            <a class="button  button-caution button-rounded button-small" onclick="submit(-9)">终止</a>
+        </div>
             <br>
             <div><b>处理意见(选填)：</b><input id="ProcessOpinion" type="text" /></div>
             }
             else if (flow.Approvestatus == 7 && ManageProvider.Provider.Current().ObjectId.IndexOf(flow.CurrentPost) > 0)
             {
-        <div>
-            <a class="button button-primary button-rounded button-small" onclick="submit(2)">（代）审批</a>
-            <a class="button button-primary button-rounded button-small" onclick="submit(-2)">（代）退回</a>
+            <div>
+                <a class="button button-primary button-rounded button-small" onclick="submit(2)">（代）审批</a>
+                <a class="button button-primary button-rounded button-small" onclick="submit(-2)">（代）退回</a>
+                <a class="button  button-caution button-rounded button-small" onclick="submit(-92)">（代）终止</a>
             </div>
             <br>
             <div><b>处理意见(选填)：</b><input id="ProcessOpinion" type="text" /></div>

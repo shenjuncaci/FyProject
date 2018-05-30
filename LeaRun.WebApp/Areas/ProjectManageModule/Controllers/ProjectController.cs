@@ -66,11 +66,15 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
         {
             Base_NoteNOBll notenobll = new Base_NoteNOBll();
             string KeyValue = Request["KeyValue"];
-            if (string.IsNullOrEmpty(KeyValue))
+            if (!string.IsNullOrEmpty(KeyValue))
             {
                 //生成单号放到新建保存的地方
                 //ViewBag.BillNo = notenobll.CodeByYear("ProjectNO");
                 ViewBag.CreateUserName = ManageProvider.Provider.Current().UserName;
+                PM_Project entity = DataFactory.Database().FindEntity<PM_Project>(KeyValue);
+                FlowDisplay flow = FlowBll.FlowDisplay(entity.FlowID);
+                ViewData["flow"] = flow;
+                ViewData["UserID"] = ManageProvider.Provider.Current().UserId;
             }
             return View();
         }
@@ -443,12 +447,12 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
         }
 
         public ActionResult GetUserListJson(string keywords, string CompanyId, string DepartmentId,
-           JqGridParam jqgridparam, string ParameterJson, string SkillName, string SkillType)
+           JqGridParam jqgridparam, string ParameterJson, string SkillName, string SkillType,string ProjectID)
         {
             try
             {
                 Stopwatch watch = CommonHelper.TimerStart();
-                DataTable ListData = ProjectBll.GetUserList(keywords, ref jqgridparam, ParameterJson);
+                DataTable ListData = ProjectBll.GetUserList(keywords, ref jqgridparam, ParameterJson, ProjectID);
                 var JsonData = new
                 {
                     total = jqgridparam.total,
@@ -516,12 +520,14 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
             }
         }
 
-        public ActionResult SubmitProfitForm(string KeyValue, PM_Project entity, string BuildFormJson, HttpPostedFileBase Filedata, string ProfitForm)
+        public ActionResult SubmitProfitForm(string KeyValue, PM_Project entity, string BuildFormJson, HttpPostedFileBase Filedata, string ProfitForm,string Constant)
         {
 
             IDatabase database = DataFactory.Database();
             DbTransaction isOpenTrans = database.BeginTrans();
 
+            StringBuilder strsql = new StringBuilder();
+            strsql.AppendFormat(@" update pm_project set constant='{0}' where projectid='{1}' ",Constant,KeyValue);
 
             string Message = KeyValue == "" ? "新增成功。" : "编辑成功。";
 
@@ -566,6 +572,11 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
             if (type == "-1" || type == "-2")
             {
                 a = FlowBll.RejectFlow(FlowID,ProcessOpinion,RejectNO);
+            }
+            else if(type=="-9"||type=="-92")
+            {
+                //终止流程
+                a = FlowBll.StopFlow(FlowID, ProcessOpinion);
             }
             else
             {
@@ -1119,10 +1130,10 @@ where 1=1 and a.projectid='{0}' ";
             return View();
         }
 
-        public ActionResult GetUserList(string ProjectActivityID)
+        public ActionResult GetUserList(string ProjectActivityID,string ProjectID)
         {
             StringBuilder sb = new StringBuilder();
-            string sql = "  select a.*,b.ProjectActivityID from Base_User a left join PM_ProjectActivityMember b on a.UserId=b.UserID and b.ProjectActivityID='" + ProjectActivityID + "' where a.Enabled=1 ";
+            string sql = "  select a.UserID,a.UserName,b.ProjectActivityID from PM_ProjectMember a left join PM_ProjectActivityMember b on a.UserId=b.UserID and b.ProjectActivityID='" + ProjectActivityID + "' where 1=1 and a.ProjectID='"+ProjectID+"' ";
             DataTable dt = ProjectBll.GetDataTable(sql);
             foreach (DataRow dr in dt.Rows)
             {
@@ -1131,8 +1142,8 @@ where 1=1 and a.projectid='{0}' ";
                 {
                     strchecked = "selected";
                 }
-                sb.Append("<li title=\"" + dr["RealName"] + "(" + dr["Code"] + ")" + "\" class=\"" + strchecked + "\">");
-                sb.Append("<a id=\"" + dr["UserId"] + "\" name=\""+ dr["RealName"] + "\"><img src=\"../../Content/Images/Icon16/role.png \">" + dr["RealName"] + "</a><i></i>");
+                sb.Append("<li title=\"" + dr["UserName"] + "\" class=\"" + strchecked + "\">");
+                sb.Append("<a id=\"" + dr["UserId"] + "\" name=\""+ dr["UserName"] + "\"><img src=\"../../Content/Images/Icon16/role.png \">" + dr["UserName"] + "</a><i></i>");
                 sb.Append("</li>");
             }
             return Content(sb.ToString());
@@ -1218,6 +1229,13 @@ where 1=1 and a.projectid='{0}' ";
             {
                 sql = sql + " and ParentId in (select DataDictionaryDetailId from Base_DataDictionaryDetail where code='"+ParentId+"') ";
             }
+            DataTable dt = ProjectBll.GetDataTable(sql);
+            return Content(dt.ToJson());
+        }
+
+        public ActionResult GetProjectUserJson(string ProjectID)
+        {
+            string sql = " select UserID,UserName from PM_ProjectMember where ProjectID='"+ProjectID+"'  ";
             DataTable dt = ProjectBll.GetDataTable(sql);
             return Content(dt.ToJson());
         }

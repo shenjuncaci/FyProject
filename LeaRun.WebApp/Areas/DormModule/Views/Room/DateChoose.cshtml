@@ -1,0 +1,44 @@
+﻿@{
+    ViewBag.Title = "DateChoose";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+
+<h2>DateChoose</h2>
+<div>
+    <table>
+        <tr>
+    <th class="formTitle">开始时间：</th>
+    <td class="formValue">
+        <input id="StartTime" type="text" class="txt Wdate" onfocus="WdatePicker({ dateFmt: 'yyyy-MM-dd' })" style="background:#E0FFFF" />
+    </td>
+            </tr>
+        <tr>
+    <th class="formTitle">结束时间</th>
+
+    <td class="formValue">
+        <input id="EndTime" type="text" class="txt Wdate" onfocus="WdatePicker({ dateFmt: 'yyyy-MM-dd' })" style="background:#E0FFFF" />
+    </td>
+            </tr>
+        </table>
+</div>
+<div>
+    <button onclick="confirm()">确认</button>
+</div>
+<script>
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+
+    function confirm() {
+        var startdate = $("#StartTime").val();
+        var enddate = $("#EndTime").val();
+        if (!CheckIsNullNoTip(startdate)) {
+            alert("请选择开始时间");
+            return false;
+        }
+        if (!CheckIsNullNoTip(enddate)) {
+            alert("请选择结束日期");
+            return false;
+        }
+        parent.btn_deriveajax(startdate, enddate, GetQuery('type'));
+        parent.layer.close(index);
+    }
+</script>

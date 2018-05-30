@@ -113,6 +113,8 @@
                         AddHistoryOne(rowindex);
                         $("#PersonCode➩" + rowindex).val(rowData.PersonCode);
                         $("#PersonName➩" + rowindex).val(rowData.PersonName);
+                        $("#Telpone➩" + rowindex).val(rowData.Telpone);
+
                         $("#PersonSex➩" + rowindex).val(rowData.PersonSex);
                         $("#PersonDept➩" + rowindex).val(rowData.PersonDept);
                         $("#CheckInDate➩" + rowindex).val(rowData.CheckInDate);
@@ -125,6 +127,7 @@
                         $("#CheckInID➩" + rowindex).val(rowData.CheckInID);
                         $("#PersonCode➩" + rowindex).val(rowData.PersonCode);
                         $("#PersonName➩" + rowindex).val(rowData.PersonName);
+                        $("#Telpone➩" + rowindex).val(rowData.Telpone);
                         $("#PersonSex➩" + rowindex).val(rowData.PersonSex);
                         $("#PersonDept➩" + rowindex).val(rowData.PersonDept);
                         $("#CheckInDate➩" + rowindex).val(rowData.CheckInDate);
@@ -192,13 +195,15 @@
         var td4 = tr.insertCell();
         var td5 = tr.insertCell();
         var td6 = tr.insertCell();
+        var td7 = tr.insertCell();
 
         td1.innerHTML = "<input  id=\"PersonCode➩" + i + "\" class=\"txt\"><input  id=\"CheckInID➩" + i + "\" class=\"txt\" hidden>";
         td2.innerHTML = "<input  id=\"PersonName➩" + i + "\" class=\"txt\">";
-        td3.innerHTML = "<select id=\"PersonSex➩" + i + "\" class=\"txtselect\"><option value=\"男\">男</option><option value=\"女\">女</option></select>";
-        td4.innerHTML = "<input  id=\"PersonDept➩" + i + "\" class=\"txt\">";
-        td5.innerHTML = "<input  id=\"CheckInDate➩" + i + "\" class=\"txt Wdate\" onfocus=\"WdatePicker()\">";
-        td6.innerHTML = "<a onClick=\"CheckOut($('#CheckInID➩" + i + "').val())\">退宿</a>";
+        td3.innerHTML = "<input  id=\"Telpone➩" + i + "\" class=\"txt\">";
+        td4.innerHTML = "<select id=\"PersonSex➩" + i + "\" class=\"txtselect\"><option value=\"男\">男</option><option value=\"女\">女</option></select>";
+        td5.innerHTML = "<input  id=\"PersonDept➩" + i + "\" class=\"txt\">";
+        td6.innerHTML = "<input  id=\"CheckInDate➩" + i + "\" class=\"txt Wdate\" onfocus=\"WdatePicker()\">";
+        td7.innerHTML = "<a onClick=\"CheckOut($('#CheckInID➩" + i + "').val())\">退宿</a>";
         //初始化行;
         //initRows(tab);
     }
@@ -223,13 +228,15 @@
         var td4 = tr.insertCell();
         var td5 = tr.insertCell();
         var td6 = tr.insertCell();
+        var td7 = tr.insertCell();
 
         td1.innerHTML = "<input readonly id=\"PersonCode➩" + i + "\" class=\"txt\"><input  id=\"CheckInID➩" + i + "\" class=\"txt\" hidden>";
         td2.innerHTML = "<input readonly id=\"PersonName➩" + i + "\" class=\"txt\">";
-        td3.innerHTML = "<input readonly id=\"PersonSex➩" + i + "\" class=\"txt\">";
-        td4.innerHTML = "<input readonly id=\"PersonDept➩" + i + "\" class=\"txt\">";
-        td5.innerHTML = "<input readonly id=\"CheckInDate➩" + i + "\" class=\"txt\">";
-        td6.innerHTML = "<input readonly id=\"CheckOutDate➩" + i + "\" class=\"txt\">";
+        td3.innerHTML = "<input readonly id=\"Telpone➩" + i + "\" class=\"txt\">";
+        td4.innerHTML = "<input readonly id=\"PersonSex➩" + i + "\" class=\"txt\">";
+        td5.innerHTML = "<input readonly id=\"PersonDept➩" + i + "\" class=\"txt\">";
+        td6.innerHTML = "<input readonly id=\"CheckInDate➩" + i + "\" class=\"txt\">";
+        td7.innerHTML = "<input readonly id=\"CheckOutDate➩" + i + "\" class=\"txt\">";
         //初始化行;
         //initRows(tab);
     }
@@ -372,10 +379,11 @@
             <table id="CurrentForm" class="form-bill">
                 <tr><td colspan="5"><strong>当前住宿人员信息</strong></td><td style="text-align:right"><a class="button button-caution button-square button-small" onclick="AddCurrentOne(999)">添加</a></td></tr>
                 <tr>
-                    <th style="width:20%">工号</th>
+                    <th style="width:15%">工号</th>
                     <th style="width:25%">姓名</th>
+                    <th style="width:20%">手机号</th>
                     <th style="width:15%">性别</th>
-                    <th style="width:25%">部门</th>
+                    <th style="width:15%">部门</th>
                     <th style="width:10%">入住日期</th>
                     <th style="width:15%">退宿</th>
 
@@ -385,10 +393,11 @@
             <table id="HistoryForm" class="form-bill">
                 <tr><td colspan="6"><strong>历史住宿人员信息</strong></td></tr>
                 <tr>
-                    <th style="width:20%">工号</th>
+                    <th style="width:15%">工号</th>
                     <th style="width:25%">姓名</th>
+                    <th style="width:20%">手机号</th>
                     <th style="width:15%">性别</th>
-                    <th style="width:25%">部门</th>
+                    <th style="width:15%">部门</th>
                     <th style="width:12%">入住日期</th>
                     <th style="width:13%">退宿日期</th>
 

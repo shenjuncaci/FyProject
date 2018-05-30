@@ -339,7 +339,7 @@
             maxmin: true,
             shadeClose: true, //点击遮罩关闭层
             area: ['800px', '550px'],
-            content: 'UserInfo?KeyValue=' + $("#ProjectActivityID➩" + i).val() + '&index=' + i
+            content: 'UserInfo?KeyValue=' + $("#ProjectActivityID➩" + i).val() + '&index=' + i + '&ProjectID=' + GetQuery('KeyValue')
         });
         //alert(i);
     }
@@ -380,9 +380,9 @@
         $("#ResponseBy➩" + j).html("");
 
         $("#ResponseBy➩" + j).append("<option value=''>==请选择==</option>");
-        AjaxJson("/VPModule/VerifyPost/ResponseJson", {}, function (DataJson) {
+        AjaxJson("/ProjectManageModule/Project/GetProjectUserJson", { ProjectID:GetQuery('KeyValue')}, function (DataJson) {
             $.each(DataJson, function (i) {
-                $("#ResponseBy➩" + j).append($("<option></option>").val(DataJson[i].userid).html(DataJson[i].name));
+                $("#ResponseBy➩" + j).append($("<option></option>").val(DataJson[i].UserID).html(DataJson[i].UserName));
             });
            
         })

@@ -225,7 +225,7 @@ left join Base_User b on a.UserId=b.UserId
         /// <returns></returns>
         public FlowDisplay FlowDisplay(string FlowID)
         {
-            string strSql = " select a.*,b.FullName,c.RealName,d.FlowName,case when a.approvestatus=9 then '完成' when a.approvestatus=7 then '进行中' else '未提交' end as ApprovestatusCN from Base_Flowlog a " +
+            string strSql = " select a.*,b.FullName,c.RealName,d.FlowName,case when a.approvestatus=9 then '完成' when a.approvestatus=7 then '进行中' when a.approvestatus=-2 then '终止' else '未提交' end as ApprovestatusCN from Base_Flowlog a " +
                 "left join Base_Post b on a.currentpost=b.PostId left join Base_User c on a.currentperson=c.UserId " +
                 "left join Base_Flow d on a.flowno=d.flowno " +
                 " where a.flowid='" + FlowID+"' ";
@@ -573,6 +573,55 @@ left join Base_User b on a.UserId=b.UserId
             DataFactory.Database().Commit();
             return bfl.Approvestatus;
 
+        }
+
+        public int StopFlow(string FlowID,string ProcessOpinion)
+        {
+            string strSql = " select a.*,b.FullName,c.RealName from Base_Flowlog a " +
+               "left join Base_Post b on a.currentpost=b.PostId left join Base_User c on a.currentperson=c.UserId" +
+               " where flowid='" + FlowID + "' ";
+            string strSqlDetail = " select a.*,b.FullName,c.RealName from base_flowlogdetail a " +
+                "left join Base_Post b on a.approvepost=b.PostId left join Base_User c on a.approveby=c.UserId " +
+                "where flowid='" + FlowID + "' order by a.stepno ";
+            DataTable dt = Repository().FindDataSetBySql(strSql).Tables[0];
+            DataTable dtDetail = Repository().FindDataSetBySql(strSqlDetail).Tables[0];
+            Base_FlowLog bfl = DtConvertHelper.ConvertToModel<Base_FlowLog>(dt, 0);
+            IList<Base_FlowLogDetail> bfldlist = DtConvertHelper.ConvertToModelList<Base_FlowLogDetail>(dtDetail);
+            
+            bfl.Approvestatus = -2;
+            //bfl.ApprovestatusCN = ManageProvider.Provider.Current().UserName + " 终止了流程" + "(" + ProcessOpinion + ")";
+            for (int i = 0; i < bfldlist.Count; i++)
+            {
+                if (bfldlist[i].IsFinish == 0)
+                {
+                    
+                   
+                    bfldlist[i].IsFinish = 1;
+                    bfldlist[i].Approvestatus = ManageProvider.Provider.Current().UserName + " 终止了流程" + "(" + ProcessOpinion + ")";
+                    bfl.CurrentPost = "";
+                    bfl.CurrentPerson = "";
+                    
+                    
+                    DataFactory.Database().Update<Base_FlowLogDetail>(bfldlist[i]);
+                    //跳出循环
+                    Base_flowApprove bfa = new Base_flowApprove();
+                    bfa.Create();
+                    bfa.FlowID = FlowID;
+                    bfa.ApproveDate = DateTime.Now;
+                    bfa.Approvestatus = ManageProvider.Provider.Current().UserName + "终止了流程" + "(" + ProcessOpinion + ")";
+                    DataFactory.Database().Insert<Base_flowApprove>(bfa);
+                    break;
+                }
+
+                //将审批的明细信息放入到Base_FolwApprove表中
+
+            }
+
+            DataFactory.Database().Update<Base_FlowLog>(bfl);
+            DataFactory.Database().Commit();
+
+
+            return bfl.Approvestatus;
         }
 
 

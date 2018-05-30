@@ -38,7 +38,7 @@ namespace LeaRun.Entity
 
         public string CurrentPerson { get; set; }
 
-        public string ApprovestatusCN { get; set; }
+       // public string ApprovestatusCN { get; set; }
 
         #endregion
 

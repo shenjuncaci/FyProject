@@ -331,6 +331,47 @@ namespace LeaRun.WebApp.Areas.DormModule.Controllers
             return Content(dt.ToJson());
         }
 
+        public void DeriveDialog()
+        {
+            string sql = @" select b.RoomNO as 房间号,b.RoomType as 房间类型,a.PersonCode as 工号,PersonName as 姓名,PersonDept as 部门,PersonSex as 性别,a.CheckInDate as 入住日期 
+from DM_CheckIn a left join DM_Room b on a.RoomID=b.RoomID
+where a.IsLeave=0 ";
+            DataTable ListData = RoomBll.GetDataTable(sql);
+            ExcelHelper ex = new ExcelHelper();
+            ex.EcportExcel(ListData, "在住人员导出"+DateTime.Now.ToString());
+        }
+
+        public ActionResult DateChoose()
+        {
+            return View();
+        }
+
+        public void DeriveDialog2(string startdate,string enddate,string type)
+        {
+            string sql = "";
+            if (type == "1")
+            {
+                sql = @" select  b.RoomNO as 房间号,b.RoomType as 房间类型,a.PersonCode as 工号,PersonName as 姓名,PersonDept as 部门,PersonSex as 性别,a.CheckInDate as 入住日期,a.CheckOutDate as 退宿日期
+from DM_CheckIn a left join DM_Room b on a.RoomID=b.RoomID
+where a.IsLeave=1 and cast(a.CheckOutDate as date)>=cast('{0}' as date) and 
+cast(a.CheckOutDate as date)<=cast('{1}' as date) ";
+
+                sql = string.Format(sql, startdate, enddate);
+            }
+            else if(type=="2")
+            {
+                sql = @" select  b.RoomNO as 房间号,b.RoomType as 房间类型,a.PersonCode as 工号,PersonName as 姓名,PersonDept as 部门,PersonSex as 性别,a.CheckInDate as 入住日期
+from DM_CheckIn a left join DM_Room b on a.RoomID=b.RoomID
+where a.IsLeave=0 and cast(a.CheckInDate as date)>=cast('{0}' as date) and 
+cast(a.CheckInDate as date)<=cast('{1}' as date) ";
+                sql = string.Format(sql, startdate, enddate);
+            }
+
+            DataTable dt = RoomBll.GetDataTable(sql);
+            ExcelHelper ex = new ExcelHelper();
+            ex.EcportExcel(dt, "新入住人员导出" + DateTime.Now.ToString());
+        }
+
 
 
 

@@ -204,10 +204,37 @@
 
     //导出Excel
     function btn_derive() {
-        SetDeriveExcel("#gridTable", "快速反应");
-        openDialog("/CommonModule/ExcelImport/DeriveDialog", "DeriveDialog", "快速反应导出", 600, 300, function (iframe) {
-            top.frames[iframe].AcceptClick();
+        //SetDeriveExcel("#gridTable", "数据导出");
+        //openDialog("/DormModule/Room/DeriveDialog", "DeriveDialog", "数据导出", 600, 300, function (iframe) {
+        //    top.frames[iframe].AcceptClick();
+        //});
+        window.open(encodeURI("DeriveDialog"));
+    }
+
+    function btn_derive2() {
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '技能选择',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['550px', '350px'],
+            content: 'DateChoose?type=1'
         });
+    }
+
+    function btn_derive3() {
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '技能选择',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['550px', '350px'],
+            content: 'DateChoose?type=2'
+        });
+    }
+
+    function btn_deriveajax(startdate, enddate, type) {
+        window.open(encodeURI("DeriveDialog2?startdate=" + startdate + "&enddate=" + enddate + "&type=" + type));
     }
 
 
@@ -294,13 +321,13 @@
                         房间号：
                     </th>
                     <td>
-                        <input id="RoomNO" type="text" class="txt" style="width: 200px" />
+                        <input id="RoomNO" type="text" class="txt" style="width: 100px" />
                     </td>
                     <th>
                         用户名/工号：
                     </th>
                     <td>
-                        <input id="UserName" type="text" class="txt" style="width: 200px" />
+                        <input id="UserName" type="text" class="txt" style="width: 100px" />
                     </td>
                     @*<th>
             工号：

@@ -334,6 +334,7 @@ namespace LeaRun.WebApp.Controllers
                     sql += " union select ChangeID as KeyValue,'变更管理 ','/FYModule/Change/Form' as Url,changeno as ProblemDescripe from FY_Change where ChangeState='等待总经理批准' ";
                 }
                 sql += " union select ProblemID as KeyValue,'问题跟踪 ','/FYModule/ProblemTrack/Form' as Url,REPLACE(ProblemDescripe,' ','') as ProblemDescripe from FY_ProblemTrack where Status!='已完成' and (ResponseBy='" + ManageProvider.Provider.Current().UserId + "' or AgentBy='" + ManageProvider.Provider.Current().UserId + "') ";
+                sql += " union select a.ProjectID as KeyValue,'项目管理 ' as mokuai,'/ProjectManageModule/Project/Form' as Url,a.ProjectName from PM_Project a left join Base_FlowLog b on a.FlowID=b.FlowID where CurrentPerson = '" + ManageProvider.Provider.Current().UserId + "'";
                 DataTable ListData = database.FindDataSetBySql(sql).Tables[0];
                 var JsonData = new
                 {
