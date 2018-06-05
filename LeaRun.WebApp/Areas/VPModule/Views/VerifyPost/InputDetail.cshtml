@@ -54,16 +54,21 @@
 </div>
 
 <script>
+
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+
     $(document).ready(function () {
         $("#timespan").val(GetQuery('timespan'));
     });
 
     function del() {
-        window.returnValue = "del";
-        window.close();
+        parent.showtendAjax("del", GetQuery('id'), GetQuery('timespan'));
+        parent.layer.close(index);
+        //window.returnValue = "del";
+        //window.close();
     }
     function cancel() {
-        self.close();
+        parent.layer.close(index);
     }
     function confirm() {
         var _defectNum = String($("#defectNum").val());
@@ -78,9 +83,11 @@
         var ResultArr = new Array();
         ResultArr[0] = _defectNum;
         ResultArr[1] = _checkNum;
-       
-        window.returnValue = ResultArr;
-        window.close();
+
+        parent.showtendAjax(ResultArr, GetQuery('id'), GetQuery('timespan'));
+        parent.layer.close(index);
+        //window.returnValue = ResultArr;
+        //window.close();
     }
    
 </script>

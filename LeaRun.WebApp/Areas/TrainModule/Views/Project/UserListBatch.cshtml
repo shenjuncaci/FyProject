@@ -3,6 +3,7 @@
     Layout = "~/Views/Shared/_LayoutIndex.cshtml";
 }
 <script>
+    var index = parent.layer.getFrameIndex(window.name);
     $(function () {
         $("#keywords").focus();
 
@@ -112,10 +113,12 @@
             alert("请至少选择一个人");
             return false;
         }
+        parent.addbatchajax(UserID);
+        parent.layer.close(index);
         //console.log(Result);
         //alert(ResultArr[0] + ',' + ResultArr[1] + ',' + ResultArr[2])
-        window.returnValue = UserID;
-        window.close();
+        //window.returnValue = UserID;
+        //window.close();
     }
 </script>
 <div class="border" style="margin: 1px; border-bottom: none; margin-bottom: 0px;">

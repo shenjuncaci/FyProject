@@ -124,49 +124,113 @@
         var postData = { UserID: $("#UserID➩"+i).val() };
         AjaxJson("/TrainModule/Project/DeleteUser?KeyValue=" + GetQueryNew('KeyValue'), postData, function (data) {
             tipDialog(data.Message, 3, data.Code);
-            top.frames[tabiframeId()].windowload();
+            //var tb = document.getElementById('DetailForm');
+            //var rowNum = tb.rows.length;
+            //for (i = rowNum - 1; i > 1; i--) {
+            //    tb.deleteRow(i);
+            //    //rowNum = rowNum - 1;
+            //    //i = i - 1;
+            //}
+            //InitControl();
             //closeDialog();
         });
     }
 
     function addbatch()
     {
-        var reValue = window.showModalDialog('UserListBatch', window, 'dialogWidth=800px;dialogHeight=500px;status:1;title:0;');
-        if (reValue == undefined) {
-            return false;
-        }
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '用户选择',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['800px', '500px'],
+            content: 'UserListBatch'
+        });
+        //var reValue = window.showModalDialog('UserListBatch', window, 'dialogWidth=800px;dialogHeight=500px;status:1;title:0;');
+        //if (reValue == undefined) {
+        //    return false;
+        //}
+        
+    }
+    function addbatchajax(reValue) {
         var postData = { UserID: reValue };
         AjaxJson("/TrainModule/Project/InsertUser?KeyValue=" + GetQueryNew('KeyValue'), postData, function (data) {
             tipDialog(data.Message, 3, data.Code);
-            top.frames[tabiframeId()].windowload();
+            var tb = document.getElementById('DetailForm');
+            var rowNum = tb.rows.length;
+            for (i = rowNum - 1; i > 1; i--) {
+                tb.deleteRow(i);
+                //rowNum = rowNum - 1;
+                //i = i - 1;
+            }
+            InitControl();
+            //top.frames[tabiframeId()].windowload();
             //closeDialog();
         });
     }
 
     function addOnDept()
     {
-        var reValue = window.showModalDialog('DeptListBatch', window, 'dialogWidth=800px;dialogHeight=500px;status:1;title:0;');
-        if (reValue == undefined) {
-            return false;
-        }
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '部门选择',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['800px', '500px'],
+            content: 'DeptListBatch'
+        });
+        //var reValue = window.showModalDialog('DeptListBatch', window, 'dialogWidth=800px;dialogHeight=500px;status:1;title:0;');
+        //if (reValue == undefined) {
+        //    return false;
+        //}
+        
+    }
+    function addOnDeptajax(reValue) {
         var postData = { DepartID: reValue };
         AjaxJson("/TrainModule/Project/InsertUserOnDept?KeyValue=" + GetQueryNew('KeyValue'), postData, function (data) {
             tipDialog(data.Message, 3, data.Code);
-            top.frames[tabiframeId()].windowload();
+            var tb = document.getElementById('DetailForm');
+            var rowNum = tb.rows.length;
+            for (i = rowNum - 1; i > 1; i--) {
+                tb.deleteRow(i);
+                //rowNum = rowNum - 1;
+                //i = i - 1;
+            }
+            InitControl();
+            //top.frames[tabiframeId()].windowload();
             //closeDialog();
         });
     }
 
     function addOnCode()
     {
-        var reValue = window.showModalDialog('CodeForm', window, 'dialogWidth=800px;dialogHeight=500px;status:1;title:0;');
-        if (reValue == undefined) {
-            return false;
-        }
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '输入工号',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['800px', '500px'],
+            content: 'CodeForm'
+        });
+        //var reValue = window.showModalDialog('CodeForm', window, 'dialogWidth=800px;dialogHeight=500px;status:1;title:0;');
+        //if (reValue == undefined) {
+        //    return false;
+        //}
+        
+    }
+    function addOnCodeajax(reValue) {
         var postData = { StartCode: reValue[0], EndCode: reValue[1] };
         AjaxJson("/TrainModule/Project/InsertUserOnCode?KeyValue=" + GetQueryNew('KeyValue'), postData, function (data) {
             tipDialog(data.Message, 3, data.Code);
-            top.frames[tabiframeId()].windowload();
+            var tb = document.getElementById('DetailForm');
+            var rowNum = tb.rows.length;
+            for (i = rowNum - 1; i > 1; i--) {
+                tb.deleteRow(i);
+                //rowNum = rowNum - 1;
+                //i = i - 1;
+            }
+            InitControl();
+            //top.frames[tabiframeId()].windowload();
             //closeDialog();
         });
     }
@@ -183,9 +247,9 @@
             </tr>
         </table>
         <div id="Fixed">
-            <button onclick="addbatch()">添加</button>
-            <button onclick="addOnDept()">按部门添加</button>
-            <button onclick="addOnCode()">按工号段添加</button>
+            <a class="button button-tiny" onclick="addbatch()">添加</a>
+            <a class="button button-tiny" onclick="addOnDept()">按部门添加</a>
+            <a class="button button-tiny" onclick="addOnCode()">按工号段添加</a>
             @*<a class="button button-caution button-square button-small" onclick="addone(999)">添加</a>
                 <a class="button button-caution button-square button-small" onclick="addbatch()">批量</a>*@
         </div>

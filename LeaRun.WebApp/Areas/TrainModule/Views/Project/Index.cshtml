@@ -210,7 +210,7 @@
         var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
         if (IsChecked(KeyValue)) {
             var url = "/TrainModule/project/UserForm?KeyValue=" + KeyValue;
-            openDialog(url, "Form", "编辑", 1000, 350, function (iframe) {
+            openDialog(url, "Form", "编辑", 1000, 550, function (iframe) {
                 top.frames[iframe].AcceptClick()
             });
 

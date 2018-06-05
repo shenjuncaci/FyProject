@@ -675,7 +675,64 @@
                 return false;
             }
         }
-        var reValue = window.showModalDialog('InputDetail?id=' + verifypostdid + '&timespan=' + timespan, window, 'dialogWidth=400px;dialogHeight=200px;status:1;title:0;');
+
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '技能选择',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['400px', '200px'],
+            content: 'InputDetail?id=' + verifypostdid + '&timespan=' + timespan
+        });
+
+        //var reValue = window.showModalDialog('InputDetail?id=' + verifypostdid + '&timespan=' + timespan, window, 'dialogWidth=400px;dialogHeight=200px;status:1;title:0;');
+        //if (reValue == undefined) {
+        //    return false;
+        //}
+        //else {
+        //    if (reValue == "del") {
+        //        $.ajax({
+        //            type: "post",
+        //            url: "/VPModule/VerifyPost/UpdateDetail",
+        //            data: {
+        //                verifypostdid: verifypostdid,
+        //                timespan: timespan,
+        //                tag:"未生产"
+        //            },
+        //            async: false,
+        //            success: function (msg) {
+        //                windowload();
+        //            },
+        //            error: function () {
+        //                alert("出错了");
+        //            }
+        //        });
+        //    }
+        //    else
+        //    {
+        //        $.ajax({
+        //            type: "post",
+        //            url: "/VPModule/VerifyPost/UpdateDetail",
+        //            data: {
+        //                verifypostdid: verifypostdid,
+        //                timespan: timespan,
+        //                tag: "生产",
+        //                defectNum: reValue[0],
+        //                checkNum: reValue[1]
+        //            },
+        //            async: false,
+        //            success: function (msg) {
+        //                windowload();
+        //            },
+        //            error: function () {
+        //                alert("出错了");
+        //            }
+        //        });
+        //    }
+        //}
+    }
+
+    function showtendAjax(reValue, verifypostdid, timespan) {
         if (reValue == undefined) {
             return false;
         }
@@ -687,7 +744,7 @@
                     data: {
                         verifypostdid: verifypostdid,
                         timespan: timespan,
-                        tag:"未生产"
+                        tag: "未生产"
                     },
                     async: false,
                     success: function (msg) {
@@ -698,8 +755,7 @@
                     }
                 });
             }
-            else
-            {
+            else {
                 $.ajax({
                     type: "post",
                     url: "/VPModule/VerifyPost/UpdateDetail",

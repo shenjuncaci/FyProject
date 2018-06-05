@@ -8,13 +8,13 @@
 <!--上传文件组件start-->
 <link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
 <script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>
-<link href="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.css" rel="stylesheet" />
-<script src="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.js"></script>
+<link href="~/Content/Scripts/jquery.select2/css/select2.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery.select2/js/select2.js"></script>
 <script type="text/javascript">
     $(function () {
 
         BindDepartment();
-        
+
         InitControl();
         //js通配符获取所有日期，去掉T后面的内容
         //测试后效率还可以,如果以后发现效率不行,可以尝试去掉if判断,根据日期格式固定截取字符串
@@ -249,13 +249,14 @@
                 }
                 else {
                     lazyloadbutton();
-                    $("#res_cpeo").searchableSelect();
+                    $("#res_cpeo").select2();
+                    $("#FollowBy").select2();
                 }
                 //alert($("#res_cpeo").find("option:selected").text());
                // var x = document.getElementsByClassName("searchable-select-holder");
                 ///alert(document.getElementsByClassName("searchable-select-holder")[0].innerHTML);
                 //用了可搜索后的jquery插件，原理是隐藏原来的下拉框，修改为div显示，将div赋值原来select的值
-                document.getElementsByClassName("searchable-select-holder")[0].innerHTML = $("#res_cpeo").find("option:selected").text();
+                //document.getElementsByClassName("searchable-select-holder")[0].innerHTML = $("#res_cpeo").find("option:selected").text();
                 //alert(String(data["res_cpeo"]));
                 //$("#res_cpeo").val('009908');
                 //alert("后面报错还是前面");
@@ -271,6 +272,10 @@
         if ($("#res_cpeo").val() == undefined || $("#res_cpeo").val() == "" || $("#res_cpeo").val() == null)
         {
             alert("请先匹配责任人账号");
+            return false;
+        }
+        if ($("#FollowBy").val() == undefined || $("#FollowBy").val() == "" || $("#FollowBy").val() == null) {
+            alert("请先匹配跟踪人账号");
             return false;
         }
         if ($("#res_dd").val() == undefined || $("#res_dd").val() == "" || $("#res_dd").val() == null || $("#res_dd").val() == "==请选择==") {
@@ -296,9 +301,12 @@
     function BindDepartment() {
         $("#res_cpeo").html("");
         $("#res_cpeo").append("<option value=''>==请选择==</option>");
+        $("#FollowBy").html("");
+        $("#FollowBy").append("<option value=''>==请选择==</option>");
         AjaxJson("/CommonModule/Rapid/ListJson", {  }, function (DataJson) {
             $.each(DataJson, function (i) {
                 $("#res_cpeo").append($("<option></option>").val(DataJson[i].code).html(DataJson[i].RealName));
+                $("#FollowBy").append($("<option></option>").val(DataJson[i].code).html(DataJson[i].RealName));
             });
         })
         $("#res_kf").html("");
@@ -1611,7 +1619,10 @@
                 <tr>
                     <th class="formTitle">负责人：</th>
                     <td class="formValue">
-                        <select id="res_cpeo" class="txtselect"></select>
+                        <table>
+                            <tr><td><select id="res_cpeo" class="txtselect"></select></td><td>跟踪人</td><td><select id="FollowBy" class="txtselect"></select></td></tr>
+
+                        </table>
                     </td>
                     <th class="formTitle">重要程度：</th>
                     <td class="formValue">
@@ -1766,7 +1777,7 @@
                     </td>
                     <td class="formValue" id="res_csstate">状态：<input id="res_cs" type="text" class="txt" /></td>
 
-                    
+
                 </tr>
 
 
@@ -1811,7 +1822,7 @@
 
                     </td>
                     <td class="formValue" id="res_fcshstate">状态：<input id="res_fcsh" type="text" class="txt" /></td>
-                    
+
                 </tr>
 
 
@@ -1839,7 +1850,7 @@
 
                     </td>
                     <td class="formValue" id="res_fmeastate">状态：<input id="res_fmea" type="text" class="txt" /></td>
-                   
+
                 </tr>
                 <tr>
                     <th class="formTitle">标准更新</br>（35D):</th>
@@ -1865,7 +1876,7 @@
                     </td>
                     <td class="formValue" id="res_jyjxstate">状态：<input id="res_jyjx" type="text" class="txt" /></td>
 
-                    
+
                 </tr>
                 <tr>
                     <th class="formTitle">完整8D</br>报告(40D)</th>
@@ -1881,7 +1892,7 @@
                     <td class="formValue" id="res_8dstate">状态：<input id="res_8d" type="text" class="txt" /></td>
                     <th class="formTitle"></th>
                     <td class="formValue"></td>
-                    <td class="formValue" ></td>
+                    <td class="formValue"></td>
                 </tr>
 
             </table>

@@ -151,6 +151,7 @@
                 { label: '是否重复发生', name: 'isagain', index: 'isagain', width: 50, align: 'left' },
                 { label: '问题类别', name: 'problemtype2', index: 'problemtype2', width: 50, align: 'left'},
                 { label: '责任人', name: 'realname', index: 'realname', width: 50, align: 'left' },
+                { label: '跟踪人', name: 'followby', index: 'followby', width: 50, align: 'left' },
                 { label: '责任部门', name: 'fullname', index: 'fullname', width: 80, align: 'left' },
                 { label: '客户', name: 'customer', index: 'customer', width: 100, align: 'left' },
                 { label: '问题描述', name: 'problemdescripe', index: 'problemdescripe', width: 200, align: 'left', formatter: LengthSubFj },
@@ -221,7 +222,7 @@
         var KeyValue = GetJqGridRowValue("#gridTable", "generalproblemid");
         if (IsChecked(KeyValue)) {
             var url = "/FYModule/GeneralProblem/Form?KeyValue=" + KeyValue;
-            openDialog(url, "Form", "编辑", 650, 350, function (iframe) {
+            openDialog(url, "Form", "编辑", 800, 350, function (iframe) {
                 top.frames[iframe].AcceptClick()
             });
 

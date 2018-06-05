@@ -245,7 +245,7 @@
         if (IsChecked(KeyValue)) {
             if (ActivityState == "已完成" || ActivityState == "已结案") {
                 var url = "/ProjectManageModule/Project/ActivityForm?KeyValue=" + KeyValue;
-                openDialog(url, "Form", "编辑", 1000, 550, function (iframe) {
+                openDialog(url, "Form", "编辑", $(window).width()-100, 500, function (iframe) {
                     top.frames[iframe].AcceptClick()
                 });
             }

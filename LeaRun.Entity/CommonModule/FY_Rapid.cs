@@ -179,6 +179,7 @@ namespace LeaRun.Entity
         public string res_postverifynode { get; set; }
 
         public string VerifyPostID { get; set; }
+        public string FollowBy { get; set; }
 
         
 

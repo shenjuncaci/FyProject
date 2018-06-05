@@ -28,6 +28,8 @@
 </div>
 
 <script>
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+
     function btn_Confirm()
     {
         var StartCode = $("#StartCode").val();
@@ -35,7 +37,7 @@
         var ResultArr = new Array();
         ResultArr[0] = StartCode;
         ResultArr[1] = EndCode;
-        window.returnValue = ResultArr;
-        window.close();
+        parent.addOnCodeajax(ResultArr);
+        parent.layer.close(index);
     }
 </script>

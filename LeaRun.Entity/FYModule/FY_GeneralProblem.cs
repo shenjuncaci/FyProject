@@ -53,6 +53,8 @@ namespace LeaRun.Entity
         public string Requirements { get; set; }
         public string ActualResults { get; set; }
 
+        public string FollowBy { get; set; }
+
 
         #region 扩展操作
         /// <summary>

@@ -8,15 +8,15 @@
 <!--上传文件组件start-->
 <link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
 <script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>
-<link href="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.css" rel="stylesheet" />
-<script src="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.js"></script>
+<link href="~/Content/Scripts/jquery.select2/css/select2.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery.select2/js/select2.js"></script>
 <script type="text/javascript">
     $(function () {
         BindDepartment();
         InitControl();
         //js通配符获取所有日期，去掉T后面的内容Date
         //测试后效率还可以,如果以后发现效率不行,可以尝试去掉if判断,根据日期格式固定截取字符串
-        
+
         $('input[id$="Dt"]').each(function () {
 
             var w = this.value.indexOf("T");
@@ -36,7 +36,7 @@
             this.disabled = true;
             this.readOnly = true;
         });
-        
+
 
 
     })
@@ -48,7 +48,7 @@
         if (!!GetQueryNew('KeyValue')) {
             AjaxJson("/FYModule/GeneralProblem/SetForm", { KeyValue: GetQueryNew('KeyValue') }, function (data) {
                 SetWebControls(data);
-                
+
 
                 if (String(data["ProblemAttach"]) != "" && String(data["ProblemAttach"]) != "null" && data["ProblemAttach"] != undefined && data["ProblemAttach"] != "&nbsp;") {
 
@@ -95,8 +95,8 @@
                     $("form textarea").prop("readonly", true);
                     $("form select").prop("disabled", true);
 
-                    
-                   
+
+
                 }
 
 
@@ -134,8 +134,9 @@
                         }
                         else
                         {
-                            $("#ResponseBy").searchableSelect();
-                            document.getElementsByClassName("searchable-select-holder")[0].innerHTML = $("#ResponseBy").find("option:selected").text();
+                            $("#ResponseBy").select2();
+                            $("#FollowBy").select2();
+                           // document.getElementsByClassName("searchable-select-holder")[0].innerHTML = $("#ResponseBy").find("option:selected").text();
                             uploadify();
                             //uploadify_CA();
                             //uploadify_CM();
@@ -151,7 +152,7 @@
 
 
 
-                
+
 
             });
         }
@@ -160,7 +161,7 @@
     }
     //保存事件
     function AcceptClick() {
-        
+
         if (!CheckDataValid('#form1')) {
             return false;
         }
@@ -180,9 +181,12 @@
     function BindDepartment() {
         $("#ResponseBy").html("");
         $("#ResponseBy").append("<option value=''>==请选择==</option>");
+        $("#FollowBy").html("");
+        $("#FollowBy").append("<option value=''>==请选择==</option>");
         AjaxJson("/CommonModule/Rapid/ListJson", {  }, function (DataJson) {
             $.each(DataJson, function (i) {
                 $("#ResponseBy").append($("<option></option>").val(DataJson[i].code).html(DataJson[i].RealName));
+                $("#FollowBy").append($("<option></option>").val(DataJson[i].code).html(DataJson[i].RealName));
             });
         })
         $("#Customer").html("");
@@ -192,7 +196,7 @@
                 $("#Customer").append($("<option></option>").val(DataJson[i].fy_cus_name).html(DataJson[i].fy_cus_name));
             });
         })
-        
+
     }
 
     //日期格式重写
@@ -241,7 +245,7 @@
                 document.getElementById("tt").style.display = "block";
                 document.getElementById("tt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
             },
-            onUploadError: function () { alert("请先保存本单，再上传附件")}
+            onUploadError: function () { alert("请先保存本单，再上传附件") }
         });
     }
 
@@ -318,7 +322,7 @@
 
 
 
-    
+
 
 
     //uploadifybzgx
@@ -443,7 +447,11 @@
                 <tr>
                     <th class="formTitle">负责人：</th>
                     <td class="formValue">
-                        <select id="ResponseBy" class="txtselect"></select>
+                        
+                        <table>
+                            <tr><td><select id="ResponseBy" class="txtselect"></select></td><td>跟踪人</td><td><select id="FollowBy" class="txtselect"></select></td></tr>
+
+                        </table>
                     </td>
                     <th class="formTitle">重要程度：</th>
                     <td class="formValue">
@@ -558,15 +566,15 @@
                         <button id="CA_Approve">通过</button>
                         <button id="CA_Reject">回退</button>
                         @*<table>
-                            <tr>
-                                <td>
-                                    <input id="uploadify_CA" name="uploadify" type="file" />
-                                </td>
-                                <td>
-                                    <label id="tt_CA" style="display:none" />
-                                </td>
-                            </tr>
-                        </table>*@
+                                <tr>
+                                    <td>
+                                        <input id="uploadify_CA" name="uploadify" type="file" />
+                                    </td>
+                                    <td>
+                                        <label id="tt_CA" style="display:none" />
+                                    </td>
+                                </tr>
+                            </table>*@
                     </td>
                 </tr>
                 <tr>
@@ -578,22 +586,22 @@
                         <button id="CM_Approve">通过</button>
                         <button id="CM_Reject">回退</button>
                         @*<table>
-                            <tr>
-                                <td>
-                                    <input id="uploadify_CM" name="uploadify" type="file" />
-                                </td>
-                                <td>
-                                    <label id="tt_CM" style="display:none" />
-                                </td>
-                            </tr>
-                        </table>*@
+                                <tr>
+                                    <td>
+                                        <input id="uploadify_CM" name="uploadify" type="file" />
+                                    </td>
+                                    <td>
+                                        <label id="tt_CM" style="display:none" />
+                                    </td>
+                                </tr>
+                            </table>*@
                     </td>
                 </tr>
                 <tr>
                     <th class="formTitle">改善报告：</th>
                     @*<td class="formValue" colspan="2">
-                        <textarea id="ImproveReport" class="txt" style="width:320px;height:80px;" /></textarea>
-                    </td>*@
+                            <textarea id="ImproveReport" class="txt" style="width:320px;height:80px;" /></textarea>
+                        </td>*@
                     <td colspan="2" class="formValue">
                         <table>
                             <tr>
@@ -606,8 +614,7 @@
                             </tr>
                         </table>
                     </td>
-                    <td>
-                        </td>
+                    <td></td>
                 </tr>
             </table>
         </div>

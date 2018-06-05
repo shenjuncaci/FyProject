@@ -731,49 +731,56 @@ where VerifyPostID in (select VerifyPostID from VP_VerifyPostDetail where Verify
 
         public string SendEmailByAccount(string reciver, string Content)
         {
-            var emailAcount = "shfy_it@fuyaogroup.com";
-            var emailPassword = "Sj1234";
-
-            string[] reviverArr = reciver.Split(',');
-
-
-            var content = Content;
-            MailMessage message = new MailMessage();
-            //设置发件人,发件人需要与设置的邮件发送服务器的邮箱一致
-            MailAddress fromAddr = new MailAddress("shfy_it@fuyaogroup.com");
-            message.From = fromAddr;
-            //设置收件人,可添加多个,添加方法与下面的一样
-            for (int i = 0; i < reviverArr.Length; i++)
+            try
             {
-                message.To.Add(reviverArr[i]);
+                var emailAcount = "shfy_it@fuyaogroup.com";
+                var emailPassword = "Sj1234";
+
+                string[] reviverArr = reciver.Split(',');
+
+
+                var content = Content;
+                MailMessage message = new MailMessage();
+                //设置发件人,发件人需要与设置的邮件发送服务器的邮箱一致
+                MailAddress fromAddr = new MailAddress("shfy_it@fuyaogroup.com");
+                message.From = fromAddr;
+                //设置收件人,可添加多个,添加方法与下面的一样
+                for (int i = 0; i < reviverArr.Length; i++)
+                {
+                    message.To.Add(reviverArr[i]);
+                }
+                //message.To.Add("yao.sun@fuyaogroup.com");
+
+                //message.To.Add("zhonghua.yan@fuyaogroup.com");
+
+                //message.To.Add("li.wang@fuyaogroup.com");
+
+
+
+                //设置抄送人
+                message.CC.Add("jun.shen@fuyaogroup.com");
+                //设置邮件标题
+                message.Subject = "岗位验证系统邮件";
+                //设置邮件内容
+                message.Body = content;
+                //设置邮件发送服务器,服务器根据你使用的邮箱而不同,可以到相应的 邮箱管理后台查看,下面是QQ的
+                SmtpClient client = new SmtpClient("mail.fuyaogroup.com", 25);
+                //设置发送人的邮箱账号和密码
+                client.Credentials = new NetworkCredential(emailAcount, emailPassword);
+                //启用ssl,也就是安全发送
+                client.EnableSsl = true;
+                //发送邮件
+                //加这段之前用公司邮箱发送报错：根据验证过程，远程证书无效
+                //加上后解决问题
+                ServicePointManager.ServerCertificateValidationCallback =
+    delegate (Object obj, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors) { return true; };
+                client.Send(message);
+                return "0";
             }
-            //message.To.Add("yao.sun@fuyaogroup.com");
-
-            //message.To.Add("zhonghua.yan@fuyaogroup.com");
-
-            //message.To.Add("li.wang@fuyaogroup.com");
-
-
-
-            //设置抄送人
-            message.CC.Add("jun.shen@fuyaogroup.com");
-            //设置邮件标题
-            message.Subject = "岗位验证系统邮件";
-            //设置邮件内容
-            message.Body = content;
-            //设置邮件发送服务器,服务器根据你使用的邮箱而不同,可以到相应的 邮箱管理后台查看,下面是QQ的
-            SmtpClient client = new SmtpClient("mail.fuyaogroup.com", 25);
-            //设置发送人的邮箱账号和密码
-            client.Credentials = new NetworkCredential(emailAcount, emailPassword);
-            //启用ssl,也就是安全发送
-            client.EnableSsl = true;
-            //发送邮件
-            //加这段之前用公司邮箱发送报错：根据验证过程，远程证书无效
-            //加上后解决问题
-            ServicePointManager.ServerCertificateValidationCallback =
-delegate (Object obj, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors) { return true; };
-            client.Send(message);
-            return "0";
+            catch(Exception ex)
+            {
+                return "1";
+            }
         }
 
         public ActionResult TrendPicture()

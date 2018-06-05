@@ -19,8 +19,9 @@ namespace LeaRun.Business
         {
             StringBuilder strSql = new StringBuilder();
             List<DbParameter> parameter = new List<DbParameter>();
-            strSql.Append(@"select a.*,b.realname,c.fullname from FY_GeneralProblem a left join Base_user b on a.ResponseBy=b.code 
+            strSql.Append(@"select a.*,b.realname,c.fullname,d.realname as followby2 from FY_GeneralProblem a left join Base_user b on a.ResponseBy=b.code 
 left join Base_Department c on b.departmentid=c.departmentid
+left join base_user d on a.followby=d.code
 where 1=1 ");
             if (!string.IsNullOrEmpty(keyword))
             {

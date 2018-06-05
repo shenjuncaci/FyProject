@@ -7,14 +7,15 @@
 <!--上传文件组件start-->
 <link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
 <script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>
-<link href="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.css" rel="stylesheet" />
-<script src="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.js"></script>
+<link href="~/Content/Scripts/jquery.select2/css/select2.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery.select2/js/select2.js"></script>
 <script type="text/javascript">
     $(function () {
         BindDepartment();
         uploadify();
         //下拉框可搜索
-        $("#res_cpeo").searchableSelect();
+        $("#res_cpeo").select2();
+        $("#FollowBy").select2();
 
 
     })
@@ -59,6 +60,10 @@
             alert("请选择责任人");
             return false;
         }
+        if ($("#FollowBy").val() == undefined || $("#FollowBy").val() == "" || $("#FollowBy").val() == null || $("#FollowBy").val() == "==请选择==") {
+            alert("请选择跟踪人");
+            return false;
+        }
         if ($("#res_ms").val() == undefined || $("#res_ms").val() == "" || $("#res_ms").val() == null || $("#res_ms").val() == "==请选择==") {
             alert("请选择问题内容描述");
             return false;
@@ -80,9 +85,12 @@
         //alert(11);
         $("#res_cpeo").html("");
         $("#res_cpeo").append("<option value=''>==请选择==</option>");
+        $("#FollowBy").html("");
+        $("#FollowBy").append("<option value=''>==请选择==</option>");
         AjaxJson("/CommonModule/Rapid/ListJson", {  }, function (DataJson) {
             $.each(DataJson, function (i) {
                 $("#res_cpeo").append($("<option></option>").val(DataJson[i].code).html(DataJson[i].RealName));
+                $("#FollowBy").append($("<option></option>").val(DataJson[i].code).html(DataJson[i].RealName));
             });
         })
         $("#res_kf").html("");
@@ -214,11 +222,13 @@
                   </tr>
                  <tr>
                     <th class="formTitle">负责人：</th>
-                    <td class="formValue">
-                        <select id="res_cpeo" class="txtselect">
-                            
 
-                        </select>
+                    <td class="formValue">
+                        <table>
+                            <tr><td style="width:30%"><select style="width:80px" id="res_cpeo" class="txtselect"></select></td><td>跟踪人</td><td style="width:40%"><select style="width:80px" id="FollowBy" class="txtselect"></select></td></tr>
+                            
+                        </table>
+                        
                     </td>
                      <th class="formTitle">重要程度：</th>
                     <td class="formValue">
