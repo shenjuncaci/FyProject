@@ -248,6 +248,29 @@ namespace LeaRun.Entity
         public string ModifyUserName { get; set; }
         #endregion
 
+        #region 新添加评分部分字段
+        ///以下部分为人事新添加的评分系统模块
+        ///
+        public decimal AgeOfWork { get; set; }
+        public decimal IsLeader { get; set; }
+        public decimal Degree { get; set; }
+        public decimal SkillUp { get; set; }
+        public decimal YellowBand { get; set; }
+        public decimal CourseProject { get; set; }
+        public decimal ImproveProposal { get; set; }
+        public decimal RationalProposal { get; set; }
+        public decimal FiveStar1 { get; set; }
+        public decimal FiveStar2 { get; set; }
+        public decimal ExperienceYear { get; set; }
+        public decimal ExperienceSkill { get; set; }
+        public decimal ExperiencePro { get; set; }
+        public decimal ExperineceCollege { get; set; }
+        public decimal ExperienceWriter { get; set; }
+        public decimal Honour { get; set; }
+        public decimal Minus1 { get; set; }
+        public decimal Minus2 { get; set; }
+        #endregion
+
         #region 扩展操作
         /// <summary>
         /// 新增调用

@@ -16,6 +16,7 @@
             //绑定部门
             BindDepartment(); $("#DepartmentId").val(GetQuery('DepartmentId'));
         }
+        SumAll();
     })
     //初始化绑定下拉框
     function BindCombobox() {
@@ -82,6 +83,66 @@
             });
         }, 200);
     }
+
+    function SumAll() {
+        var all = 0;
+        if (CheckIsNullNoTip($("#AgeOfWork").val())) {
+            all = all + Number($("#AgeOfWork").val());
+        }
+        if (CheckIsNullNoTip($("#IsLeader").val())) {
+            all = all + Number($("#IsLeader").val());
+        }
+        if (CheckIsNullNoTip($("#Degree").val())) {
+            all = all + Number($("#Degree").val());
+        }
+        if (CheckIsNullNoTip($("#SkillUp").val())) {
+            all = all + Number($("#SkillUp").val());
+        }
+        if (CheckIsNullNoTip($("#YellowBand").val())) {
+            all = all + Number($("#YellowBand").val());
+        }
+        if (CheckIsNullNoTip($("#CourseProject").val())) {
+            all = all + Number($("#CourseProject").val());
+        }
+        if (CheckIsNullNoTip($("#ImproveProposal").val())) {
+            all = all + Number($("#ImproveProposal").val());
+        }
+        if (CheckIsNullNoTip($("#RationalProposal").val())) {
+            all = all + Number($("#RationalProposal").val());
+        }
+        if (CheckIsNullNoTip($("#FiveStar1").val())) {
+            all = all + Number($("#FiveStar1").val());
+        }
+        if (CheckIsNullNoTip($("#FiveStar2").val())) {
+            all = all + Number($("#FiveStar2").val());
+        }
+        if (CheckIsNullNoTip($("#ExperienceYear").val())) {
+            all = all + Number($("#ExperienceYear").val());
+        }
+        if (CheckIsNullNoTip($("#ExperienceSkill").val())) {
+            all = all + Number($("#ExperienceSkill").val());
+        }
+        if (CheckIsNullNoTip($("#ExperiencePro").val())) {
+            all = all + Number($("#ExperiencePro").val());
+        }
+        if (CheckIsNullNoTip($("#ExperineceCollege").val())) {
+            all = all + Number($("#ExperineceCollege").val());
+        }
+        if (CheckIsNullNoTip($("#ExperienceWriter").val())) {
+            all = all + Number($("#ExperienceWriter").val());
+        }
+        if (CheckIsNullNoTip($("#Honour").val())) {
+            all = all + Number($("#Honour").val());
+        }
+        if (CheckIsNullNoTip($("#Minus1").val())) {
+            all = all - Number($("#Minus1").val());
+        }
+        if (CheckIsNullNoTip($("#Minus2").val())) {
+            all = all - Number($("#Minus2").val());
+        }
+        $("#SumScore").val(all);
+
+    }
 </script>
 <form id="form1">
     <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
@@ -89,8 +150,8 @@
         <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
             <div class="tab_list_top" style="position: absolute">
                 <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">基本信息</div>
-                @*<div id="Tabwork" class="tab_list bd " onclick="Tabchange('work')">工作相关</div>
-                <div id="TabCustomAttribute" class="tab_list bd " onclick="Tabchange('CustomAttribute')">自定义属性</div>*@
+                <div id="Tabwork" class="tab_list bd " onclick="Tabchange('work')">相关评分</div>
+                @*<div id="TabCustomAttribute" class="tab_list bd " onclick="Tabchange('CustomAttribute')">自定义属性</div>*@
             </div>
         </div>
     </div>
@@ -119,7 +180,7 @@
                         <input id="Password" type="Password" class="txt required" datacol="yes" err="登录密码" checkexpession="NotNull" />
                     </td>
                 </tr>
-                <tr style="display:none">
+                <tr>
                     <th class="formTitle">性别：</th>
                     <td class="formValue">
                         <select id="Gender" class="txtselect">
@@ -132,7 +193,7 @@
                         <input id="Birthday" type="text" class="txt Wdate" onfocus="WdatePicker({maxDate:'%y-%M-%d'})" />
                     </td>
                 </tr>
-                <tr style="display:none">
+                <tr>
                     <th class="formTitle">联系手机：</th>
                     <td class="formValue">
                         <input id="Mobile" type="text" class="txt" datacol="yes" err="手机" checkexpession="MobileOrNull" />
@@ -192,112 +253,110 @@
         <div id="work" class="tabPanel" style="display: none;">
             <table class="form">
                 <tr>
-                    <th class="formTitle">工作性质：</th>
+                    <th class="formTitle">司龄：</th>
                     <td class="formValue">
-                        <select id="WorkingProperty" class="txtselect">
-                        </select>
+                        <input id="AgeOfWork" type="text" class="txt" onfocus="IsNumber(this.id)" onchange="SumAll()"/>
                     </td>
-                    <th class="formTitle">入职日期：</th>
+                    <th class="formTitle">班组长：</th>
                     <td class="formValue">
-                        <input id="WorkingDate" type="text" class="txt Wdate" onfocus="WdatePicker()" />
+                        <input id="IsLeader" type="text" class="txt" onfocus="IsNumber(this.id)" onchange="SumAll()"/>
                     </td>
                 </tr>
                 <tr>
-                    <th class="formTitle">身份证号：</th>
+                    <th class="formTitle">学历：</th>
                     <td class="formValue">
-                        <input id="IDCard" type="text" class="txt" />
+                        <input id="Degree" type="text" class="txt" onfocus="IsNumber(this.id)" onchange="SumAll()"/>
                     </td>
-                    <th class="formTitle">担任职务：</th>
+                    <th class="formTitle">技能提升：</th>
                     <td class="formValue">
-                        <select id="Duty" class="txtselect">
-                        </select>
+                        <input id="SkillUp" type="text" class="txt" onfocus="IsNumber(this.id)" onchange="SumAll()"/>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">精益黄带人员：</th>
+                    <td class="formValue">
+                        <input id="YellowBand" type="text" class="txt" onfocus="IsNumber(this.id)" onchange="SumAll()"/>
+                    </td>
+                    <th class="formTitle">课题项目：</th>
+                    <td class="formValue">
+                        <input id="CourseProject" type="text" class="txt" onfocus="IsNumber(this.id)" onchange="SumAll()"/>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">改善提案：</th>
+                    <td class="formValue">
+                        <input id="ImproveProposal" type="text" class="txt" onfocus="IsNumber(this.id)" onchange="SumAll()"/>
+                    </td>
+                    <th class="formTitle">合理化建议：</th>
+                    <td class="formValue">
+                        <input id="RationalProposal" type="text" class="txt" onfocus="IsNumber(this.id)" onchange="SumAll()"/>
                     </td>
                 </tr>
                 <tr>
-                    <th class="formTitle">年龄：</th>
+                    <th class="formTitle">五星班组-五大员：</th>
                     <td class="formValue">
-                        <input id="Age" type="text" class="txt" datacol="yes" err="年龄" checkexpession="NumOrNull" onfocus="IsNumber(this.id)" />
+                        <input id="FiveStar1" type="text" class="txt" onfocus="IsNumber(this.id)" onchange="SumAll()"/>
                     </td>
-                    <th class="formTitle">工资卡号：
-                    </th>
+                    <th class="formTitle">五星班组-星级班组：</th>
                     <td class="formValue">
-                        <input id="BankCode" type="text" class="txt" />
+                        <input id="FiveStar2" type="text" class="txt" onfocus="IsNumber(this.id)" onchange="SumAll()"/>
                     </td>
                 </tr>
                 <tr>
-                    <th class="formTitle">短号：</th>
+                    <th class="formTitle">经验传承-师带徒：</th>
                     <td class="formValue">
-                        <input id="OfficeCornet" type="text" class="txt" />
+                        <input id="ExperienceYear" type="text" class="txt" onfocus="IsNumber(this.id)" onchange="SumAll()"/>
                     </td>
-                    <th class="formTitle">办公电话：</th>
+                    <th class="formTitle">经验传承-技能教练：</th>
                     <td class="formValue">
-                        <input id="OfficePhone" type="text" class="txt" />
+                        <input id="ExperienceSkill" type="text" class="txt" onfocus="IsNumber(this.id)" onchange="SumAll()"/>
                     </td>
                 </tr>
                 <tr>
-                    <th class="formTitle">传真：</th>
+                    <th class="formTitle">经验传承-专业传承：</th>
                     <td class="formValue">
-                        <input id="OfficeFax" type="text" class="txt" />
+                        <input id="ExperiencePro" type="text" class="txt" onfocus="IsNumber(this.id)" onchange="SumAll()"/>
                     </td>
-                    <th class="formTitle">邮编：</th>
+                    <th class="formTitle">文化贡献-社团建设：</th>
                     <td class="formValue">
-                        <input id="OfficeZipCode" type="text" class="txt" />
+                        <input id="ExperineceCollege" type="text" class="txt" onfocus="IsNumber(this.id)" onchange="SumAll()"/>
                     </td>
                 </tr>
                 <tr>
-                    <th class="formTitle">办公地址：
-                    </th>
-                    <td class="formValue" colspan="3">
-                        <input id="OfficeAddress" type="text" class="txt" />
+                    <th class="formTitle">文化贡献-通讯稿：</th>
+                    <td class="formValue">
+                        <input id="ExperienceWriter" type="text" class="txt" onfocus="IsNumber(this.id)" onchange="SumAll()"/>
+                    </td>
+                    <th class="formTitle">荣誉：</th>
+                    <td class="formValue">
+                        <input id="Honour" type="text" class="txt" onfocus="IsNumber(this.id)" onchange="SumAll()"/>
                     </td>
                 </tr>
                 <tr>
-                    <th class="formTitle">最高学历：</th>
+                    <th class="formTitle">违纪扣分：</th>
                     <td class="formValue">
-                        <select id="Education" class="txtselect">
-                        </select>
+                        <input id="Minus1" type="text" class="txt" onfocus="IsNumber(this.id)" onchange="SumAll()"/>
                     </td>
-                    <th class="formTitle">最高学位：</th>
+                    <th class="formTitle">安全扣分：</th>
                     <td class="formValue">
-                        <select id="Degree" class="txtselect">
-                        </select>
+                        <input id="Minus2" type="text" class="txt" onfocus="IsNumber(this.id)" onchange="SumAll()" />
                     </td>
                 </tr>
                 <tr>
-                    <th class="formTitle">所学专业：</th>
+                    <th class="formTitle">总分：</th>
                     <td class="formValue">
-                        <input id="Major" type="text" class="txt" />
+                        <input readonly id="SumScore" type="text" class="txt" onfocus="IsNumber(this.id)" />
                     </td>
-                    <th class="formTitle">毕业院校：
-                    </th>
+                    <th class="formTitle"></th>
                     <td class="formValue">
-                        <input id="School" type="text" class="txt" />
-                    </td>
-                </tr>
-                <tr>
-                    <th class="formTitle">毕业时间：</th>
-                    <td class="formValue">
-                        <input id="GraduationDate" type="text" class="txt Wdate" onfocus="WdatePicker()" />
-                    </td>
-                    <th class="formTitle">职业资格：</th>
-                    <td class="formValue">
-                        <select id="Competency" class="txtselect">
-                        </select>
+                        
                     </td>
                 </tr>
-                <tr>
-                    <th class="formTitle">紧急联系：</th>
-                    <td class="formValue">
-                        <input id="EmergencyContact" type="text" class="txt" />
-                    </td>
-                    <th class="formTitle">在职：</th>
-                    <td class="formValue">
-                        <span class="item">
-                            <input id="IsDimission" name="IsDimission" type="checkbox" checked="checked" style="vertical-align: middle;" />
-                            <label for="IsDimission" style="vertical-align: middle;">在职</label>
-                        </span>
-                    </td>
-                </tr>
+
+
+
             </table>
         </div>
         <!--自定义属性-->

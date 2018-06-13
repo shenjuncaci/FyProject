@@ -13,7 +13,7 @@ namespace LeaRun.Repository
     /// <summary>
     /// LeaRun.ORM 定义通用的Repository
     /// <author>
-    ///		<name>shecixiong</name>
+    ///		<name>shenjun</name>
     ///		<date>2014.02.28</date>
     /// </author>
     /// </summary>

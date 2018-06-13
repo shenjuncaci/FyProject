@@ -33,6 +33,15 @@ namespace LeaRun.Business
             return Repository().FindTablePageBySql(strSql.ToString(), parameter.ToArray(), ref jqgridparam);
         }
 
+        //public string TestBll(string UserID,string UserCode,string ParameterJson)
+        //{
+        //    if(UserID=="")
+        //    {
+        //        return "用户ID";
+        //    }
+        //}
+        
+
         public DataTable GetDataTable(string sql)
         {
             return Repository().FindDataSetBySql(sql).Tables[0];

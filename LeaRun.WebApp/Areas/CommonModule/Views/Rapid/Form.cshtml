@@ -221,7 +221,7 @@
                 }
                 //RealName 添加权限控制，只有责任人可以编辑信息
 
-                if (String(data["res_cpeo"]) != '@UserName' && '@role' != '质保部审批') {
+                if (String(data["res_cpeo"]) != '@UserName' && '@role' != '质保部审批'&&String(data["FollowBy"]) != '@UserName') {
 
                     $("form input").prop("readonly", true);
                     $("form input").prop("disabled", true);

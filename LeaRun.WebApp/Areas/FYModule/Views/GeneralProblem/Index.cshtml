@@ -113,6 +113,7 @@
         var Content = $("#Content").val();
         var ResponseBy = $("#ResponseBy").val();
         var ResponseDept = $("#ResponseDept").val();
+        var FollowBy = $("#FollowBy").val();
         var keywords = "";
         if (IsNullOrEmpty(StartDt)) {
             keywords += " and cast(HappenDate as date)>=cast('" + StartDt + "' as date) ";
@@ -124,7 +125,11 @@
             keywords += " and ProblemDescripe like '%" + Content + "%' ";
         }
         if (IsNullOrEmpty(ResponseBy)) {
-            keywords += " and realname like '%" + ResponseBy + "%' ";
+            keywords += " and b.realname like '%" + ResponseBy + "%' ";
+        }
+        if (IsNullOrEmpty(FollowBy)) {
+            
+            keywords += " and d.realname like '%" + FollowBy + "%' ";
         }
         if (IsNullOrEmpty(ResponseDept)) {
             keywords += " and fullname like '%" + ResponseDept + "%' ";
@@ -151,7 +156,7 @@
                 { label: '是否重复发生', name: 'isagain', index: 'isagain', width: 50, align: 'left' },
                 { label: '问题类别', name: 'problemtype2', index: 'problemtype2', width: 50, align: 'left'},
                 { label: '责任人', name: 'realname', index: 'realname', width: 50, align: 'left' },
-                { label: '跟踪人', name: 'followby', index: 'followby', width: 50, align: 'left' },
+                { label: '跟踪人', name: 'followby2', index: 'followby2', width: 50, align: 'left' },
                 { label: '责任部门', name: 'fullname', index: 'fullname', width: 80, align: 'left' },
                 { label: '客户', name: 'customer', index: 'customer', width: 100, align: 'left' },
                 { label: '问题描述', name: 'problemdescripe', index: 'problemdescripe', width: 200, align: 'left', formatter: LengthSubFj },
@@ -492,31 +497,37 @@
                         发生日期：
                     </th>
                     <td>
-                        <input id="StartDt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="width: 150px" />
+                        <input id="StartDt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="width: 95px" />
                     </td>
                     <th>
                         至：
                     </th>
                     <td>
-                        <input id="EndDt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="width: 150px" />
+                        <input id="EndDt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="width: 95px" />
                     </td>
                     <th>
                         问题内容描述：
                     </th>
                     <td>
-                        <input id="Content" type="text" class="txt" style="width: 150px" />
+                        <input id="Content" type="text" class="txt" style="width: 95px" />
                     </td>
                     <th>
                         责任人：
                     </th>
                     <td>
-                        <input id="ResponseBy" type="text" class="txt" style="width: 150px" />
+                        <input id="ResponseBy" type="text" class="txt" style="width: 95px" />
+                    </td>
+                    <th>
+                        跟踪人：
+                    </th>
+                    <td>
+                        <input id="FollowBy" type="text" class="txt" style="width: 95px" />
                     </td>
                     <th>
                         部门：
                     </th>
                     <td>
-                        <input id="ResponseDept" type="text" class="txt" style="width: 150px" />
+                        <input id="ResponseDept" type="text" class="txt" style="width: 95px" />
                     </td>
                     <td>
                         <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />

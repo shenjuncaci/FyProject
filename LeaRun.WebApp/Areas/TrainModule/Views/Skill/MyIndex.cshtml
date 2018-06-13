@@ -195,32 +195,19 @@
     function btn_study() {
         var KeyValue = GetJqGridRowValue("#gridTable", "skillid");
         if (IsChecked(KeyValue)) {
-            var reValue = window.showModalDialog('FileList?SkillID=' + KeyValue, window, 'dialogWidth=800px;dialogHeight=500px;status:1;title:0;');
-            if (reValue == undefined) {
-                alert("请选择一个教材");
-                return false;
-            }
-            if (reValue[3] == "流程类") {
-                window.open("/Resource/Document/NetworkDisk/KnowledgeBase/" + reValue[0]);
-            }
-            else {
-                $.ajax({
-                    type: "post",
-                    url: "/TrainModule/Skill/CheckFileName?FileID=" + reValue[1],
-                    async: false,
-                    success: function (msg) {
-                        var url = "/Content/Scripts/pdf.js/generic/web/viewer.html?file=" + msg;
-                        Dialog(url, "StudyForm", "在线查看文件", 1000, 800);
-                    },
-                    error: function () {
-                        alert("出错了");
-                    }
-                });
-            }
+
+            layer.open({
+                type: 2,  //2表示ifrmae弹出层
+                title: '技能选择',
+                maxmin: true,
+                shadeClose: true, //点击遮罩关闭层
+                area: ['800px', '500px'],
+                content: 'FileList?SkillID=' + KeyValue
+            });
 
 
-
-            FullDialog(url, "StudyForm", "学习");
+           // var reValue = window.showModalDialog('FileList?SkillID=' + KeyValue, window, 'dialogWidth=800px;dialogHeight=500px;status:1;title:0;');
+            
         }
 
 
@@ -233,6 +220,34 @@
         //}
 
 
+    }
+
+    function study_ajax(reValue) {
+        if (reValue == undefined) {
+            alert("请选择一个教材");
+            return false;
+        }
+        if (reValue[3] == "流程类") {
+            window.open("/Resource/Document/NetworkDisk/KnowledgeBase/" + reValue[0]);
+        }
+        else {
+            $.ajax({
+                type: "post",
+                url: "/TrainModule/Skill/CheckFileName?FileID=" + reValue[1],
+                async: false,
+                success: function (msg) {
+                    var url = "/Content/Scripts/pdf.js/generic/web/viewer.html?file=" + msg;
+                    Dialog(url, "StudyForm", "在线查看文件", 1000, 800);
+                },
+                error: function () {
+                    alert("出错了");
+                }
+            });
+        }
+
+
+
+        FullDialog(url, "StudyForm", "学习");
     }
 
     //查看最近的一次考卷

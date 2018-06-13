@@ -102,7 +102,7 @@
 
                 else
                 {
-                    if (String(data["ResponseBy"]) != '@UserName' && '@role' != '质保部审批')
+                    if (String(data["ResponseBy"]) != '@UserName' && '@role' != '质保部审批'&&String(data["FollowBy"]) != '@UserName')
                     {
                     $("form input").prop("readonly", true);
                     $("form input").prop("disabled", true);

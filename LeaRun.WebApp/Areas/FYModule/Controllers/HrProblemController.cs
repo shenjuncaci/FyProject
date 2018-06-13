@@ -436,7 +436,8 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
             string sql = @" select dbo.GetState(a.ProblemID) as 状态,a.ReplyCompleteRate as 回复及时率,
 a.CompleteRate as 完成率,a.ProblemType as 问题大类,a.ProblemTypeD as 问题小类,a.ProblemDescripe as 问题描述,a.ProblemAction as 对策措施,
 b.RealName as 责任人,(select top 1 FullName from Base_Department where DepartmentId=b.DepartmentId) as 责任部门,
-c.RealName as 提出人,(select top 1 FullName from Base_Department where DepartmentId=c.DepartmentId) as 提出部门,
+--c.RealName as 提出人,(select top 1 FullName from Base_Department where DepartmentId=c.DepartmentId) as 提出部门,
+a.ProposeMan as 提出人,a.ProposeDept as 提出部门,
 a.PlanDt as 计划完成日期,a.RealDt as 实际完成日期
 from fy_hrproblem a 
 left join Base_User b on a.ResponseBy=b.UserId 
@@ -565,10 +566,10 @@ and ApprovePost in ('3efe8c99-fcaa-4efd-9523-ef0fa652557c','1538456f-0a50-4f1f-a
             //string sql = "select count(*) as cishu,fullname from RapidList_New where YEAR(res_cdate)='" + year + 
             //    "' group by fullname ";
             string sql = @"select count(distinct a.ProblemID) as allcount,COUNT(distinct b.ProblemID) as fiunishcount,
-a.ProposeDept from FY_HrProblem a
-left join (select * from FY_HrProblem where ProblemState='已完成') b on a.ProblemID=b.ProblemID 
+(select top 1 fullname from Base_Department where DepartmentId in (select departmentid from base_user where userid=a.ResponseBy)) as ProposeDept from FY_HrProblem a
+left join (select * from FY_HrProblem where ProblemState='已完成') b on a.ProblemID=b.ProblemID  
 where a.CreateDt>='{0}' and a.createdt<='{1}' 
-group by a.ProposeDept ";
+group by a.ResponseBy ";
             sql = string.Format(sql, StartDate,EndDate);
             DataTable dt = PostBll.GetDataTable(sql);
             if (dt.Rows.Count > 0)

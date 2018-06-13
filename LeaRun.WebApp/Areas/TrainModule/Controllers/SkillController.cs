@@ -567,7 +567,7 @@ and f.SkillID = '" + SkillArrary[1] + "' and d.UserId = '" + dt.Rows[j][0].ToStr
 
                         //文件信息写入数据库
                         entity.Create();
-                        entity.FilePath = fileGuid + FileEextension; ;
+                        entity.FilePath = fileGuid + FileEextension; 
                         entity.SkillID = FolderId;
                         entity.FileName = Filedata.FileName;
                        //entity.FilePath = virtualPath;
@@ -903,10 +903,10 @@ where PaperID='{0}'", paper.PaperID);
         public ActionResult ApplyList()
         {
             //第一次加载的时候就删除一次
-            StringBuilder strSql = new StringBuilder();
-            strSql.AppendFormat(@"delete from TR_ExamApply where  DATEADD(MINUTE,(select ExamMinutes from View_Exam where skillid=TR_ExamApply.ExamID and FromSource=TR_ExamApply.Source),ApproveDate)<GETDATE()
-");
-            SkillBll.ExecuteSql(strSql);
+//            StringBuilder strSql = new StringBuilder();
+//            strSql.AppendFormat(@"delete from TR_ExamApply where  DATEADD(MINUTE,(select ExamMinutes from View_Exam where skillid=TR_ExamApply.ExamID and FromSource=TR_ExamApply.Source),ApproveDate)<GETDATE()
+//");
+//            SkillBll.ExecuteSql(strSql);
             return View();
         }
 

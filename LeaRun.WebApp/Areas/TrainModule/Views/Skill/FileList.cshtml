@@ -3,6 +3,7 @@
     Layout = "~/Views/Shared/_LayoutIndex.cshtml";
 }
 <script>
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
     $(function () {
         
         
@@ -41,8 +42,9 @@
                 arr[2] = rowData.fileextensions;
                 arr[3] = rowData.skilltype;
 
-                window.returnValue = arr;
-                window.close();
+                
+                parent.study_ajax(arr);
+                parent.layer.close(index);
             }
         });
     }

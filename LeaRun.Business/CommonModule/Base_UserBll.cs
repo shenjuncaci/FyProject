@@ -69,7 +69,8 @@ namespace LeaRun.Business
                                     OR Account LIKE @keyword
                                     OR Code LIKE @keyword
                                     OR Spell LIKE @keyword
-or dbo.fn_GetPinyin(RealName) like @keyword)");
+-- or dbo.fn_GetPinyin(RealName) like @keyword 暂时去掉这个条件，速度太慢了
+)");
                 parameter.Add(DbFactory.CreateDbParameter("@keyword", '%' + keyword + '%'));
             }
             if (!string.IsNullOrEmpty(CompanyId))

@@ -55,6 +55,7 @@ border-top:1px solid #E8E8E8;
         var Content = $("#Content").val();
         var ResponseBy = $("#ResponseBy").val();
         var ResponseDept = $("#ResponseDept").val();
+        var FollowBy = $("#FollowBy").val();
         var keywords = "";
         if (IsNullOrEmpty(StartDt))
         {
@@ -71,6 +72,9 @@ border-top:1px solid #E8E8E8;
         if (IsNullOrEmpty(ResponseBy))
         {
             keywords += " and realname like '%" + ResponseBy + "%' ";
+        }
+        if (IsNullOrEmpty(FollowBy)) {
+            keywords += " and FollowBy like '%" + FollowBy + "%' ";
         }
         if (IsNullOrEmpty(ResponseDept))
         {
@@ -99,7 +103,7 @@ border-top:1px solid #E8E8E8;
                 { label: '问题内容描述', name: 'res_ms', index: 'res_ms', width: 150, align: 'left', formatter: LengthSubFj },
                 { label: '发生日期', name: 'res_cdate', index: 'res_cdate', width: 70, align: 'left',formatter:dateFormat},
                 { label: '负责人', name: 'realname', index: 'realname', width: 65, align: 'center' },
-                { label: '跟踪人', name: 'followby2', index: 'followby2', width: 65, align: 'center' },
+                { label: '跟踪人', name: 'followby', index: 'followby', width: 65, align: 'center' },
                 { label: '部门', name: 'fullname', index: 'fullname', width: 100, align: 'center' },
                 { label: '遏制表', name: 'yzb', index: 'yzb', width: 65, align: 'center', formatter: colorChangeyzb },
                 { label: '岗位验证', name: 'postverify', index: 'postverify', width: 65, align: 'center', formatter: colorChangepostverify },
@@ -1109,34 +1113,41 @@ border-top:1px solid #E8E8E8;
             <div class="bottomline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
                 <table border="0" class="form-find" style="height: 45px;">
                     <tr>
-                        <th>发生日期：
+                        <th>
+                            发生日期：
                         </th>
                         <td>
-                            <input id="StartDt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="width: 150px" />
+                            <input id="StartDt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="width: 95px" />
                         </td>
                         <th>
                             至：
                         </th>
                         <td>
-                            <input id="EndDt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="width: 150px" />
+                            <input id="EndDt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="width: 95px" />
                         </td>
                         <th>
                             问题内容描述：
                         </th>
                         <td>
-                            <input id="Content" type="text" class="txt" style="width: 150px" />
+                            <input id="Content" type="text" class="txt" style="width: 95px" />
                         </td>
                         <th>
                             责任人：
                         </th>
                         <td>
-                            <input id="ResponseBy" type="text" class="txt" style="width: 150px" />
+                            <input id="ResponseBy" type="text" class="txt" style="width: 95px" />
+                        </td>
+                        <th>
+                            跟踪人：
+                        </th>
+                        <td>
+                            <input id="FollowBy" type="text" class="txt" style="width: 95px" />
                         </td>
                         <th>
                             部门：
                         </th>
                         <td>
-                            <input id="ResponseDept" type="text" class="txt" style="width: 150px" />
+                            <input id="ResponseDept" type="text" class="txt" style="width: 95px" />
                         </td>
                         <td>
                             <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
