@@ -173,6 +173,25 @@
 
     }
 
+    function addProject() {
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '选择Fmea',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['550px', '350px'],
+            content: 'ChooseFmea'
+        });
+    }
+
+    function SelectProject(result) {
+       
+        $("#ProjectName").val(result[0]);
+        $("#FileYmbatch").val(result[1]);
+        $("#VersionCode").val(result[2]);
+        //VersionCode
+    }
+
 </script>
 
 
@@ -192,7 +211,29 @@
         <!--基本信息-->
         <div id="before" class="tabPanel">
             <table id="tab1" class="form">
+                <tr>
+                    <th class="formTitle">本厂编号：</th>
+                    <td class="formValue">
 
+                        <table style="width:100%">
+                            <tr>
+                                <td style="width:90%">
+                                    <input readonly id="VersionCode" type="text" class="txt" datacol="yes" err="版本号" checkexpession="NotNull" style="width:10%;display:none" />
+                                    <input readonly id="ProjectName" type="text" class="txt" datacol="yes" err="本厂编号" checkexpession="NotNull" style="width:90%" />
+                                </td>
+                                <td style="width:10%">
+                                    <img src="~/Content/Images/Icon16/bullet_magnify.png" onclick="addProject()">
+                                </td>
+                            </tr>
+                        </table>
+
+
+                    </td>
+
+
+                    <th class="formTitle">APQP编号</th>
+                    <td class="formValue"><input readonly id="FileYmbatch" type="text" class="txt" datacol="yes" err="APQP编号" checkexpession="NotNull" style="width:90%" /></td>
+                </tr>
                 <tr>
                     <th class="formTitle">高风险项/问题描述：</th>
                     <td class="formValue" colspan="3">
@@ -222,9 +263,9 @@
                                 </td>
                             </tr>
                         </table>
-                        
+
                     </td>
-                    
+
                 </tr>
 
                 <tr>
@@ -240,7 +281,7 @@
                         <input readonly placeholder="自动生成，不需要填写" id="BeforePriorityLevel" type="text" class="txt" datacol="yes" style="background:white" />
                     </td>
                 </tr>
-               
+
 
             </table>
         </div>

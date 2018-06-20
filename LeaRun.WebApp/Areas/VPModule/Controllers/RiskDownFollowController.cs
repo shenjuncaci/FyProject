@@ -128,6 +128,8 @@ where exists (select * from Base_ObjectUserRelation where UserId=a.UserId and Ob
 
 
             string ModuleId = DESEncrypt.Decrypt(CookieHelper.GetCookie("ModuleId"));
+            string sqlSync = "";
+            string sqlInsert = "";
             IDatabase database = DataFactory.Database();
             DbTransaction isOpenTrans = database.BeginTrans();
             try
@@ -156,6 +158,29 @@ where exists (select * from Base_ObjectUserRelation where UserId=a.UserId and Ob
                     if(entity.IsEffective=="有效")
                     {
                         entity.FinishState = "已完成";
+                        sqlSync = @"insert into genyeedata.dbo.sys_YmMessage (OrganID,MsgYmBatch,items,ReciveManID,ReceiveMan,SendmanID,Sendman,Sendrq,sType,stypeico,subject,
+sDjname,iFjCount,status,sAction,sFlag,IsSynchronousMail,MailID,remark,IsUsing,AuditTitle
+,SignFlow,OperationMode,IsComplete,Sfree1,CreateRq)
+values
+('001',(select genyeedata.dbo.GetMaxMsg()),2,(select CreateManID
+FROM      genyeedata.dbo.F_Fmea_M AS F INNER JOIN
+                    (SELECT   OrganID, ProjectName, FileYmBatch, IsUsing, MAX(AutoID) AS autoid
+                     FROM      genyeedata.dbo.F_Fmea_M
+                     WHERE   (IsUsing IN ('完成', '禁用'))
+                     GROUP BY OrganID, ProjectName, FileYmBatch, IsUsing) AS t_a ON F.OrganID = t_a.OrganID AND 
+                F.ProjectName = t_a.ProjectName AND F.FileYmBatch = t_a.FileYmBatch AND F.AutoID = t_a.autoid
+				where f.ProjectName='{0}'),(select CreateMan
+FROM      genyeedata.dbo.F_Fmea_M AS F INNER JOIN
+                    (SELECT   OrganID, ProjectName, FileYmBatch, IsUsing, MAX(AutoID) AS autoid
+                     FROM      genyeedata.dbo.F_Fmea_M
+                     WHERE   (IsUsing IN ('完成', '禁用'))
+                     GROUP BY OrganID, ProjectName, FileYmBatch, IsUsing) AS t_a ON F.OrganID = t_a.OrganID AND 
+                F.ProjectName = t_a.ProjectName AND F.FileYmBatch = t_a.FileYmBatch AND F.AutoID = t_a.autoid
+				where f.ProjectName='{0}'),'{1}','{2}',GETDATE(),2,'.\images\mainform\mail\NoOpenMsg.bmp',
+				'QSB同步消息','001|1010103|'+'{0}'+'|'+'{3}'+'|'+'{4}',0,'一般','审批','S',0,'','同步修改QSB中的Fmea风险',0,'批准',
+				'审批流程','等待同步',0,'{3}'+'('+'{0}'+')',GETDATE())";
+                        sqlInsert = @"insert into genyeedata.dbo.F_Fmea_D_QSB (OrganID,ProjectName,FileYmbatch,VersionCode,CreateRq,CreateManID,CreateMan,HighRisk,CauseAnalysis,ActionMeasures)
+values('001','{0}','{1}','{2}',getdate(),'{3}','{4}','{5}','{6}','{7}')";
                     }
 
 
@@ -181,15 +206,50 @@ where exists (select * from Base_ObjectUserRelation where UserId=a.UserId and Ob
                     if (entity.IsEffective == "有效")
                     {
                         entity.FinishState = "已完成";
+                        sqlSync = @"insert into genyeedata.dbo.sys_YmMessage (OrganID,MsgYmBatch,items,ReciveManID,ReceiveMan,SendmanID,Sendman,Sendrq,sType,stypeico,subject,
+sDjname,iFjCount,status,sAction,sFlag,IsSynchronousMail,MailID,remark,IsUsing,AuditTitle
+,SignFlow,OperationMode,IsComplete,Sfree1,CreateRq)
+values
+('001',(select genyeedata.dbo.GetMaxMsg()),2,(select CreateManID
+FROM      genyeedata.dbo.F_Fmea_M AS F INNER JOIN
+                    (SELECT   OrganID, ProjectName, FileYmBatch, IsUsing, MAX(AutoID) AS autoid
+                     FROM      genyeedata.dbo.F_Fmea_M
+                     WHERE   (IsUsing IN ('完成', '禁用'))
+                     GROUP BY OrganID, ProjectName, FileYmBatch, IsUsing) AS t_a ON F.OrganID = t_a.OrganID AND 
+                F.ProjectName = t_a.ProjectName AND F.FileYmBatch = t_a.FileYmBatch AND F.AutoID = t_a.autoid
+				where f.ProjectName='{0}'),(select CreateMan
+FROM      genyeedata.dbo.F_Fmea_M AS F INNER JOIN
+                    (SELECT   OrganID, ProjectName, FileYmBatch, IsUsing, MAX(AutoID) AS autoid
+                     FROM      genyeedata.dbo.F_Fmea_M
+                     WHERE   (IsUsing IN ('完成', '禁用'))
+                     GROUP BY OrganID, ProjectName, FileYmBatch, IsUsing) AS t_a ON F.OrganID = t_a.OrganID AND 
+                F.ProjectName = t_a.ProjectName AND F.FileYmBatch = t_a.FileYmBatch AND F.AutoID = t_a.autoid
+				where f.ProjectName='{0}'),'{1}','{2}',GETDATE(),2,'.\images\mainform\mail\NoOpenMsg.bmp',
+				'QSB同步消息','001|1010103|'+'{0}'+'|'+'{3}'+'|'+'{4}',0,'一般','审批','S',0,'','同步修改QSB中的Fmea风险',0,'批准',
+				'审批流程','等待同步',0,'{3}'+'('+'{0}'+')',GETDATE())";
+                        sqlInsert = @"insert into genyeedata.dbo.F_Fmea_D_QSB (OrganID,ProjectName,FileYmbatch,VersionCode,CreateRq,CreateManID,CreateMan,HighRisk,CauseAnalysis,ActionMeasures)
+values('001','{0}','{1}','{2}',getdate(),'{3}','{4}','{5}','{6}','{7}') ";
                     }
+
 
 
                     database.Insert(entity, isOpenTrans);
 
                     Base_DataScopePermissionBll.Instance.AddScopeDefault(ModuleId, ManageProvider.Provider.Current().UserId, entity.FollowID, isOpenTrans);
                 }
+
+
                 Base_FormAttributeBll.Instance.SaveBuildForm(BuildFormJson, entity.FollowID, ModuleId, isOpenTrans);
                 database.Commit();
+
+                sqlSync = string.Format(sqlSync, entity.ProjectName, ManageProvider.Provider.Current().Code, ManageProvider.Provider.Current().UserName, entity.FileYmbatch, entity.VersionCode);
+                StringBuilder strSql = new StringBuilder();
+
+                sqlInsert = string.Format(sqlInsert, entity.ProjectName, entity.FileYmbatch, entity.VersionCode, ManageProvider.Provider.Current().Code,
+                    ManageProvider.Provider.Current().UserName, entity.HighRiskItem, entity.CauseAnaly, entity.ActionMeasures);
+                strSql.AppendFormat(sqlSync);
+                strSql.AppendFormat(sqlInsert);
+                RiskDownFollowBll.ExecuteSql(strSql);
                 return Content(new JsonMessage { Success = true, Code = "1", Message = Message }.ToString());
             }
             catch (Exception ex)
@@ -534,6 +594,35 @@ where 1=1 and a.FollowID='{0}' ";
             else
             {
                 return "0";
+            }
+        }
+
+        public ActionResult ChooseFmea()
+        {
+            return View();
+        }
+
+        public ActionResult GridFmeaListJson(string keywords, string CompanyId, string DepartmentId,
+            JqGridParam jqgridparam, string ParameterJson, string ResponseBy)
+        {
+            try
+            {
+                Stopwatch watch = CommonHelper.TimerStart();
+                DataTable ListData = RiskDownFollowBll.GetFmeaPageList(keywords, ref jqgridparam, ParameterJson, ResponseBy);
+                var JsonData = new
+                {
+                    total = jqgridparam.total,
+                    page = jqgridparam.page,
+                    records = jqgridparam.records,
+                    costtime = CommonHelper.TimerEnd(watch),
+                    rows = ListData,
+                };
+                return Content(JsonData.ToJson());
+            }
+            catch (Exception ex)
+            {
+                Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "异常错误：" + ex.Message);
+                return null;
             }
         }
 

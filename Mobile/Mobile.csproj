@@ -9130,6 +9130,7 @@
     <Content Include="Views\Home\ProcessRepairIndex.cshtml" />
     <Content Include="Views\Home\CompleteRepairIndex.cshtml" />
     <Content Include="Views\Home\showPicture.cshtml" />
+    <Content Include="Views\Home\ViewIntegral.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

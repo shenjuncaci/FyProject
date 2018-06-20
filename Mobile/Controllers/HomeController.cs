@@ -670,5 +670,65 @@ where b.FullName='故障类型' order by a.SortCode ";
             HttpPostedFileBase file = Request.Files["file"];
             return View();
         }
+
+        //积分查看
+        public ActionResult ViewIntegral()
+        {
+            string Content = @"<div data-role='fieldcontain'>
+                <label for='AgeOfWorklabel'>司龄：</label>
+                <input readonly type='text' name='AgeOfWork' id='AgeOfWork' value='{0}'>
+                <label for='IsLeaderlabel'>班组长：</label>
+                <input readonly type='text' name='IsLeader' id='IsLeader' value='{1}'>
+                <label for='Degreelabel'>学历：</label>
+                <input readonly type='text' name='Degree' id='Degree' value='{2}'>
+                <label for='SkillUplabel'>技能提升：</label>
+                <input readonly type='text' name='SkillUp' id='SkillUp' value='{3}'>
+                <label for='YellowBandlabel'>精益黄带人员：</label>
+                <input readonly type='text' name='YellowBand' id='YellowBand' value='{4}'>
+                <label for='CourseProjectlabel'>课题项目：</label>
+                <input readonly type='text' name='CourseProject' id='CourseProject' value='{5}'>
+                <label for='ImproveProposallabel'>改善提案：</label>
+                <input readonly type='text' name='ImproveProposal' id='ImproveProposal' value='{6}'>
+                <label for='RationalProposallabel'>合理化建议：</label>
+                <input readonly type='text' name='RationalProposal' id='RationalProposal' value='{7}'>
+                <label for='FiveStar1label'>五星班组-五大员：</label>
+                <input readonly type='text' name='FiveStar1' id='FiveStar1' value='{8}'>
+                <label for='FiveStar2label'>五星班组-星级班组：</label>
+                <input readonly type='text' name='FiveStar2' id='FiveStar2' value='{9}'>
+                <label for='ExperienceYearlabel'>经验传承-师带徒：</label>
+                <input readonly type='text' name='ExperienceYear' id='ExperienceYear' value='{10}'>
+                <label for='ExperienceSkilllabel'>经验传承-技能教练：</label>
+                <input readonly type='text' name='ExperienceSkill' id='ExperienceSkill' value='{11}'>
+                <label for='ExperienceProlabel'>经验传承-专业传承：</label>
+                <input readonly type='text' name='ExperiencePro' id='ExperiencePro' value='{12}'>
+                <label for='ExperineceCollegelabel'>文化贡献-社团建设：</label>
+                <input readonly type='text' name='ExperineceCollege' id='ExperineceCollege' value='{13}'>
+                <label for='ExperienceWriterlabel'>文化贡献-通讯稿：</label>
+                <input readonly type='text' name='ExperienceWriter' id='ExperienceWriter' value='{14}'>
+                <label for='Honourlabel'>荣誉：</label>
+                <input readonly type='text' name='Honour' id='Honour' value='{15}'>
+                <label for='Minus1label'>违纪扣分：</label>
+                <input readonly type='text' name='Minus1' id='Minus1' value='{16}'>
+                <label for='Minus2label'>安全扣分：</label>
+                <input readonly type='text' name='Minus2' id='Minus2' value='{17}'>
+                <label for='Minus2label'>总分：</label>
+                <input readonly type='text' name='SumAll' id='SumAll' value='{18}'>
+            </div>";
+
+
+            //给内容赋值
+            string sql = " select * from base_user where userid='"+ManageProvider.Provider.Current().UserId+"' ";
+            DataTable dt = SkillBll.GetDataTable(sql);
+            Base_User UserModel = DtConvertHelper.ConvertToModel<Base_User>(dt, 0);
+
+            Content = string.Format(Content, UserModel.AgeOfWork, UserModel.IsLeader, UserModel.Degree, UserModel.SkillUp, UserModel.YellowBand, UserModel.CourseProject, UserModel.ImproveProposal,
+                UserModel.RationalProposal, UserModel.FiveStar1, UserModel.FiveStar2, UserModel.ExperienceYear, UserModel.ExperienceSkill, UserModel.ExperiencePro, UserModel.ExperineceCollege, UserModel.ExperienceWriter,
+                UserModel.Honour, UserModel.Minus1, UserModel.Minus2, UserModel.AgeOfWork + UserModel.IsLeader + UserModel.Degree + UserModel.SkillUp + UserModel.YellowBand + UserModel.CourseProject + UserModel.ImproveProposal +
+                UserModel.RationalProposal + UserModel.FiveStar1 + UserModel.FiveStar2 + UserModel.ExperienceYear + UserModel.ExperienceSkill + UserModel.ExperiencePro + UserModel.ExperineceCollege + UserModel.ExperienceWriter +
+                UserModel.Honour - UserModel.Minus1 - UserModel.Minus2);
+
+            ViewData["Content"] = Content;
+            return View();
+        }
     }
 }

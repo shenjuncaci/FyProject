@@ -49,6 +49,9 @@ namespace LeaRun.Entity
         public DateTime? CreateDt { get; set; }
 
         public string FromSource { get; set; }
+        public string ProjectName { get; set; }
+        public string FileYmbatch { get; set; }
+        public string VersionCode { get; set; }
 
         #region 扩展操作
         /// <summary>

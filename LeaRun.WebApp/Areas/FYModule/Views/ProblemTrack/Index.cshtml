@@ -178,53 +178,66 @@
                 $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
             },
             ondblClickRow: function (RowIndx) {
+                var rowData = $(this).jqGrid('getRowData', RowIndx);
                 //另加判断权限，index中可能需要加入用户ID
-                var reValue = window.showModalDialog('DelOrDownload', window, 'dialogWidth=400;dialogHeight=100px;status:1;title:0;');
+                //var reValue = window.showModalDialog('DelOrDownload', window, 'dialogWidth=400;dialogHeight=100px;status:1;title:0;');
+                layer.open({
+                    type: 2,  //2表示ifrmae弹出层
+                    title: '选择操作',
+                    maxmin: true,
+                    shadeClose: true, //点击遮罩关闭层
+                    area: ['400px', '100px'],
+                    content: 'DelOrDownload?FileID=' + rowData.fileid
+                });
 
-                if (reValue == undefined)
-                {
-                    return false;
-                }
-                else if (reValue == "del") {
-                    var IsSame = GetJqGridRowValue("#gridTable", "issame");
-                    if (IsSame != 1)
-                    {
-                        alert("只有创建人才能删除附件。");
-                        return false;
-                    }
-                    if (confirm("是否确认删除")) {
-                        var rowData = $(this).jqGrid('getRowData', RowIndx);
-                        //var postData = { FileID: rowData.fileid }
-                        //var Prompt = "您确实要永久性地删除此文件吗？";
-                        //delConfirmNoRefresh('/FYModule/ProblemTrack/DeleteFile', { NetworkFileId: rowData.fileid }, Prompt);
-                        //var problemid = GetJqGridRowValue("#gridTable", "problemid");
-
-                        //GetAttachGrid(problemid);
-                        //AjaxJson("/FYModule/ProblemTrack/DelFile", postData, function (data) {
-                        //    //Loading(false);
-                        //    //window.close();
-                        //    var KeyValue = GetJqGridRowValue("#gridTable", "problemid");
-                        //    GetAttachGrid(KeyValue);
-                        //});
-                        AjaxJson("/FYModule/ProblemTrack/DeleteFile", { NetworkFileId: rowData.fileid }, function (data) {
-                            //Loading(false);
-                            //window.close();
-                            var KeyValue = GetJqGridRowValue("#gridTable", "problemid");
-                            GetAttachGrid(KeyValue);
-                        });
-                    }
-                }
-                else
-                {
-                    var rowData = $(this).jqGrid('getRowData', RowIndx);
-                    var url = '/FYModule/ProblemTrack/Download?KeyValue=' + rowData.fileid;
-                    location.href = url;
-                }
+               
+                
             }
         });
         columnModelData("#gridPager_attach");
 
     }
+
+
+    function AttachmentDownload(reValue, FileID) {
+        if (reValue == undefined) {
+            return false;
+        }
+        else if (reValue == "del") {
+            var IsSame = GetJqGridRowValue("#gridTable", "issame");
+            if (IsSame != 1) {
+                alert("只有创建人才能删除附件。");
+                return false;
+            }
+            if (confirm("是否确认删除")) {
+                
+                //var postData = { FileID: rowData.fileid }
+                //var Prompt = "您确实要永久性地删除此文件吗？";
+                //delConfirmNoRefresh('/FYModule/ProblemTrack/DeleteFile', { NetworkFileId: rowData.fileid }, Prompt);
+                //var problemid = GetJqGridRowValue("#gridTable", "problemid");
+
+                //GetAttachGrid(problemid);
+                //AjaxJson("/FYModule/ProblemTrack/DelFile", postData, function (data) {
+                //    //Loading(false);
+                //    //window.close();
+                //    var KeyValue = GetJqGridRowValue("#gridTable", "problemid");
+                //    GetAttachGrid(KeyValue);
+                //});
+                AjaxJson("/FYModule/ProblemTrack/DeleteFile", { NetworkFileId: FileID }, function (data) {
+                    //Loading(false);
+                    //window.close();
+                    var KeyValue = GetJqGridRowValue("#gridTable", "problemid");
+                    GetAttachGrid(KeyValue);
+                });
+            }
+        }
+        else {
+            
+            var url = '/FYModule/ProblemTrack/Download?KeyValue=' + FileID;
+            location.href = url;
+        }
+    }
+    
 
     function GetAttachGrid(SkillID) {
         //alert(SkillID);

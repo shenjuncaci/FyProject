@@ -567,7 +567,7 @@ and f.SkillID = '" + SkillArrary[1] + "' and d.UserId = '" + dt.Rows[j][0].ToStr
 
                         //文件信息写入数据库
                         entity.Create();
-                        entity.FilePath = fileGuid + FileEextension; 
+                        entity.FilePath = fileGuid + FileEextension;
                         entity.SkillID = FolderId;
                         entity.FileName = Filedata.FileName;
                        //entity.FilePath = virtualPath;

@@ -32,13 +32,19 @@
 </div>
 
 <script>
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+
     function del() {
-        window.returnValue = "del";
-        window.close();
+        parent.AttachmentDownload("del", GetQuery('FileID'));
+        parent.layer.close(index);
+        //window.returnValue = "del";
+        //window.close();
     }
 
     function confirm() {
-        window.returnValue = "down";
-        window.close();
+        parent.AttachmentDownload("down", GetQuery('FileID'));
+        parent.layer.close(index);
+        //window.returnValue = "down";
+        //window.close();
     }
 </script>

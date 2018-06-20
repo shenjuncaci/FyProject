@@ -59,5 +59,31 @@ where 1=1   ");
             int result = Repository().ExecuteBySql(sql);
             return result;
         }
+
+
+        public DataTable GetFmeaPageList(string keyword, ref JqGridParam jqgridparam, string ParameterJson, string ResponseBy)
+        {
+            StringBuilder strSql = new StringBuilder();
+            List<DbParameter> parameter = new List<DbParameter>();
+            strSql.Append(@" select f.ProjectName,f.FileYmBatch,DwName,PartName,VersionCode,PartModel,PartNumber
+FROM      genyeedata.dbo.F_Fmea_M AS F INNER JOIN
+                    (SELECT   OrganID, ProjectName, FileYmBatch, IsUsing, MAX(AutoID) AS autoid
+                     FROM      genyeedata.dbo.F_Fmea_M
+                     WHERE   (IsUsing IN ('完成', '禁用'))
+                     GROUP BY OrganID, ProjectName, FileYmBatch, IsUsing) AS t_a ON F.OrganID = t_a.OrganID AND 
+                F.ProjectName = t_a.ProjectName AND F.FileYmBatch = t_a.FileYmBatch AND F.AutoID = t_a.autoid  ");
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                //strSql.Append(@" AND (ReviewContent LIKE @keyword
+                //                    )");
+                //parameter.Add(DbFactory.CreateDbParameter("@keyword", '%' + keyword + '%'));
+                strSql.Append(keyword);
+            }
+            
+
+           
+
+            return Repository().FindTablePageBySql(strSql.ToString(), parameter.ToArray(), ref jqgridparam);
+        }
     }
 }

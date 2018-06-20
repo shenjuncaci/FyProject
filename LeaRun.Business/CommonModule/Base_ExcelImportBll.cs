@@ -324,7 +324,7 @@ namespace LeaRun.Business
                     {
                         database.Rollback();
                         Base_SysLogBll.Instance.WriteLog("", OperationType.Add, "-1", "异常错误：" + ex.Message);
-                        IsOk = -1;
+                        IsOk = 1;
                     }
                     finally
                     {
