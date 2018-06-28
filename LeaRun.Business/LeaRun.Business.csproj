@@ -129,6 +129,7 @@
     <Compile Include="TrainModule\TR_ProjectBll.cs" />
     <Compile Include="TrainModule\TR_ProjectDetailBll.cs" />
     <Compile Include="TrainModule\TR_SkillBll.cs" />
+    <Compile Include="VPModule\VP_QOSDataBll.cs" />
     <Compile Include="VPModule\VP_ReviewDataBll.cs" />
     <Compile Include="VPModule\VP_RiskDownFollowBll.cs" />
     <Compile Include="VPModule\VP_RiskDownFollowFileBll.cs" />

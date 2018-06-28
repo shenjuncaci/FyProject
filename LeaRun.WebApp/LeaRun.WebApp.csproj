@@ -8424,6 +8424,18 @@
     <Content Include="Content\Scripts\jquery.fullcalendar\lib\jquery.min.js" />
     <Content Include="Content\Scripts\jquery.fullcalendar\lib\moment.min.js" />
     <Content Include="Content\Scripts\jquery.fullcalendar\locale-all.js" />
+    <Content Include="Content\Scripts\jquery.gantt\css\style.css" />
+    <Content Include="Content\Scripts\jquery.gantt\img\grid.png" />
+    <Content Include="Content\Scripts\jquery.gantt\img\icon_sprite.png" />
+    <Content Include="Content\Scripts\jquery.gantt\img\slider_handle.png" />
+    <Content Include="Content\Scripts\jquery.gantt\js\dataDays.js" />
+    <Content Include="Content\Scripts\jquery.gantt\js\dataDaysEnh.js" />
+    <Content Include="Content\Scripts\jquery.gantt\js\dataHours.js" />
+    <Content Include="Content\Scripts\jquery.gantt\js\jquery.cookie.js" />
+    <Content Include="Content\Scripts\jquery.gantt\js\jquery.fn.gantt.js" />
+    <Content Include="Content\Scripts\jquery.gantt\js\jquery.fn.gantt.min.js" />
+    <Content Include="Content\Scripts\jquery.gantt\js\jquery.min.js" />
+    <Content Include="Content\Scripts\jquery.gantt\js\moment.min.js" />
     <Content Include="Content\Scripts\jquery.layer\layer.js" />
     <Content Include="Content\Scripts\jquery.layer\mobile\layer.js" />
     <Content Include="Content\Scripts\jquery.layer\mobile\need\layer.css" />
@@ -9391,6 +9403,7 @@
     <Content Include="Areas\ProjectManageModule\Views\Project\EndProject.cshtml" />
     <Content Include="Areas\DormModule\Views\Room\DateChoose.cshtml" />
     <Content Include="Areas\VPModule\Views\RiskDownFollow\ChooseFmea.cshtml" />
+    <Content Include="Areas\ExampleModule\Views\TestTable\Gantee.cshtml" />
     <None Include="Properties\PublishProfiles\LR-FDMS.pubxml" />
     <Content Include="Views\Home\SkinIndex.cshtml" />
     <Content Include="Views\Login\Default.cshtml" />

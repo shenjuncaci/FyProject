@@ -185,6 +185,7 @@
     <Compile Include="TrainModule\TR_Skill.cs" />
     <Compile Include="TrainModule\TR_SkillFile.cs" />
     <Compile Include="TrainModule\TR_UserPost.cs" />
+    <Compile Include="VPModule\VP_QOSData.cs" />
     <Compile Include="VPModule\VP_ReviewData.cs" />
     <Compile Include="VPModule\VP_RiskDownFollow.cs" />
     <Compile Include="VPModule\VP_RiskDownFollowFile.cs" />

@@ -175,8 +175,14 @@ namespace LeaRun.WebApp.Areas.ExampleModule.Controllers
             return Json(retVal, JsonRequestBehavior.AllowGet);
         }
 
-        
+        public ActionResult Gantee()
+        {
+            return View();
+        }
 
-        
+
+
+
+
     }
 }

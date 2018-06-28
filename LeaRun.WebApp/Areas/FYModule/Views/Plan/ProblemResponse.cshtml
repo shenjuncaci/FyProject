@@ -11,6 +11,8 @@
 <script src="~/Content/Scripts/datepicker/WdatePicker.js"></script>
 <link href="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.css" rel="stylesheet" />
 <script src="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.js"></script>
+<link href="~/Content/Scripts/jquery.layer/theme/default/layer.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery.layer/layer.js"></script>
 <style>
     #grid td {
         text-align: left;
@@ -85,19 +87,32 @@
             <input id="PlanDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF;" />
         </td>
     </tr>
+    <tr>
+        <td>是否将问题列入快速反应</td>
+        <td>
+            <select id="IsRapid" class="txtselect">
+                <option value="否">否</option>
+                <option value="是">是</option>
+            </select>
+        </td>
+    </tr>
 </table>
 
 <div align=center valign=middle>
     <button class="button button-primary button-square button-small" onclick="cancel()">取消</button>
     <button class="button button-primary button-square button-small" onclick="confirm()">确认</button>
 
-    
+
 </div>
 <script>
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+
     function del()
     {
-        window.returnValue = "del";
-        window.close();
+        parent.inputCsajax("del", GetQuery('id'));
+        parent.layer.close(index);
+        //window.returnValue = "del";
+        //window.close();
     }
     function cancel() {
         self.close();
@@ -107,13 +122,14 @@
         var _ResponseBy = String($("#ResponseBy").val());
         var _Action = String($("#Action").val());
         var _PlanDate = String($("#PlanDate").val());
+        var _IsRapid = String($("#IsRapid").val());
 
         if (_Descripe == "" || _ResponseBy == "" || _PlanDate=="")
         {
             alert("请填写完整项目再提交");
             return false;
         }
-        var durl = encodeURI('@Url.Action("InsertAction", "Plan")?problem=' + _Descripe + '&action1=' + _Action + '&response=' + _ResponseBy + '&plandate=' + _PlanDate);
+        var durl = encodeURI('@Url.Action("InsertAction", "Plan")?problem=' + _Descripe + '&action1=' + _Action + '&response=' + _ResponseBy + '&plandate=' + _PlanDate + '&IsRapid=' + _IsRapid);
         $.ajax({
             type: "post",
             url: durl,
@@ -121,8 +137,6 @@
             success: function (msg) {
                 if (msg > 0) {
                     alert("更新成功");
-                    //alert(checkResult);
-                    
                 }
                 else {
                     alert("出错了！");
@@ -133,8 +147,11 @@
             }
         });
 
-        window.returnValue = 1;
-        window.close();
+
+        parent.inputCsajax(1, GetQuery('id'));
+        parent.layer.close(index);
+        //window.returnValue = 1;
+        //window.close();
     }
     function BindEvent()
     {

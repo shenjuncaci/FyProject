@@ -703,20 +703,52 @@ where a.DepartmentId='" + ManageProvider.Provider.Current().DepartmentId + "'";
             return View();
         }
 
-        public int InsertAction(string problem, string action1, string response, string plandate)
+        public int InsertAction(string problem, string action1, string response, string plandate,string IsRapid)
         {
-            StringBuilder strSql = new StringBuilder();
-            strSql.AppendFormat("insert into FY_ProblemAction (actionid,problemdescripe,actioncontent,responseby,plandate,createby,createbydept,createdt,problemstate) values (NEWID(),'" + problem + "','" + action1 + "','" + response + "','" + plandate + "','" + ManageProvider.Provider.Current().UserId + "','" + ManageProvider.Provider.Current().DepartmentId + "',getdate(),'待审')");
-            int result = PlanBll.ExecuteSql(strSql);
-
-            string GetReciverSql = " select Email from base_user where userid='" + response + "' ";
-            DataTable dt = PlanBll.GetDataTable(GetReciverSql);
-            if (dt.Rows.Count > 0)
+            if(IsRapid=="否")
             {
-                MailHelper.SendEmail(dt.Rows[0][0].ToString(), "您好，您的分层审核有一项不合格，请注意登录系统查看");
-            }
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendFormat("insert into FY_ProblemAction (actionid,problemdescripe,actioncontent,responseby,plandate,createby,createbydept,createdt,problemstate) values (NEWID(),'" + problem + "','" + action1 + "','" + response + "','" + plandate + "','" + ManageProvider.Provider.Current().UserId + "','" + ManageProvider.Provider.Current().DepartmentId + "',getdate(),'待审')");
+                int result = PlanBll.ExecuteSql(strSql);
 
-            return result;
+                string GetReciverSql = " select Email from base_user where userid='" + response + "' ";
+                DataTable dt = PlanBll.GetDataTable(GetReciverSql);
+                if (dt.Rows.Count > 0)
+                {
+                    MailHelper.SendEmail(dt.Rows[0][0].ToString(), "您好，您的分层审核有一项不合格，请注意登录系统查看");
+                }
+                return result;
+            }
+            else
+            {
+                string code = "";
+                string GetReciverSql = " select code from base_user where userid='" + response + "' ";
+                DataTable dt = PlanBll.GetDataTable(GetReciverSql);
+                if (dt.Rows.Count > 0)
+                {
+                    code = dt.Rows[0][0].ToString();
+                }
+
+                IDatabase database = DataFactory.Database();
+                DbTransaction isOpenTrans = database.BeginTrans();
+                FY_Rapid rapid = new FY_Rapid();
+                rapid.Create();
+                rapid.res_cdate = DateTime.Now;
+
+                //测试下微信公众号消息通知
+                WeChatHelper.SendWxMessage(rapid.res_cpeo, "您好，您有一条新的快速反应需要处理，具体如下：" + rapid.res_ms + "\n 请登录系统处理：172.19.0.5:8086  ");
+                //int IsEmail = SendEmail(rapid.res_cpeo, "您好，您有一条新的快速反应需要处理，具体如下：" + rapid.res_ms + "\n 请登录系统处理：172.19.0.5:8086  ");
+                rapid.IsEmail = 1;
+                rapid.PlanTime = Convert.ToDateTime(plandate);
+                rapid.res_ms = problem;
+                rapid.res_cpeo = code;
+                database.Insert(rapid, isOpenTrans);
+                database.Commit();
+                return 1;
+            }
+            
+
+            
         }
         /// <summary>
         /// result格式：  ID1:结果1;ID2:结果2;
