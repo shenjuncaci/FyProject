@@ -77,6 +77,10 @@
       <DependentUpon>Index.asmx</DependentUpon>
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="IPBroadCast.asmx.cs">
+      <DependentUpon>IPBroadCast.asmx</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="MobileService.asmx.cs">
       <DependentUpon>MobileService.asmx</DependentUpon>
       <SubType>Component</SubType>
@@ -86,6 +90,7 @@
   <ItemGroup>
     <Content Include="Global.asax" />
     <Content Include="Index.asmx" />
+    <Content Include="IPBroadCast.asmx" />
     <Content Include="MobileService.asmx" />
     <Content Include="XmlConfig\log4net.config" />
     <Content Include="XmlConfig\system.config" />
