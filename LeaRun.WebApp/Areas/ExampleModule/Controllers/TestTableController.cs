@@ -180,6 +180,223 @@ namespace LeaRun.WebApp.Areas.ExampleModule.Controllers
             return View();
         }
 
+        public ActionResult PuJiaGantee()
+        {
+            return View();
+        }
+
+        public ActionResult taskTree()
+        {
+            List<GantJsonData> listnew = new List<GantJsonData>();
+            GantJsonData test = new GantJsonData();
+            GantJsonDataChildren testd = new GantJsonDataChildren();
+            GantJsonDataChildren testd2 = new GantJsonDataChildren();
+            List<GantJsonDataChildren> list = new List<GantJsonDataChildren>();
+
+            PredecessorLink pretest = new PredecessorLink();
+            List<PredecessorLink> pretestlist = new List<PredecessorLink>();
+            
+            test.UID = "1";
+            test.Name = "项目范围规划";
+            test.Duration = 8;
+            test.Start = Convert.ToDateTime("2018-7-1");
+            test.Finish= Convert.ToDateTime("2018-7-10");
+            test.PercentComplete = 0;
+            test.Summary = 1;
+            test.Critical = 0;
+            test.Mileston = 0;
+
+            testd2.UID = "3";
+            testd2.Name = "子项测试";
+            testd2.Duration = 8;
+            testd2.Start = Convert.ToDateTime("2018-7-5");
+            testd2.Finish = Convert.ToDateTime("2018-7-10");
+            testd2.PercentComplete = 0;
+            testd2.Summary = 1;
+            testd2.Critical = 0;
+            testd2.Mileston = 0;
+            
+
+            testd.UID = "2";
+            testd.Name = "子项测试";
+            testd.Duration = 8;
+            testd.Start = Convert.ToDateTime("2018-7-1");
+            testd.Finish = Convert.ToDateTime("2018-7-5");
+            testd.PercentComplete = 0;
+            testd.Summary = 1;
+            testd.Critical = 0;
+            testd.Mileston = 0;
+
+            pretest.Type = 1;
+            pretest.PredecessorUID = "2";
+            pretestlist.Add(pretest);
+            testd2.PredecessorLink = pretestlist;
+
+            list.Add(testd);
+            list.Add(testd2);
+            test.children = list;
+
+            listnew.Add(test);
+
+            return Content(listnew.ToJson());
+        }
+
+
+        public class GantJsonData
+        {
+            public string UID { get; set; }
+            public string Name { get; set; }
+            public int Duration { get; set; }
+            public DateTime? Start { get; set; }
+            public DateTime? Finish { get; set; }
+            public int PercentComplete { get; set; }
+            public int Summary { get; set; }
+            public int Critical { get; set; }
+            public int Mileston { get; set; }
+            public List<GantJsonDataChildren> children { get; set; }
+
+            public List<PredecessorLink> PredecessorLink { get; set; }
+
+        }
+
+        public class GantJsonDataChildren
+        {
+            public string UID { get; set; }
+            public string Name { get; set; }
+            public int Duration { get; set; }
+            public DateTime? Start { get; set; }
+            public DateTime? Finish { get; set; }
+            public int PercentComplete { get; set; }
+            public int Summary { get; set; }
+            public int Critical { get; set; }
+            public int Mileston { get; set; }
+            public List<PredecessorLink> PredecessorLink { get; set; }
+        }
+
+        public class PredecessorLink
+        {
+            public int Type { get; set; }
+            public string PredecessorUID { get; set; }
+        }
+
+
+
+
+        public class GantJsonDataNew
+        {
+            public string UID { get; set; }
+            public string Name { get; set; }
+            public int Duration { get; set; }
+            public DateTime? Start { get; set; }
+            public DateTime? Finish { get; set; }
+            public int PercentComplete { get; set; }
+            public int Summary { get; set; }
+            public int Critical { get; set; }
+            public int Mileston { get; set; }
+            public string Items { get; set; }
+            public List<GantJsonDataNew> children { get; set; }
+
+            public List<PredecessorLink> PredecessorLink { get; set; }
+
+        }
+
+
+        public ActionResult GetPujiaGantedataNew()
+        {
+            string sql1 = @"select AutoID as UID,YmSoftName as Name,PlanContinueHour as Duration,PlanStartRq as Start,
+PlanEndRq as Finish,0 as PercentComplete,1 as Summary,0 as Critical,
+0 as Milestone,Items
+ from genyeedata.[dbo].[G_PLM_ProjectSchedule]
+ where sLevel=0 and AutoID=1";
+            DataTable dt1 = testtablebll.GetDataTable(sql1);
+            if (dt1.Rows.Count > 0)
+            {
+                
+                string sql2 = "";
+                List<GantJsonDataNew> list1 = DtConvertHelper.ConvertToModelListNew<GantJsonDataNew>(dt1);
+                foreach(GantJsonDataNew gjd in list1)
+                {
+                    sql2 = @"select AutoID as UID,YmSoftName as Name,PlanContinueHour as Duration,PlanStartRq as Start,
+PlanEndRq as Finish,0 as PercentComplete,1 as Summary,0 as Critical,
+0 as Milestone,Items
+ from genyeedata.[dbo].[G_PLM_ProjectSchedule]
+ where sLevel=1 order by PlanStartRq ";
+                    DataTable dt2= testtablebll.GetDataTable(sql2);
+                    List<GantJsonDataNew> list2 = DtConvertHelper.ConvertToModelListNew<GantJsonDataNew>(dt2);
+                    PredecessorLink pretest = new PredecessorLink();
+                    List<PredecessorLink> prelist = new List<PredecessorLink>();
+
+                    pretest.Type = 1;
+                   // pretest.PredecessorUID = gjd.UID;
+                    prelist.Add(pretest);
+                    string temp = "";
+                    //foreach (GantJsonDataNew gjd2 in list2)
+                    //{
+                    //    if(temp!="")
+                    //    {
+                    //        pretest.PredecessorUID = temp;
+                    //    }
+                    //    prelist.Clear();
+                    //    prelist.Add(pretest);
+                    //    temp = gjd2.UID;
+                    //    gjd2.PredecessorLink = prelist;
+                    //}
+                    //for(int i=0;i<list2.Count;i++)
+                    //{
+                    //    if (temp != "")
+                    //    {
+                    //        pretest.PredecessorUID = temp;
+                    //    }
+                    //    list2[i].PredecessorLink = new List<PredecessorLink>();
+                    //    list2[i].PredecessorLink.Add(pretest);
+                    //    temp = list2[i].UID;
+                    //    //if (temp!="")
+                    //    //{
+                    //    //    list2[i].PredecessorLink[0].PredecessorUID = temp;
+
+                    //    //}
+
+                    //    //if(i!=0)
+                    //    //{
+                    //    //    list2[i].PredecessorLink[0].PredecessorUID = list2[i-1].UID;
+                    //    //}
+                    //}
+                    pretest.PredecessorUID = "13";
+                    list2[2].PredecessorLink = new List<PredecessorLink>();
+                    list2[2].PredecessorLink.Add(pretest);
+                    pretest.PredecessorUID = "44";
+                    list2[3].PredecessorLink = new List<PredecessorLink>();
+                    list2[3].PredecessorLink.Add(pretest);
+
+                    string sql3 = "";
+                    for (int i = 0; i < list2.Count; i++)
+                    {
+                        sql3 = @" select AutoID as UID,YmSoftName as Name,PlanContinueHour as Duration,PlanStartRq as Start,
+PlanEndRq as Finish,0 as PercentComplete,1 as Summary,0 as Critical,
+0 as Milestone,Items
+ from  genyeedata.[dbo].[G_PLM_ProjectSchedule]
+ where sLevel=2 and Items like '%" + list2[i].Items + "' order by PlanStartRq  ";
+                        DataTable dt3= testtablebll.GetDataTable(sql3);
+                        List<GantJsonDataNew> list3 = DtConvertHelper.ConvertToModelListNew<GantJsonDataNew>(dt3);
+                        list2[i].children = list3;
+                    }
+
+
+                    gjd.children = list2;
+                }
+                return Content(list1.ToJson());
+            }
+            else
+            {
+                return Content("出错了");
+            }
+
+
+
+
+
+            
+        }
 
 
 

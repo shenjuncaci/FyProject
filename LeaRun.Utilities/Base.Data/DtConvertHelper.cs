@@ -128,64 +128,52 @@ namespace LeaRun.Utilities
             return ts;
         }
 
-        //public static List<T> ConvertToModelList<T>(DataTable dt, string sortField, ReverserInfo.Direction dir) where T : new()
-        //{
-        //    // 定义集合
-        //    List<T> ts = new List<T>();
-        //    if (dt == null || dt.Rows.Count <= 0) { return ts; }
-        //    // 获得此模型的类型
-        //    Type type = typeof(T);
-        //    string tempName = "";
-        //    foreach (DataRow dr in dt.Rows)
-        //    {
-        //        T t = new T();
-        //        // 获得此模型的公共属性
-        //        PropertyInfo[] propertys = t.GetType().GetProperties();
-        //        foreach (PropertyInfo pi in propertys)
-        //        {
-        //            tempName = pi.Name;
-        //            // 检查DataTable是否包含此列
-        //            if (dt.Columns.Contains(tempName))
-        //            {
-        //                // 判断此属性是否有Setter
-        //                if (!pi.CanWrite) continue;
-        //                object value = dr[tempName];
-        //                try
-        //                {
-        //                    if (value != DBNull.Value)
-        //                    {
-        //                        if (pi.PropertyType == typeof(string)) { pi.SetValue(t, value.ToString(), null); }
-        //                        else if (pi.PropertyType == typeof(int)) { pi.SetValue(t, Convert.ToInt32(value), null); }
-        //                        else if (pi.PropertyType == typeof(decimal)) { pi.SetValue(t, Convert.ToDecimal(value), null); }
-        //                        else if (pi.PropertyType == typeof(DateTime)) { pi.SetValue(t, Convert.ToDateTime(value), null); }
-        //                        else { pi.SetValue(t, value, null); }
-        //                    }
-        //                }
-        //                catch
-        //                {
-        //                    //pi.SetValue(t, value.ToString(), null);
-        //                }
+        public static List<T> ConvertToModelListNew<T>(DataTable dt) where T : new()
+        {
+            // 定义集合
+            List<T> ts = new List<T>();
+            if (dt == null || dt.Rows.Count <= 0) { return ts; }
+            // 获得此模型的类型
+            Type type = typeof(T);
+            string tempName = "";
+            foreach (DataRow dr in dt.Rows)
+            {
+                T t = new T();
+                // 获得此模型的公共属性
+                PropertyInfo[] propertys = t.GetType().GetProperties();
+                foreach (PropertyInfo pi in propertys)
+                {
+                    tempName = pi.Name;
+                    // 检查DataTable是否包含此列
+                    if (dt.Columns.Contains(tempName))
+                    {
+                        // 判断此属性是否有Setter
+                        if (!pi.CanWrite) continue;
+                        object value = dr[tempName];
+                        try
+                        {
+                            if (value != DBNull.Value)
+                            {
+                                if (pi.PropertyType == typeof(string)) { pi.SetValue(t, value.ToString(), null); }
+                                else if (pi.PropertyType == typeof(int)) { pi.SetValue(t, Convert.ToInt32(value), null); }
+                                else if (pi.PropertyType == typeof(decimal)) { pi.SetValue(t, Convert.ToDecimal(value), null); }
+                                else if (pi.PropertyType == typeof(DateTime)) { pi.SetValue(t, Convert.ToDateTime(value), null); }
+                                else { pi.SetValue(t, value, null); }
+                            }
+                        }
+                        catch
+                        {
+                            //pi.SetValue(t, value.ToString(), null);
+                        }
 
-        //            }
+                    }
 
-        //        }
-        //        ts.Add(t);
-        //    }
+                }
+                ts.Add(t);
+            }
 
-        //    if (CheckUtil.CheckIsNull(sortField))
-        //    {
-        //        return ts;
-        //    }
-        //    else
-        //    {
-        //        List<T> lis = new List<T>(ts);
-        //        //根据sortField字段重新排序
-        //        Reverser<T> reverser = new Reverser<T>(typeof(T), sortField, dir);
-        //        lis.Sort(reverser);
-
-        //        return lis;
-        //    }
-        //}
+            return ts;
+        }
 
         /// <summary>
         /// 根据DataTable的第一行，填充一个对象，并返回。只用于目前的DTO类型，没有其它多余的映射，完成简单类得转换。类似Parent映射PID这种，就算了吧。。。

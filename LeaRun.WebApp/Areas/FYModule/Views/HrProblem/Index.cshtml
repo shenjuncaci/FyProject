@@ -230,15 +230,16 @@
         //var address = String(data["NotCompleteReasonfj"]).replace('~', '../../../../')
         //document.getElementById("uploadifyNotCompleteReasontxt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
         //alert(rowObject.res_msfj);
-        if (rowObject.res_msfj != "" && rowObject.res_msfj != null && rowObject.res_msfj != undefined) {
-            //alert(11);
-            temp = temp + "<a href=\"" + rowObject.res_msfj.replace('~', '../../../../') + "\" download=\"附件下载\">" + "<img src=\"../../../../Content/Images/fileType/application_put.png\" />" + "</a>";
-        }
-        if (cellvalue.length > 20) {
-            return temp + cellvalue.substring(0, 20) + "....";
+        if (cellvalue == null) {
+            return temp;
         }
         else {
-            return temp + cellvalue;
+            if (cellvalue.length > 20) {
+                return temp + cellvalue.substring(0, 20) + "....";
+            }
+            else {
+                return temp + cellvalue;
+            }
         }
     }
 

@@ -280,7 +280,7 @@ namespace LeaRun.WebApp.Areas.VPModule.Controllers
 
         public ActionResult DepartJson()
         {
-            string sql = " select DepartmentId,FullName from Base_Department where Nature='生产' ";
+            string sql = " select DepartmentId,FullName from Base_Department where Nature='生产' union select DepartmentId,FullName from Base_Department where FullName='GP12' ";
             DataTable dt = VerifyPostBll.GetDataTable(sql);
             return Content(dt.ToJson());
         }

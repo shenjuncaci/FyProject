@@ -117,12 +117,12 @@ namespace LeaRun.Business
 (select top 1 name 
 from
 (
-select RealName+'('+code+')' as name from Base_User a left join Base_ObjectUserRelation b on a.UserId=b.UserId where b.ObjectId='91c17ca4-0cbf-43fa-829e-3021b055b6c4' 
+select 1 as sortno,RealName+'('+code+')' as name from Base_User a left join Base_ObjectUserRelation b on a.UserId=b.UserId where b.ObjectId='91c17ca4-0cbf-43fa-829e-3021b055b6c4' 
 and a.departmentid=d.departmentid
 union 
-select RealName+'('+code+')' from Base_PartDept a left join Base_User b on a.UserID=b.UserId
+select 2, RealName+'('+code+')' from Base_PartDept a left join Base_User b on a.UserID=b.UserId
 where DeptID=d.departmentid
-) as a) as WorkShopDirector
+) as a order by sortno) as WorkShopDirector
                                       FROM      Base_Department d
                                                 LEFT JOIN Base_Company c ON c.CompanyId = d.CompanyId
                                     ) T WHERE 1=1 ");

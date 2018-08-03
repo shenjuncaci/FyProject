@@ -489,7 +489,7 @@
                     </td>
                     <th class="formTitle">问题小类：</th>
                     <td class="formValue">
-                       
+
                         <select id="ProblemTypeD" class="txtselect">
                             <option value="">==请选择==</option>
                             <option value="舞弊、渎职、不公平事件">舞弊、渎职、不公平事件</option>
@@ -509,13 +509,13 @@
                     <th class="formTitle">负责人：</th>
                     <td class="formValue">
                         <input id="ResponseBy" type="text" class="txt" datacol="yes" err="负责人ID" checkexpession="NotNull" hidden />
-                        <input id="ResponseByName" type="text" class="txt" datacol="yes" err="负责人" checkexpession="NotNull"  />
-                       
+                        <input id="ResponseByName" type="text" class="txt" datacol="yes" err="负责人" checkexpession="NotNull" />
+
                     </td>
                     <th class="formTitle">提出人工号：</th>
                     <td class="formValue">
                         @*<select id="CreateBy" class="txtselect"></select>*@
-                        
+
                         <input id="ProposeManCode" type="text" class="txt" datacol="yes" err="提出人工号" checkexpession="NotNull" />
                     </td>
 
@@ -533,6 +533,16 @@
 
                         <input id="ProposeDept" type="text" class="txt" datacol="yes" err="提出人部门" checkexpession="NotNull" />
                     </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">提出人手机号：</th>
+                    <td class="formValue">
+                        @*<select id="CreateBy" class="txtselect"></select>*@
+
+                        <input id="MobilePhone" type="text" class="txt" datacol="yes" err="手机号" checkexpession="NotNull" />
+                    </td>
+                    <th class="formTitle"></th>
+                    <td class="formValue"></td>
                 </tr>
                 <tr>
                     <th class="formTitle">问题描述：</th>
@@ -569,9 +579,7 @@
                         <input placeholder="系统自动生成，无需填写" readonly id="RealDt" type="text" class="txt Wdate" style="background:#E0FFFF;" />
                     </td>
                 </tr>
-                <tr>
-                    
-                </tr>
+                <tr></tr>
                 <tr>
                     <th class="formTitle">问题相关附件：</th>
                     <td class="formValue">
@@ -596,16 +604,16 @@
                 <tr style="display:none">
                     <td colspan="2">
                         <input id="ProblemState" type="text" class="txt" />
-                        
+
                         <input id="CreateDt" type="text" class="txt" />
 
                         <input id="FlowID" type="text" class="txt" />
                         <input id="Approvestatus" type="text" class="txt" />
-                        <input id="CreateBy" type="text" class="txt" datacol="yes" err="创建人ID"  hidden />
+                        <input id="CreateBy" type="text" class="txt" datacol="yes" err="创建人ID" hidden />
                         <input id="CreateByName" type="text" class="txt" datacol="yes" err="创建人" />
                     </td>
                 </tr>
-               
+
             </table>
         </div>
 

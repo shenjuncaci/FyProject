@@ -55,6 +55,9 @@ namespace LeaRun.Entity
 
         public string FollowBy { get; set; }
 
+        public string BigType { get; set; }
+        public string DetailType { get; set; }
+
 
         #region 扩展操作
         /// <summary>

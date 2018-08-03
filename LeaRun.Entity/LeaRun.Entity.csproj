@@ -151,12 +151,15 @@
     <Compile Include="ProjectManageModule\PM_ProjectActivityMember.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectEndFile.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectFile.cs" />
+    <Compile Include="ProjectManageModule\PM_ProjectGantee.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectMember.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectPlan.cs" />
+    <Compile Include="ProjectManageModule\PM_ProjectPreLink.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectProblem.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectProfit.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectTarget.cs" />
     <Compile Include="ProjectManageModule\PM_PublicFile.cs" />
+    <Compile Include="ProjectManageModule\ProjectGanteeDisplay.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TCModule\TC_AttachContract.cs" />
     <Compile Include="TCModule\TC_AttachContractDetail.cs" />

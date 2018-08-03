@@ -16,6 +16,9 @@
         BindDepartment();
 
         InitControl();
+
+
+        ChangeCD();
         //js通配符获取所有日期，去掉T后面的内容
         //测试后效率还可以,如果以后发现效率不行,可以尝试去掉if判断,根据日期格式固定截取字符串
         $('input[id$="date"]').each(function () {
@@ -316,8 +319,38 @@
                 $("#res_kf").append($("<option></option>").val(DataJson[i].fy_cus_name).html(DataJson[i].fy_cus_name));
             });
         })
+
+        $("#BigType").html("");
+        $("#BigType").append("<option value=''>==请选择==</option>");
+        AjaxJson("/CommonModule/Rapid/GetBigType", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#BigType").append($("<option></option>").val(DataJson[i].code).html(DataJson[i].fullname));
+            });
+        })
+
+        var BigType = $("#BigType").val();
+
+        $("#DetailType").html("");
+        $("#DetailType").append("<option value=''>==请选择==</option>");
+        AjaxJson("/CommonModule/Rapid/GetDeatilType", { BigType: BigType }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#DetailType").append($("<option></option>").val(DataJson[i].code).html(DataJson[i].fullname));
+            });
+        })
     }
 
+
+    function BindDetailType() {
+        var BigType = $("#BigType").val();
+
+        $("#DetailType").html("");
+        $("#DetailType").append("<option value=''>==请选择==</option>");
+        AjaxJson("/CommonModule/Rapid/GetDeatilType", { BigType: BigType }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#DetailType").append($("<option></option>").val(DataJson[i].code).html(DataJson[i].fullname));
+            });
+        })
+    }
     //日期格式重写
     //function RewriteDate()
     //{
@@ -1546,6 +1579,19 @@
     }
 
 
+    function ChangeCD() {
+        var res_ok = $("#res_ok").val();
+
+        if (res_ok == "内部") {
+            $("#cd1").css("display", "none");
+            $("#cd2").css("display", "block");
+        }
+        else if (res_ok == "外部") {
+            $("#cd1").css("display", "block");
+            $("#cd2").css("display", "none");
+        }
+    }
+
 </script>
 <form id="form1">
     <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
@@ -1570,13 +1616,20 @@
                         <select id="res_kf" class="txtselect"></select>
                     </td>
                     <th class="formTitle">投诉级别：</th>
-                    <td class="formValue">
+                    <td class="formValue" style="display:none" id="cd1">
                         <select id="res_jb" class="txtselect">
                             <option value="A级">A级</option>
                             <option value="B级">B级</option>
                             <option value="C级">C级</option>
                             <option value="D级">D级</option>
                             <option value="E级">E级</option>
+                        </select>
+                    </td>
+                    <td class="formValue" style="display:none" id="cd2">
+                        <select id="res_cd" class="txtselect">
+                            <option value="I级">III级</option>
+                            <option value="II级">IV级</option>
+
                         </select>
                     </td>
                 </tr>
@@ -1609,7 +1662,7 @@
                     </td>
                     <th class="formTitle">问题类别：</th>
                     <td class="formValue">
-                        <select id="res_ok" class="txtselect">
+                        <select id="res_ok" class="txtselect" onchange="ChangeCD()">
                             <option value="外部">外部</option>
                             <option value="内部">内部</option>
 
@@ -1624,9 +1677,9 @@
 
                         </table>
                     </td>
-                    <th class="formTitle">重要程度：</th>
-                    <td class="formValue">
-                        <select id="res_cd" class="txtselect">
+                    <th class="formTitle" style="display:none">重要程度：</th>
+                    <td class="formValue" style="display:none">
+                        <select id="res_cd" class="txtselect" >
                             <option value="I级">I级</option>
                             <option value="II级">II级</option>
 
@@ -1680,6 +1733,19 @@
                     </td>
 
                 </tr>
+
+                <tr>
+                    <th class="formTitle">问题大类：</th>
+                    <td class="formValue">
+                        <select id="BigType" class="txtselect" onchange="BindDetailType()"></select>
+                    </td>
+
+                    <th class="formTitle">问题子类：</th>
+                    <td class="formValue">
+                        <select id="DetailType" class="txtselect"></select>
+                    </td>
+                </tr>
+
                 <tr>
                     <th class="formTitle">规范要求：</th>
                     <td class="formValue">

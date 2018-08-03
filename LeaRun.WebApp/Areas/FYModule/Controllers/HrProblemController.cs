@@ -111,8 +111,34 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
             return View();
         }
 
+        public ActionResult FormMobile(string type)
+        {
+            string ProblemType = "";
+            if (type == "1")
+            {
+                ProblemType = "员工咨询";
+            }
+            if (type == "2")
+            {
+                ProblemType = "	心声反馈";
+            }
+            if (type == "3")
+            {
+                ProblemType = "员工投诉";
+            }
+            if (type == "4")
+            {
+                ProblemType = "外部咨询";
+            }
+            ViewData["ProblemType"] = ProblemType;
+
+            ViewData["ReplyDt"] = DateTime.Now.AddDays(1).ToString();
+
+            return View();
+        }
+
         [HttpPost]
-        public ActionResult SubmitForm(string KeyValue, FY_HrProblem entity, string BuildFormJson, HttpPostedFileBase Filedata)
+        public ActionResult SubmitForm(string KeyValue, FY_HrProblem entity, string BuildFormJson, HttpPostedFileBase Filedata,string Picture)
         {
             string ModuleId = DESEncrypt.Decrypt(CookieHelper.GetCookie("ModuleId"));
             IDatabase database = DataFactory.Database();
@@ -136,6 +162,9 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
                 }
                 else
                 {
+
+
+
                     string GetReciverSql = " select Email from base_user where userid='" + entity.ResponseBy + "' ";
                     DataTable dt = PostBll.GetDataTable(GetReciverSql);
                     if (dt.Rows.Count > 0)
@@ -168,6 +197,67 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
                 database.Close();
                 return Content(new JsonMessage { Success = false, Code = "-1", Message = "操作失败：" + ex.Message }.ToString());
             }
+        }
+
+        [HttpPost]
+        public ActionResult SubmitFormMobile(string KeyValue, FY_HrProblem entity, string BuildFormJson, HttpPostedFileBase Filedata, string Picture)
+        {
+            string ModuleId = DESEncrypt.Decrypt(CookieHelper.GetCookie("ModuleId"));
+            IDatabase database = DataFactory.Database();
+            DbTransaction isOpenTrans = database.BeginTrans();
+            string GetReciverSql = " select Email from base_user where userid='" + entity.ResponseBy + "' ";
+            DataTable dt = PostBll.GetDataTable(GetReciverSql);
+            if (dt.Rows.Count > 0)
+            {
+
+                //问题提交的时候。先给人事部发一个邮件，提示
+                MailHelper.SendEmail("hongfang.zhou@fuyaogroup.com", "您好，有一条新的员工关系，请登录系统确认是否需要调整责任人。网址：172.19.0.5:8086");
+            }
+            entity.MobileCreate();
+            //entity.FlowID=RegistFlow(entity.ProblemID);
+            //新建单据的时候，注册流程】
+            entity.FlowID = FlowBll.RegistFlow("Sj_HrProblem", entity.ProblemID, entity.ResponseBy);
+
+            if (Picture != "")
+            {
+                string fileGuid = CommonHelper.GetGuid;
+                //long filesize = Filedata.ContentLength;
+                string FileEextension = ".jpg";
+                string uploadDate = DateTime.Now.ToString("yyyyMMdd");
+                //string UserId = ManageProvider.Provider.Current().UserId;
+                string virtualPath = string.Format("~/Resource/Document/NetworkDisk/{0}/{1}/{2}{3}", "HrProblem", uploadDate, fileGuid, FileEextension);
+
+                string realPath = string.Format(@"D:\LeaRun\Resource\Document\NetworkDisk\{0}\{1}\{2}{3}", "HrProblem", uploadDate, fileGuid, FileEextension);
+
+                //string fullFileName = this.Server.MapPath(virtualPath);
+                ////创建文件夹，保存文件
+                //realPath = Path.GetDirectoryName(fullFileName);
+                //先处理图片文件
+                string temp = Picture.Substring(23);
+                byte[] arr2 = Convert.FromBase64String(Picture.Substring(23));
+                using (MemoryStream ms2 = new MemoryStream(arr2))
+                {
+                    System.Drawing.Bitmap bmp2 = new System.Drawing.Bitmap(ms2);
+
+
+
+
+
+                    bmp2.Save(realPath, System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                    bmp2.Dispose();
+                    ms2.Close();
+                }
+                entity.ProblemAttach = virtualPath;
+            }
+
+            database.Insert(entity, isOpenTrans);
+
+            Base_DataScopePermissionBll.Instance.AddScopeDefault(ModuleId, ManageProvider.Provider.Current().UserId, entity.ProblemID, isOpenTrans);
+
+            Base_FormAttributeBll.Instance.SaveBuildForm(BuildFormJson, entity.ProblemID, ModuleId, isOpenTrans);
+            database.Commit();
+            return Redirect("index");
         }
 
         [HttpPost]

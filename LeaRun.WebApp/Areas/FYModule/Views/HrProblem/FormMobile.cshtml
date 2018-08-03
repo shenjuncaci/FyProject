@@ -1,0 +1,455 @@
+﻿@{
+    ViewBag.Title = "员工问题反馈->"+ ViewData["ProblemType"];
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+    string UserID = ViewData["UserID"] as string;
+}
+<link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
+<script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>
+<link href="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.css" rel="stylesheet" />
+<script src="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.js"></script>
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
+
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+
+    input {
+        background: #E0FFFF;
+    }
+
+    textarea {
+        background: #E0FFFF;
+    }
+
+    select {
+        background: #E0FFFF;
+    }
+</style>
+
+<style>
+    .addBorder {
+        border: 1px solid #ccc;
+    }
+
+    #imgDiv {
+        width: 100px;
+        height: 100px;
+    }
+
+    #imgContent {
+        width: 100%;
+        height: 100%;
+    }
+</style>
+
+
+<script type="text/javascript">
+    //$(document).ready(function () {
+
+    //    uploadify();
+    //});
+    $(function () {
+        //BindData();
+        //$("#ResponseBy").searchableSelect();
+        ResponsebyAutocomplete();
+        CreateByAutocomplete();
+        InitControl();
+        //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
+        //BindResponseBy();
+        uploadify();
+
+
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/FYModule/HrProblem/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+
+
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        //Loading(true, "正在提交数据...");
+        //window.setTimeout(function () {
+        //    var postData = GetWebControls("#form1");
+        //    postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+        //    postData["Picture"] = $("#imgContent")[0].src;
+        //    AjaxJson("/FYModule/HrProblem/SubmitFormMobile?KeyValue=" + GetQuery('KeyValue') , postData, function (data) {
+        //        tipDialog(data.Message, 3, data.Code);
+        //        top.frames[tabiframeId()].windowload();
+        //        closeDialog();
+        //    });
+        //}, 200);
+
+        var postData = GetWebControls("#form1");
+        postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+        postData["Picture"] = $("#imgContent")[0].src;
+
+        $.ajax({
+            type: "post",
+            url: "/FYModule/HrProblem/SubmitFormMobile",
+            data: postData,
+            async: false,
+            success: function (rs) {
+                alert("提交成功");
+                window.location.href = '@Url.Content("~/fymodule/hrproblem/formmobile?type=1")';
+            },
+            error: function () {
+                alert("出错了");
+            }
+        })
+    }
+
+    function BindData()
+    {
+        $("#ResponseBy").html("");
+
+        $("#ResponseBy").append("<option value=''>==请选择==</option>");
+        AjaxJson("/FYModule/Plan/ResponseAllJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#ResponseBy").append($("<option></option>").val(DataJson[i].UserId).html(DataJson[i].RealName));
+            });
+        })
+    }
+
+
+    //自动补全责任人的数据
+    function ResponsebyAutocomplete() {
+        var $ResponseBy = $("#ResponseBy");
+        var $ResponseByName = $("#ResponseByName");
+        //ResponseByName
+        $ResponseByName.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            //alert(11);
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        //autocompletekeydown("ResponseBy", function (data) {
+        //    $("#ResponseBy").val(data.ResponseByName)
+        //});
+        //获取数据源
+        function DataSource() {
+            AjaxJson("/FYModule/HrProblem/ResponseAllJson", { keywords: $ResponseByName.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="ResponseBy" style="display: none;">' + DataJson[i].UserId + '</td>';
+                    html += '<td id="ResponseByName" style="width: 100%;">' + DataJson[i].RealName + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("ResponseByName", $ResponseByName.width() + "px", "200px", html, function (data) {
+                    $("#ResponseBy").val(data.ResponseBy);
+                    $("#ResponseByName").val(data.ResponseByName);
+                });
+            });
+        }
+    }
+
+    //自动补全问题提出人的数据
+    function CreateByAutocomplete() {
+        var $CreateBy = $("#CreateBy");
+        var $CreateByName = $("#CreateByName");
+        //ResponseByName
+        $CreateByName.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            //alert(11);
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        //autocompletekeydown("ResponseBy", function (data) {
+        //    $("#ResponseBy").val(data.ResponseByName)
+        //});
+        //获取数据源
+        function DataSource() {
+            AjaxJson("/FYModule/HrProblem/ResponseAllJson", { keywords: $CreateByName.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="ResponseBy" style="display: none;">' + DataJson[i].UserId + '</td>';
+                    html += '<td id="ResponseByName" style="width: 100%;">' + DataJson[i].RealName + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("CreateByName", $CreateByName.width() + "px", "200px", html, function (data) {
+                    $("#CreateBy").val(data.ResponseBy);
+                    $("#CreateByName").val(data.ResponseByName);
+                });
+            });
+        }
+    }
+
+    //方向键上,方向键下,回车键，自动补全数据
+    function autocompletekeydown(Objkey, callBack) {
+        $("#" + Objkey).keydown(function (e) {
+            switch (e.keyCode) {
+                case 38: // 方向键上
+                    if (IndetableRow_autocomplete > 0) {
+                        IndetableRow_autocomplete--
+                        $("#div_gridshow").find('tbody tr').removeClass('selected');
+                        $("#div_gridshow").find('tbody tr').each(function (r) {
+                            if (r == IndetableRow_autocomplete) {
+                                scrollTopheight -= 22;
+                                $("#div_gridshow").scrollTop(scrollTopheight);
+                                $(this).addClass('selected');
+                            }
+                        });
+                    }
+                    break;
+                case 40: // 方向键下
+                    var tindex = $("#div_gridshow").find('tbody tr').length - 1;
+                    if (IndetableRow_autocomplete < tindex) {
+                        IndetableRow_autocomplete++;
+                        $("#div_gridshow").find('tbody tr').removeClass('selected');
+                        $("#div_gridshow").find('tbody tr').each(function (r) {
+                            if (r == IndetableRow_autocomplete) {
+                                scrollTopheight += 22;
+                                $("#div_gridshow").scrollTop(scrollTopheight);
+                                $(this).addClass('selected');
+                            }
+                        });
+                    }
+                    break;
+                case 13:  //回车键
+                    var parameter = "";
+                    $("#div_gridshow").find('tbody tr').each(function (r) {
+                        if (r == IndetableRow_autocomplete) {
+                            $(this).find('td').each(function (i) {
+                                parameter += '"' + $(this).attr('id') + '"' + ':' + '"' + $.trim($(this).text()) + '",'
+                            });
+                        }
+                    });
+                    if ($('#' + Objkey).attr('readonly') == 'readonly') {
+                        return false;
+                    }
+                    if ($('#' + Objkey).attr('disabled') == 'disabled') {
+                        return false;
+                    }
+                    callBack(JSON.parse('{' + parameter.substr(0, parameter.length - 1) + '}'));
+                    $("#div_gridshow").hide();
+                    break;
+                default:
+                    break;
+            }
+        })
+    }
+
+
+    var index_uploadify = 1;
+    function uploadify() {
+        //if (!!GetQueryNewNew('KeyValue'))
+        //{ alert(11)};
+        $("#uploadify").uploadify({
+            uploader: '/FYModule/HrProblem/SubmitUploadify?FolderId=' + GetQueryNew('KeyValue')+'&type=1',
+            swf: '/Content/Scripts/uploadify/uploadify.swf',
+            buttonText: "添加文件",
+            height: 24,
+            width: 70,
+            fileSizeLimit: 4096,
+            onFallback: function () {
+                alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+            },
+            onUploadSuccess: function (file, data, response) {
+                alert("上传成功");
+
+                var DataJson = JSON.parse(data);
+                var address = DataJson.NetworkFile.ProblemAttach;
+                $("#ProblemAttach").val(address);
+                address = address.replace('~', '../../../../');
+                document.getElementById("tt").style.display = "block";
+                document.getElementById("tt").innerHTML = "<a href=\"" + address + "\" download=\"附件下载\">附件下载</a>";
+
+            },
+            onUploadError: function () { alert("发生错误") }
+        });
+    }
+
+    function loadPicture() {
+        var file = $("#imgForm").find("input")[0].files[0];
+        //alert(file);
+        //创建读取文件的对象
+        var reader = new FileReader();
+
+        //创建文件读取相关的变量
+        var imgFile;
+
+        //为文件读取成功设置事件
+        reader.onload = function (e) {
+            //alert('文件读取完成');
+            imgFile = e.target.result;
+            console.log(imgFile);
+            $("#imgContent").attr('src', imgFile);
+        };
+
+        //正式读取文件
+        reader.readAsDataURL(file);
+    }
+
+</script>
+
+
+<form id="form1">
+    <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">基本信息</div>
+
+
+            </div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+        <!--基本信息-->
+        <div id="basic" class="tabPanel">
+            <table id="main" class="form">
+                <tr>
+                    <th class="formTitle">问题类别：</th>
+                    <td class="formValue">
+                        <input readonly id="ProblemType" type="text" class="txt" value="@ViewData["ProblemType"]" />
+
+                    </td>
+                    
+
+                </tr>
+                <tr>
+                    <th class="formTitle">问题小类：</th>
+                    <td class="formValue">
+                        <select id="ProblemTypeD" class="txtselect" datacol="yes" err="问题小类" checkexpession="NotNull">
+                            <option value="">==请选择==</option>
+                            <option value="舞弊、渎职、不公平事件">舞弊、渎职、不公平事件</option>
+                            <option value="规章制度">规章制度</option>
+                            <option value="主管管理">主管管理</option>
+                            <option value="工作环境">工作环境</option>
+                            <option value="生活环境">生活环境</option>
+                            <option value="工作时间与强度">工作时间与强度</option>
+                            <option value="薪酬福利待遇">薪酬福利待遇</option>
+                            <option value="部门间的沟通协作">部门间的沟通协作</option>
+                            <option value="信息沟通">信息沟通</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">手机号：</th>
+                    <td class="formValue">
+                        <input id="MobilePhone" type="text" class="txt" datacol="yes" err="手机号" checkexpession="NotNull" />
+
+                    </td>
+                    
+
+                </tr>
+                <tr>
+                    <th class="formTitle">提出人工号：</th>
+                    <td class="formValue">
+                        @*<select id="CreateBy" class="txtselect"></select>*@
+
+                        <input id="ProposeManCode" type="text" class="txt" datacol="yes" err="提出人工号" checkexpession="NotNull" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">提出人姓名：</th>
+                    <td class="formValue">
+                        @*<select id="CreateBy" class="txtselect"></select>*@
+
+                        <input id="ProposeMan" type="text" class="txt" datacol="yes" err="提出人姓名" checkexpession="NotNull" />
+                    </td>
+                    
+                </tr>
+                <tr>
+                    <th class="formTitle">提出人部门：</th>
+                    <td class="formValue">
+                        @*<select id="CreateBy" class="txtselect"></select>*@
+
+                        <input id="ProposeDept" type="text" class="txt" datacol="yes" err="提出人部门" checkexpession="NotNull" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">问题描述：</th>
+                    <td class="formValue">
+                        <textarea id="ProblemDescripe" class="txt" style="width:180px;height:80px;" /></textarea>
+                    </td>
+
+                </tr>
+               
+
+               
+                <tr></tr>
+                
+
+            </table>
+        </div>
+
+
+    </div>
+    
+
+</form>
+<table>
+    <tr>
+        <th class="formTitle">相关附件：</th>
+        <td class="formValue">
+            <div id="imgForm">
+                <input onchange="loadPicture()" type="file" name="file" id="file">
+            </div>
+        </td>
+
+    </tr>
+    <tr>
+        <td colspan="3">
+            <div class="addBorder" id="imgDiv">
+                <img id="imgContent">
+            </div>
+        </td>
+    </tr>
+</table>
+<div>
+    <button onclick="AcceptClick()">确认提交</button>
+</div>

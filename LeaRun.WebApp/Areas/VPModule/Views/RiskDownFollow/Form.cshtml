@@ -211,15 +211,15 @@
         <!--基本信息-->
         <div id="before" class="tabPanel">
             <table id="tab1" class="form">
-                <tr>
+                <tr style="display:none">
                     <th class="formTitle">本厂编号：</th>
                     <td class="formValue">
 
                         <table style="width:100%">
                             <tr>
                                 <td style="width:90%">
-                                    <input readonly id="VersionCode" type="text" class="txt" datacol="yes" err="版本号" checkexpession="NotNull" style="width:10%;display:none" />
-                                    <input readonly id="ProjectName" type="text" class="txt" datacol="yes" err="本厂编号" checkexpession="NotNull" style="width:90%" />
+                                    <input readonly id="VersionCode" type="text" class="txt" datacol="yes" err="版本号"  style="width:10%;display:none" />
+                                    <input readonly id="ProjectName" type="text" class="txt" datacol="yes" err="本厂编号"  style="width:90%" />
                                 </td>
                                 <td style="width:10%">
                                     <img src="~/Content/Images/Icon16/bullet_magnify.png" onclick="addProject()">
@@ -232,7 +232,7 @@
 
 
                     <th class="formTitle">APQP编号</th>
-                    <td class="formValue"><input readonly id="FileYmbatch" type="text" class="txt" datacol="yes" err="APQP编号" checkexpession="NotNull" style="width:90%" /></td>
+                    <td class="formValue"><input readonly id="FileYmbatch" type="text" class="txt" datacol="yes" err="APQP编号" style="width:90%" /></td>
                 </tr>
                 <tr>
                     <th class="formTitle">高风险项/问题描述：</th>

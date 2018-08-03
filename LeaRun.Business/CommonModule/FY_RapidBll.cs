@@ -173,6 +173,25 @@ namespace LeaRun.Business
             return Repository().FindDataSetBySql(sql).Tables[0];
         }
 
+        public DataTable GetBigType()
+        {
+            string sql = " select code,fullname from Base_DataDictionaryDetail where DataDictionaryId='7d093120-e471-4972-b53b-1639d78f3ede'  and ParentId='0' ";
+            return Repository().FindDataSetBySql(sql).Tables[0];
+        }
+
+        public DataTable GetDetailType(string BigType)
+        {
+            string sql = " select code,fullname from Base_DataDictionaryDetail where DataDictionaryId='7d093120-e471-4972-b53b-1639d78f3ede'  ";
+            string Condition = "";
+            if(BigType!="Undefined"&&BigType!=null&&BigType!="")
+            {
+                Condition += " and ParentID in (select DataDictionaryDetailId from Base_DataDictionaryDetail where Code='"+BigType+"') ";
+                sql = sql + Condition;
+            }
+            
+            return Repository().FindDataSetBySql(sql).Tables[0];
+        }
+
         public DataTable GetReportJson(string keyword, ref JqGridParam jqgridparam)
         {
             StringBuilder strSql = new StringBuilder();

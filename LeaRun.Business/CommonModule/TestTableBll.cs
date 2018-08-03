@@ -29,5 +29,16 @@ namespace LeaRun.Business
             
             return Repository().FindTablePageBySql(strSql.ToString(), parameter.ToArray(), ref jqgridparam);
         }
+
+        public DataTable GetDataTable(string sql)
+        {
+            return Repository().FindDataSetBySql(sql).Tables[0];
+        }
+
+        public int ExecuteSql(StringBuilder sql)
+        {
+            int result = Repository().ExecuteBySql(sql);
+            return result;
+        }
     }
 }

@@ -13,7 +13,10 @@
 <script type="text/javascript">
     $(function () {
         BindDepartment();
+        
         InitControl();
+        
+        
         //js通配符获取所有日期，去掉T后面的内容Date
         //测试后效率还可以,如果以后发现效率不行,可以尝试去掉if判断,根据日期格式固定截取字符串
 
@@ -189,6 +192,7 @@
                 $("#FollowBy").append($("<option></option>").val(DataJson[i].code).html(DataJson[i].RealName));
             });
         })
+
         $("#Customer").html("");
         $("#Customer").append("<option value=''>==请选择==</option>");
         AjaxJson("/CommonModule/Rapid/CustomerJson", {}, function (DataJson) {
@@ -197,6 +201,37 @@
             });
         })
 
+        $("#BigType").html("");
+        $("#BigType").append("<option value=''>==请选择==</option>");
+        AjaxJson("/CommonModule/Rapid/GetBigType", { }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#BigType").append($("<option></option>").val(DataJson[i].code).html(DataJson[i].fullname));
+            });
+        })
+
+        var BigType = $("#BigType").val();
+
+        $("#DetailType").html("");
+        $("#DetailType").append("<option value=''>==请选择==</option>");
+        AjaxJson("/CommonModule/Rapid/GetDeatilType", { BigType: BigType }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#DetailType").append($("<option></option>").val(DataJson[i].code).html(DataJson[i].fullname));
+            });
+        })
+
+
+    }
+
+    function BindDetailType() {
+        var BigType = $("#BigType").val();
+
+        $("#DetailType").html("");
+        $("#DetailType").append("<option value=''>==请选择==</option>");
+        AjaxJson("/CommonModule/Rapid/GetDeatilType", { BigType: BigType }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#DetailType").append($("<option></option>").val(DataJson[i].code).html(DataJson[i].fullname));
+            });
+        })
     }
 
     //日期格式重写
@@ -320,7 +355,7 @@
 
 
 
-
+    
 
 
 
@@ -444,18 +479,31 @@
                         </select>
                     </td>
                 </tr>
+
+                <tr>
+                    <th class="formTitle">问题大类：</th>
+                    <td class="formValue">
+                        <select id="BigType" class="txtselect" onchange="BindDetailType()"></select>
+                    </td>
+
+                    <th class="formTitle">问题子类：</th>
+                    <td class="formValue">
+                        <select id="DetailType" class="txtselect"></select>
+                    </td>
+                </tr>
+
                 <tr>
                     <th class="formTitle">负责人：</th>
                     <td class="formValue">
-                        
+
                         <table>
                             <tr><td><select id="ResponseBy" class="txtselect"></select></td><td>跟踪人</td><td><select id="FollowBy" class="txtselect"></select></td></tr>
 
                         </table>
                     </td>
-                    <th class="formTitle">重要程度：</th>
+                    <th class="formTitle" style="display:none">重要程度：</th>
                     <td class="formValue">
-                        <select id="ImportLevel" class="txtselect">
+                        <select id="ImportLevel" class="txtselect" style="display:none">
                             <option value="I级">I级</option>
                             <option value="II级">II级</option>
 

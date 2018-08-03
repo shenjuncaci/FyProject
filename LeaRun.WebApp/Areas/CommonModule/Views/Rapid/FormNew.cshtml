@@ -101,6 +101,23 @@
             });
         })
 
+        $("#BigType").html("");
+        $("#BigType").append("<option value=''>==请选择==</option>");
+        AjaxJson("/CommonModule/Rapid/GetBigType", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#BigType").append($("<option></option>").val(DataJson[i].code).html(DataJson[i].fullname));
+            });
+        })
+
+        var BigType = $("#BigType").val();
+
+        $("#DetailType").html("");
+        $("#DetailType").append("<option value=''>==请选择==</option>");
+        AjaxJson("/CommonModule/Rapid/GetDeatilType", { BigType: BigType }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#DetailType").append($("<option></option>").val(DataJson[i].code).html(DataJson[i].fullname));
+            });
+        })
 
     }
 
@@ -137,7 +154,30 @@
         });
     }
 
+    function BindDetailType() {
+        var BigType = $("#BigType").val();
 
+        $("#DetailType").html("");
+        $("#DetailType").append("<option value=''>==请选择==</option>");
+        AjaxJson("/CommonModule/Rapid/GetDeatilType", { BigType: BigType }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#DetailType").append($("<option></option>").val(DataJson[i].code).html(DataJson[i].fullname));
+            });
+        })
+    }
+
+    function ChangeCD() {
+        var res_ok = $("#res_ok").val();
+
+        if (res_ok == "内部") {
+            $("#cd1").css("display", "none");
+            $("#cd2").css("display", "block");
+        }
+        else if(res_ok=="外部") {
+            $("#cd1").css("display", "block");
+            $("#cd2").css("display", "none");
+        }
+    }
 
 </script>
 
@@ -164,22 +204,27 @@
         <!--基本信息-->
         <div id="basic" class="tabPanel">
             <table class="form">
-                
-                 <tr>
+
+                <tr>
                     <th class="formTitle">客户：</th>
                     <td class="formValue">
-                        <select id="res_kf" class="txtselect" >
-                            
-                        </select>
+                        <select id="res_kf" class="txtselect"></select>
                     </td>
-                    <th class="formTitle">投诉级别：</th>
-                    <td class="formValue">
+                    <th class="formTitle" >投诉级别：</th>
+                    <td class="formValue" id="cd1">
                         <select id="res_jb" class="txtselect">
                             <option value="A级">A级</option>
                             <option value="B级">B级</option>
                             <option value="C级">C级</option>
                             <option value="D级">D级</option>
                             <option value="E级">E级</option>
+                        </select>
+                    </td>
+                    <td class="formValue" style="display:none" id="cd2">
+                        <select id="res_cd" class="txtselect">
+                            <option value="I级">III级</option>
+                            <option value="II级">IV级</option>
+
                         </select>
                     </td>
                 </tr>
@@ -195,64 +240,64 @@
                             <option value="PDI车库">PDI车库</option>
                             <option value="售后">售后</option>
                         </select>
-                        
+
                     </td>
                     <th class="formTitle">重复发生：</th>
                     <td class="formValue">
-                         <select id="res_again" class="txtselect">
+                        <select id="res_again" class="txtselect">
                             <option value="是">是</option>
                             <option value="否">否</option>
-                           
+
                         </select>
                     </td>
                 </tr>
-                 <tr>
+                <tr>
                     <th class="formTitle">产品名称：</th>
                     <td class="formValue">
-                         <input id="res_mc" type="text" class="txt" checkexpession="NotNull"/>
+                        <input id="res_mc" type="text" class="txt" checkexpession="NotNull" />
                     </td>
-                     <th class="formTitle">问题类别：</th>
+                    <th class="formTitle">问题类别：</th>
                     <td class="formValue">
-                         <select id="res_ok" class="txtselect">
+                        <select id="res_ok" class="txtselect" onchange="ChangeCD()">
                             <option value="外部">外部</option>
                             <option value="内部">内部</option>
-                           
+
                         </select>
                     </td>
-                  </tr>
-                 <tr>
+                </tr>
+                <tr>
                     <th class="formTitle">负责人：</th>
 
                     <td class="formValue">
                         <table>
                             <tr><td style="width:30%"><select style="width:80px" id="res_cpeo" class="txtselect"></select></td><td>跟踪人</td><td style="width:40%"><select style="width:80px" id="FollowBy" class="txtselect"></select></td></tr>
-                            
+
                         </table>
-                        
+
                     </td>
-                     <th class="formTitle">重要程度：</th>
-                    <td class="formValue">
-                         <select id="res_cd" class="txtselect">
-                            <option value="I级">I级</option>
-                            <option value="II级">II级</option>
-                           
-                        </select>
+                    <th class="formTitle" style="display:none">重要程度：</th>
+                    <td class="formValue" style="display:none">
+                        @*<select id="res_cd" class="txtselect">
+                            <option value="I级">III级</option>
+                            <option value="II级">IV级</option>
+
+                        </select>*@
                     </td>
-                  </tr>
+                </tr>
                 <tr>
                     <th class="formTitle">发生日期：</th>
                     <td class="formValue">
-                          <input id="res_cdate" type="text" class="txt Wdate" onfocus="WdatePicker({maxDate:'%y-%M-%d'})" style="background:#E0FFFF" />
+                        <input id="res_cdate" type="text" class="txt Wdate" onfocus="WdatePicker({maxDate:'%y-%M-%d'})" style="background:#E0FFFF" />
                     </td>
-                     <th class="formTitle" style="display:none">下次汇报日期：</th>
+                    <th class="formTitle" style="display:none">下次汇报日期：</th>
                     <td class="formValue" style="display:none">
-                         
-                            <input id="res_ndate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" />
-                           
-                        
+
+                        <input id="res_ndate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" />
+
+
                     </td>
-                   
-                  </tr>
+
+                </tr>
 
                 <tr>
                     <th class="formTitle">产品区域：</th>
@@ -283,6 +328,17 @@
 
                 </tr>
                 <tr>
+                    <th class="formTitle">问题大类：</th>
+                    <td class="formValue">
+                        <select id="BigType" class="txtselect" onchange="BindDetailType()"></select>
+                    </td>
+
+                    <th class="formTitle">问题子类：</th>
+                    <td class="formValue">
+                        <select id="DetailType" class="txtselect"></select>
+                    </td>
+                </tr>
+                <tr>
                     <th class="formTitle">规范要求：</th>
                     <td class="formValue">
                         <input id="Requirements" type="text" class="txt" datacol="yes" checkexpession="NotNull" err="规范要求" />
@@ -293,27 +349,27 @@
                     </td>
                 </tr>
                 <tr>
-                     <th class="formTitle">问题内容描述：</th>
+                    <th class="formTitle">问题内容描述：</th>
                     <td class="formValue" colspan="2">
-                          <textarea  id="res_ms"  class="txt" style="width:320px;height:80px;" /></textarea>
+                        <textarea id="res_ms" class="txt" style="width:320px;height:80px;" /></textarea>
                     </td>
                     <td>
                         <table>
                             <tr>
                                 <td>
-                    <input id="uploadify" name="uploadify" type="file"  />
-                                    </td>
+                                    <input id="uploadify" name="uploadify" type="file" />
+                                </td>
                                 <td>
-                        <label id="tt" style="display:none" />
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    
-                   @* <input id="download" /></td>*@
+                                    <label id="tt" style="display:none" />
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+
+                    @* <input id="download" /></td>*@
                 </tr>
-                <tr style="display:none"><td colspan="4"><input id="res_msfj" type="text"/></td></tr>
-               
+                <tr style="display:none"><td colspan="4"><input id="res_msfj" type="text" /></td></tr>
+
             </table>
         </div>
 

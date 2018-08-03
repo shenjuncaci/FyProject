@@ -155,33 +155,33 @@ where exists (select * from Base_ObjectUserRelation where UserId=a.UserId and Ob
                         entity.AfterRPN = entity.AfterD * entity.AfterS * entity.AfterO;
                         entity.AfterPriorityLevel = PriorityLevel[detectionZone[entity.AfterD - 1, entity.AfterS - 1]-1, SeverityZone[entity.AfterO - 1, entity.AfterS - 1]-1];
                     }
-                    if(entity.IsEffective=="有效")
-                    {
-                        entity.FinishState = "已完成";
-                        sqlSync = @"insert into genyeedata.dbo.sys_YmMessage (OrganID,MsgYmBatch,items,ReciveManID,ReceiveMan,SendmanID,Sendman,Sendrq,sType,stypeico,subject,
-sDjname,iFjCount,status,sAction,sFlag,IsSynchronousMail,MailID,remark,IsUsing,AuditTitle
-,SignFlow,OperationMode,IsComplete,Sfree1,CreateRq)
-values
-('001',(select genyeedata.dbo.GetMaxMsg()),2,(select CreateManID
-FROM      genyeedata.dbo.F_Fmea_M AS F INNER JOIN
-                    (SELECT   OrganID, ProjectName, FileYmBatch, IsUsing, MAX(AutoID) AS autoid
-                     FROM      genyeedata.dbo.F_Fmea_M
-                     WHERE   (IsUsing IN ('完成', '禁用'))
-                     GROUP BY OrganID, ProjectName, FileYmBatch, IsUsing) AS t_a ON F.OrganID = t_a.OrganID AND 
-                F.ProjectName = t_a.ProjectName AND F.FileYmBatch = t_a.FileYmBatch AND F.AutoID = t_a.autoid
-				where f.ProjectName='{0}'),(select CreateMan
-FROM      genyeedata.dbo.F_Fmea_M AS F INNER JOIN
-                    (SELECT   OrganID, ProjectName, FileYmBatch, IsUsing, MAX(AutoID) AS autoid
-                     FROM      genyeedata.dbo.F_Fmea_M
-                     WHERE   (IsUsing IN ('完成', '禁用'))
-                     GROUP BY OrganID, ProjectName, FileYmBatch, IsUsing) AS t_a ON F.OrganID = t_a.OrganID AND 
-                F.ProjectName = t_a.ProjectName AND F.FileYmBatch = t_a.FileYmBatch AND F.AutoID = t_a.autoid
-				where f.ProjectName='{0}'),'{1}','{2}',GETDATE(),2,'.\images\mainform\mail\NoOpenMsg.bmp',
-				'QSB同步消息','001|1010103|'+'{0}'+'|'+'{3}'+'|'+'{4}',0,'一般','审批','S',0,'','同步修改QSB中的Fmea风险',0,'批准',
-				'审批流程','等待同步',0,'{3}'+'('+'{0}'+')',GETDATE())";
-                        sqlInsert = @"insert into genyeedata.dbo.F_Fmea_D_QSB (OrganID,ProjectName,FileYmbatch,VersionCode,CreateRq,CreateManID,CreateMan,HighRisk,CauseAnalysis,ActionMeasures)
-values('001','{0}','{1}','{2}',getdate(),'{3}','{4}','{5}','{6}','{7}')";
-                    }
+//                    if(entity.IsEffective=="有效")
+//                    {
+//                        entity.FinishState = "已完成";
+//                        sqlSync = @"insert into genyeedata.dbo.sys_YmMessage (OrganID,MsgYmBatch,items,ReciveManID,ReceiveMan,SendmanID,Sendman,Sendrq,sType,stypeico,subject,
+//sDjname,iFjCount,status,sAction,sFlag,IsSynchronousMail,MailID,remark,IsUsing,AuditTitle
+//,SignFlow,OperationMode,IsComplete,Sfree1,CreateRq)
+//values
+//('001',(select genyeedata.dbo.GetMaxMsg()),2,(select CreateManID
+//FROM      genyeedata.dbo.F_Fmea_M AS F INNER JOIN
+//                    (SELECT   OrganID, ProjectName, FileYmBatch, IsUsing, MAX(AutoID) AS autoid
+//                     FROM      genyeedata.dbo.F_Fmea_M
+//                     WHERE   (IsUsing IN ('完成', '禁用'))
+//                     GROUP BY OrganID, ProjectName, FileYmBatch, IsUsing) AS t_a ON F.OrganID = t_a.OrganID AND 
+//                F.ProjectName = t_a.ProjectName AND F.FileYmBatch = t_a.FileYmBatch AND F.AutoID = t_a.autoid
+//				where f.ProjectName='{0}'),(select CreateMan
+//FROM      genyeedata.dbo.F_Fmea_M AS F INNER JOIN
+//                    (SELECT   OrganID, ProjectName, FileYmBatch, IsUsing, MAX(AutoID) AS autoid
+//                     FROM      genyeedata.dbo.F_Fmea_M
+//                     WHERE   (IsUsing IN ('完成', '禁用'))
+//                     GROUP BY OrganID, ProjectName, FileYmBatch, IsUsing) AS t_a ON F.OrganID = t_a.OrganID AND 
+//                F.ProjectName = t_a.ProjectName AND F.FileYmBatch = t_a.FileYmBatch AND F.AutoID = t_a.autoid
+//				where f.ProjectName='{0}'),'{1}','{2}',GETDATE(),2,'.\images\mainform\mail\NoOpenMsg.bmp',
+//				'QSB同步消息','001|1010103|'+'{0}'+'|'+'{3}'+'|'+'{4}',0,'一般','审批','S',0,'','同步修改QSB中的Fmea风险',0,'批准',
+//				'审批流程','等待同步',0,'{3}'+'('+'{0}'+')',GETDATE())";
+//                        sqlInsert = @"insert into genyeedata.dbo.F_Fmea_D_QSB (OrganID,ProjectName,FileYmbatch,VersionCode,CreateRq,CreateManID,CreateMan,HighRisk,CauseAnalysis,ActionMeasures)
+//values('001','{0}','{1}','{2}',getdate(),'{3}','{4}','{5}','{6}','{7}')";
+//                    }
 
 
                     database.Update(entity, isOpenTrans);
@@ -203,33 +203,33 @@ values('001','{0}','{1}','{2}',getdate(),'{3}','{4}','{5}','{6}','{7}')";
                         entity.AfterRPN = entity.AfterD * entity.AfterS * entity.AfterO;
                         entity.AfterPriorityLevel = PriorityLevel[detectionZone[entity.AfterD - 1, entity.AfterS - 1] - 1, SeverityZone[entity.AfterO - 1, entity.AfterS - 1] - 1];
                     }
-                    if (entity.IsEffective == "有效")
-                    {
-                        entity.FinishState = "已完成";
-                        sqlSync = @"insert into genyeedata.dbo.sys_YmMessage (OrganID,MsgYmBatch,items,ReciveManID,ReceiveMan,SendmanID,Sendman,Sendrq,sType,stypeico,subject,
-sDjname,iFjCount,status,sAction,sFlag,IsSynchronousMail,MailID,remark,IsUsing,AuditTitle
-,SignFlow,OperationMode,IsComplete,Sfree1,CreateRq)
-values
-('001',(select genyeedata.dbo.GetMaxMsg()),2,(select CreateManID
-FROM      genyeedata.dbo.F_Fmea_M AS F INNER JOIN
-                    (SELECT   OrganID, ProjectName, FileYmBatch, IsUsing, MAX(AutoID) AS autoid
-                     FROM      genyeedata.dbo.F_Fmea_M
-                     WHERE   (IsUsing IN ('完成', '禁用'))
-                     GROUP BY OrganID, ProjectName, FileYmBatch, IsUsing) AS t_a ON F.OrganID = t_a.OrganID AND 
-                F.ProjectName = t_a.ProjectName AND F.FileYmBatch = t_a.FileYmBatch AND F.AutoID = t_a.autoid
-				where f.ProjectName='{0}'),(select CreateMan
-FROM      genyeedata.dbo.F_Fmea_M AS F INNER JOIN
-                    (SELECT   OrganID, ProjectName, FileYmBatch, IsUsing, MAX(AutoID) AS autoid
-                     FROM      genyeedata.dbo.F_Fmea_M
-                     WHERE   (IsUsing IN ('完成', '禁用'))
-                     GROUP BY OrganID, ProjectName, FileYmBatch, IsUsing) AS t_a ON F.OrganID = t_a.OrganID AND 
-                F.ProjectName = t_a.ProjectName AND F.FileYmBatch = t_a.FileYmBatch AND F.AutoID = t_a.autoid
-				where f.ProjectName='{0}'),'{1}','{2}',GETDATE(),2,'.\images\mainform\mail\NoOpenMsg.bmp',
-				'QSB同步消息','001|1010103|'+'{0}'+'|'+'{3}'+'|'+'{4}',0,'一般','审批','S',0,'','同步修改QSB中的Fmea风险',0,'批准',
-				'审批流程','等待同步',0,'{3}'+'('+'{0}'+')',GETDATE())";
-                        sqlInsert = @"insert into genyeedata.dbo.F_Fmea_D_QSB (OrganID,ProjectName,FileYmbatch,VersionCode,CreateRq,CreateManID,CreateMan,HighRisk,CauseAnalysis,ActionMeasures)
-values('001','{0}','{1}','{2}',getdate(),'{3}','{4}','{5}','{6}','{7}') ";
-                    }
+//                    if (entity.IsEffective == "有效")
+//                    {
+//                        entity.FinishState = "已完成";
+//                        sqlSync = @"insert into genyeedata.dbo.sys_YmMessage (OrganID,MsgYmBatch,items,ReciveManID,ReceiveMan,SendmanID,Sendman,Sendrq,sType,stypeico,subject,
+//sDjname,iFjCount,status,sAction,sFlag,IsSynchronousMail,MailID,remark,IsUsing,AuditTitle
+//,SignFlow,OperationMode,IsComplete,Sfree1,CreateRq)
+//values
+//('001',(select genyeedata.dbo.GetMaxMsg()),2,(select CreateManID
+//FROM      genyeedata.dbo.F_Fmea_M AS F INNER JOIN
+//                    (SELECT   OrganID, ProjectName, FileYmBatch, IsUsing, MAX(AutoID) AS autoid
+//                     FROM      genyeedata.dbo.F_Fmea_M
+//                     WHERE   (IsUsing IN ('完成', '禁用'))
+//                     GROUP BY OrganID, ProjectName, FileYmBatch, IsUsing) AS t_a ON F.OrganID = t_a.OrganID AND 
+//                F.ProjectName = t_a.ProjectName AND F.FileYmBatch = t_a.FileYmBatch AND F.AutoID = t_a.autoid
+//				where f.ProjectName='{0}'),(select CreateMan
+//FROM      genyeedata.dbo.F_Fmea_M AS F INNER JOIN
+//                    (SELECT   OrganID, ProjectName, FileYmBatch, IsUsing, MAX(AutoID) AS autoid
+//                     FROM      genyeedata.dbo.F_Fmea_M
+//                     WHERE   (IsUsing IN ('完成', '禁用'))
+//                     GROUP BY OrganID, ProjectName, FileYmBatch, IsUsing) AS t_a ON F.OrganID = t_a.OrganID AND 
+//                F.ProjectName = t_a.ProjectName AND F.FileYmBatch = t_a.FileYmBatch AND F.AutoID = t_a.autoid
+//				where f.ProjectName='{0}'),'{1}','{2}',GETDATE(),2,'.\images\mainform\mail\NoOpenMsg.bmp',
+//				'QSB同步消息','001|1010103|'+'{0}'+'|'+'{3}'+'|'+'{4}',0,'一般','审批','S',0,'','同步修改QSB中的Fmea风险',0,'批准',
+//				'审批流程','等待同步',0,'{3}'+'('+'{0}'+')',GETDATE())";
+//                        sqlInsert = @"insert into genyeedata.dbo.F_Fmea_D_QSB (OrganID,ProjectName,FileYmbatch,VersionCode,CreateRq,CreateManID,CreateMan,HighRisk,CauseAnalysis,ActionMeasures)
+//values('001','{0}','{1}','{2}',getdate(),'{3}','{4}','{5}','{6}','{7}') ";
+//                    }
 
 
 

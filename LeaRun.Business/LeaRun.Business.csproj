@@ -107,6 +107,8 @@
     <Compile Include="ProjectManageModule\PM_ProjectBll.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectEndFileBll.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectFileBll.cs" />
+    <Compile Include="ProjectManageModule\PM_ProjectGanteeBllcs.cs" />
+    <Compile Include="ProjectManageModule\PM_ProjectPreLinkBll.cs" />
     <Compile Include="ProjectManageModule\PM_PublicFileBll.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BaseUtility\BaseFactory.cs" />

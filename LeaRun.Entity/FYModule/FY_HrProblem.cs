@@ -60,6 +60,8 @@ namespace LeaRun.Entity
 
         public string ReplyCompleteRate { get; set; }
 
+        public string MobilePhone { get; set; }
+
 
         #region 扩展操作
         /// <summary>
@@ -73,6 +75,15 @@ namespace LeaRun.Entity
             this.ProblemState = "进行中";
             this.Approvestatus = 0;
             //this.CreateBy
+        }
+
+        public void MobileCreate()
+        {
+            this.ProblemID = CommonHelper.GetGuid;
+            this.CreateDt = DateTime.Now;
+            this.ProblemState = "进行中";
+            this.Approvestatus = 0;
+            this.CreateBy = "移动端创建";
         }
 
         public override void Modify(string KeyValue)
