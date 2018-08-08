@@ -730,5 +730,10 @@ where b.FullName='故障类型' order by a.SortCode ";
             ViewData["Content"] = Content;
             return View();
         }
+
+        public ActionResult Qiandao()
+        {
+            return View();
+        }
     }
 }

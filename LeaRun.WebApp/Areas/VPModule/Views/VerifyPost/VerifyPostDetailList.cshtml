@@ -69,10 +69,10 @@
 
         var Status = $("#Status").val();
         var SetReason = $("#SetReason").val();
-        if (CheckIsNull(Status)) {
+        if (CheckIsNullNoTip(Status)) {
             keywords += " and Status='" + Status + "' ";
         }
-        if (CheckIsNull(SetReason)) {
+        if (CheckIsNullNoTip(SetReason)) {
             keywords += " and SetReason='" + SetReason + "' ";
         }
 
@@ -449,6 +449,9 @@
         }
         return "<a href=\"#\" onclick=\"showtend('" + rowObject.verifypostdid + "','20:00-24:00','" + rowObject.verifydate + "')\">" + cellvalue + "</a>";
     }
+
+
+
     function showaudit(verifypostdid, tag,verifydate)
     {
         
@@ -457,10 +460,10 @@
         var NowDate = new Date();
         NowDate.toLocaleDateString();
         gridDate = new Date(Date.parse(verifydate));
-        if (NowDate.pattern("yyyy-MM-dd") != gridDate.pattern("yyyy-MM-dd")) {
-            alert("只能评审今天的数据");
-            return false;
-        }
+        //if (NowDate.pattern("yyyy-MM-dd") != gridDate.pattern("yyyy-MM-dd")) {
+        //    alert("只能评审今天的数据");
+        //    return false;
+        //}
 
         //首先验证登录账号，看下是否可以操作
         var obj = new Array();

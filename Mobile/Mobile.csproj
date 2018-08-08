@@ -9131,6 +9131,7 @@
     <Content Include="Views\Home\CompleteRepairIndex.cshtml" />
     <Content Include="Views\Home\showPicture.cshtml" />
     <Content Include="Views\Home\ViewIntegral.cshtml" />
+    <Content Include="Views\Home\Qiandao.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

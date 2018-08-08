@@ -15,6 +15,7 @@
             <a href="AuditPage" data-role="button" data-icon="refresh">分层审核</a>
             <a href="DormPage" data-role="button" data-icon="refresh">宿舍报修</a>
             <a href="ViewIntegral" data-role="button" data-icon="refresh">查看积分</a>
+            <a href="Qiandao" data-role="button" data-icon="refresh">打卡签到</a>
         </div>
 
         <div data-role="footer">
@@ -100,6 +101,127 @@
     function CompleteRepairIndex() {
         window.location.href = '@Url.Content("~/Home/CompleteRepairIndex")';
     }
+</script>
+
+<script>
+    function GetCurrentPosition() {
+        //var length = getFlatternDistance(Number(31), Number(121), 31.326268, 121.186716);
+        startgps();
+    }
+
+    function startgps() {
+        var gps = navigator.geolocation;
+        if (gps) {
+            gps.getCurrentPosition(showgps,
+                function (error) {
+                    alert("Got an error, code: " + error.code + " message: " + error.message);
+                },
+                { maximumAge: 10000 }); // 这里设置超时为10000毫秒，即10秒
+        }
+        else {
+            showgps();
+        }
+    }
+
+    function showgps(position) {
+        //alert(position);
+        if (position) {
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+            alert("latitude: " + latitude + "\r\n longitude: " + longitude);
+            var length = getFlatternDistance(Number(latitude), Number(longitude), 31.326268, 121.186716);
+            alert(length);
+            if (length <= 5) {
+                alert("签到成功");
+            }
+            else {
+                alert("您距离会议室还有" + length + "米，不允许在此处签到");
+            }
+        }
+        else
+            alert("position is null");
+    }
+
+
+
+    @*/**
+
+     * approx distance between two points on earth ellipsoid
+
+     * @param {Object} lat1
+
+     * @param {Object} lng1
+
+     * @param {Object} lat2
+
+     * @param {Object} lng2
+
+     */*@
+    var EARTH_RADIUS = 6378137.0;    //单位M
+    var PI = Math.PI;
+
+    function getRad(d) {
+        return d * PI / 180.0;
+    }
+
+
+    function getFlatternDistance(lat1,lng1,lat2,lng2){
+
+        var f = getRad((lat1 + lat2)/2);
+
+        var g = getRad((lat1 - lat2)/2);
+
+        var l = getRad((lng1 - lng2)/2);
+
+
+
+        var sg = Math.sin(g);
+
+        var sl = Math.sin(l);
+
+        var sf = Math.sin(f);
+
+
+
+        var s,c,w,r,d,h1,h2;
+
+        var a = EARTH_RADIUS;
+
+        var fl = 1/298.257;
+
+
+
+        sg = sg*sg;
+
+        sl = sl*sl;
+
+        sf = sf*sf;
+
+
+
+        s = sg*(1-sl) + (1-sf)*sl;
+
+        c = (1-sg)*(1-sl) + sf*sl;
+
+
+
+        w = Math.atan(Math.sqrt(s/c));
+
+        r = Math.sqrt(s*c)/w;
+
+        d = 2*w*a;
+
+        h1 = (3*r -1)/2/c;
+
+        h2 = (3*r +1)/2/s;
+
+
+
+        return d*(1 + fl*(h1*sf*(1-sg) - h2*(1-sf)*sg));
+
+    }
+
+
 </script>
 
 
