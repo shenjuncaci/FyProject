@@ -111,14 +111,14 @@ where 1=1 and  DataProvider='{0}'  ",ManageProvider.Provider.Current().UserId);
             return Repository().FindTablePageBySql(strSql.ToString(), parameter.ToArray(), ref jqgridparam);
         }
 
-        public List<PM_ProjectProfit> GetProfitDetailList(string KeyValue)
+        public List<PM_ProjectTarget> GetProfitDetailList(string KeyValue)
         {
             StringBuilder strSql = new StringBuilder();
             List<DbParameter> parameter = new List<DbParameter>();
-            strSql.Append(@"select * from pm_projectProfit where ProjectID=@ProjectID order by ProfitDate ");
+            strSql.Append(@"select * from pm_projecttarget where ProjectID=@ProjectID order by TargetContent ");
             //strSql.Append(" AND CustomExamID = @CustomExamID and IsEnabe=1 order by SortNO ");
             parameter.Add(DbFactory.CreateDbParameter("@ProjectID", KeyValue));
-            return DataFactory.Database().FindListBySql<PM_ProjectProfit>(strSql.ToString(), parameter.ToArray());
+            return DataFactory.Database().FindListBySql<PM_ProjectTarget>(strSql.ToString(), parameter.ToArray());
         }
 
         public List<PM_ProjectPlan> GetProjectPlanList(string KeyValue)

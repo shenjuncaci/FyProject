@@ -57,7 +57,6 @@
     }
 </style>
 
-
 <script type="text/javascript">
     var array = new Array();
     //$(document).ready(function () {
@@ -67,19 +66,7 @@
     $(function () {
         BindDepartMent();
         InitControl();
-        //$("#DepartMentID").select2();
-        //$("#DataProvider").select2();
-        //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
-        //BindResponseBy();
-        //$('input[id$="Date"]').each(function () {
 
-        //    var w = this.value.indexOf("T");
-        //    if (w > 0) {
-        //        this.value = this.value.substring(0, w);
-        //    }
-        //    //this.disabled = true;
-        //    //this.readOnly = true;
-        //});
         var t = document.getElementById("main");
         var a = t.getElementsByTagName("input");
         var b = t.getElementsByTagName("select");
@@ -96,12 +83,12 @@
             if (w > 0) {
                 this.value = this.value.substring(0, w);
             }
-            //this.disabled = true;
-            //this.readOnly = true;
         });
 
 
     })
+
+    var Foluma = "";
 
     //得到一个对象实体
     function InitControl() {
@@ -111,6 +98,13 @@
 
             });
 
+
+            Foluma = $("#CalculationFormula").val();
+
+            Foluma = RemoveChinese(Foluma);
+
+            var n = (Foluma.split('{')).length - 1;
+            
             var rowindex = 1;
             //题目信息
             AjaxJson("/ProjectManageModule/project/GetProfitDetailList", { KeyValue: GetQuery('KeyValue') }, function (data) {
@@ -122,18 +116,315 @@
                     var rowData = JsonData[i];
                     //alert(rowData.FllowStatus);
                     //alert(rowData.ReviewDepart);ChangeReviewState
-                    $("#ProfitDate➩" + rowindex).val(rowData.ProfitDate);
-                    $("#ProfitNum➩" + rowindex).val(rowData.ProfitNum);
-                    $("#ProfitNum2➩" + rowindex).val(rowData.ProfitNum2);
+                    $("#TargetContent➩" + rowindex).val(rowData.TargetContent);
+                    $("#BaseNum➩" + rowindex).val(rowData.BaseNum);
+                    $("#TargetNum➩" + rowindex).val(rowData.TargetNum);
                     $("#Remark➩" + rowindex).val(rowData.Remark);
-                   
-                    rowindex++;
+
+                    $("#FirstMonth➩" + rowindex).val(rowData.FirstMonth);
+                    if (CheckIsNullNoTip(rowData.FirstMonth) && !CheckIsNullNoTip(rowData.FirstMonthProfit)) {
+                        var temparr = new Array();
+                        temparr = rowData.FirstMonth.split(",");
+                        var data = "{";
+                        for (var k = 0; k < n; k++) {
+                            data = data + k + ":" + temparr[k] + ",";
+
+                        }
+                        data = data.substring(0, data.length - 1);
+                        data = data + "}";
+                        //console.log(data);
+                        //alert(Foluma);
+                        var data1 = eval('(' + data + ')');;
+                        $("#FirstMonthProfit➩" + rowindex).val(eval(renderTip(Foluma, data1)));
+
+                    }
+                    else if(CheckIsNullNoTip(rowData.FirstMonth) && CheckIsNullNoTip(rowData.FirstMonth)) {
+                        $("#FirstMonthProfit➩" + rowindex).val(rowData.FirstMonthProfit);
+                    }
+
+                    $("#TwoMonth➩" + rowindex).val(rowData.TwoMonth);
+                    if (CheckIsNullNoTip(rowData.TwoMonth) && !CheckIsNullNoTip(rowData.TwoMonthProfit)) {
+                        var temparr = new Array();
+                        temparr = rowData.TwoMonth.split(",");
+                        var data = "{";
+                        for (var k = 0; k < n; k++) {
+                            data = data + k + ":" + temparr[k] + ",";
+
+                        }
+                        data = data.substring(0, data.length - 1);
+                        data = data + "}";
+                        //console.log(data);
+                        //alert(Foluma);
+                        var data1 = eval('(' + data + ')');;
+                        $("#TwoMonthProfit➩" + rowindex).val(eval(renderTip(Foluma, data1)));
+
+                    }
+                    else if (CheckIsNullNoTip(rowData.TwoMonth) && CheckIsNullNoTip(rowData.TwoMonth)){
+                        $("#TwoMonthProfit➩" + rowindex).val(rowData.TwoMonthProfit);
+                    }
                     
+                    $("#ThreeMonth➩" + rowindex).val(rowData.ThreeMonth);
+                    if (CheckIsNullNoTip(rowData.ThreeMonth) && !CheckIsNullNoTip(rowData.ThreeMonthProfit)) {
+                        var temparr = new Array();
+                        temparr = rowData.ThreeMonth.split(",");
+                        var data = "{";
+                        for (var k = 0; k < n; k++) {
+                            data = data + k + ":" + temparr[k] + ",";
+
+                        }
+                        data = data.substring(0, data.length - 1);
+                        data = data + "}";
+                        //console.log(data);
+                        //alert(Foluma);
+                        var data1 = eval('(' + data + ')');;
+                        $("#ThreeMonthProfit➩" + rowindex).val(eval(renderTip(Foluma, data1)));
+
+                    }
+                    else if (CheckIsNullNoTip(rowData.ThreeMonth) && CheckIsNullNoTip(rowData.ThreeMonthProfit)) {
+                        
+                        $("#ThreeMonthProfit➩" + rowindex).val(rowData.ThreeMonthProfit);
+                    }
+
+                    $("#FourMonth➩" + rowindex).val(rowData.FourMonth);
+                    if (CheckIsNullNoTip(rowData.FourMonth) && !CheckIsNullNoTip(rowData.FourMonthProfit)) {
+                        var temparr = new Array();
+                        temparr = rowData.FourMonth.split(",");
+                        var data = "{";
+                        for (var k = 0; k < n; k++) {
+                            data = data + k + ":" + temparr[k] + ",";
+
+                        }
+                        data = data.substring(0, data.length - 1);
+                        data = data + "}";
+                        //console.log(data);
+                        //alert(Foluma);
+                        var data1 = eval('(' + data + ')');;
+                        $("#FourMonthProfit➩" + rowindex).val(eval(renderTip(Foluma, data1)));
+
+                    }
+                    else if (CheckIsNullNoTip(rowData.FourMonth) && CheckIsNullNoTip(rowData.FourMonthProfit)){
+                        $("#FourMonthProfit➩" + rowindex).val(rowData.FourMonthProfit);
+                    }
+
+                    $("#FiveMonth➩" + rowindex).val(rowData.FiveMonth);
+                    if (CheckIsNullNoTip(rowData.FiveMonth) && !CheckIsNullNoTip(rowData.FiveMonthProfit)) {
+                        var temparr = new Array();
+                        temparr = rowData.FiveMonth.split(",");
+                        var data = "{";
+                        for (var k = 0; k < n; k++) {
+                            data = data + k + ":" + temparr[k] + ",";
+
+                        }
+                        data = data.substring(0, data.length - 1);
+                        data = data + "}";
+                        //console.log(data);
+                        //alert(Foluma);
+                        var data1 = eval('(' + data + ')');;
+                        $("#FiveMonthProfit➩" + rowindex).val(eval(renderTip(Foluma, data1)));
+
+                    }
+                    else if (CheckIsNullNoTip(rowData.FiveMonth) && CheckIsNullNoTip(rowData.FiveMonthProfit)){
+                        $("#FiveMonthProfit➩" + rowindex).val(rowData.FiveMonthProfit);
+                    }
+
+                    $("#SixMonth➩" + rowindex).val(rowData.SixMonth);
+                    if (CheckIsNullNoTip(rowData.SixMonth) && !CheckIsNullNoTip(rowData.SixMonthProfit)) {
+                        var temparr = new Array();
+                        temparr = rowData.SixMonth.split(",");
+                        var data = "{";
+                        for (var k = 0; k < n; k++) {
+                            data = data + k + ":" + temparr[k] + ",";
+
+                        }
+                        data = data.substring(0, data.length - 1);
+                        data = data + "}";
+                        //console.log(data);
+                        //alert(Foluma);
+                        var data1 = eval('(' + data + ')');;
+                        $("#SixMonthProfit➩" + rowindex).val(eval(renderTip(Foluma, data1)));
+
+                    }
+                    else if (CheckIsNullNoTip(rowData.SixMonth) && CheckIsNullNoTip(rowData.SixMonthProfit)) {
+                        $("#SixMonthProfit➩" + rowindex).val(rowData.SixMonthProfit);
+                    }
+
+                    $("#SevenMonth➩" + rowindex).val(rowData.SevenMonth);
+                    if (CheckIsNullNoTip(rowData.SevenMonth) && !CheckIsNullNoTip(rowData.SevenMonthProfit)) {
+                        var temparr = new Array();
+                        temparr = rowData.SevenMonth.split(",");
+                        var data = "{";
+                        for (var k = 0; k < n; k++) {
+                            data = data + k + ":" + temparr[k] + ",";
+
+                        }
+                        data = data.substring(0, data.length - 1);
+                        data = data + "}";
+                        //console.log(data);
+                        //alert(Foluma);
+                        var data1 = eval('(' + data + ')');;
+                        $("#SevenMonthProfit➩" + rowindex).val(eval(renderTip(Foluma, data1)));
+
+                    }
+                    else if (CheckIsNullNoTip(rowData.SevenMonth) && CheckIsNullNoTip(rowData.SevenMonthProfit)) {
+                        $("#SevenMonthProfit➩" + rowindex).val(rowData.SevenMonthProfit);
+                    }
+
+                    $("#EightMonth➩" + rowindex).val(rowData.EightMonth);
+                    if (CheckIsNullNoTip(rowData.EightMonth) && !CheckIsNullNoTip(rowData.EightMonthProfit)) {
+                        var temparr = new Array();
+                        temparr = rowData.EightMonth.split(",");
+                        var data = "{";
+                        for (var k = 0; k < n; k++) {
+                            data = data + k + ":" + temparr[k] + ",";
+
+                        }
+                        data = data.substring(0, data.length - 1);
+                        data = data + "}";
+                        //console.log(data);
+                        //alert(Foluma);
+                        var data1 = eval('(' + data + ')');;
+                        $("#EightMonthProfit➩" + rowindex).val(eval(renderTip(Foluma, data1)));
+
+                    }
+                    else if (CheckIsNullNoTip(rowData.EightMonth) && CheckIsNullNoTip(rowData.EightMonthProfit)) {
+                        $("#EightMonthProfit➩" + rowindex).val(rowData.EightMonthProfit);
+                    }
+
+                    $("#NineMonth➩" + rowindex).val(rowData.NineMonth);
+                    if (CheckIsNullNoTip(rowData.NineMonth) && !CheckIsNullNoTip(rowData.NineMonthProfit)) {
+                        var temparr = new Array();
+                        temparr = rowData.NineMonth.split(",");
+                        var data = "{";
+                        for (var k = 0; k < n; k++) {
+                            data = data + k + ":" + temparr[k] + ",";
+
+                        }
+                        data = data.substring(0, data.length - 1);
+                        data = data + "}";
+                        //console.log(data);
+                        //alert(Foluma);
+                        var data1 = eval('(' + data + ')');;
+                        $("#NineMonthProfit➩" + rowindex).val(eval(renderTip(Foluma, data1)));
+
+                    }
+                    else if (CheckIsNullNoTip(rowData.NineMonth) && CheckIsNullNoTip(rowData.NineMonthProfit)) {
+                        $("#NineMonthProfit➩" + rowindex).val(rowData.NineMonthProfit);
+                    }
+
+                    $("#TenMonth➩" + rowindex).val(rowData.TenMonth);
+                    if (CheckIsNullNoTip(rowData.TenMonth) && !CheckIsNullNoTip(rowData.TenMonthProfit)) {
+                        var temparr = new Array();
+                        temparr = rowData.TenMonth.split(",");
+                        var data = "{";
+                        for (var k = 0; k < n; k++) {
+                            data = data + k + ":" + temparr[k] + ",";
+
+                        }
+                        data = data.substring(0, data.length - 1);
+                        data = data + "}";
+                        //console.log(data);
+                        //alert(Foluma);
+                        var data1 = eval('(' + data + ')');;
+                        $("#TenMonthProfit➩" + rowindex).val(eval(renderTip(Foluma, data1)));
+
+                    }
+                    else if (CheckIsNullNoTip(rowData.TenMonth) && CheckIsNullNoTip(rowData.TenMonthProfit)) {
+                        $("#TenMonthProfit➩" + rowindex).val(rowData.TenMonthProfit);
+                    }
+
+                    $("#ElevenMonth➩" + rowindex).val(rowData.ElevenMonth);
+                    if (CheckIsNullNoTip(rowData.ElevenMonth) && !CheckIsNullNoTip(rowData.ElevenMonthProfit)) {
+                        var temparr = new Array();
+                        temparr = rowData.ElevenMonth.split(",");
+                        var data = "{";
+                        for (var k = 0; k < n; k++) {
+                            data = data + k + ":" + temparr[k] + ",";
+
+                        }
+                        data = data.substring(0, data.length - 1);
+                        data = data + "}";
+                        //console.log(data);
+                        //alert(Foluma);
+                        var data1 = eval('(' + data + ')');;
+                        $("#ElevenMonthProfit➩" + rowindex).val(eval(renderTip(Foluma, data1)));
+
+                    }
+                    else if (CheckIsNullNoTip(rowData.ElevenMonth) && CheckIsNullNoTip(rowData.ElevenMonthProfit)) {
+                        $("#ElevenMonthProfit➩" + rowindex).val(rowData.ElevenMonthProfit);
+                    }
+
+                    $("#TwoleveMonth➩" + rowindex).val(rowData.TwoleveMonth);
+                    if (CheckIsNullNoTip(rowData.TwoleveMonth) && !CheckIsNullNoTip(rowData.TwoleveMonthProfit)) {
+                        var temparr = new Array();
+                        temparr = rowData.TwoleveMonth.split(",");
+                        var data = "{";
+                        for (var k = 0; k < n; k++) {
+                            data = data + k + ":" + temparr[k] + ",";
+
+                        }
+                        data = data.substring(0, data.length - 1);
+                        data = data + "}";
+                        //console.log(data);
+                        //alert(Foluma);
+                        var data1 = eval('(' + data + ')');;
+                        $("#TwoleveMonthProfit➩" + rowindex).val(eval(renderTip(Foluma, data1)));
+
+                    }
+                    else if (CheckIsNullNoTip(rowData.TwoleveMonth) && CheckIsNullNoTip(rowData.TwoleveMonthProfit)) {
+                        $("#TwoleveMonthProfit➩" + rowindex).val(rowData.TwoleveMonthProfit);
+                    }
+
+                    rowindex++;
+
                 });
+
+                CalAllProbit();
             });
 
-           
+
         }
+    }
+
+    function CalProfit(month,i) {
+        Foluma = $("#CalculationFormula").val();
+        Foluma = RemoveChinese(Foluma);
+        var n = (Foluma.split('{')).length - 1; 
+
+        var temparr = new Array();
+        //alert($("#" + month + "Month➩" + i).val());
+        temparr = $("#" + month + "Month➩" + i).val().split(",");
+        var data = "{";
+        for (var k = 0; k < n; k++) {
+            data = data + k + ":" + temparr[k] + ",";
+
+        }
+        data = data.substring(0, data.length - 1);
+        data = data + "}";
+        //console.log(data);
+        //alert(Foluma);
+        var data1 = eval('(' + data + ')');;
+        $("#" + month + "MonthProfit➩" + i).val(eval(renderTip(Foluma, data1)));
+
+        CalAllProbit();
+    }
+
+    function RemoveChinese(strValue) {
+        if (strValue != null && strValue != "") {
+            var reg = /[\u4e00-\u9fa5]/g;
+            return strValue.replace(reg, "");
+        }
+        else
+            return "";
+    }  
+
+    function renderTip(SourceData,Data) {
+
+        var htmlStr = SourceData.replace(/\{(\w+)\}/gi, function (a, b) {
+            return Data[b] || '';
+        });
+
+        return htmlStr;
+
     }
     //保存事件
     function AcceptClick() {
@@ -141,7 +432,7 @@
             return false;
         }
         var DetailForm = GetTableDataJson("#ProfitForm");
-        
+
         Loading(true, "正在提交数据...");
         window.setTimeout(function () {
             var postData = GetWebControls("#form1");
@@ -187,7 +478,33 @@
         //removeByValue(array,)
     }
 
+    function CalAllProbit() {
+        var result = 0;
+        var tab = document.getElementById('ProfitForm');
+        var rowIndex = tab.rows.length;
+        //alert(rowIndex);
+        for (var i = 1; i < rowIndex; i++)
+        {
+            result = result
+                + Number($("#FirstMonthProfit➩" + i).val())
+                + Number($("#TwoMonthProfit➩" + i).val())
+                + Number($("#ThreeMonthProfit➩" + i).val())
+                + Number($("#FourMonthProfit➩" + i).val())
+                + Number($("#FiveMonthProfit➩" + i).val())
+                + Number($("#SixMonthProfit➩" + i).val())
+                + Number($("#SevenMonthProfit➩" + i).val())
+                + Number($("#EightMonthProfit➩" + i).val())
+                + Number($("#NineMonthProfit➩" + i).val())
+                + Number($("#TenMonthProfit➩" + i).val())
+                + Number($("#ElevenMonthProfit➩" + i).val())
+                + Number($("#TwoleveMonthProfit➩" + i).val());
+                
+        }
+        alert(result);
+        $("#AllProfit").val(result);
 
+
+    }
 
 
     function addprofit(i) {
@@ -198,25 +515,113 @@
             //999表示是新增，-3表示减去3行标题
             i = rowIndex - 2;
         }
-        //添加一行;
-        var tr = tab.insertRow();
-        //tr.onmouseover = tr.className = "displayStyle";
-        //tr.onmouseout = tr.className = "hideStyle";
-        //tr.onclick = function () { this.className = "onClickChangeStyle(this)"; }
 
+        var tr = tab.insertRow();
+        //添加一行;
         var td1 = tr.insertCell();
         var td2 = tr.insertCell();
         var td3 = tr.insertCell();
         var td4 = tr.insertCell();
         var td5 = tr.insertCell();
-        td1.innerHTML = " <input id='ProfitDate➩"+i+"' type=\"text\" class=\"txt Wdate\" onfocus=\"WdatePicker()\" style=\"background:#E0FFFF\" err=\"登陆日期\" checkexpession=\"NotNull\" />";
-        td2.innerHTML = "<input id='ProfitNum➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"数据1\" checkexpession=\"NotNull\"> ";
-        td3.innerHTML = "<input id='ProfitNum2➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"数据2\" checkexpession=\"NotNull\"> ";
+        var td6 = tr.insertCell();
+        var td7 = tr.insertCell();
+        var td8 = tr.insertCell();
+        var td9 = tr.insertCell();
+        var td10 = tr.insertCell();
+        var td11 = tr.insertCell();
+        var td12 = tr.insertCell();
+        var td13 = tr.insertCell();
+        var td14 = tr.insertCell();
+        var td15 = tr.insertCell();
+        var td16 = tr.insertCell();
+        var td17 = tr.insertCell();
+        var td18 = tr.insertCell();
+        var td19 = tr.insertCell();
+        var td20 = tr.insertCell();
+        var td21 = tr.insertCell();
+        var td22 = tr.insertCell();
+        var td23 = tr.insertCell();
+        var td24 = tr.insertCell();
+        var td25 = tr.insertCell();
+        var td26 = tr.insertCell();
+        var td27 = tr.insertCell();
+        var td28 = tr.insertCell();
+
+        td1.className = "formValue";
+        td2.className = "formValue";
+        td3.className = "formValue";
+        td4.className = "formValue";
+        td5.className = "formValue";
+        td6.className = "formValue";
+        td7.className = "formValue";
+        td8.className = "formValue";
+        td9.className = "formValue";
+        td10.className = "formValue";
+        td11.className = "formValue";
+        td12.className = "formValue";
+        td13.className = "formValue";
+        td14.className = "formValue";
+        td15.className = "formValue";
+        td16.className = "formValue";
+        td17.className = "formValue";
+        td18.className = "formValue";
+        td19.className = "formValue";
+        td20.className = "formValue";
+        td21.className = "formValue";
+        td22.className = "formValue";
+        td23.className = "formValue";
+        td24.className = "formValue";
+        td25.className = "formValue";
+        td26.className = "formValue";
+        td27.className = "formValue";
+        td28.className = "formValue";
+
+
+        td1.innerHTML = "<input style=\"width:95%\" hidden id='ProjectTargetID➩" + i + "' type=\"text\" class=\"txt\"><input id='TargetContent➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"项目指标\" checkexpession=\"NotNull\">";
+        td2.innerHTML = "<input id='BaseNum➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"基准\" checkexpession=\"NotNull\"> ";
+        td3.innerHTML = "<input id='TargetNum➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"目标\" checkexpession=\"NotNull\">";
         td4.innerHTML = "<input  style=\"width:95%\" id='Remark➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"备注\" checkexpession=\"NotNull\">";
-        td5.innerHTML = "<button onclick='deleteCurrentRow(this)'>删除</button>";
+
+        td5.innerHTML = "<input  style=\"width:95%\" id='FirstMonth➩" + i + "' class=\"txt\" datacol=\"yes\" onchange=\"CalProfit('First',"+i+")\">";
+        td6.innerHTML = "<input  style=\"width:95%\" id='FirstMonthProfit➩" + i + "' class=\"txt\" datacol=\"yes\">";
+        td7.innerHTML = "<input  style=\"width:95%\" id='TwoMonth➩" + i + "' class=\"txt\" datacol=\"yes\" onchange=\"CalProfit('Two'," + i +")\">";
+        td8.innerHTML = "<input  style=\"width:95%\" id='TwoMonthProfit➩" + i + "' class=\"txt\" datacol=\"yes\">";
+        td9.innerHTML = "<input  style=\"width:95%\" id='ThreeMonth➩" + i + "' class=\"txt\" datacol=\"yes\" onchange=\"CalProfit('Three'," + i +")\">";
+        td10.innerHTML = "<input  style=\"width:95%\" id='ThreeMonthProfit➩" + i + "' class=\"txt\" datacol=\"yes\">";
+        td11.innerHTML = "<input  style=\"width:95%\" id='FourMonth➩" + i + "' class=\"txt\" datacol=\"yes\" onchange=\"CalProfit('Four'," + i +")\">";
+        td12.innerHTML = "<input  style=\"width:95%\" id='FourMonthProfit➩" + i + "' class=\"txt\" datacol=\"yes\">";
+
+        td13.innerHTML = "<input  style=\"width:95%\" id='FiveMonth➩" + i + "' class=\"txt\" datacol=\"yes\" onchange=\"CalProfit('Five'," + i +")\">";
+        td14.innerHTML = "<input  style=\"width:95%\" id='FiveMonthProfit➩" + i + "' class=\"txt\" datacol=\"yes\">";
+
+        td15.innerHTML = "<input  style=\"width:95%\" id='SixMonth➩" + i + "' class=\"txt\" datacol=\"yes\" onchange=\"CalProfit('Six'," + i +")\">";
+        td16.innerHTML = "<input  style=\"width:95%\" id='SixMonthProfit➩" + i + "' class=\"txt\" datacol=\"yes\">";
+
+        td17.innerHTML = "<input  style=\"width:95%\" id='SevenMonth➩" + i + "' class=\"txt\" datacol=\"yes\" onchange=\"CalProfit('Seven'," + i +")\">";
+        td18.innerHTML = "<input  style=\"width:95%\" id='SevenMonthProfit➩" + i + "' class=\"txt\" datacol=\"yes\">";
+
+        td19.innerHTML = "<input  style=\"width:95%\" id='EightMonth➩" + i + "' class=\"txt\" datacol=\"yes\"  onchange=\"CalProfit('Eight'," + i +")\">";
+        td20.innerHTML = "<input  style=\"width:95%\" id='EightMonthProfit➩" + i + "' class=\"txt\" datacol=\"yes\">";
+
+        td21.innerHTML = "<input  style=\"width:95%\" id='NineMonth➩" + i + "' class=\"txt\" datacol=\"yes\" onchange=\"CalProfit('Nine'," + i +")\">";
+        td22.innerHTML = "<input  style=\"width:95%\" id='NineMonthProfit➩" + i + "' class=\"txt\" datacol=\"yes\">";
+
+        td23.innerHTML = "<input  style=\"width:95%\" id='TenMonth➩" + i + "' class=\"txt\" datacol=\"yes\" onchange=\"CalProfit('Ten'," + i +")\">";
+        td24.innerHTML = "<input  style=\"width:95%\" id='TenMonthProfit➩" + i + "' class=\"txt\" datacol=\"yes\">";
+
+        td25.innerHTML = "<input  style=\"width:95%\" id='ElevenMonth➩" + i + "' class=\"txt\" datacol=\"yes\" onchange=\"CalProfit('Eleven'," + i +")\">";
+        td26.innerHTML = "<input  style=\"width:95%\" id='ElevenMonthProfit➩" + i + "' class=\"txt\" datacol=\"yes\">";
+
+        td27.innerHTML = "<input  style=\"width:95%\" id='TwoleveMonth➩" + i + "' class=\"txt\" datacol=\"yes\" onchange=\"CalProfit('Twoleve'," + i +")\">";
+        td28.innerHTML = "<input  style=\"width:95%\" id='TwoleveMonthProfit➩" + i + "' class=\"txt\" datacol=\"yes\">";
+
+
+
+
+        //td5.innerHTML = "<button  class=\"button button-square button-small\" onclick='deleteCurrentRow(this)'>删除</button>";
     }
 
-    
+
 
 
 </script>
@@ -248,33 +653,52 @@
                     <th class="formTitle">项目名称：</th>
                     <td class="formValue" colspan="1">
 
-                        <input id="ProjectName" type="text" class="txt" datacol="yes" err="项目名称" checkexpession="NotNull" />
+                        <input id="ProjectName" readonly type="text" class="txt" datacol="yes" err="项目名称" checkexpession="NotNull" />
                     </td>
                 </tr>
                 <tr>
-                    <th class="formTitle">项目常量：</th>
+                    <th class="formTitle">计算公式：</th>
                     <td class="formValue" colspan="1">
 
-                        <input id="Constant" type="text" class="txt" datacol="yes" err="项目常量" checkexpession="NotNull" />
+                        <input id="CalculationFormula" readonly type="text" class="txt" datacol="yes" err="计算公式" checkexpession="NotNull" />
                     </td>
-                    <th class="formTitle"></th>
-                    <td class="formValue" colspan="1">                
-                    </td>
+                    <th class="formTitle">总计收益</th>
+                    <td class="formValue" colspan="1"> <input id="AllProfit" readonly type="text" class="txt" datacol="yes"  /></td>
                 </tr>
 
             </table>
-
+            <div> <font color="red">在填写每月的数据的时候请注意根据计算公式中的参数来填写，每个数据之间用,分割</font> </div>
             <table id="ProfitForm" class="form-bill">
-                <tr><td colspan="3"><strong>项目收益管理</strong></td><td><a class="button button-caution button-square button-small" onclick="addprofit()">添加</a></td></tr>
+                @*<tr><td colspan="28"><strong>项目收益管理</strong></td><td>@*<a class="button button-caution button-square button-small" onclick="addprofit()">添加</a></td></tr>*@
                 <tr>
-                    <th style="width:20%">计算日期</th>
-                    <th style="width:10%">改进后实际</th>
-                    <th style="width:10%">变量</th>
-                    <th style="width:10%">收益</th>
-                    <th style="width:10%">项目状态</th>
-                    <th style="width:50%">备注</th>
-
-                    <th style="width:10%">删除</th>
+                    <th style="width:5.5%">项目指标</th>
+                    <th style="width:3.5%">基准</th>
+                    <th style="width:3.5%">目标</th>
+                    <th style="width:3.5%">备注</th>
+                    <th style="width:3.5%">1</th>
+                    <th style="width:3.5%">收益</th>
+                    <th style="width:3.5%">2</th>
+                    <th style="width:3.5%">收益</th>
+                    <th style="width:3.5%">3</th>
+                    <th style="width:3.5%">收益</th>
+                    <th style="width:3.5%">4</th>
+                    <th style="width:3.5%">收益</th>
+                    <th style="width:3.5%">5</th>
+                    <th style="width:3.5%">收益</th>
+                    <th style="width:3.5%">6</th>
+                    <th style="width:3.5%">收益</th>
+                    <th style="width:3.5%">7</th>
+                    <th style="width:3.5%">收益</th>
+                    <th style="width:3.5%">8</th>
+                    <th style="width:3.5%">收益</th>
+                    <th style="width:3.5%">9</th>
+                    <th style="width:3.5%">收益</th>
+                    <th style="width:3.5%">10</th>
+                    <th style="width:3.5%">收益</th>
+                    <th style="width:3.5%">11</th>
+                    <th style="width:3.5%">收益</th>
+                    <th style="width:3.5%">12</th>
+                    <th style="width:3.5%">收益</th>
                 </tr>
             </table>
         </div>

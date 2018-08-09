@@ -531,12 +531,12 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
 
             string Message = KeyValue == "" ? "新增成功。" : "编辑成功。";
 
-            database.Delete<PM_ProjectProfit>("ProjectID", KeyValue, isOpenTrans);
-            List<PM_ProjectProfit> DetailList = ProfitForm.JonsToList<PM_ProjectProfit>();
+            database.Delete<PM_ProjectTarget>("ProjectID", KeyValue, isOpenTrans);
+            List<PM_ProjectTarget> DetailList = ProfitForm.JonsToList<PM_ProjectTarget>();
             int index = 1;
-            foreach (PM_ProjectProfit entityD in DetailList)
+            foreach (PM_ProjectTarget entityD in DetailList)
             {
-                if (!string.IsNullOrEmpty(entityD.ProfitDate.ToString()))
+                if (!string.IsNullOrEmpty(entityD.TargetContent))
                 {
                     entityD.Create();
                     entityD.ProjectID = KeyValue;

@@ -25,6 +25,31 @@ namespace LeaRun.Entity
         public string BaseNum { get; set; }
         public string TargetNum { get; set; }
         public string Remark { get; set; }
+        public string FirstMonth { get; set; }
+        public string TwoMonth { get; set; }
+        public string ThreeMonth { get; set; }
+        public string FourMonth { get; set; }
+        public string FiveMonth { get; set; }
+        public string SixMonth { get; set; }
+        public string SevenMonth { get; set; }
+        public string EightMonth { get; set; }
+        public string NineMonth { get; set; }
+        public string TenMonth { get; set; }
+        public string ElevenMonth { get; set; }
+        public string TwoleveMonth { get; set; }
+
+        public string FirstMonthProfit { get; set; }
+        public string TwoMonthProfit { get; set; }
+        public string ThreeMonthProfit { get; set; }
+        public string FourMonthProfit { get; set; }
+        public string FiveMonthProfit { get; set; }
+        public string SixMonthProfit { get; set; }
+        public string SevenMonthProfit { get; set; }
+        public string EightMonthProfit { get; set; }
+        public string NineMonthProfit { get; set; }
+        public string TenMonthProfit { get; set; }
+        public string ElevenMonthProfit { get; set; }
+        public string TwoleveMonthProfit { get; set; }
 
 
         #region 扩展操作

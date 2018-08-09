@@ -47,6 +47,7 @@ namespace LeaRun.Entity
         public int Direction { get; set; }
 
         public decimal Constant { get; set; }
+        public string ProjectCategory { get; set; }
         #region 扩展操作
         /// <summary>
         /// 新增调用

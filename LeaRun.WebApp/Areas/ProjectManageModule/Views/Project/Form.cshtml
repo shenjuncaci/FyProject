@@ -407,6 +407,48 @@
         td4.innerHTML = "<button class=\"button button-square button-small\" onclick='deleteCurrentRow(this)'>删除</button>";
     }
 
+    function InsertProjectPlan() {
+        //$('table tr:eq(1)').remove();
+        var tab = document.getElementById('PlanForm');
+        var rowIndex = tab.rows.length + 1;
+        //alert(rowIndex);
+        for (var i = rowIndex; i >=2; i--) {
+
+            $('#PlanForm tr:eq(' +i+ ')').remove();
+            //console.log(i);
+        }
+
+        //根据项目类别自动添加记录
+        var ProjectCategory = $("#ProjectCategory").val();
+        //alert(ProjectCategory);
+        if (ProjectCategory == "改进型项目") {
+            addPlan(999);
+            addPlan(999);
+            addPlan(999);
+            addPlan(999);
+            addPlan(999);
+            $("#ProjectCycle➩1").val("项目现状");
+            $("#ProjectCycle➩2").val("项目分析");
+            $("#ProjectCycle➩3").val("项目改进");
+            $("#ProjectCycle➩4").val("项目成果");
+            $("#ProjectCycle➩5").val("项目标准化");
+
+        }
+        if (ProjectCategory == "创新型项目") {
+            addPlan(999);
+            addPlan(999);
+            addPlan(999);
+            addPlan(999);
+            addPlan(999);
+            $("#ProjectCycle➩1").val("项目现状");
+            $("#ProjectCycle➩2").val("项目方案");
+            $("#ProjectCycle➩3").val("方案实施");
+            $("#ProjectCycle➩4").val("项目成果");
+            $("#ProjectCycle➩5").val("项目标准化");
+        }
+
+    }
+
     function addbatch() {
 
         //////试试用div写
@@ -529,6 +571,13 @@
                                 <td>
                                     <select id="ProjectNatureD" class="select" datacol="yes" err="项目性质小类" checkexpession="NotNull" style="width: 96%"></select>
                                 </td>
+                                <td>
+                                    <select id="ProjectCategory" class="select" datacol="yes" err="项目类别" checkexpession="NotNull" style="width: 96%" onchange="InsertProjectPlan()">
+                                        <option value="">==请选择==</option>
+                                        <option value="改进型项目">改进型项目</option>
+                                        <option value="创新型项目">创新型项目</option>
+                                    </select>
+                                </td>
                             </tr>
                         </table>
 
@@ -577,7 +626,7 @@
 
                 <tr style="height:20px"><td colspan="4"></td></tr>
                 <tr>
-                    <th colspan="4" style="text-align:left"><strong> 二、投入与收益：</strong></th>
+                    <th colspan="4" style="text-align:left"><strong> 二、投入与收益：<font color="red">收益计算方法请按照格式填写，例如：(3153-磨轮维修单价{0})*18(磨轮数量{1})*4(更换频次{2});需要提供的变量以{}的形式写在公式中</font> </strong></th>
                 </tr>
                 <tr>
                     <td colspan="4">
@@ -595,7 +644,9 @@
                             </tr>
                         </table>
                     </td>
+                   
                 </tr>
+                
                 <tr style="height:20px"><td colspan="4"></td></tr>
                 <tr>
                     <th colspan="4" style="text-align:left"><strong> 三、项目团队</strong></th>

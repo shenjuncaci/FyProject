@@ -169,7 +169,7 @@
         //alert(KeyValue);
         if (IsChecked(KeyValue)) {
             var url = "/ProjectManageModule/Project/ProfitListForm?KeyValue=" + KeyValue;
-            openDialog(url, "Form", "编辑", 1000, 550, function (iframe) {
+            FullopenDialog(url, "Form", "编辑",function (iframe) {
                 top.frames[iframe].AcceptClick()
             });
 
