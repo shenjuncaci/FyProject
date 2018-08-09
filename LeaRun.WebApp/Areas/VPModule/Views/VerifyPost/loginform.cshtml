@@ -85,10 +85,15 @@
 
 </div>
 <script>
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+
     function del()
     {
-        window.returnValue = "del";
-        window.close();
+        //window.returnValue = "del";
+        //window.close();
+
+        parent.IdentifyAuthentication("del");
+        parent.layer.close(index);
     }
     function cancel() {
         self.close();
@@ -169,8 +174,8 @@
                         else if (parseInt(rs) == 5)
                         {
                             alert("身份验证成功");
-                            window.returnValue = 1;
-                            window.close();
+                            parent.IdentifyAuthentication(1, GetQuery('verifypostdid'), GetQuery('Type'));
+                            parent.layer.close(index);
                         }
                         else {
                             alert(rs);

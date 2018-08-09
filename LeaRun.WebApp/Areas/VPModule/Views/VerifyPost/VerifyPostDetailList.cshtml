@@ -450,36 +450,32 @@
         return "<a href=\"#\" onclick=\"showtend('" + rowObject.verifypostdid + "','20:00-24:00','" + rowObject.verifydate + "')\">" + cellvalue + "</a>";
     }
 
-
-
-    function showaudit(verifypostdid, tag,verifydate)
+    function IdentifyAuthentication(reValue, verifypostdid,tag)
     {
-        
-
-
-        var NowDate = new Date();
-        NowDate.toLocaleDateString();
-        gridDate = new Date(Date.parse(verifydate));
-        //if (NowDate.pattern("yyyy-MM-dd") != gridDate.pattern("yyyy-MM-dd")) {
-        //    alert("只能评审今天的数据");
-        //    return false;
-        //}
-
-        //首先验证登录账号，看下是否可以操作
-        var obj = new Array();
-        var reValue = window.showModalDialog('loginform?Type=' + tag, obj, 'dialogWidth=400px;dialogHeight=200px;');
-        if (reValue != "1")
-        {
+        if (reValue != "1") {
             alert("身份验证失败");
             return false;
         }
-        var reValue = window.showModalDialog('IsProduce', window, 'dialogWidth=400;dialogHeight=100px;status:1;title:0;');
-        if (reValue == undefined)
-        {
+        else {
+            layer.open({
+                type: 2,  //2表示ifrmae弹出层
+                title: '验证身份',
+                maxmin: true,
+                shadeClose: true, //点击遮罩关闭层
+                area: ['400px', '100px'],
+                content: 'IsProduce?verifypostdid=' + verifypostdid + '&Type=' + tag,
+                end: function () {     //窗口关闭事件
+                    temp = 0;
+                }
+            });
+        }
+    }
+
+    function AuditDetail(reValue, verifypostdid,tag) {
+        if (reValue == undefined) {
             return false;
         }
-        else if (reValue == "NotProduce")
-        {
+        else if (reValue == "NotProduce") {
             $.ajax({
                 type: "post",
                 url: "/VPModule/VerifyPost/AuditIsProduce",
@@ -502,13 +498,50 @@
                 }
             });
         }
-        else
-        {
+
+        else {
             if (IsChecked(verifypostdid)) {
                 var url = "/VPModule/VerifyPost/AuditForm?KeyValue=" + verifypostdid + "&Type=" + tag;
                 Dialog(url, "Form", "编辑", 350, 650);
             }
         }
+    }
+
+    function showaudit(verifypostdid, tag,verifydate)
+    {
+        
+
+
+        var NowDate = new Date();
+        NowDate.toLocaleDateString();
+        gridDate = new Date(Date.parse(verifydate));
+        //if (NowDate.pattern("yyyy-MM-dd") != gridDate.pattern("yyyy-MM-dd")) {
+        //    alert("只能评审今天的数据");
+        //    return false;
+        //}
+
+        //首先验证登录账号，看下是否可以操作
+        var obj = new Array();
+        //var reValue = window.showModalDialog('loginform?Type=' + tag, obj, 'dialogWidth=400px;dialogHeight=200px;');
+        //if (reValue != "1")
+        //{
+        //    alert("身份验证失败");
+        //    return false;
+        //}
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '验证身份',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['400px', '200px'],
+            content: 'loginform?Type=' + tag + '&verifypostdid=' + verifypostdid,
+            end: function () {     //窗口关闭事件
+                temp = 0;
+            }
+        });
+
+        //var reValue = window.showModalDialog('IsProduce', window, 'dialogWidth=400;dialogHeight=100px;status:1;title:0;');
+        
         
        
     }
