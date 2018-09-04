@@ -1,0 +1,170 @@
+﻿@using LeaRun.Entity;
+@using LeaRun.Utilities;
+@{
+    ViewBag.Title = "FlowForm";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+    FlowDisplay flow = ViewData["flow"] as FlowDisplay;
+}
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+<h2>流程信息</h2>
+<div id="flow" class="tabPanel">
+    <table class="form">
+        <tr>
+            <td colspan="6">流程模板:   @flow.FlowName   &nbsp;&nbsp;&nbsp;&nbsp; 状态:@flow.ApprovestatusCN  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;当前审批人: @flow.RealName</td>
+        </tr>
+        @for (int i = 0; i < flow.LogList.Count; i++)
+        {
+            <tr>
+                <td width="10%"><b>节点岗位:</b></td>
+                <td width="20%">@flow.LogList[i].FullName </td>
+                <td width="10%"><b>节点操作者：</b></td>
+                <td width="25%">@flow.LogList[i].RealName </td>
+                <td width="10%"><b>状态:</b></td>
+                <td width="25%">@flow.LogList[i].Approvestatus</td>
+            </tr>
+
+        }
+    </table>
+
+    @if (flow.Approvestatus == 0)
+    {
+        <div>
+            <a class="button  button-primary button-rounded button-small" onclick="submit(0)">提交</a>
+        </div>
+        <br>
+
+        <div><b>处理意见(选填)：</b><input id="ProcessOpinion" type="text" /></div>
+
+    }
+    else if (flow.Approvestatus == 7 && flow.CurrentPerson == ManageProvider.Provider.Current().UserId)
+    {
+        <div>
+            <a class="button  button-primary button-rounded button-small" onclick="submit(1)">审批</a>
+            <a class="button  button-primary button-rounded button-small" onclick="submit(-1)">退回</a>
+            <a class="button  button-caution button-rounded button-small" onclick="submit(-9)">终止</a>
+        </div>
+        <br>
+        <div><b>处理意见(选填)：</b><input id="ProcessOpinion" type="text" /></div>
+    }
+    else if (flow.Approvestatus == 7 && ManageProvider.Provider.Current().ObjectId.IndexOf(flow.CurrentPost) > 0)
+    {
+        <div>
+            <a class="button button-primary button-rounded button-small" onclick="submit(2)">（代）审批</a>
+            <a class="button button-primary button-rounded button-small" onclick="submit(-2)">（代）退回</a>
+            <a class="button  button-caution button-rounded button-small" onclick="submit(-92)">（代）终止</a>
+        </div>
+        <br>
+        <div><b>处理意见(选填)：</b><input id="ProcessOpinion" type="text" /></div>
+    }
+
+    <br>
+    <br>
+
+
+    @if (flow.Approvestatus == 0)
+    {
+        <a class="button button-glow button-rounded button-raised button-small" id="-1" onclick="ChangeColor(this.id)">发起人提交</a> <a>--></a>
+    }
+    else
+    {
+        <a class="button button-glow button-border button-rounded button-small" id="-1" onclick="ChangeColor(this.id)">发起人提交</a> <a>--></a>
+    }
+    @for (int i = 0; i < flow.LogList.Count; i++)
+    {
+        if (flow.LogList[i].FullName == flow.FullName)
+        {
+            <a class="button button-glow button-rounded button-raised button-small" id="@flow.LogList[i].StepNO" onclick="ChangeColor(this.id)">@flow.LogList[i].FullName</a> <a>--></a>
+        }
+        else
+        {
+            <a class="button button-glow button-border button-rounded button-small" id="@flow.LogList[i].StepNO" onclick="ChangeColor(this.id)">@flow.LogList[i].FullName</a> <a>--></a>
+        }
+    }
+    @if (flow.Approvestatus == 9)
+    {
+        <a class="button button-glow button-rounded button-raised button-small">结束</a>
+    }
+    else
+    {
+        <a class="button button-glow button-border button-rounded button-small">结束</a>
+    }
+
+
+</div>
+<br>
+<br>
+<h2>签署记录</h2>
+<div>
+    @if (flow.ApproveList.Count > 0)
+    {
+        for (int i = 0; i < flow.ApproveList.Count; i++)
+        {
+            <div>@flow.ApproveList[i].Approvestatus   &nbsp;&nbsp;操作日期：@flow.ApproveList[i].ApproveDate</div><br>
+
+        }
+    }
+    else
+    {
+        <div>暂无签署记录</div>
+    }
+</div>
+
+
+<script>
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+    var tempid = "";
+    function ChangeColor(id) {
+        //alert(id);
+        if (id == tempid) {
+            $("#" + id).css("background-color", "white");
+        }
+        else {
+            $("#" + tempid).css("background-color", "white");
+            $("#" + id).css("background-color", "red");
+            tempid = id;
+
+        }
+
+    }
+
+    function submit(number)
+    {
+        if (number == -1 || number == -2) {
+            if (tempid == "") {
+                alert("请先选择要退回到哪一个节点");
+                return false;
+            }
+            else
+            {
+                var activeid = document.getElementsByClassName("button-raised")[0].id;
+                if (tempid >= activeid) {
+                    alert("只能退回到当前节点以前的节点");
+                    return false;
+                }
+            }
+
+        }
+
+        //alert(activeid);
+        //$(".button-raised")
+        //var a = $(".button-raised");
+        //$(a[i].val());
+        //console.log($(".button-raised"));
+        //alert($(".button-raised")[0].val());
+        //return false;
+
+        //alert(GetQuery('ProjectID'));
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = { ProcessOpinion: $("#ProcessOpinion").val()};
+
+            AjaxJson("/ProjectManageModule/Project/submit?KeyValue=" + GetQuery('ProjectID') + "&FlowID=" + "@flow.FlowID" + "&type=" + number + "&RejectNO=" + tempid, postData, function (data) {
+                //tipDialog("处理成功", 3, 1);
+                //top.frames[tabiframeId()].windowload();
+                //closeDialog();
+                parent.layer.close(index);
+            });
+        }, 200);
+    }
+
+</script>

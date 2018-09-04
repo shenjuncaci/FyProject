@@ -28,7 +28,9 @@ namespace LeaRun.Entity
         public int Critical { get; set; }
         public int Milestone { get; set; }
         public string ParentID { get; set; }
-        public List<PM_ProjectPreLink> PredecessorLink { get; set; }
+        public List<G_PLM_ProjectPreLink> PredecessorLink { get; set; }
         public List<ProjectGanteeDisplay> children { get; set; }
+
+        public int StructureForm { get; set; }
     }
 }

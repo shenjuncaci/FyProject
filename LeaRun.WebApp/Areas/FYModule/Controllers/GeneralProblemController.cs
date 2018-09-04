@@ -276,17 +276,26 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
         public void ExcelExport(string condition)
         {
             ExcelHelper ex = new ExcelHelper();
-            string sql = @" select a.FinishStatus as 状态,a.ComplaintLevel as 投诉级别,a.ProductArea as 产品区域,a.HappenPlace as 事发地,a.ProblemType2 as 问题类型,a.IsCheck as 是否考核,
+            string sql = @" select a.FinishStatus as 状态,a.ComplaintLevel as 投诉级别,a.ProductArea as 产品区域,a.HappenPlace as 事发地,a.ProblemType2 as 问题类型,a.IsCheck as 是否考核,IsAgain as 是否重复发生,
 a.ProblemType as 问题类别,b.realname as 责任人,e.RealName as 跟踪人,c.fullname as 责任部门,a.Customer as 客户,
 a.ProblemDescripe as 问题描述,CONVERT(varchar(100),a.HappenDate,23) as 发生日期,a.CauseAnalysis as 根本原因分析,a.CorrectMeasures as 纠正措施,a.ImproveReport as 改善报告,
-BigType as 问题大类,DetailType as 问题小类
+Requirements as 规范要求,ActualResults as 规范操作,BigType as 问题大类,DetailType as 问题小类
 from FY_GeneralProblem a left join Base_user b on a.ResponseBy=b.code 
 left join Base_Department c on b.departmentid=c.departmentid
 left join Base_User e on a.FollowBy=e.code
 where 1=1  ";
             sql = sql + condition;
             DataTable ListData = GeneralProblemBll.GetDataTable(sql);
-            ex.EcportExcel(ListData, "一般问题导出");
+            //ex.EcportExcel(ListData, "一般问题导出");
+
+            MemoryStream ms = NpoiHelper.RenderDataTableToExcel(ListData) as MemoryStream;
+
+            /*情况1：在Asp.NET中，输出文件流，浏览器自动提示下载*/
+            Response.AddHeader("Content-Disposition", string.Format("attachment; filename=download.xls"));
+            Response.BinaryWrite(ms.ToArray());
+            ms.Close();
+            ms.Dispose();
+
         }
 
         public string FinishIt(string GeneralProblemID)

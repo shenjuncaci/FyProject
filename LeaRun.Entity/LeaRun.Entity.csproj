@@ -145,6 +145,13 @@
     <Compile Include="FYModule\FY_Process.cs" />
     <Compile Include="FYModule\FY_ProduceLine.cs" />
     <Compile Include="FYModule\FY_RapidScore.cs" />
+    <Compile Include="ProjectManageModule\G_PLM_Project.cs" />
+    <Compile Include="ProjectManageModule\G_PLM_ProjectFile.cs" />
+    <Compile Include="ProjectManageModule\G_PLM_ProjectGantee.cs" />
+    <Compile Include="ProjectManageModule\G_PLM_ProjectGanteeUser.cs" />
+    <Compile Include="ProjectManageModule\G_PLM_ProjectPreLink.cs" />
+    <Compile Include="ProjectManageModule\G_PLM_ProjectStructure_1.cs" />
+    <Compile Include="ProjectManageModule\G_PLM_ProjectStructure_2.cs" />
     <Compile Include="ProjectManageModule\PM_Notice.cs" />
     <Compile Include="ProjectManageModule\PM_Project.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectActivity.cs" />

@@ -1,0 +1,384 @@
+﻿@{
+    ViewBag.Title = "PuJiaGantee";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+
+@*<script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+    <script src="~/Content/Scripts/learunui-framework.js"></script>*@
+
+<script src="~/Content/Scripts/jquery.plusgantt/miniui/miniui.js"></script>
+<script src="~/Content/Scripts/jquery.plusgantt/miniui/locale/zh_CN.js"></script>
+<link href="~/Content/Scripts/jquery.plusgantt/miniui/themes/default/miniui.css" rel="stylesheet" />
+<link href="~/Content/Scripts/jquery.plusgantt/miniui/themes/blue/skin.css" rel="stylesheet" />
+<link href="~/Content/Scripts/jquery.plusgantt/miniui/themes/icons.css" rel="stylesheet" />
+
+<script src="~/Content/Scripts/jquery.plusgantt/GanttMenu.js"></script>
+<script src="~/Content/Scripts/jquery.plusgantt/GanttSchedule.js"></script>
+<script src="~/Content/Scripts/jquery.plusgantt/GanttService.js"></script>
+
+
+
+<div id="gant" class="tabPanel">
+    @*<body style="background:white;font-size:13px;margin:0 auto;width:90%;height:90px">*@
+
+    顶层时间刻度：
+    <select style="margin-right:20px;" onchange="changeTopTimeScale(this.value)">
+        <option value="year">年</option>
+        <option value="halfyear">半年</option>
+        <option value="quarter">季度</option>
+        <option value="month">月</option>
+        <option value="week" selected>周</option>
+        <option value="day">日</option>
+        <option value="hour">时</option>
+    </select>
+    底层时间刻度：
+    <select onchange="changeBottomTimeScale(this.value)" style="margin-right:20px;">
+        <option value="year">年</option>
+        <option value="halfyear">半年</option>
+        <option value="quarter">季度</option>
+        <option value="month">月</option>
+        <option value="week">周</option>
+        <option value="day" selected>日</option>
+        <option value="hour">时</option>
+    </select>
+    <input type="button" value="放大" onclick="zoomIn()" /> <input type="button" value="缩小" onclick="zoomOut()" />
+
+    <input type="button" value="增加任务" onclick="addTask()" />
+    <input type="button" value="删除任务" onclick="removeTask()" />
+    <input type="button" value="修改任务" onclick="updateTask()" />
+    <input type="button" value="升级任务" onclick="upgradeTask()" />
+    <input type="button" value="降级任务" onclick="downgradeTask()" />
+    <input type="button" value="附件管理" onclick="AttathManage()" />
+    <input type="button" value="结构化数据" onclick="Structurization()" />
+
+
+    <input type="button" style="width:80px;" value="保存" onclick="save()" />
+    @*<br />
+    项目名称 &nbsp;&nbsp;
+    <select id="ProjectID" onchange="loadTree()" class="select"></select>*@
+
+
+
+
+    @*</body>*@
+</div>
+<div id="GantePicture"></div>
+
+<script type="text/javascript">
+
+    //GetGrid();
+    BindData();
+    //GetQuery('ProjectID')
+    if (!!GetQuery('ProjectID')) {
+        //alert(GetQuery('ProjectID'));
+        $("#ProjectID").val(GetQuery('ProjectID'));
+        
+    }
+    /* 创建甘特图对象，设置列配置
+    -----------------------------------------------------------------------------*/
+
+    var gantt = new CreateGantt();
+    //gantt.render(document.body);
+
+    gantt.render(document.getElementById("GantePicture"));
+
+
+    //    gantt.on("taskcreated", function (e) {
+    //        e.task.Start = null;
+    //        e.task.Finish = null;
+    //    });
+
+    //右键菜单
+    var ganttMenu = new GanttMenu();
+    gantt.setContextMenu(ganttMenu);
+
+
+    //$("#GantePicture").css("display","none");
+
+    /* 业务代码
+    -----------------------------------------------------------------------------*/
+
+
+    function save() {
+        //获取当前任务树形数据
+        var tasktree = gantt.getTaskTree();
+
+        //获取所有被删除的任务
+        var taskRemoved = gantt.getRemovedTasks();
+
+
+        //将数据转换为JSON字符串
+        var taskJSON = mini.encode(tasktree);
+        var remvedJSON = mini.encode(taskRemoved);
+
+        //alert(taskJSON);
+        var params = {
+            tasks: taskJSON,
+            removeds: remvedJSON,
+            ProjectID: ""
+        };
+        //alert("将甘特图的任务数据提交到服务端进行保存");
+        var durl = encodeURI('@Url.Action("SubmitGanteeData", "ProjectGantee")');
+        //使用jQuery的ajax，把任务数据，发送到服务端进行处理
+        $.ajax({
+                url: durl,
+                type: "POST",
+                data: params,
+                success: function (text) {
+                    //alert("保存成功");
+                }
+            });
+    }
+
+    var durl = encodeURI('@Url.Action("GetData", "ProjectGantee")');
+    //加载树形数据
+    function loadTree() {
+        //alert(durl);
+        //alert($("#ProjectID").val());
+        gantt.loading();
+        $.ajax({
+            url: durl,
+            type: "POST",
+            data: { ProjectID: ""},
+            cache: false,
+            success: function (text) {
+                var data = mini.decode(text);
+
+                gantt.loadTasks(data);
+
+                gantt.unmask();
+
+                //折叠全部
+                //gantt.collapseAll();
+                //alert("width:" + ($(window).width() - 150) + "px;;height:" + ($(window).width() - 150) + "px");
+                gantt.setStyle("width:" + $(window).width() + "px;;height:" + $(window).height() + "px");
+            }
+        })
+    }
+
+    //加载列表数据
+    function loadList() {
+        gantt.loading();
+        $.ajax({
+            url: "data/taskList.txt",
+            cache: false,
+            success: function (text) {
+                var data = mini.decode(text);
+                //列表转树形
+                data = mini.arrayToTree(data, "children", "UID", "ParentTaskUID");
+                gantt.loadTasks(data);
+                gantt.unmask();
+
+
+
+            }
+        });
+    }
+    //loadList();     //这个方式，服务端只需要生成列表数据就可以。
+    //暂时屏蔽，测试下提交数据
+    
+    loadTree();
+
+    //setTimeout(function () {
+    //    gantt.select(1);
+    //    alert(gantt.getSelected());
+    //}, 1000);
+
+    function changeTopTimeScale(value) {
+        gantt.setTopTimeScale(value)
+    }
+
+    function changeBottomTimeScale(value) {
+        gantt.setBottomTimeScale(value)
+    }
+
+    function zoomIn() {
+        gantt.zoomIn();
+    }
+    function zoomOut() {
+        gantt.zoomOut();
+    }
+
+    function addTask() {
+        var newTask = gantt.newTask();
+        newTask.Name = '<新增任务>';    //初始化任务属性
+
+        var selectedTask = gantt.getSelected();
+        if (selectedTask) {
+            gantt.addTask(newTask, "before", selectedTask);   //插入到到选中任务之前
+            //project.addTask(newTask, "add", selectedTask);       //加入到选中任务之内
+        } else {
+            gantt.addTask(newTask);
+        }
+    }
+
+    function removeTask() {
+        var task = gantt.getSelected();
+        if (task) {
+            if (confirm("确定删除任务 \"" + task.Name + "\" ？")) {
+                gantt.removeTask(task);
+            }
+        } else {
+            alert("请选中任务");
+        }
+    }
+
+    function updateTask() {
+        var selectedTask = gantt.getSelected();
+        alert("编辑选中任务:" + selectedTask.UID);
+    }
+
+    function AttathManage() {
+        var selectedTask = gantt.getSelected();
+        var KeyValue = selectedTask.UID;
+        var url = "/ProjectManageModule/ProjectGantee/Uploadify?FolderId=" + KeyValue;
+        //Dialog(url, "Uploadify", "上传文件", 500, 350, function (iframe) {
+        //    top.frames[iframe].AcceptClick()
+        //});
+
+        temp=layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '附件编辑',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['500px', '350px'],
+            content: url,
+            //btn: ['确认', '取消'],
+            //yes: function (index, layero) {
+            //    //按钮【按钮一】的回调
+            //    //layero.AcceptClick();
+            //    var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+
+            //    //调用授权提交方法
+            //    var flag = iframeWin.AcceptClick();
+            //    //return flag;
+            //},
+            //btn2: function (index, layero) {
+            //    //按钮【按钮二】的回调
+
+            //    //return false 开启该代码可禁止点击该按钮关闭
+            //    layer.close(index);
+            //},
+            end: function () {     //窗口关闭事件
+                temp = 0;
+            }
+        });
+        layer.full(temp);
+    }
+
+    function Structurization() {
+        var selectedTask = gantt.getSelected();
+        var KeyValue = selectedTask.UID;
+        var StructureForm = selectedTask.StructureForm;
+        var data = { KeyValue: KeyValue, StructureForm: StructureForm };
+        //根据类型跳出不同的form窗口
+
+        $.ajax({
+            type: "post",
+            url: "/ProjectManageModule/ProjectGantee/CheckStructureID",
+            data:data,
+            async: false,
+            success: function (msg) {
+                //alert(StructureForm)
+                console.log(StructureForm);
+                var FormName = "";
+                if (StructureForm == 1) {
+                    FormName = "StructForm1";
+                }
+                else if (StructureForm == 2) {
+                    FormName = "StructForm2";
+                }
+                else {
+                    alert("该类型尚未定义，请联系开发人员");
+                    return false;
+                }
+                var url = "/ProjectManageModule/ProjectGantee/" + FormName + "?KeyValue=" + msg + "&UID=" + KeyValue;
+
+                temp = layer.open({
+                    type: 2,  //2表示ifrmae弹出层
+                    title: '结构化数据',
+                    maxmin: true,
+                    shadeClose: true, //点击遮罩关闭层
+                    area: ['800px', '500px'],
+                    content: url,
+                    btn: ['确认', '取消'],
+                    yes: function (index, layero) {
+                        //按钮【按钮一】的回调
+                        //layero.AcceptClick();
+                        var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+
+                        //调用授权提交方法
+                        var flag = iframeWin.AcceptClick();
+                        //return flag;
+                    },
+                    btn2: function (index, layero) {
+                        layer.close(index);
+                    },
+                    end: function () {     //窗口关闭事件
+                        temp = 0;
+                    }
+                });
+                //layer.full(temp);
+            },
+            error: function () {
+                alert("出错了");
+            }
+        });
+    }
+
+    function upgradeTask() {
+        var task = gantt.getSelected();
+        if (task) {
+            gantt.upgradeTask(task);
+        } else {
+            alert("请选选中任务");
+        }
+    }
+
+    function downgradeTask() {
+        var task = gantt.getSelected();
+        if (task) {
+            gantt.downgradeTask(task);
+        } else {
+            alert("请选选中任务");
+        }
+    }
+
+    //创建链接、删除链接事件处理
+    gantt.on("linkcreate", function (e) {
+        var link = e.link;
+        var task = gantt.getTask(link.TaskUID);
+        var preTask = gantt.getTask(link.PredecessorUID);
+
+        alert("-------------创建链接-------------\n任务：" + task.Name + "\n前置任务：" + preTask.Name + "\n链接类型：" + link.Type);
+    });
+    gantt.on("linkremove", function (e) {
+        var link = e.link;
+        var task = gantt.getTask(link.TaskUID);
+        var preTask = gantt.getTask(link.PredecessorUID);
+        alert("-------------删除链接-------------\n任务：" + task.Name + "\n前置任务：" + preTask.Name + "\n链接类型：" + link.Type);
+    });
+
+
+    function BindData() {
+        $("#ProjectID").html("");
+        $("#ProjectID").append("<option value=''>==请选择==</option>");
+        AjaxJson("/ProjectManageModule/ProjectGantee/ProjectJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#ProjectID").append($("<option></option>").val(DataJson[i].ProjectID).html(DataJson[i].ProjectName));
+            });
+        })
+    }
+
+
+
+    function display1(tag) {
+        if (tag == "on") {
+            $("#GantePicture").css("display", "block");
+        }
+        else if (tag == "off") {
+            $("#GantePicture").css("display", "none");
+        }
+    }
+
+</script>

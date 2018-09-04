@@ -14,6 +14,7 @@
     $(document).ready(function () {
 
         GetGrid();
+        BindData();
 
         //绑定键盘按下事件
         $(document).keypress(function (e) {
@@ -69,6 +70,9 @@
         var ProjectNO = $("#ProjectNO").val();
         var ProjectName = $("#ProjectName").val();
         var ProjectState = $("#ProjectState").val();
+        var FlowState = $("#FlowState").val();
+        var Master = $("#Master").val();
+
         if (CheckIsNullNoTip(ProjectNO)) {
             keywords = keywords + " and ProjectNO like '%" + ProjectNO + "%' ";
         }
@@ -86,6 +90,17 @@
             else {
                 keywords = keywords + " and Approvestatus='" + ProjectState + "' and (isend!=1 or IsEnd is null) ";
             }
+        }
+        if (CheckIsNullNoTip(FlowState)) {
+            if (FlowState == "终止") {
+                keywords = keywords + " and a.isend=1 "
+            }
+            else {
+                keywords = keywords + " and dbo.GetFlowState(a.flowid)='" + FlowState + "' ";
+            }
+        }
+        if (CheckIsNullNoTip(Master)) {
+            keywords = keywords + " and a.Master='" + Master + "' ";
         }
 
         $("#gridTable").jqGrid('setGridParam', {
@@ -110,11 +125,12 @@
                 { label: '登陆日期', name: 'createdate', index: 'createdate', width: 100, align: 'left', formatter: dateFormat },
                 { label: '计划完成日期', name: 'planfinishdate', index: 'planfinishdate', width: 100, align: 'left', formatter: dateFormat },
                 { label: '项目名称', name: 'projectname', index: 'projectname', width: 250, align: 'left' },
+                { label: '组长', name: 'master', index: 'master', width: 80, align: 'left' },
                 { label: '项目性质', name: 'projectnature', index: 'projectnature', width: 80, align: 'left' },
                 { label: '项目状态', name: 'projectstatus', index: 'projectstatus', width: 80, align: 'left' },
-                { label: '项目指标', name: 'projectindicators', index: 'projectindicators', width: 150, align: 'left' },
-                { label: '基准', name: 'benchmark', index: 'benchmark', width: 150, align: 'left' },
-                { label: '目标', name: 'target', index: 'target', width: 150, align: 'left' },
+                { label: '项目指标', name: 'targetcontent', index: 'targetcontent', width: 150, align: 'left' },
+                { label: '基准', name: 'basenum', index: 'basenum', width: 150, align: 'left' },
+                { label: '目标', name: 'targetnum', index: 'targetnum', width: 150, align: 'left' },
                 { label: '收益计算/公式说明', name: 'calculationformula', index: 'calculationformula', width: 250, align: 'left' },
                 //{ label: '备注', name: 'remark', index: 'remark', width: 250, align: 'left' },
                 //{ label: '结束时间', name: 'endtime', index: 'endtime', width: 250, align: 'left' },
@@ -322,7 +338,16 @@
         });
     }
 
+    function BindData() {
 
+        $("#FlowState").html("");
+        $("#FlowState").append("<option value=''>==请选择==</option>");
+        AjaxJson("/ProjectManageModule/Project/ProjectFlowStateJson", { }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#FlowState").append($("<option></option>").val(DataJson[i].flowstate).html(DataJson[i].flowstate));
+            });
+        })
+    }
 
 </script>
 
@@ -359,6 +384,12 @@
                         <input id="ProjectName" type="text" class="txt" style="width: 100px" />
                     </td>
                     <th>
+                        组长：
+                    </th>
+                    <td>
+                        <input id="Master" type="text" class="txt" style="width: 100px" />
+                    </td>
+                    <th>
                         项目状态：
                     </th>
                     <td>
@@ -369,6 +400,12 @@
                             <option value="-2">已终止</option>
                             <option value="1">已结案</option>
                         </select>
+                    </td>
+                    <th>
+                        流程状态：
+                    </th>
+                    <td>
+                        <select id="FlowState" class="select"></select>
                     </td>
                     <td>
                         <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />

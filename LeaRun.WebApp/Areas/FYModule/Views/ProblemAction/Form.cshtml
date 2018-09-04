@@ -60,6 +60,8 @@
 
 
 <script type="text/javascript">
+    var IsCreate = 0;
+    var IsResponse = 0;
     //$(document).ready(function () {
 
     //    uploadify();
@@ -178,31 +180,37 @@
         }
         else
         {
-            if ('@UserID' == ResponseBy)
+            if ('@UserID' == CreateBy)
             {
-                $("form select").prop("disabled", true);
-                document.getElementById("tuihui").style.display = "none";
-                if (OrderState != "进行中" && OrderState!="退回")
-                {
-                    document.getElementById("tijiao").style.display = "none";
-                }
-                $("#Plandate").prop("disabled", true);
-                $("#ProblemDescripe").prop("disabled", true);
-            }
-            else if ('@UserID' == CreateBy)
-            {
+                IsCreate = 1;
                 $("#ResponseBy").searchableSelect();
                 document.getElementsByClassName("searchable-select-holder")[0].innerHTML = $("#ResponseBy").find("option:selected").text();
                 $("#ProblemDescripe").prop("disabled", true);
                 if (OrderState != "待审")
                 {
+                    //alert(11);
                     document.getElementById("tijiao").style.display = "none";
                     document.getElementById("tuihui").style.display = "none";
                     document.getElementById("uploadify").style.display = "none";
                 }
             }
-            else
+            if ('@UserID' == ResponseBy)
             {
+                IsResponse = 1;
+                $("form select").prop("disabled", true);
+                document.getElementById("tuihui").style.display = "none";
+                if (OrderState != "进行中" && OrderState != "退回"&&'@UserID' != CreateBy)
+                {
+                    //alert(11);
+                    document.getElementById("tijiao").style.display = "none";
+                }
+                //$("#Plandate").prop("disabled", true);
+                $("#ProblemDescripe").prop("disabled", true);
+            }
+            
+            if('@UserID' != ResponseBy&&'@UserID' != CreateBy)
+            {
+                
                 $("form input").prop("readonly", true);
                 $("form input").prop("disabled", true);
                 $("form textarea").prop("readonly", true);
@@ -218,14 +226,26 @@
 
     function Approve(tag)
     {
-        Loading(true, "正在提交数据...");
+        if (IsResponse == 1) {
+            if (CheckIsNullNoTip($("#CauseAnaly").val()) == false) {
+                alert("请填写原因分析");
+                return false;
+            }
+            if (CheckIsNullNoTip($("#ActionContent").val()) == false) {
+                alert("请填写对应措施");
+                return false;
+            }
+        }
+        //Loading(true, "正在提交数据...");
 
-        var postData = { ActionID: GetQueryNew('KeyValue'), Tag: tag, ActionContent: $("#ActionContent").val() }
+        var postData = { ActionID: GetQueryNew('KeyValue'), Tag: tag, ActionContent: $("#ActionContent").val(), CauseAnaly: $("#CauseAnaly").val() }
         AjaxJson("/FYModule/ProblemAction/Approve", postData, function (data) {
             //Loading(false);
-            //window.close();
+            window.close();
         });
     }
+
+    
 
 
 </script>
@@ -249,9 +269,7 @@
                 <tr>
                     <th class="formTitle">负责人：</th>
                     <td class="formValue">
-                        <select id="ResponseBy" class="txtselect">
-
-                        </select>
+                        <select id="ResponseBy" class="txtselect"></select>
 
                     </td>
 
@@ -263,6 +281,15 @@
                     </td>
 
                 </tr>
+
+                <tr>
+                    <th class="formTitle">原因分析：</th>
+                    <td class="formValue">
+                        <input id="CauseAnaly" type="text" class="txt" />
+                    </td>
+
+                </tr>
+
                 <tr>
                     <th class="formTitle">对应措施：</th>
                     <td class="formValue">
@@ -270,7 +297,7 @@
                     </td>
 
                 </tr>
-               
+
                 <tr>
                     <th class="formTitle">计划完成日期：</th>
                     <td class="formValue">
@@ -291,7 +318,7 @@
                         <label id="tt" style="display:none" />
                     </td>
 
-                 </tr>
+                </tr>
                 <tr style="display:none">
                     <td colspan="2">
                         <input id="ProblemState" type="text" class="txt" />
@@ -300,8 +327,8 @@
                     </td>
                 </tr>
                 <tr>
-                    <td><button class="button button-primary button-primary  button-small" id="tijiao" onclick="Approve('Yes')">提交</button></td>
-                    <td><button class="button button-primary button-caution button-small" id="tuihui" onclick="Approve('No')">退回</button></td>
+                    <td><a class="button button-primary button-primary  button-small" id="tijiao" onclick="Approve('Yes')">提交</a></td>
+                    <td><a class="button button-primary button-caution button-small" id="tuihui" onclick="Approve('No')">退回</a></td>
                 </tr>
             </table>
         </div>

@@ -202,62 +202,69 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
         [HttpPost]
         public ActionResult SubmitFormMobile(string KeyValue, FY_HrProblem entity, string BuildFormJson, HttpPostedFileBase Filedata, string Picture)
         {
-            string ModuleId = DESEncrypt.Decrypt(CookieHelper.GetCookie("ModuleId"));
-            IDatabase database = DataFactory.Database();
-            DbTransaction isOpenTrans = database.BeginTrans();
-            string GetReciverSql = " select Email from base_user where userid='" + entity.ResponseBy + "' ";
-            DataTable dt = PostBll.GetDataTable(GetReciverSql);
-            if (dt.Rows.Count > 0)
+            try
             {
-
-                //问题提交的时候。先给人事部发一个邮件，提示
-                MailHelper.SendEmail("hongfang.zhou@fuyaogroup.com", "您好，有一条新的员工关系，请登录系统确认是否需要调整责任人。网址：172.19.0.5:8086");
-            }
-            entity.MobileCreate();
-            //entity.FlowID=RegistFlow(entity.ProblemID);
-            //新建单据的时候，注册流程】
-            entity.FlowID = FlowBll.RegistFlow("Sj_HrProblem", entity.ProblemID, entity.ResponseBy);
-
-            if (Picture != "")
-            {
-                string fileGuid = CommonHelper.GetGuid;
-                //long filesize = Filedata.ContentLength;
-                string FileEextension = ".jpg";
-                string uploadDate = DateTime.Now.ToString("yyyyMMdd");
-                //string UserId = ManageProvider.Provider.Current().UserId;
-                string virtualPath = string.Format("~/Resource/Document/NetworkDisk/{0}/{1}/{2}{3}", "HrProblem", uploadDate, fileGuid, FileEextension);
-
-                string realPath = string.Format(@"D:\LeaRun\Resource\Document\NetworkDisk\{0}\{1}\{2}{3}", "HrProblem", uploadDate, fileGuid, FileEextension);
-
-                //string fullFileName = this.Server.MapPath(virtualPath);
-                ////创建文件夹，保存文件
-                //realPath = Path.GetDirectoryName(fullFileName);
-                //先处理图片文件
-                string temp = Picture.Substring(23);
-                byte[] arr2 = Convert.FromBase64String(Picture.Substring(23));
-                using (MemoryStream ms2 = new MemoryStream(arr2))
+                string ModuleId = DESEncrypt.Decrypt(CookieHelper.GetCookie("ModuleId"));
+                IDatabase database = DataFactory.Database();
+                DbTransaction isOpenTrans = database.BeginTrans();
+                string GetReciverSql = " select Email from base_user where userid='" + entity.ResponseBy + "' ";
+                DataTable dt = PostBll.GetDataTable(GetReciverSql);
+                if (dt.Rows.Count > 0)
                 {
-                    System.Drawing.Bitmap bmp2 = new System.Drawing.Bitmap(ms2);
 
-
-
-
-
-                    bmp2.Save(realPath, System.Drawing.Imaging.ImageFormat.Jpeg);
-
-                    bmp2.Dispose();
-                    ms2.Close();
+                    //问题提交的时候。先给人事部发一个邮件，提示
+                    MailHelper.SendEmail("hongfang.zhou@fuyaogroup.com", "您好，有一条新的员工关系，请登录系统确认是否需要调整责任人。网址：172.19.0.5:8086");
                 }
-                entity.ProblemAttach = virtualPath;
+                entity.MobileCreate();
+                //entity.FlowID=RegistFlow(entity.ProblemID);
+                //新建单据的时候，注册流程】
+                entity.FlowID = FlowBll.RegistFlow("Sj_HrProblem", entity.ProblemID, entity.ResponseBy);
+
+                if (Picture != "")
+                {
+                    string fileGuid = CommonHelper.GetGuid;
+                    //long filesize = Filedata.ContentLength;
+                    string FileEextension = ".jpg";
+                    string uploadDate = DateTime.Now.ToString("yyyyMMdd");
+                    //string UserId = ManageProvider.Provider.Current().UserId;
+                    string virtualPath = string.Format("~/Resource/Document/NetworkDisk/{0}/{1}/{2}{3}", "HrProblem", uploadDate, fileGuid, FileEextension);
+
+                    string realPath = string.Format(@"D:\LeaRun\Resource\Document\NetworkDisk\{0}\{1}\{2}{3}", "HrProblem", uploadDate, fileGuid, FileEextension);
+
+                    //string fullFileName = this.Server.MapPath(virtualPath);
+                    ////创建文件夹，保存文件
+                    //realPath = Path.GetDirectoryName(fullFileName);
+                    //先处理图片文件
+                    string temp = Picture.Substring(23);
+                    byte[] arr2 = Convert.FromBase64String(Picture.Substring(23));
+                    using (MemoryStream ms2 = new MemoryStream(arr2))
+                    {
+                        System.Drawing.Bitmap bmp2 = new System.Drawing.Bitmap(ms2);
+
+
+
+
+
+                        bmp2.Save(realPath, System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                        bmp2.Dispose();
+                        ms2.Close();
+                    }
+                    entity.ProblemAttach = virtualPath;
+                }
+
+                database.Insert(entity, isOpenTrans);
+
+                //Base_DataScopePermissionBll.Instance.AddScopeDefault(ModuleId, ManageProvider.Provider.Current().UserId, entity.ProblemID, isOpenTrans);
+
+                //Base_FormAttributeBll.Instance.SaveBuildForm(BuildFormJson, entity.ProblemID, ModuleId, isOpenTrans);
+                database.Commit();
+                return Redirect("index");
             }
-
-            database.Insert(entity, isOpenTrans);
-
-            Base_DataScopePermissionBll.Instance.AddScopeDefault(ModuleId, ManageProvider.Provider.Current().UserId, entity.ProblemID, isOpenTrans);
-
-            Base_FormAttributeBll.Instance.SaveBuildForm(BuildFormJson, entity.ProblemID, ModuleId, isOpenTrans);
-            database.Commit();
-            return Redirect("index");
+            catch(Exception ex)
+            {
+                return Content(ex.Message);
+            }
         }
 
         [HttpPost]
@@ -434,7 +441,16 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
                 {
                     entity.RealReplyDt = DateTime.Now;
                     int realNum2 = Math.Abs(((TimeSpan)(entity.RealReplyDt - entity.CreateDt)).Days);
-                    int planNum2 = Math.Abs(((TimeSpan)(entity.ReplyDt - entity.CreateDt)).Days);
+                    int planNum2 = 0;
+                    try
+                    {
+                         planNum2 = Math.Abs(((TimeSpan)(entity.ReplyDt - entity.CreateDt)).Days);
+                    }
+                    catch
+                    {
+                        
+                    }
+                    
                     if (planNum2 == 0)
                     {
                         planNum2 = 1;
@@ -738,6 +754,34 @@ group by a.ProblemType ";
                 Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "异常错误：" + ex.Message);
                 return null;
             }
+        }
+
+        public string GetUserInfo(string code)
+        {
+            WeChatUser entity= JsonHelper.JsonToEntity<WeChatUser>(WeChatHelper.GetUserInfo(code));
+            string sql = @" select a.Code,a.RealName,b.FullName from Base_User a left join Base_Department b on a.DepartmentId=b.DepartmentId
+where a.Code='"+entity.UserID+"' ";
+            DataTable dt = PostBll.GetDataTable(sql);
+            if(dt.Rows.Count>0)
+            {
+                return dt.Rows[0][0].ToString() +"|"+ dt.Rows[0][1].ToString() + "|" + dt.Rows[0][2].ToString();
+            }
+            else
+            {
+                return "";
+            }
+            //return WeChatHelper.GetUserInfo(code);
+        }
+
+
+        public class WeChatUser
+        {
+            public int errcode { get; set; }
+            public string errmsg { get; set; }
+            public string UserID { get; set; }
+            public string DeviceId { get; set; }
+            public string user_ticket { get; set; }
+            public string expires_in { get; set; }
         }
 
 

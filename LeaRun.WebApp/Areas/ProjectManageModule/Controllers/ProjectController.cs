@@ -125,22 +125,24 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
                             index++;
                         }
                     }
-
-                    database.Delete<PM_ProjectTarget>("ProjectID", KeyValue, isOpenTrans);
-                    List<PM_ProjectTarget> TargetList = TargetForm.JonsToList<PM_ProjectTarget>();
-                    index = 1;
-                    foreach (PM_ProjectTarget entityD in TargetList)
+                    if (entity.ProjectStatus == "流程审批中")
                     {
-                        if (!string.IsNullOrEmpty(entityD.BaseNum))
+                        database.Delete<PM_ProjectTarget>("ProjectID", KeyValue, isOpenTrans);
+                        List<PM_ProjectTarget> TargetList = TargetForm.JonsToList<PM_ProjectTarget>();
+
+                        index = 1;
+                        foreach (PM_ProjectTarget entityD in TargetList)
                         {
-                            entityD.Create();
-                            entityD.ProjectID = KeyValue;
-                            database.Insert(entityD, isOpenTrans);
-                            index++;
+                            if (!string.IsNullOrEmpty(entityD.BaseNum))
+                            {
+                                entityD.Create();
+                                entityD.ProjectID = KeyValue;
+                                database.Insert(entityD, isOpenTrans);
+                                index++;
+                            }
                         }
+
                     }
-
-
 
                     database.Update(entity, isOpenTrans);
 
@@ -149,7 +151,9 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
                 {
                     Base_NoteNOBll notenobll = new Base_NoteNOBll();
                     entity.Create();
-                    entity.ProjectNO= notenobll.CodeByYear("ProjectNO");
+                    entity.ProjectStatus = "流程审批中";
+                    //单号移动到审批流程结束的时候生成
+                    //entity.ProjectNO= notenobll.CodeByYear("ProjectNO");
                     //新建单据的时候，注册流程】
                     entity.FlowID = FlowBll.RegistFlow("Sj_ProjectManage", entity.ProjectID, entity.DataProvider);
 
@@ -167,7 +171,7 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
                     }
 
 
-                    database.Delete<PM_ProjectPlan>("ProjectID", KeyValue, isOpenTrans);
+                    
                     List<PM_ProjectPlan> PlanList = PlanForm.JonsToList<PM_ProjectPlan>();
                     index = 1;
                     foreach (PM_ProjectPlan entityD in PlanList)
@@ -175,13 +179,13 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
                         if (!string.IsNullOrEmpty(entityD.ProjectCycle))
                         {
                             entityD.Create();
-                            entityD.ProjectID = KeyValue;
+                            entityD.ProjectID = entity.ProjectID;
                             database.Insert(entityD, isOpenTrans);
                             index++;
                         }
                     }
 
-                    database.Delete<PM_ProjectTarget>("ProjectID", KeyValue, isOpenTrans);
+                    
                     List<PM_ProjectTarget> TargetList = TargetForm.JonsToList<PM_ProjectTarget>();
                     index = 1;
                     foreach (PM_ProjectTarget entityD in TargetList)
@@ -189,7 +193,7 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
                         if (!string.IsNullOrEmpty(entityD.BaseNum))
                         {
                             entityD.Create();
-                            entityD.ProjectID = KeyValue;
+                            entityD.ProjectID = entity.ProjectID;
                             database.Insert(entityD, isOpenTrans);
                             index++;
                         }
@@ -266,8 +270,10 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
                                 ////创建文件夹，保存文件
                                 //realPath = Path.GetDirectoryName(fullFileName);
                                 //先处理图片文件
-                                string temp = entityD.picsrc.Substring(23);
-                                byte[] arr2 = Convert.FromBase64String(entityD.picsrc.Substring(23));
+
+                                int a = entityD.picsrc.IndexOf(",");
+                                //string temp = entityD.picsrc.Substring(23);
+                                byte[] arr2 = Convert.FromBase64String(entityD.picsrc.Substring(a+1));
                                 using (MemoryStream ms2 = new MemoryStream(arr2))
                                 {
                                     System.Drawing.Bitmap bmp2 = new System.Drawing.Bitmap(ms2);
@@ -378,14 +384,16 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
 
         public ActionResult DepartmentJson()
         {
-            string sql = " select departmentid,fullname from base_department where 1=1 order by FullName ";
+            string sql = " select departmentid,fullname from base_department where 1=1 and ParentId='0' order by FullName ";
             DataTable dt = ProjectBll.GetDataTable(sql);
             return Content(dt.ToJson());
         }
 
         public ActionResult UserJson()
         {
-            string sql = @"select userid,realname from Base_User where Enabled=1  ";
+            string sql = @"  select userid,a.Code+' '+a.realname+'('+b.FullName+')' as realname from Base_User a left join Base_Department b  
+ on a.DepartmentId=b.DepartmentId
+ where a.Enabled=1  ";
             DataTable dt = ProjectBll.GetDataTable(sql);
             return Content(dt.ToJson());
         }
@@ -424,13 +432,13 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
             }
         }
 
-        public ActionResult GetProblemList(string KeyValue)
+        public ActionResult GetProblemList(string KeyValue,string ResponseBy,string FinishState)
         {
             try
             {
                 var JsonData = new
                 {
-                    rows = ProjectBll.GetProblemList(KeyValue),
+                    rows = ProjectBll.GetProblemList(KeyValue,ResponseBy,FinishState),
                 };
                 return Content(JsonData.ToJson());
             }
@@ -582,6 +590,12 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
             {
                 a = FlowBll.SubmitFlow(FlowID,ProcessOpinion);
             }
+            if(a==9)
+            {
+                Base_NoteNOBll notenobll = new Base_NoteNOBll();
+                strSql.AppendFormat(@" update  PM_Project set CreateDate=GETDATE(),ProjectNO='{0}',ProjectStatus='已登录' where ProjectID='{1}' ", notenobll.CodeByYear("ProjectNO"), KeyValue);
+
+            }
             strSql.AppendFormat(@" update PM_Project set Approvestatus='{0}' where ProjectID='{1}'  ",a,KeyValue);
 
 
@@ -599,13 +613,13 @@ namespace LeaRun.WebApp.Areas.ProjectManageModule.Controllers
  where a.ProjectID='" + KeyValue+"'";
             DataTable dt = ProjectBll.GetDataTable(sql);
 
-            string sqlMember = @"  select UserName,PostName,Duty from PM_ProjectMember where ProjectID='"+KeyValue+"' ";
+            string sqlMember = @"  select UserName,PostName,Duty,DeptName from PM_ProjectMember where ProjectID='" + KeyValue+"' ";
             DataTable dtMember = ProjectBll.GetDataTable(sqlMember);
 
             string sqlPlan = @" select ProjectCycle,CONVERT(varchar(100), PlanStartDate, 23) as PlanStartDate,CONVERT(varchar(100), PlanEndDate, 23) as PlanEndDate from PM_ProjectPlan where ProjectID='" + KeyValue+"' order by PlanStartDate ";
             DataTable dtPlan = ProjectBll.GetDataTable(sqlPlan);
 
-            string sqlTarget = @" select TargetContent,BaseNum,TargetNum,Remark from PM_ProjectTarget where ProjectID='"+KeyValue+"' order by TargetContent ";
+            string sqlTarget = @" select TargetContent,BaseNum,TargetNum,Remark,NumUnit from PM_ProjectTarget where ProjectID='" + KeyValue+"' order by TargetContent ";
             DataTable dtTarget = ProjectBll.GetDataTable(sqlTarget);
 
             string sqlFlow = @"select case when IsFinish=1 then b.Approvestatus else '未审核' end from Base_FlowLog a left join Base_FlowLogDetail b on a.FlowID=b.FlowID 
@@ -1236,6 +1250,15 @@ where 1=1 and a.projectid='{0}' ";
         public ActionResult GetProjectUserJson(string ProjectID)
         {
             string sql = " select UserID,UserName from PM_ProjectMember where ProjectID='"+ProjectID+"'  ";
+            DataTable dt = ProjectBll.GetDataTable(sql);
+            return Content(dt.ToJson());
+        }
+
+        public ActionResult ProjectFlowStateJson()
+        {
+            string sql = @"  select distinct dbo.GetFlowState(a.FlowID) as flowstate
+ from PM_Project a
+ where dbo.GetFlowState(a.FlowID) is not null ";
             DataTable dt = ProjectBll.GetDataTable(sql);
             return Content(dt.ToJson());
         }

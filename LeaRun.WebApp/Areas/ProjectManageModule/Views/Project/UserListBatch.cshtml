@@ -32,7 +32,7 @@
             keywords += " and realname like '%" + UserName + "%' ";
         }
         if (CheckIsNullNoTip(UserCode)) {
-            keywords += " and code like '%" + UserCode + "%' ";
+            keywords += " and a.code like '%" + UserCode + "%' ";
         }
         if (CheckIsNullNoTip(UserDept)) {
             keywords += " and b.fullname like '%" + UserDept + "%' ";
@@ -54,7 +54,8 @@
                 { label: '用户主键', name: 'userid', hidden: true },
                 { label: '用户名称', name: "realname", width: 100, sortable: false },
                 { label: '工号', name: "code", width: 100, sortable: false },
-                { label: '所属部门', name: "fullname", width: 100, sortable: false }
+                { label: '所属部门', name: "fullname", width: 100, sortable: false },
+                { label: '带级', name: "bandlevel", width: 100, sortable: false }
 
             ],
             pager: false,
@@ -63,28 +64,7 @@
             shrinkToFit: false,
             gridview: true,
             multiselect: true
-            //双击事件
-            //ondblClickRow: function (RowIndx) {
-            //    var rowData = $(this).jqGrid('getRowData', RowIndx);
-            //    //var $parentobj = top.$.dialog;
-            //    //if (!$parentobj.IsExistItem(index, rowData.SkillID)) {
-            //    //    $parentobj.$("#SkillID➩" + index).val(rowData.SkillID);
-            //    //    $parentobj.$("#SkillName➩" + index).val(rowData.SkillName);
 
-            //    //    index++;
-
-            //    // closeDialog();
-            //    //} else {
-            //    //    top.TipMsg("技能已存在,不能重复添加", 4000, "error");
-            //    //}
-            //    var ResultArr = new Array();
-            //    ResultArr[0] = rowData.skillid;
-            //    ResultArr[1] = rowData.skillname;
-            //    ResultArr[2] = rowData.skilldescripe;
-
-            //    window.returnValue = ResultArr;
-            //    window.close();
-            //}
         });
     }
 
@@ -96,9 +76,11 @@
         var Result = new Array();
         var UserID = GetJqGridRowValue("#gridTable", "userid");
         var UserName = GetJqGridRowValue("#gridTable", "realname");
+        var DeptName = GetJqGridRowValue("#gridTable", "fullname");
         //var SkillDescripe = GetJqGridRowValue("#gridTable", "skilldescripe");
         var UserIDArr = UserID.split(",");
         var UserNameArr = UserName.split(",");
+        var DeptNameArr = DeptName.split(",");
 
         for (var i = 0; i < UserIDArr.length; i++)
         {
@@ -106,6 +88,7 @@
             var TempObject = {};
             TempObject["UserID"] = UserIDArr[i];
             TempObject["UserName"] = UserNameArr[i];
+            TempObject["DeptName"] = DeptNameArr[i];
             Result.push(TempObject);
 
         }

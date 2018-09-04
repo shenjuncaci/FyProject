@@ -269,6 +269,8 @@ namespace LeaRun.Entity
         public decimal Honour { get; set; }
         public decimal Minus1 { get; set; }
         public decimal Minus2 { get; set; }
+
+        public string BandLevel { get; set; }
         #endregion
 
         #region À©Õ¹²Ù×÷

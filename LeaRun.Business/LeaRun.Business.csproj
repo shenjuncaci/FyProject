@@ -103,6 +103,13 @@
     <Compile Include="FYModule\FY_ProblemTrackFileBll.cs" />
     <Compile Include="FYModule\FY_ProcessBll.cs" />
     <Compile Include="FYModule\FY_ProduceLineBll.cs" />
+    <Compile Include="ProjectManageModule\G_PLM_ProjectBll.cs" />
+    <Compile Include="ProjectManageModule\G_PLM_ProjectFileBll.cs" />
+    <Compile Include="ProjectManageModule\G_PLM_ProjectGanteeBllcs.cs" />
+    <Compile Include="ProjectManageModule\G_PLM_ProjectGanteeUserBll.cs" />
+    <Compile Include="ProjectManageModule\G_PLM_ProjectPreLinkBll.cs" />
+    <Compile Include="ProjectManageModule\G_PLM_ProjectStructure_1Bll.cs" />
+    <Compile Include="ProjectManageModule\G_PLM_ProjectStructure_2Bll.cs" />
     <Compile Include="ProjectManageModule\PM_NoticeBll.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectBll.cs" />
     <Compile Include="ProjectManageModule\PM_ProjectEndFileBll.cs" />

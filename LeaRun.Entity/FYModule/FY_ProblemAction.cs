@@ -43,6 +43,8 @@ namespace LeaRun.Entity
         public string ProblemState { get; set; }
 
         public DateTime? RealCompletedate { get; set; }
+
+        public string CauseAnaly { get; set; }
         #region 扩展操作
         /// <summary>
         /// 新增调用

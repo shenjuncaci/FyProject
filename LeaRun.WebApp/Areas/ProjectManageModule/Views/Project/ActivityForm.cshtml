@@ -80,7 +80,7 @@
     var array = new Array();
     
     $(function () {
-       
+        BindDataNew();
         InitControl();
        
         $('input[id$="Date"]').each(function () {
@@ -133,6 +133,18 @@
 
     })
 
+    function BindDataNew() {
+        $("#responseby").html("");
+
+        $("#responseby").append("<option value=''>==请选择==</option>");
+        AjaxJson("/ProjectManageModule/Project/GetProjectUserJson", { ProjectID: GetQuery('KeyValue') }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#responseby").append($("<option></option>").val(DataJson[i].UserID).html(DataJson[i].UserName));
+            });
+
+        })
+    }
+
     //得到一个对象实体
     function InitControl() {
         if (!!GetQuery('KeyValue')) {
@@ -153,8 +165,10 @@
                     $("#ActivityContent➩" + rowindex).val(rowData.ActivityContent);
                     $("#Remark➩" + rowindex).val(rowData.Remark);
                     $("#PictureUrl➩" + rowindex).val(rowData.PictureUrl);
-
-                    $("#pic➩" + rowindex).attr('src',rowData.PictureUrl.replace("~",""));
+                    if (CheckIsNullNoTip(rowData.PictureUrl)) {
+                        $("#pic➩" + rowindex).attr('src', rowData.PictureUrl.replace("~", ""));
+                    }
+                    
                     //每次循环以后再次使用ajax，获取活动人员的明细数据
                     $.ajax({
                         type: "post",
@@ -189,6 +203,9 @@
                     $("#SortNO➩" + rowindex).val(rowData.SortNO);
                     $("#PutDate➩" + rowindex).val(rowData.PutDate);
                     $("#ProblemDescripe➩" + rowindex).val(rowData.ProblemDescripe);
+
+                    $("#Solution➩" + rowindex).val(rowData.Solution);
+
                     $("#PutBy➩" + rowindex).val(rowData.PutBy);
                     $("#ResponseBy➩" + rowindex).val(rowData.ResponseBy);
                     $("#PlanDate➩" + rowindex).val(rowData.PlanDate);
@@ -196,7 +213,7 @@
                     $("#FinishState➩" + rowindex).val(rowData.FinishState);
 
                     $("#Remark➩" + rowindex).val(rowData.Remark);
-                   //Member
+                   //Member，Solution
 
 
                     $("#ResponseBy➩" + rowindex).select2();
@@ -212,6 +229,11 @@
     }
     //保存事件
     function AcceptClick() {
+        $('input[id^="file➩"]').each(function () {
+            //alert(this.val());
+            this.remove();
+        });
+        //$("#filePath").remove();
         if (!CheckDataValid('#form1')) {
             return false;
         }
@@ -275,7 +297,7 @@
         td4.innerHTML = "<input readonly style=\"width:95%\" id='Member➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"参会人员\" onClick=\"ChooseMember(" + i + ")\" checkexpession=\"NotNull\"><input hidden=\"true\" readonly style=\"width:95%\" id='MemberID➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"参会人员ID\" onClick=\"ChooseMember(" + i + ")\" checkexpession=\"NotNull\">";
         td5.innerHTML = "<input style=\"width:100%\" onchange=\"loadpicture(" + i + ")\" type=\"file\" name=\"file\" id=\"file➩" + i + "\">";
         td6.innerHTML = "<img id=\"pic➩" + i + "\" style=\"width:100%;height:120px\" src=\"\"><input hidden=\"true\" id=\"picsrc➩" + i + "\" class=\"txt\"><input hidden=\"true\" id=\"PictureUrl➩" + i +"\" class=\"txt\">";
-        td7.innerHTML = "<button onclick='deleteCurrentRow(this)'>删除</button>";
+        td7.innerHTML = "<a onclick='deleteCurrentRow(this)'>删除</a>";
 
         //$('#ssi-upload➩' + i).ssi_uploader({ url: '#', dropZone: false, allowed: ['jpg', 'gif', 'txt', 'png', 'pdf'] });
     }
@@ -306,21 +328,21 @@
         var td7 = tr.insertCell();
         var td8 = tr.insertCell();
         var td9 = tr.insertCell();
-        //var td10 = tr.insertCell();
+        var td10 = tr.insertCell();
 
         td1.innerHTML = "<input id='SortNO➩" + i + "' style=\"width:95%\" value=\"" + i + "\" type=\"text\" class=\"txt\">";
         td2.innerHTML = "<input style=\"width:95%\" placeholder=\"自动生成，无需填写\" readonly  id='PutDate➩" + i + "' type=\"text\" class=\"txt\">";
-        td3.innerHTML = "<input  style=\"width:95%\" id='ProblemDescripe➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"问题、解决方案\" checkexpession=\"NotNull\">";
+        td3.innerHTML = "<input  style=\"width:95%\" id='ProblemDescripe➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"问题\" checkexpession=\"NotNull\">";
         //td4.innerHTML = "<input hidden=\"true\" style=\"width:95%\" id='PutBy➩" + i + "' class=\"txt\" datacol=\"yes\">";
-       
-        td4.innerHTML = "<select id=\"ResponseBy➩"+i+"\" class=\"txtselect\" err=\"责任人\" checkexpession=\"NotNull\" style=\"width:150px\"></select>";
-        td5.innerHTML = "<input  style=\"width:95%\" id='PlanDate➩" + i + "' class=\"txt Wdate\" onfocus=\"WdatePicker()\"  datacol=\"yes\" err=\"计划完成日期\" checkexpession=\"NotNull\">";
+        td4.innerHTML = "<input  style=\"width:95%\" id='Solution➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"解决方案\">";
+        td5.innerHTML = "<select id=\"ResponseBy➩"+i+"\" class=\"txtselect\" err=\"责任人\" checkexpession=\"NotNull\" style=\"width:150px\"></select>";
+        td6.innerHTML = "<input  style=\"width:95%\" id='PlanDate➩" + i + "' class=\"txt Wdate\" onfocus=\"WdatePicker()\"  datacol=\"yes\" err=\"计划完成日期\" checkexpession=\"NotNull\">";
         //<input id="CreateDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" err="登陆日期" checkexpession="NotNull" />
         //<select id="DepartMentID" class="select" datacol="yes" err="部门" checkexpession="NotNull" style="width: 96%"></select>
-        td6.innerHTML = "<input  style=\"width:95%\" id='FinishDate➩" + i + "' class=\"txt Wdate\" onfocus=\"WdatePicker()\" datacol=\"yes\">";
-        td7.innerHTML = "<select  style=\"width:95%\" id='FinishState➩" + i + "' class=\"select\" datacol=\"yes\" err=\"完成状态\" checkexpession=\"NotNull\"><option value='进行中'>进行中</option><option value='完成'>完成</option><option value='超期'>超期</option><option value='关闭'>关闭</option></select>";
-        td8.innerHTML = "<input  style=\"width:95%\" id='Remark➩" + i + "' class=\"txt\" datacol=\"yes\">";
-        td9.innerHTML = "<button onclick='deleteCurrentRow(this)'>删除</button>";
+        td7.innerHTML = "<input  style=\"width:95%\" id='FinishDate➩" + i + "' class=\"txt Wdate\" onfocus=\"WdatePicker()\" datacol=\"yes\">";
+        td8.innerHTML = "<select  style=\"width:95%\" id='FinishState➩" + i + "' class=\"select\" datacol=\"yes\" err=\"完成状态\" checkexpession=\"NotNull\"><option value='进行中'>进行中</option><option value='完成'>完成</option><option value='超期'>超期</option><option value='关闭'>关闭</option></select>";
+        td9.innerHTML = "<input  style=\"width:95%\" id='Remark➩" + i + "' class=\"txt\" datacol=\"yes\">";
+        td10.innerHTML = "<a onclick='deleteCurrentRow(this)'>删除</a>";
 
         BindData(i);
 
@@ -426,12 +448,15 @@
             </table>
 
             <table id="ProblemForm" class="form-bill">
-                <tr><td colspan="9"><strong>项目问题跟踪</strong></td><td><a class="button button-caution button-square button-small" onclick="addproblem(999)">添加</a></td></tr>
+                <tr><td colspan="3"><strong>项目问题跟踪</strong></td>
+                <td colspan="3"><select  id="responseby" placeholder="责任人" onchange="reloadactivity()"></select></td>
+                <td colspan="2"><input id="finishState" placeholder="完成状态" onchange="reloadactivity()"/></td>
+                <td><a class="button button-caution button-square button-small" onclick="addproblem(999)">添加</a></td></tr>
                 <tr>
                     <th style="width:5%">序号</th>
                     <th style="width:10%">提出日期</th>
-                    <th style="width:30%">问题&解决方案</th>
-                    @*<th style="width:10%;display:none">提出人</th>*@
+                    <th style="width:15%">问题</th>
+                    <th style="width:15%;">解决方案</th>
                     <th style="width:10%">责任人</th>
                     <th style="width:10%">计划完成日期</th>
                     <th style="width:10%">完成日期</th>
@@ -446,3 +471,66 @@
     </div>
 
 </form>
+
+<script>
+    function reloadactivity() {
+        //alert(11);
+        //InitControl();
+        var tab = document.getElementById('ProblemForm');
+        var rowIndex = tab.rows.length + 1;
+        //alert(rowIndex);
+        for (var i = rowIndex; i >= 2; i--) {
+
+            $('#ProblemForm tr:eq(' + i + ')').remove();
+            //console.log(i);
+        }
+
+        var rowindex = 1;
+        AjaxJson("/ProjectManageModule/project/GetProblemList", { KeyValue: GetQuery('KeyValue'), ResponseBy: $("#responseby").val(), FinishState: $("#finishState").val() }, function (data) {
+            var JsonData = data.rows;
+            //var colorState = "";
+            $.each(JsonData, function (i) {
+
+                addproblem(rowindex);
+                //$("#ResponseBy➩" + i).select2();
+                var rowData = JsonData[i];
+                //alert(rowData.FllowStatus);
+                //alert(rowData.ReviewDepart);ChangeReviewState
+                $("#SortNO➩" + rowindex).val(rowData.SortNO);
+                $("#PutDate➩" + rowindex).val(rowData.PutDate);
+                $("#ProblemDescripe➩" + rowindex).val(rowData.ProblemDescripe);
+                $("#PutBy➩" + rowindex).val(rowData.PutBy);
+                $("#ResponseBy➩" + rowindex).val(rowData.ResponseBy);
+                $("#PlanDate➩" + rowindex).val(rowData.PlanDate);
+                $("#FinishDate➩" + rowindex).val(rowData.FinishDate);
+                $("#FinishState➩" + rowindex).val(rowData.FinishState);
+
+                $("#Remark➩" + rowindex).val(rowData.Remark);
+                //Member
+
+
+                $("#ResponseBy➩" + rowindex).select2();
+
+
+                rowindex++;
+
+            });
+        });
+
+        $('input[id^="PlanDate➩"]').each(function () {
+
+            var w = this.value.indexOf("T");
+            if (w > 0) {
+                this.value = this.value.substring(0, w);
+            }
+        });
+
+        $('input[id^="FinishDate➩"]').each(function () {
+
+            var w = this.value.indexOf("T");
+            if (w > 0) {
+                this.value = this.value.substring(0, w);
+            }
+        });
+    }
+</script>

@@ -708,7 +708,7 @@ where a.DepartmentId='" + ManageProvider.Provider.Current().DepartmentId + "'";
             if(IsRapid=="否")
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendFormat("insert into FY_ProblemAction (actionid,problemdescripe,actioncontent,responseby,plandate,createby,createbydept,createdt,problemstate) values (NEWID(),'" + problem + "','" + action1 + "','" + response + "','" + plandate + "','" + ManageProvider.Provider.Current().UserId + "','" + ManageProvider.Provider.Current().DepartmentId + "',getdate(),'待审')");
+                strSql.AppendFormat("insert into FY_ProblemAction (actionid,problemdescripe,actioncontent,responseby,plandate,createby,createbydept,createdt,problemstate) values (NEWID(),'" + problem + "','" + action1 + "','" + response + "','" + plandate + "','" + ManageProvider.Provider.Current().UserId + "','" + ManageProvider.Provider.Current().DepartmentId + "',getdate(),'进行中')");
                 int result = PlanBll.ExecuteSql(strSql);
 
                 string GetReciverSql = " select Email from base_user where userid='" + response + "' ";
@@ -1376,6 +1376,58 @@ on a.BasicMonth=c.month ";
             string sql= " select distinct(year(createdt)) as year from FY_ProblemAction ";
             DataTable dt = PlanBll.GetDataTable(sql);
             return Content(dt.ToJson());
+        }
+
+        public ActionResult ProblemActionByResponseUnit()
+        {
+            return View();
+        }
+
+
+        public string GetProblemActionDataByResponse(string StartDate,string EndDate)
+        {
+            string result = "";
+            string temp1 = "";
+            string temp2 = "";
+            string temp3 = "";
+            string temp4 = "";
+            //string sql = " select count(*) as rapidcount,MONTH(res_cdate) as month from FY_Rapid where YEAR(res_cdate)='"+year+"' group by MONTH(res_cdate),YEAR(res_cdate)  ";
+            string sql = @" select count(*),
+(select count(*) from FY_ProblemAction aa 
+left join Base_User bb on aa.ResponseBy=bb.UserId
+left join Base_Department cc on bb.DepartmentId=cc.DepartmentId
+where cast(aa.CreateDt as date)>= cast('{0}' as date) 
+and cast(aa.CreateDt as date)<=cast('{1}' as date) 
+and ProblemState='已完成'
+and cc.DepartmentId=c.DepartmentId),c.FullName
+ from FY_ProblemAction a 
+left join Base_User b on a.ResponseBy=b.UserId
+left join Base_Department c on b.DepartmentId=c.DepartmentId
+where cast(a.CreateDt as date)>= cast('{0}' as date) 
+and cast(a.CreateDt as date)<=cast('{1}' as date) 
+group by c.FullName,c.DepartmentId ";
+
+            sql = string.Format(sql, StartDate, EndDate);
+            DataTable dt = PlanBll.GetDataTable(sql);
+           
+            if (dt.Rows.Count > 0)
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    temp1 = temp1 + dt.Rows[i][0] + ",";
+                    temp2 = temp2 + dt.Rows[i][1] + ",";
+                    temp3 = temp3 + dt.Rows[i][2] + ",";
+                   
+                }
+                temp1 = temp1.Substring(0, temp1.Length - 1);
+                temp2 = temp2.Substring(0, temp2.Length - 1);
+                temp3 = temp3.Substring(0, temp3.Length - 1);
+                
+            }
+            result = temp1 + "|" + temp2 + "|" + temp3;
+
+
+            return result;
         }
 
 

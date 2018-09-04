@@ -1,0 +1,138 @@
+﻿@{
+    ViewBag.Title = "用户列表";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script>
+
+    //注意：parent 是 JS 自带的全局对象，可用于操作父页面
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+    //alert(index);
+    //parent.layer.iframeAuto(index);
+
+    $(function () {
+        $("#keywords").focus();
+
+        GetGrid();
+        //绑定键盘按下事件
+        $(document).keypress(function (e) {
+            // 回车键事件
+            if (e.which == 13) {
+                $("#keywords").focus();
+                $("#keywords").select();
+                $("#btnSearch").click();
+            }
+        });
+    });
+    //搜索
+    function btn_Search() {
+        var PostName = $("#PostName").val();
+
+        var temp = " and realname like '%" + PostName + "%' ";
+        //var SkillType = $("#SkillType").val();
+        $("#gridTable").jqGrid('setGridParam', {
+            url: encodeURI("@Url.Content("~/ProjectManageModule/ProjectGantee/GridUserListJson")?keywords=" + temp)
+        }).trigger('reloadGrid');
+    }
+    //显示技能列表
+    function GetGrid() {
+        var index = GetQuery('index');
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/ProjectManageModule/ProjectGantee/GridUserListJson")",
+            datatype: "json",
+            height: 230,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'userid', index: "userid", hidden: true },
+                { label: '工号', name: 'code', index: "code", width: 120 },
+                { label: '姓名', name: 'realname', index: "realname", width: 120 },
+                { label: '部门', name: 'fullname', index: "fullname", width: 120 },
+            ],
+            pager: false,
+            rowNum: 1000,
+            //rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            multiselect: true
+
+        });
+    }
+
+    //多选，一次传多个技能回去
+    function btn_Confirm()
+    {
+        var Result = new Array();
+        var UserID = GetJqGridRowValue("#gridTable", "userid");
+        var UserName = GetJqGridRowValue("#gridTable", "realname");
+        var DepartName = GetJqGridRowValue("#gridTable", "fullname");
+        var Code = GetJqGridRowValue("#gridTable", "code");
+
+        var UserIDArr = UserID.split(",");
+        var UserNameArr = UserName.split(",");
+        var DepartmentNameArr = DepartName.split(",");
+        var CodeArr = Code.split(",");
+
+        for (var i = 0; i < UserIDArr.length; i++)
+        {
+
+            var TempObject = {};
+            TempObject["UserID"] = UserIDArr[i];
+            TempObject["UserName"] = UserNameArr[i];
+            TempObject["DepartName"] = DepartmentNameArr[i];
+            TempObject["Code"] = CodeArr[i];
+            Result.push(TempObject);
+
+        }
+
+
+
+
+
+        if (Result.length==0)
+        {
+            alert("请至少选择一个用户");
+            return false;
+        }
+        parent.temp = 0;
+        parent.PostConfirm(Result);
+        parent.layer.close(index);
+
+    }
+
+
+
+
+
+
+</script>
+<div class="border" style="margin: 1px; border-bottom: none; margin-bottom: 0px;">
+    <div class="QueryArea">
+        <table border="0" class="form-find" style="height: 45px;">
+            <tr>
+                <th>
+                    名称：
+                </th>
+                <td>
+                    <input id="PostName" type="text" class="txt" style="width: 50px" />
+                </td>
+
+                <td>
+                    <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                </td>
+                <td>
+                    <input id="btnSearch" type="button" class="btnSearch" value="确 认" onclick="btn_Confirm()" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="line"></div>
+    <table id="gridTable"></table>
+    <style>
+        .ui-widget-content {
+            border-left: none;
+        }
+
+        .ui-th-column, .ui-jqgrid .ui-jqgrid-htable th.ui-th-column {
+            background: none;
+        }
+    </style>
+</div>

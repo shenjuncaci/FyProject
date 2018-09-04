@@ -51,6 +51,8 @@ namespace LeaRun.Entity
         public string ElevenMonthProfit { get; set; }
         public string TwoleveMonthProfit { get; set; }
 
+        public string NumUnit { get; set; }
+
 
         #region 扩展操作
         /// <summary>

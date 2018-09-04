@@ -106,10 +106,10 @@ namespace LeaRun.Business
             List<DbParameter> parameter = new List<DbParameter>();
             strSql.Append(@" select * , (select '['+b.PostName+']' from TR_PostDepartmentRelation a left join TR_Post b on a.PostID=b.PostID left join TR_UserPost c on
 a.RelationID=c.DepartmentPostID and c.userid=aa.userid 
-where c.UserID=aa.userid and IsMain=0 for xml path('')) as PostList,
+where c.UserID=aa.userid and IsMain=0  and c.IsEnable=1 for xml path('')) as PostList,
 (select top 1 b.PostName from TR_PostDepartmentRelation a left join TR_Post b on a.PostID=b.PostID left join TR_UserPost c on
 a.RelationID=c.DepartmentPostID and c.userid=aa.userid 
-where c.UserID=aa.userid and IsMain=1 ) as MainPost
+where c.UserID=aa.userid and IsMain=1  and c.IsEnable=1) as MainPost
 from Base_User aa where 
 ( DepartmentId='" + ManageProvider.Provider.Current().DepartmentId+ "' or DepartmentID in (select DepartmentId from Base_Department where ParentId='"+ManageProvider.Provider.Current().DepartmentId+"') ) and UserID!='"+ManageProvider.Provider.Current().UserId+ "' and aa.Enabled=1 ");
             if (!string.IsNullOrEmpty(keyword))
@@ -128,10 +128,10 @@ ManageProvider.Provider.Current().DepartmentId);
             {
                 strSql.AppendFormat(@" union select * , (select '['+b.PostName+']' from TR_PostDepartmentRelation a left join TR_Post b on a.PostID=b.PostID left join TR_UserPost c on
 a.RelationID=c.DepartmentPostID and c.userid=aa.userid 
-where c.UserID=aa.userid and IsMain=0 for xml path('')) as PostList,
+where c.UserID=aa.userid and IsMain=0  and c.IsEnable=1 for xml path('')) as PostList,
 (select top 1 b.PostName from TR_PostDepartmentRelation a left join TR_Post b on a.PostID=b.PostID left join TR_UserPost c on
 a.RelationID=c.DepartmentPostID and c.userid=aa.userid 
-where c.UserID=aa.userid and IsMain=1 ) as MainPost
+where c.UserID=aa.userid and IsMain=1  and c.IsEnable=1) as MainPost
 from Base_User aa where aa.Enabled=1 and DepartmentId in (select DepartmentId from Base_Department where ParentId='0')
 and exists (select * from Base_ObjectUserRelation where UserId=aa.UserId and ObjectId='91c17ca4-0cbf-43fa-829e-3021b055b6c4') and aa.Enabled=1 ");
             }
@@ -158,6 +158,7 @@ left join TR_Post c on b.PostID=c.PostID
 left join Base_User d on a.UserID=d.UserId
 where d.Enabled=1 and b.RelationID is not null and (d.DepartmentId='{0}' or d.DepartmentID in (select DepartmentID from Base_Department where ParentID='{0}' ))
 and a.UserID!='{1}' and exists (select * from tr_skill where skillid in (select skillid from TR_PostDepartmentRelationDetail where RelationID=b.RelationID) )
+ and a.IsEnable=1
  ", ManageProvider.Provider.Current().DepartmentId,ManageProvider.Provider.Current().UserId);
             if (!string.IsNullOrEmpty(keyword))
             {

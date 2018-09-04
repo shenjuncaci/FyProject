@@ -27,6 +27,7 @@ namespace LeaRun.Entity
         public string Duty { get; set; }
 
         public string UserName { get; set; }
+        public string DeptName { get; set; }
 
 
         #region 扩展操作

@@ -19,8 +19,11 @@ namespace LeaRun.Business
         {
             StringBuilder strSql = new StringBuilder();
             List<DbParameter> parameter = new List<DbParameter>();
-            strSql.Append(@" select case when a.isend=1 then '已结案' else dbo.GetFlowState(a.flowid) end as flowstate,a.*,b.fullname 
-from pm_project a left join base_department b on a.departmentid=b.departmentid where 1=1   ");
+            strSql.Append(@" select case when a.isend=1 then '已结案' else dbo.GetFlowState(a.flowid) end as flowstate,a.*,b.fullname,c.targetcontent,c.basenum,c.targetnum 
+from pm_project a 
+left join base_department b on a.departmentid=b.departmentid 
+left join PM_ProjectTarget c on a.projectid=c.projectid
+where 1=1   ");
             if (!string.IsNullOrEmpty(keyword))
             {
                 strSql.Append(keyword);
@@ -67,11 +70,22 @@ from pm_project a left join base_department b on a.departmentid=b.departmentid w
             return DataFactory.Database().FindListBySql<PM_ProjectActivity>(strSql.ToString(), parameter.ToArray());
         }
 
-        public List<PM_ProjectProblem> GetProblemList(string KeyValue)
+        public List<PM_ProjectProblem> GetProblemList(string KeyValue, string ResponseBy, string FinishState)
         {
             StringBuilder strSql = new StringBuilder();
             List<DbParameter> parameter = new List<DbParameter>();
-            strSql.Append(@"select * from PM_ProjectProblem where ProjectID=@ProjectID  order by SortNO ");
+            string temp = "";
+            if(ResponseBy!=""&&ResponseBy!="Undefined"&&ResponseBy!=null)
+            {
+                temp = temp + " and ResponseBy='"+ResponseBy+"' ";
+            }
+            if(FinishState != "" && FinishState != "Undefined" && FinishState != null)
+            {
+                temp = temp + " and FinishState='"+FinishState+"' ";
+            }
+
+            strSql.Append(@"select * from PM_ProjectProblem where ProjectID=@ProjectID "+temp+" order by SortNO ");
+
             //strSql.Append(" AND CustomExamID = @CustomExamID and IsEnabe=1 order by SortNO ");
             parameter.Add(DbFactory.CreateDbParameter("@ProjectID", KeyValue));
             return DataFactory.Database().FindListBySql<PM_ProjectProblem>(strSql.ToString(), parameter.ToArray());

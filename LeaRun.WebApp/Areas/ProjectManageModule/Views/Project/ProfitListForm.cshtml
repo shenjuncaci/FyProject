@@ -67,6 +67,8 @@
         BindDepartMent();
         InitControl();
 
+        ChangeTH();
+
         var t = document.getElementById("main");
         var a = t.getElementsByTagName("input");
         var b = t.getElementsByTagName("select");
@@ -500,7 +502,7 @@
                 + Number($("#TwoleveMonthProfit➩" + i).val());
                 
         }
-        alert(result);
+        //alert(result);
         $("#AllProfit").val(result);
 
 
@@ -621,7 +623,42 @@
         //td5.innerHTML = "<button  class=\"button button-square button-small\" onclick='deleteCurrentRow(this)'>删除</button>";
     }
 
+    function ChangeTH() {
+        var myDate = new Date($("#CreateDate").val());
 
+        //alert(myDate);
+        var CurrentMonth = myDate.getMonth()+1;
+
+        //alert(CurrentMonth);
+
+
+        $("#1").html((CurrentMonth + 1) % 13);
+        $("#2").html((CurrentMonth + 2) % 13);
+        $("#3").html((CurrentMonth + 3) % 13);
+        $("#4").html((CurrentMonth + 4) % 13);
+        $("#5").html((CurrentMonth + 5) % 13);
+        $("#6").html((CurrentMonth + 6) % 13);
+        $("#7").html((CurrentMonth + 7) % 13);
+        $("#8").html((CurrentMonth + 8) % 13);
+        $("#9").html((CurrentMonth + 9) % 13);
+        $("#10").html((CurrentMonth + 10) % 13);
+        $("#11").html((CurrentMonth + 11) % 13);
+        $("#12").html((CurrentMonth + 12) % 13);
+
+        
+
+        for (var i = 1; i <= 12; i++) {
+            //alert($("#" + i).html());
+            if ($("#" + i).html() == 0) {
+                for (var j = i; j <= 12; j++)
+                {
+                    $("#" + j).html(Number($("#" + j).html()) + 1);
+                }
+                return false;
+            }
+            
+        }
+    }
 
 
 </script>
@@ -663,7 +700,17 @@
                         <input id="CalculationFormula" readonly type="text" class="txt" datacol="yes" err="计算公式" checkexpession="NotNull" />
                     </td>
                     <th class="formTitle">总计收益</th>
-                    <td class="formValue" colspan="1"> <input id="AllProfit" readonly type="text" class="txt" datacol="yes"  /></td>
+                    <td class="formValue" colspan="1"> <input id="AllProfit" readonly type="text" class="txt" datacol="yes" /></td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">创建日期：</th>
+                    <td class="formValue" colspan="1">
+
+                        <input id="CreateDate" readonly type="text" class="txt" datacol="yes" />
+                    </td>
+                    <th class="formTitle"></th>
+                    <td class="formValue" colspan="1"> </td>
                 </tr>
 
             </table>
@@ -675,29 +722,29 @@
                     <th style="width:3.5%">基准</th>
                     <th style="width:3.5%">目标</th>
                     <th style="width:3.5%">备注</th>
-                    <th style="width:3.5%">1</th>
+                    <th id="1" style="width:3.5%">1</th>
                     <th style="width:3.5%">收益</th>
-                    <th style="width:3.5%">2</th>
+                    <th id="2" style="width:3.5%">2</th>
                     <th style="width:3.5%">收益</th>
-                    <th style="width:3.5%">3</th>
+                    <th id="3" style="width:3.5%">3</th>
                     <th style="width:3.5%">收益</th>
-                    <th style="width:3.5%">4</th>
+                    <th id="4" style="width:3.5%">4</th>
                     <th style="width:3.5%">收益</th>
-                    <th style="width:3.5%">5</th>
+                    <th id="5" style="width:3.5%">5</th>
                     <th style="width:3.5%">收益</th>
-                    <th style="width:3.5%">6</th>
+                    <th id="6" style="width:3.5%">6</th>
                     <th style="width:3.5%">收益</th>
-                    <th style="width:3.5%">7</th>
+                    <th id="7" style="width:3.5%">7</th>
                     <th style="width:3.5%">收益</th>
-                    <th style="width:3.5%">8</th>
+                    <th id="8" style="width:3.5%">8</th>
                     <th style="width:3.5%">收益</th>
-                    <th style="width:3.5%">9</th>
+                    <th id="9" style="width:3.5%">9</th>
                     <th style="width:3.5%">收益</th>
-                    <th style="width:3.5%">10</th>
+                    <th id="10" style="width:3.5%">10</th>
                     <th style="width:3.5%">收益</th>
-                    <th style="width:3.5%">11</th>
+                    <th id="11" style="width:3.5%">11</th>
                     <th style="width:3.5%">收益</th>
-                    <th style="width:3.5%">12</th>
+                    <th id="12" style="width:3.5%">12</th>
                     <th style="width:3.5%">收益</th>
                 </tr>
             </table>

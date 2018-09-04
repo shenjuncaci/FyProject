@@ -1,0 +1,251 @@
+﻿@{
+    ViewBag.Title = "ProjectIndex";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+
+
+
+<script type="text/javascript">
+     $(document).ready(function () {
+
+         GetGrid();
+    });
+    
+        //搜索
+    function btn_Search() {
+        var keywords = "";
+        var ProjectNO = $("#ProjectNO").val();
+        var ProjectName = $("#ProjectName").val();
+
+        //if (CheckIsNullNoTip(ProjectNO)) {
+        //    keywords = keywords + " and ProjectNO like '%" + ProjectNO + "%' ";
+        //}
+        if (CheckIsNullNoTip(ProjectName)) {
+            keywords = keywords + " and ProjectName like '%" + ProjectName + "%' ";
+        }
+
+
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "@Url.Content("~/ProjectManageModule/ProjectGantee/GridPageListJson")?keywords=" + escape(keywords), page: 1
+        }).trigger('reloadGrid');
+    }
+
+        //加载表格flowstate
+    function GetGrid() {
+        var SelectRowIndx;
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/ProjectManageModule/ProjectGantee/GridPageListJson")",
+            datatype: "json",
+            height: $(window).height() - 178,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'projectid', index: 'projectid', width: 80, align: 'left', hidden: true },
+                { label: '项目单号', name: 'projectno', index: 'projectno', width: 100, align: 'left' },
+                { label: '项目名称', name: 'projectname', index: 'projectname', width: 100, align: 'left' },
+                { label: '创建人', name: 'createby', index: 'createby', width: 100, align: 'left' },
+                { label: '创建日期', name: 'createdate', index: 'createdate', width: 100, align: 'left' }
+
+
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 1000],
+            pager: "#gridPager",
+            sortname: 'projectid',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            multiselect: false,
+            //cellattr: addCellAttr,
+
+            // useColSpanStyle:true,
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            },
+            gridComplete: function () {
+                //LoadViewList();
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            },
+            ondblClickRow: function (RowIndx) {
+
+                var rowData = $(this).jqGrid('getRowData', RowIndx);
+
+                Tabchange('gant');
+                display('on');
+
+                $("#ProjectID").val(rowData.projectid);
+                loadTree();
+
+            }
+            //ondblClickRow: function (RowIndx) {
+
+            //    var rowData = $(this).jqGrid('getRowData', RowIndx);
+
+            //    //GetAttachGrid(rowData.skillid);
+
+            //    var index=layer.open({
+            //        type: 2,  //2表示ifrmae弹出层
+            //        title: '通知明细',
+            //        maxmin: true,
+            //        shadeClose: true, //点击遮罩关闭层
+            //        area: ['800px', '550px'],
+            //        content: 'NoticeInfo?KeyValue='+rowData.projectid
+            //        });
+            //    //layer.full(index);
+
+            //}
+        });
+        columnModelData("#gridTable");
+        //自应高度
+        $(window).resize(function () {
+            $("#gridTable").setGridHeight($(window).height() - 178);
+        });
+
+    }
+
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+    }
+    var lHeight = $(window).height() - 80;
+    var lWidth = $(window).width() - 20;
+    //新增
+    function btn_add() {
+        //alert(lHeight + " " + lWidth);
+        var url = "/ProjectManageModule/ProjectGantee/Index"
+
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '新增项目',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: [lWidth + "px", lHeight + "px"],
+            content: url,
+            btn: ['确认', '取消'],
+            yes: function (index, layero) {
+                //按钮【按钮一】的回调
+                //layero.AcceptClick();
+                var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+
+                //调用授权提交方法
+                var flag = iframeWin.AcceptClick();
+                //return flag;
+            },
+            btn2: function (index, layero) {
+                //按钮【按钮二】的回调
+
+                //return false 开启该代码可禁止点击该按钮关闭
+                layer.close(index);
+            },
+            end: function () {     //窗口关闭事件
+                temp = 0;
+            }
+        });
+    }
+    //编辑
+    function btn_edit() {
+        //alert(lHeight + " " + lWidth);
+        var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
+        //alert(KeyValue);
+        if (IsChecked(KeyValue)) {
+            var url = "/ProjectManageModule/ProjectGantee/Index?KeyValue=" + KeyValue;
+            //openDialog(url, "Form", "编辑", 1000, 550, function (iframe) {
+            //    //top.frames[iframe].AcceptClick()
+            //});
+            layer.open({
+                type: 2,  //2表示ifrmae弹出层
+                title: '编辑项目',
+                maxmin: true,
+                shadeClose: true, //点击遮罩关闭层
+                area: [lWidth + "px", lHeight + "px"],
+                content: url,
+                btn: ['确认', '取消'],
+                yes: function (index, layero) {
+                    //按钮【按钮一】的回调
+                    //layero.AcceptClick();
+                    var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+
+                    //调用授权提交方法
+                    var flag = iframeWin.AcceptClick();
+                    //return flag;
+                },
+                btn2: function (index, layero) {
+                    //按钮【按钮二】的回调
+
+                    //return false 开启该代码可禁止点击该按钮关闭
+                    layer.close(index);
+                },
+                end: function () {     //窗口关闭事件
+                    temp = 0;
+                }
+            });
+
+        }
+    }
+
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/ProjectManageModule/Project/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+
+    //流程处理
+    function btn_flow() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "projectid");
+        //alert(KeyValue);
+        if (IsChecked(KeyValue)) {
+            var url = "/ProjectManageModule/ProjectGantee/FlowForm?ProjectID=" + KeyValue;
+            //Dialog(url, "FlowForm", "流程处理", 1000, 550);
+            layer.open({
+                type: 2,  //2表示ifrmae弹出层
+                title: '流程处理',
+                maxmin: true,
+                shadeClose: true, //点击遮罩关闭层
+                area: ['1000px', '550px'],
+                content: url,
+
+                end: function () {     //窗口关闭事件
+                    temp = 0;
+                }
+            });
+
+        }
+    }
+</script>
+
+
+<div id="grid_List">
+    <div class="tools_bar" style="border-top: none; margin-bottom: 0px;">
+        <div class="PartialButton">
+            @Html.Partial("_PartialButton")
+        </div>
+
+    </div>
+    <div class="bottomline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+        <table border="0" class="form-find" style="height: 45px;">
+            <tr>
+                <th>
+                    项目编号：
+                </th>
+                <td>
+                    <input id="ProjectNO" type="text" class="txt" style="width: 100px" />
+                </td>
+                <th>
+                    项目名称：
+                </th>
+                <td>
+                    <input id="ProjectName" type="text" class="txt" style="width: 100px" />
+                </td>
+
+                <td>
+                    <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

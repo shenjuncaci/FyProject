@@ -89,14 +89,14 @@
         //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
         //BindResponseBy();
         uploadify();
-
+        Test();
 
     })
 
     //得到一个对象实体
     function InitControl() {
         if (!!GetQuery('KeyValue')) {
-            AjaxJson("/FYModule/HrProblem/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+            AjaxJson("/wechat3/FYModule/HrProblem/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
                 SetWebControls(data);
 
 
@@ -126,15 +126,18 @@
 
         $.ajax({
             type: "post",
-            url: "/FYModule/HrProblem/SubmitFormMobile",
+            url: "/wechat3/FYModule/HrProblem/SubmitFormMobile",
             data: postData,
             async: false,
             success: function (rs) {
+                //alert(rs);
                 alert("提交成功");
-                window.location.href = '@Url.Content("~/fymodule/hrproblem/formmobile?type=1")';
+                window.location.href = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxc625758e50b5ced1&redirect_uri=http://sjit.system.fuyaogroup.com/wechat3/fymodule/hrproblem/formmobile?type=3&response_type=code&scope=snsapi_userinfo&agentid=18&state=STATE#wechat_redirect";
             },
-            error: function () {
-                alert("出错了");
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                alert(XMLHttpRequest.status);
+                alert(XMLHttpRequest.readyState);
+                alert(textStatus);
             }
         })
     }
@@ -144,7 +147,7 @@
         $("#ResponseBy").html("");
 
         $("#ResponseBy").append("<option value=''>==请选择==</option>");
-        AjaxJson("/FYModule/Plan/ResponseAllJson", {}, function (DataJson) {
+        AjaxJson("/wechat3/FYModule/Plan/ResponseAllJson", {}, function (DataJson) {
             $.each(DataJson, function (i) {
                 $("#ResponseBy").append($("<option></option>").val(DataJson[i].UserId).html(DataJson[i].RealName));
             });
@@ -172,7 +175,7 @@
         //});
         //获取数据源
         function DataSource() {
-            AjaxJson("/FYModule/HrProblem/ResponseAllJson", { keywords: $ResponseByName.val() }, function (DataJson) {
+            AjaxJson("/wechat3/FYModule/HrProblem/ResponseAllJson", { keywords: $ResponseByName.val() }, function (DataJson) {
                 var html = "";
                 $.each(DataJson, function (i) {
                     html += "<tr>";
@@ -209,7 +212,7 @@
         //});
         //获取数据源
         function DataSource() {
-            AjaxJson("/FYModule/HrProblem/ResponseAllJson", { keywords: $CreateByName.val() }, function (DataJson) {
+            AjaxJson("/wechat3/FYModule/HrProblem/ResponseAllJson", { keywords: $CreateByName.val() }, function (DataJson) {
                 var html = "";
                 $.each(DataJson, function (i) {
                     html += "<tr>";
@@ -287,8 +290,8 @@
         //if (!!GetQueryNewNew('KeyValue'))
         //{ alert(11)};
         $("#uploadify").uploadify({
-            uploader: '/FYModule/HrProblem/SubmitUploadify?FolderId=' + GetQueryNew('KeyValue')+'&type=1',
-            swf: '/Content/Scripts/uploadify/uploadify.swf',
+            uploader: '/wechat3/FYModule/HrProblem/SubmitUploadify?FolderId=' + GetQueryNew('KeyValue')+'&type=1',
+            swf: '/wechat3/Content/Scripts/uploadify/uploadify.swf',
             buttonText: "添加文件",
             height: 24,
             width: 70,
@@ -332,6 +335,36 @@
         reader.readAsDataURL(file);
     }
 
+    function Test() {
+        //alert(GetQuery('code'));
+        //alert($_GET['code']);
+        //var url = "https://qyapi.weixin.qq.com/cgi-bin/user/getuserinfo?access_token=ACCESS_TOKEN&code=" + GetQuery('code');
+        //doPost(url);
+        $.ajax({
+            type: "post",
+            url: "/wechat3/FYModule/HrProblem/GetUserInfo",
+            data: { code: GetQuery('code') },
+            async: false,
+            success: function (msg) {
+                if (msg == "") {
+                    alert("获取信息失败，请联系管理员");
+                }
+                else {
+                    //alert(11);
+                    var carr = new Array();
+                    //alert(msg);
+                    carr = msg.split('|');
+                    $("#ProposeManCode").val(carr[0]);
+                    $("#ProposeMan").val(carr[1]);
+                    $("#ProposeDept").val(carr[2]);
+
+                }
+            },
+            error: function () {
+                alert("出错了");
+            }
+        });
+    }
 </script>
 
 
@@ -340,7 +373,7 @@
     <div class="bd" style="border-bottom: none; margin: 1px;">
         <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
             <div class="tab_list_top" style="position: absolute">
-                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">基本信息</div>
+                <button onclick="AcceptClick()"><font size="30"><b>确认提交</b></font></button>
 
 
             </div>
@@ -356,7 +389,7 @@
                         <input readonly id="ProblemType" type="text" class="txt" value="@ViewData["ProblemType"]" />
 
                     </td>
-                    
+
 
                 </tr>
                 <tr>
@@ -380,13 +413,13 @@
                 <tr>
                     <th class="formTitle">手机号：</th>
                     <td class="formValue">
-                        <input id="MobilePhone" type="text" class="txt" datacol="yes" err="手机号" checkexpession="NotNull" />
+                        <input id="MobilePhone" type="text" class="txt"/>
 
                     </td>
-                    
+
 
                 </tr>
-                <tr>
+                <tr style="display:none">
                     <th class="formTitle">提出人工号：</th>
                     <td class="formValue">
                         @*<select id="CreateBy" class="txtselect"></select>*@
@@ -394,16 +427,16 @@
                         <input id="ProposeManCode" type="text" class="txt" datacol="yes" err="提出人工号" checkexpession="NotNull" />
                     </td>
                 </tr>
-                <tr>
+                <tr style="display:none">
                     <th class="formTitle">提出人姓名：</th>
                     <td class="formValue">
                         @*<select id="CreateBy" class="txtselect"></select>*@
 
                         <input id="ProposeMan" type="text" class="txt" datacol="yes" err="提出人姓名" checkexpession="NotNull" />
                     </td>
-                    
+
                 </tr>
-                <tr>
+                <tr style="display:none">
                     <th class="formTitle">提出人部门：</th>
                     <td class="formValue">
                         @*<select id="CreateBy" class="txtselect"></select>*@
@@ -418,11 +451,11 @@
                     </td>
 
                 </tr>
-               
 
-               
+
+
                 <tr></tr>
-                
+
 
             </table>
         </div>
@@ -451,5 +484,6 @@
     </tr>
 </table>
 <div>
-    <button onclick="AcceptClick()">确认提交</button>
+    
+
 </div>

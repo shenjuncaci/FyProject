@@ -34,6 +34,8 @@ namespace LeaRun.Entity
         public string Remark { get; set; }
         public int SortNO { get; set; }
 
+        public string Solution { get; set; }
+
         #region 扩展操作
         /// <summary>
         /// 新增调用

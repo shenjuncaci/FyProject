@@ -786,6 +786,7 @@ group by ResponseBy) as a left join Base_User b on a.ResponseBy=b.Code  ";
         public void ExcelExport(string condition)
         {
             ExcelHelper ex = new ExcelHelper();
+            //NpoiHelper ex2 = new NpoiHelper();
             string sql = @" select RapidState as 状态,a.res_jb as 投诉级别,a.res_area as 产品区域,a.res_dd as 事发地,a.res_type as 问题类型,a.IsCheck as 是否考核,a.res_again as 是否重复发生,
 a.res_ok as 问题类别,b.RealName as 责任人,d.RealName as 跟踪人,c.FullName as 责任部门,
 res_kf as 客户,res_ms as 问题描述,CONVERT(varchar(100), res_cdate, 23) as 发生日期,res_fxnode as 根本原因分析,
@@ -798,7 +799,15 @@ left join Base_User d on a.FollowBy=d.code
 where 1=1 ";
             sql = sql + condition;
             DataTable ListData = rapidbll.GetDataTable(sql);
-            ex.EcportExcel(ListData, "快速反应导出");
+            //ex.EcportExcel(ListData, "快速反应导出");
+
+            MemoryStream ms = NpoiHelper.RenderDataTableToExcel(ListData) as MemoryStream;
+
+            /*情况1：在Asp.NET中，输出文件流，浏览器自动提示下载*/
+            Response.AddHeader("Content-Disposition", string.Format("attachment; filename=download.xls"));
+            Response.BinaryWrite(ms.ToArray());
+            ms.Close();
+            ms.Dispose();
         }
 
         public ActionResult DownForm()
@@ -1121,7 +1130,7 @@ dataCondition + " and b.RealName='" + Name + "' " +
         public ActionResult DepartmentJson()
         {
             StringBuilder strSql = new StringBuilder();
-            strSql.Append("select distinct DepartmentID,FullName,sortcode from Base_Department  order by sortcode ");
+            strSql.Append("select distinct DepartmentID,FullName,sortcode from Base_Department where ParentId!='0'  order by sortcode ");
             DataTable dt = rapidbll.GetDataTable(strSql.ToString());
             return Content(dt.ToJson());
         }

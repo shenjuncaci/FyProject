@@ -201,7 +201,7 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
         }
 
 
-        public ActionResult Approve(string ActionID, string Tag,string ActionContent)
+        public ActionResult Approve(string ActionID, string Tag,string ActionContent,string CauseAnaly)
         {
             
             StringBuilder strSql = new StringBuilder();
@@ -210,8 +210,8 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
             {
                 if (Tag == "Yes")
                 {
-                    strSql.AppendFormat(@"update FY_ProblemAction set ProblemState='已完成',RealCompleteDate=getdate() where
-                   ActionID='{0}'", ActionID);
+                    strSql.AppendFormat(@"update FY_ProblemAction set ProblemState='已完成',RealCompleteDate=getdate(),ActionContent='{1}',CauseAnaly='{2}' where
+                   ActionID='{0}'", ActionID,ActionContent,CauseAnaly);
                 }
                 else
                 {
@@ -219,10 +219,10 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
                    ActionID='{0}'", ActionID);
                 }
             }
-            if(ManageProvider.Provider.Current().UserId==entity.ResponseBy)
+            if(ManageProvider.Provider.Current().UserId==entity.ResponseBy&&entity.ProblemState!= "待审")
             {
-                strSql.AppendFormat(@"update FY_ProblemAction set ProblemState='待审',ActionContent='{1}' where
-                   ActionID='{0}'", ActionID, ActionContent);
+                strSql.AppendFormat(@"update FY_ProblemAction set ProblemState='待审',ActionContent='{1}',CauseAnaly='{2}' where
+                   ActionID='{0}'", ActionID, ActionContent, CauseAnaly);
             }
             PostBll.ExecuteSql(strSql);
 
@@ -258,6 +258,32 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
         {
             string[] array = KeyValue.Split(',');
             Base_SysLogBll.Instance.WriteLog<FY_ProblemAction>(array, IsOk.ToString(), Message);
+        }
+
+        //按需求导出excel
+        public void ExcelExport(string condition)
+        {
+            ExcelHelper ex = new ExcelHelper();
+            //NpoiHelper ex2 = new NpoiHelper();
+            string sql = @" select a.ProblemState as 状态,a.ProblemDescripe as 问题描述,a.CauseAnaly as 原因分析,a.ActionContent as 对策措施,
+b.RealName as 责任人,c.RealName as 创建人 ,
+(select top 1 FullName from Base_Department where DepartmentId=b.DepartmentId) as 责任人部门,
+(select top 1 FullName from Base_Department where DepartmentId=c.DepartmentId) as 创建人部门,
+a.Plandate as 计划完成日期,a.RealCompletedate  as 实际完成日期
+from FY_ProblemAction a 
+left join Base_User b on a.ResponseBy=b.UserId 
+left join Base_User c on a.CreateBy=c.UserId where 1=1 ";
+            sql = sql + condition;
+            DataTable ListData = PostBll.GetDataTable(sql);
+            //ex.EcportExcel(ListData, "快速反应导出");
+
+            MemoryStream ms = NpoiHelper.RenderDataTableToExcel(ListData) as MemoryStream;
+
+            /*情况1：在Asp.NET中，输出文件流，浏览器自动提示下载*/
+            Response.AddHeader("Content-Disposition", string.Format("attachment; filename=download.xls"));
+            Response.BinaryWrite(ms.ToArray());
+            ms.Close();
+            ms.Dispose();
         }
 
 
