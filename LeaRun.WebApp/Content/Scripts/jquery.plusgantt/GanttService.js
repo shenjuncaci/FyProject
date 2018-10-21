@@ -4,7 +4,9 @@
 function CreateGantt(options) {
 
     options = $.extend({
-        autoSchedule: true
+        autoSchedule: true,
+        cuswidth: "1750px",
+        cusheight:"500px"
     }, options);
 
     var gantt = new PlusGantt();
@@ -15,7 +17,7 @@ function CreateGantt(options) {
         new GanttSchedule(gantt);
     }
 
-    gantt.setStyle("width:800px;height:400px");
+    gantt.setStyle("width:1750px;height:500px");
 
     gantt.setAllowDragDrop(true);
 

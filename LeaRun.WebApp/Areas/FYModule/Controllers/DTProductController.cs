@@ -21,10 +21,10 @@ using System.Net;
 
 namespace LeaRun.WebApp.Areas.FYModule.Controllers
 {
-    public class BreakPointController : Controller
+    public class DTProductController : Controller
     {
-        RepositoryFactory<FY_BreakPoint> repositoryfactory = new RepositoryFactory<FY_BreakPoint>();
-        FY_BreakPointBll BreakPointBll = new FY_BreakPointBll();
+        RepositoryFactory<FY_DTProduct> repositoryfactory = new RepositoryFactory<FY_DTProduct>();
+        FY_DTProductBll ProductBll = new FY_DTProductBll();
         //
         // GET: /FYModule/Process/
 
@@ -38,7 +38,7 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
             try
             {
                 Stopwatch watch = CommonHelper.TimerStart();
-                DataTable ListData = BreakPointBll.GetPageList(keywords, ref jqgridparam, ParameterJson);
+                DataTable ListData = ProductBll.GetPageList(keywords, ref jqgridparam, ParameterJson);
                 var JsonData = new
                 {
                     total = jqgridparam.total,
@@ -65,7 +65,7 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
         }
 
         [HttpPost]
-        public ActionResult SubmitForm(string KeyValue, FY_BreakPoint entity, string BuildFormJson, HttpPostedFileBase Filedata)
+        public ActionResult SubmitForm(string KeyValue, FY_DTProduct entity, string BuildFormJson, HttpPostedFileBase Filedata)
         {
             string ModuleId = DESEncrypt.Decrypt(CookieHelper.GetCookie("ModuleId"));
             IDatabase database = DataFactory.Database();
@@ -91,14 +91,13 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
                 {
                     //entity.DepartmentID = ManageProvider.Provider.Current().DepartmentId;
                     entity.Create();
-                    
-
+                    entity.CreateDt = DateTime.Now;
 
                     database.Insert(entity, isOpenTrans);
 
-                    Base_DataScopePermissionBll.Instance.AddScopeDefault(ModuleId, ManageProvider.Provider.Current().UserId, entity.BreakID, isOpenTrans);
+                    Base_DataScopePermissionBll.Instance.AddScopeDefault(ModuleId, ManageProvider.Provider.Current().UserId, entity.ProductID, isOpenTrans);
                 }
-                Base_FormAttributeBll.Instance.SaveBuildForm(BuildFormJson, entity.BreakID, ModuleId, isOpenTrans);
+                Base_FormAttributeBll.Instance.SaveBuildForm(BuildFormJson, entity.ProductID, ModuleId, isOpenTrans);
                 database.Commit();
                 return Content(new JsonMessage { Success = true, Code = "1", Message = Message }.ToString());
             }
@@ -114,7 +113,7 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
         [ValidateInput(false)]
         public ActionResult SetForm(string KeyValue)
         {
-            FY_BreakPoint entity = DataFactory.Database().FindEntity<FY_BreakPoint>(KeyValue);
+            FY_DTProduct entity = DataFactory.Database().FindEntity<FY_DTProduct>(KeyValue);
             if (entity == null)
             {
                 return Content("");
@@ -126,12 +125,79 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
             return Content(strJson);
         }
 
-        public ActionResult ResponseJson()
+        public ActionResult CodeGen()
         {
-            string sql = " select UserId,RealName from Base_User  where 1=1 ";
-            DataTable dt = BreakPointBll.GetDataTable(sql);
-            return Content(dt.ToJson());
+            return View();
         }
+
+        public string GetCode(string OriginCode)
+        {
+            string sqlUpdate = "";
+            string result = "";
+            int currentNO = 0;
+
+            string zeroNO = "";
+
+            string[] temp;
+            temp = OriginCode.Split('@');
+
+
+            string sql = " select PartNO from FY_DTProduct where ProductNO='{0}' ";
+            sql = string.Format(sql, temp[1]);
+            DataTable dt = ProductBll.GetDataTable(sql);
+            if(dt.Rows.Count>0)
+            {
+                result += dt.Rows[0][0].ToString();
+
+
+                result = result + " EXP S" + DateTime.Now.AddMonths(3).ToString("yyyyMMdd")+"";
+
+                //第一步
+                string sql1 = " select NowNumber from FY_Serialno where cast(today as date)=cast(getdate() as date)  ";
+
+                DataTable dt1 = ProductBll.GetDataTable(sql1);
+                if(dt1.Rows.Count>0)
+                {
+                    currentNO = Convert.ToInt32(dt1.Rows[0][0].ToString())+1;
+                    sqlUpdate = " update FY_Serialno set NowNumber=NowNumber+1 where cast(today as date)=cast(getdate() as date) ";
+                }
+                else
+                {
+                    sqlUpdate = " insert into FY_Serialno values (GETDATE(),0) ";
+                }
+                StringBuilder strsql = new StringBuilder();
+                strsql = strsql.Append(sqlUpdate);
+                ProductBll.ExecuteSql(strsql);
+
+                int aa = 0;
+                if (currentNO==0)
+                {
+                    aa = 0;
+                }
+                else
+                {
+                    aa = currentNO.ToString().Length;
+
+                }
+                 
+                if(aa<4)
+                {
+                    int temp1 = 4 - aa;
+                    for(int i=0;i<temp1;i++)
+                    {
+                        zeroNO = zeroNO + "0";
+                    }
+                }
+
+                result = result + zeroNO + currentNO.ToString();
+
+            }
+
+            return result;
+        }
+
+
+
 
     }
 }

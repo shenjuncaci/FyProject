@@ -13,6 +13,10 @@
 <script src="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.js"></script>
 <link href="~/Content/Scripts/jquery.layer/theme/default/layer.css" rel="stylesheet" />
 <script src="~/Content/Scripts/jquery.layer/layer.js"></script>
+
+<link href="~/Content/Scripts/jquery.select2/css/select2.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery.select2/js/select2.js"></script>
+
 <style>
     #grid td {
         text-align: left;
@@ -66,7 +70,7 @@
     <tr>
         <td>问题责任人<font color="red">*</font></td>
         <td>
-            <select id="ResponseBy" class="txtselect"></select>
+            <select id="ResponseBy" class="txtselect" onchange="CheckIsManger()"></select>
         </td>
     </tr>
     <tr>
@@ -76,7 +80,7 @@
         </td>
     </tr>
     <tr>
-        <td>对应措施 <font color="red">*</font></td>
+        <td>对应措施 </td>
         <td>
             <input placeholder="可不填！由责任人填写" id="Action" type="text" class="txt" />
         </td>
@@ -88,7 +92,7 @@
         </td>
     </tr>
     <tr>
-        <td>重大问题列入快速反应</td>
+        <td>重大问题列入一般问题</td>
         <td>
             <select id="IsRapid" class="txtselect">
                 <option value="否">否</option>
@@ -168,9 +172,43 @@
         })
     }
 
+    var temp;
+
     $(document).ready(function () {
         BindEvent();
-        $("#ResponseBy").searchableSelect();
+       temp=$("#ResponseBy").select2();
+        
     })
+
+    function CheckIsManger() {
+       // alert(11);
+        var _ResponseBy = String($("#ResponseBy").val());
+        var durl = encodeURI('@Url.Action("CheckIsManager", "Plan")');
+        $.ajax({
+            type: "post",
+            url: durl,
+            data: { ResponseBy: _ResponseBy },
+            async: false,
+            success: function (msg) {
+                if (msg == 0) {
+                    alert("您需要选择车间班长及以上的人员");
+                    $("#ResponseBy").val("");
+                    $("#ResponseBy").select2();
+                    //$("#dataClearCorrect_type").val("").trigger("change");
+                    //temp.val("").trigger("change");
+                    //temp.change();
+                    return false;
+                }
+                else if (msg == 1)
+                {}
+                else {
+                    alert("未知错误，请联系管理员！");
+                }
+            },
+            error: function () {
+                alert("出错了");
+            }
+        });
+    }
    //window.onload = BindEvent();
 </script>

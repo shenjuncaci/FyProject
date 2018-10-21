@@ -1,0 +1,209 @@
+﻿@{
+    ViewBag.Title = "5M1E变化点";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+
+<link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
+<script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>
+<link href="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.css" rel="stylesheet" />
+<script src="~/Content/Scripts/SearchableSelect/jquery.searchableSelect.js"></script>
+
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
+
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+
+    input {
+        background: #E0FFFF;
+    }
+
+    textarea {
+        background: #E0FFFF;
+    }
+
+    select {
+        background: #E0FFFF;
+    }
+</style>
+
+
+<script type="text/javascript">
+
+    $(function () {
+        BindData();
+        InitControl();
+       
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/FYModule/FiveMOneE/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+                
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            AjaxJson("/FYModule/FiveMOneE/SubmitForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+
+    function BindData()
+    {
+        //BanGroup
+        $("#ProcessName").html("");
+        $("#ProcessName").append("<option value=''>==请选择==</option>");
+        AjaxJson("/FYModule/FiveMOneE/PostJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#ProcessName").append($("<option></option>").val(DataJson[i].PostName).html(DataJson[i].PostName));
+            });
+        })
+
+        $("#BanGroup").html("");
+        $("#BanGroup").append("<option value=''>==请选择==</option>");
+        AjaxJson("/FYModule/FiveMOneE/BanGroupJson", {}, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#BanGroup").append($("<option></option>").val(DataJson[i].GroupUserId).html(DataJson[i].FullName));
+            });
+        })
+    }
+
+</script>
+
+
+<form id="form1">
+    <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">基本信息</div>
+
+
+            </div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+        <!--基本信息-->
+        <div id="basic" class="tabPanel">
+            <table class="form">
+
+                <tr>
+                    <th class="formTitle">岗位：</th>
+                    <td class="formValue">
+                        <select id="ProcessName" class="txtselect" datacol="yes" err="岗位" checkexpession="NotNull"></select>
+                    </td>
+                    <th class="formTitle">班次：</th>
+                    <td class="formValue">
+                        <select id="BanGroup" class="txtselect" datacol="yes" err="班次" checkexpession="NotNull"></select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">变化点：</th>
+                    <td class="formValue">
+                        <select id="ChangePoint" class="txtselect" datacol="yes" err="变化点" checkexpession="NotNull">
+                            <option value="">==请选择==</option>
+                            <option value="人">人</option>
+                            <option value="机">机</option>
+                            <option value="料">料</option>
+                            <option value="法">法</option>
+                            <option value="环">环</option>
+                            <option value="测">测</option>
+                        </select>
+                    </td>
+                    <th class="formTitle">等级：</th>
+                    <td class="formValue">
+                        <select id="ChangeLevel" class="txtselect" datacol="yes" err="等级" checkexpession="NotNull">
+                            <option value="">==请选择==</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">有效期至：</th>
+                    <td class="formValue">
+                        <input id="EndDate" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" datacol="yes" err="有效期至" checkexpession="NotNull" />
+                    </td>
+                    <th class="formTitle"></th>
+                    <td></td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">变化点具体内容：</th>
+                    <td class="formValue" colspan="3">
+                        <textarea id="ChangeContent" class="txt" style="width:530px;height:80px;"></textarea>
+                    </td>
+
+
+                </tr>
+                <tr>
+                    <th class="formTitle">变化点发生原因：</th>
+                    <td class="formValue" colspan="3">
+                        <textarea id="ChangeReason" class="txt" style="width:530px;height:80px;"></textarea>
+                    </td>
+
+
+                </tr>
+                <tr>
+                    <th class="formTitle">对策：</th>
+                    <td class="formValue" colspan="3">
+                        <textarea id="ChangeAction" class="txt" style="width:530px;height:80px;"></textarea>
+                    </td>
+
+
+                </tr>
+
+
+
+            </table>
+        </div>
+
+
+    </div>
+
+</form>

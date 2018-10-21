@@ -21,10 +21,10 @@ using System.Net;
 
 namespace LeaRun.WebApp.Areas.FYModule.Controllers
 {
-    public class BreakPointController : Controller
+    public class FiveMOneEController : Controller
     {
-        RepositoryFactory<FY_BreakPoint> repositoryfactory = new RepositoryFactory<FY_BreakPoint>();
-        FY_BreakPointBll BreakPointBll = new FY_BreakPointBll();
+        RepositoryFactory<FY_5M1E> repositoryfactory = new RepositoryFactory<FY_5M1E>();
+        FY_5M1EBLL Bll = new FY_5M1EBLL();
         //
         // GET: /FYModule/Process/
 
@@ -38,7 +38,7 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
             try
             {
                 Stopwatch watch = CommonHelper.TimerStart();
-                DataTable ListData = BreakPointBll.GetPageList(keywords, ref jqgridparam, ParameterJson);
+                DataTable ListData = Bll.GetPageList(keywords, ref jqgridparam, ParameterJson);
                 var JsonData = new
                 {
                     total = jqgridparam.total,
@@ -60,12 +60,11 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
 
         public ActionResult Form()
         {
-            //ViewData["UserName"] = ManageProvider.Provider.Current().UserName;
             return View();
         }
 
         [HttpPost]
-        public ActionResult SubmitForm(string KeyValue, FY_BreakPoint entity, string BuildFormJson, HttpPostedFileBase Filedata)
+        public ActionResult SubmitForm(string KeyValue, FY_5M1E entity, string BuildFormJson, HttpPostedFileBase Filedata)
         {
             string ModuleId = DESEncrypt.Decrypt(CookieHelper.GetCookie("ModuleId"));
             IDatabase database = DataFactory.Database();
@@ -75,30 +74,17 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
                 string Message = KeyValue == "" ? "新增成功。" : "编辑成功。";
                 if (!string.IsNullOrEmpty(KeyValue))
                 {
-                    if (KeyValue == ManageProvider.Provider.Current().UserId)
-                    {
-                        throw new Exception("无权限编辑信息");
-                    }
-
-
                     entity.Modify(KeyValue);
-
-
                     database.Update(entity, isOpenTrans);
 
                 }
                 else
                 {
-                    //entity.DepartmentID = ManageProvider.Provider.Current().DepartmentId;
                     entity.Create();
-                    
-
-
                     database.Insert(entity, isOpenTrans);
-
-                    Base_DataScopePermissionBll.Instance.AddScopeDefault(ModuleId, ManageProvider.Provider.Current().UserId, entity.BreakID, isOpenTrans);
+                    Base_DataScopePermissionBll.Instance.AddScopeDefault(ModuleId, ManageProvider.Provider.Current().UserId, entity.ID, isOpenTrans);
                 }
-                Base_FormAttributeBll.Instance.SaveBuildForm(BuildFormJson, entity.BreakID, ModuleId, isOpenTrans);
+                Base_FormAttributeBll.Instance.SaveBuildForm(BuildFormJson, entity.ID, ModuleId, isOpenTrans);
                 database.Commit();
                 return Content(new JsonMessage { Success = true, Code = "1", Message = Message }.ToString());
             }
@@ -114,7 +100,7 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
         [ValidateInput(false)]
         public ActionResult SetForm(string KeyValue)
         {
-            FY_BreakPoint entity = DataFactory.Database().FindEntity<FY_BreakPoint>(KeyValue);
+            FY_5M1E entity = DataFactory.Database().FindEntity<FY_5M1E>(KeyValue);
             if (entity == null)
             {
                 return Content("");
@@ -126,11 +112,28 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
             return Content(strJson);
         }
 
-        public ActionResult ResponseJson()
+        public ActionResult BanGroupJson()
         {
-            string sql = " select UserId,RealName from Base_User  where 1=1 ";
-            DataTable dt = BreakPointBll.GetDataTable(sql);
+            string sql = " select GroupUserId,FullName from Base_GroupUser where DepartmentId='{0}' ";
+            sql = string.Format(sql, ManageProvider.Provider.Current().DepartmentId);
+            DataTable dt = Bll.GetDataTable(sql);
             return Content(dt.ToJson());
+        }
+
+        public ActionResult PostJson()
+        {
+            string sql = "select PostName from FY_Post where DepartMentID='{0}'";
+            sql = string.Format(sql, ManageProvider.Provider.Current().DepartmentId);
+            DataTable dt = Bll.GetDataTable(sql);
+            return Content(dt.ToJson());
+        }
+
+        public string ConfirmIt(string ID)
+        {
+            StringBuilder strsql = new StringBuilder();
+            strsql.AppendFormat(@" update fy_5m1e set IsConfirm=1 where ID='{0}',EndBy='{1}' ",ID,ManageProvider.Provider.Current().UserId);
+            Bll.ExecuteSql(strsql);
+            return "1";
         }
 
     }

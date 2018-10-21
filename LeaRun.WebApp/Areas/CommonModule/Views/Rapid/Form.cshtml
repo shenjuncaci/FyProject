@@ -10,6 +10,10 @@
 <script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>
 <link href="~/Content/Scripts/jquery.select2/css/select2.css" rel="stylesheet" />
 <script src="~/Content/Scripts/jquery.select2/js/select2.js"></script>
+<link href="~/Content/Styles/buttons.css" rel="stylesheet" />
+
+
+
 <script type="text/javascript">
     /**
 * 打开方式对比：
@@ -1521,7 +1525,7 @@
 
     function fcshmodify(tag)
     {
-
+        //alert(tag);
         if (tag == "add")
         {
             if ($("#ProcessID").val() != undefined && $("#ProcessID").val() != null && $("#ProcessID").val() != "")
@@ -1544,6 +1548,7 @@
             AjaxJson("/CommonModule/Rapid/DeleteFcsh", postData, function (data) {
                 //Loading(false);
                 alert("删除成功");
+                $("#ProcessID").val("");
                 return false;
             });
 
@@ -1552,8 +1557,42 @@
         }
         else if (tag == "view")
         {
-            var obj = new Array();
-            var reValue = window.showModalDialog('FormForRapid?tag=edit&ProcessID=' + $("#ProcessID").val() + '&rapidID=' + GetQueryNew('KeyValue') + '&state=只读', window, 'dialogWidth=650px;dialogHeight=400px;status:1;title:0;');
+            if ($("#ProcessID").val() == undefined || $("#ProcessID").val() == null || $("#ProcessID").val() == "") {
+                alert("尚未新增分层审核记录，请先新增");
+                return false;
+            }
+            //var obj = new Array();
+
+            //var reValue = window.showModalDialog('FormForRapid?tag=edit&ProcessID=' + $("#ProcessID").val() + '&rapidID=' + GetQueryNew('KeyValue') + '&state=只读', window, 'dialogWidth=650px;dialogHeight=400px;status:1;title:0;');
+
+            layer.open({
+                type: 2,  //2表示ifrmae弹出层
+                title: '分层审核内容',
+                maxmin: true,
+                shadeClose: true, //点击遮罩关闭层
+                area: ['800px', '500px'],
+                content: 'FormForRapid?tag=edit&ProcessID=' + $("#ProcessID").val() + '&rapidID=' + GetQueryNew('KeyValue') + '&state=只读',
+                btn: [ '取消'],
+                //yes: function (index, layero) {
+                //    //按钮【按钮一】的回调
+                //    //layero.AcceptClick();
+                //    var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+
+                //    //调用授权提交方法
+                //    var flag = iframeWin.AcceptClick();
+                //    InitControl();
+                //    //return flag;
+                //},
+                btn2: function (index, layero) {
+                    //按钮【按钮二】的回调
+
+                    //return false 开启该代码可禁止点击该按钮关闭
+                    layer.close(index);
+                },
+                end: function () {     //窗口关闭事件
+                    temp = 0;
+                }
+            });
             return false;
         }
 
@@ -1562,13 +1601,42 @@
         //    top.frames[iframe].AcceptClick();
         //});
         //alert($("#res_fcshstate").val());
-        var obj = new Array();
-        var reValue = window.showModalDialog('FormForRapid?tag=' + tag + '&ProcessID=' + $("#ProcessID").val() + '&rapidID=' + GetQueryNew('KeyValue') + '&state=' + $("#res_fcsh").val(), window, 'dialogWidth=650px;dialogHeight=400px;status:1;title:0;');
+        //var obj = new Array();
+        //var reValue = window.showModalDialog('FormForRapid?tag=' + tag + '&ProcessID=' + $("#ProcessID").val() + '&rapidID=' + GetQueryNew('KeyValue') + '&state=' + $("#res_fcsh").val(), window, 'dialogWidth=650px;dialogHeight=400px;status:1;title:0;');
+
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '分层审核内容',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['800px', '500px'],
+            content: 'FormForRapid?tag=' + tag + '&ProcessID=' + $("#ProcessID").val() + '&rapidID=' + GetQueryNew('KeyValue') + '&state=' + $("#res_fcsh").val(),
+            btn: ['确认', '取消'],
+            yes: function (index, layero) {
+                //按钮【按钮一】的回调
+                //layero.AcceptClick();
+                var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+
+                //调用授权提交方法
+                var flag = iframeWin.AcceptClick();
+                //alert($("#ProcessID").val());
+                //return flag;
+            },
+            btn2: function (index, layero) {
+                //按钮【按钮二】的回调
+
+                //return false 开启该代码可禁止点击该按钮关闭
+                layer.close(index);
+            },
+            end: function () {     //窗口关闭事件
+                temp = 0;
+            }
+        });
         //var reValue = Dialog('UpdatePlan?id=' + event.id, "test", "test", 400, 200)
         //alert(reValue);
-        if (reValue == undefined) {
-            return false;
-        }
+        //if (reValue == undefined) {
+        //    return false;
+        //}
 
 
     }
@@ -1592,7 +1660,9 @@
             var postData = { KeyValue: GetQueryNew('KeyValue'), ProcessID: $("#VerifyPostID").val() }
             AjaxJson("/CommonModule/Rapid/DeleteGwyz", postData, function (data) {
                 //Loading(false);
+                $("#VerifyPostID").val("");
                 alert("删除成功");
+                
                 return false;
             });
 
@@ -1600,8 +1670,36 @@
             return false;
         }
         else if (tag == "view") {
-            var obj = new Array();
-            var reValue = window.showModalDialog('FormForVerifyPost?tag=edit&VerifyPostID=' + $("#VerifyPostID").val() + '&rapidID=' + GetQueryNew('KeyValue') + '&state=只读', window, 'dialogWidth=650px;dialogHeight=400px;status:1;title:0;');
+            //var obj = new Array();
+            //var reValue = window.showModalDialog('FormForVerifyPost?tag=edit&VerifyPostID=' + $("#VerifyPostID").val() + '&rapidID=' + GetQueryNew('KeyValue') + '&state=只读', window, 'dialogWidth=650px;dialogHeight=400px;status:1;title:0;');
+            layer.open({
+                type: 2,  //2表示ifrmae弹出层
+                title: '岗位验证内容',
+                maxmin: true,
+                shadeClose: true, //点击遮罩关闭层
+                area: ['800px', '500px'],
+                content: 'FormForVerifyPost?tag=edit&VerifyPostID=' + $("#VerifyPostID").val() + '&rapidID=' + GetQueryNew('KeyValue') + '&state=只读',
+                btn: ['取消'],
+                //yes: function (index, layero) {
+                //    //按钮【按钮一】的回调
+                //    //layero.AcceptClick();
+                //    var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+
+                //    //调用授权提交方法
+                //    var flag = iframeWin.AcceptClick();
+                //    InitControl();
+                //    //return flag;
+                //},
+                btn2: function (index, layero) {
+                    //按钮【按钮二】的回调
+
+                    //return false 开启该代码可禁止点击该按钮关闭
+                    layer.close(index);
+                },
+                end: function () {     //窗口关闭事件
+                    temp = 0;
+                }
+            });
             return false;
         }
 
@@ -1610,13 +1708,42 @@
         //    top.frames[iframe].AcceptClick();
         //});
         //alert($("#res_fcshstate").val());
-        var obj = new Array();
-        var reValue = window.showModalDialog('FormForVerifyPost?tag=' + tag + '&VerifyPostID=' + $("#VerifyPostID").val() + '&rapidID=' + GetQueryNew('KeyValue') + '&state=' + $("#res_postverify").val(), window, 'dialogWidth=650px;dialogHeight=400px;status:1;title:0;');
+        //var obj = new Array();
+        //var reValue = window.showModalDialog('FormForVerifyPost?tag=' + tag + '&VerifyPostID=' + $("#VerifyPostID").val() + '&rapidID=' + GetQueryNew('KeyValue') + '&state=' + $("#res_postverify").val(), window, 'dialogWidth=650px;dialogHeight=400px;status:1;title:0;');
+
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '岗位验证内容',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['800px', '500px'],
+            content: 'FormForVerifyPost?tag=' + tag + '&VerifyPostID=' + $("#VerifyPostID").val() + '&rapidID=' + GetQueryNew('KeyValue') + '&state=' + $("#res_postverify").val(),
+            btn: ['确认', '取消'],
+            yes: function (index, layero) {
+                //按钮【按钮一】的回调
+                //layero.AcceptClick();
+                var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+
+                //调用授权提交方法
+                var flag = iframeWin.AcceptClick();
+                //alert($("#ProcessID").val());
+                //return flag;
+            },
+            btn2: function (index, layero) {
+                //按钮【按钮二】的回调
+
+                //return false 开启该代码可禁止点击该按钮关闭
+                layer.close(index);
+            },
+            end: function () {     //窗口关闭事件
+                temp = 0;
+            }
+        });
         //var reValue = Dialog('UpdatePlan?id=' + event.id, "test", "test", 400, 200)
         //alert(reValue);
-        if (reValue == undefined) {
-            return false;
-        }
+        //if (reValue == undefined) {
+        //    return false;
+        //}
 
 
     }
@@ -1830,7 +1957,7 @@
         <div id="work" class="tabPanel">
             <table class="form" style="table-layout:fixed;">
                 <tr>
-                    <th class="formTitle" style="width:10%;word-wrap:break-word;word-break:break-all;">遏制表</br>（24H）：</th>
+                    <th class="formTitle" style="width:10%;word-wrap:break-word;word-break:break-all;">遏制表（24H）：</th>
                     <td class="formValue" style="width:30%">
                         <b>操作日期：</b> <input id="res_yzbdt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>节点状态:</b><select id="res_yzbnode" class="txtselect">
                             <option value="">请选择</option>
@@ -1850,7 +1977,7 @@
                     </td>
                     <td class="formValue" style="width:10%" id="res_yzbstate">状态：<input id="res_yzb" type="text" class="txt" /></td>
 
-                    <th class="formTitle" style="width:10%;word-wrap:break-word;word-break:break-all;">岗位验证</br>（24H）：</th>
+                    <th class="formTitle" style="width:10%;word-wrap:break-word;word-break:break-all;">岗位验证（24H）：</th>
                     <td class="formValue" style="width:30%">
                         <b>操作日期：</b> <input id="res_postverifydt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>节点状态:</b><select id="res_postverifynode" class="txtselect">
                             <option value="">请选择</option>
@@ -1859,10 +1986,10 @@
 
                         </select>
 
-                        <button id="btn_postverifyadd" onclick="postverifymodify('add')">新增</button>
-                        <button id="btn_postverifyedit" onclick="postverifymodify('edit')">编辑</button>
-                        <button id="btn_postverifydel" onclick="postverifymodify('del')">删除</button>
-                        <button id="btn_postverifyview" onclick="postverifymodify('view')">查看</button>
+                        <a id="btn_postverifyadd"  class="button button-tiny" onclick="postverifymodify('add')">新增</a>
+                        <a id="btn_postverifyedit" class="button button-tiny" onclick="postverifymodify('edit')">编辑</a>
+                        <a id="btn_postverifydel" class="button button-tiny" onclick="postverifymodify('del')">删除</a>
+                        <a id="btn_postverifyview" class="button button-tiny" onclick="postverifymodify('view')">查看</a>
                         <label id="VerifyPostID" style="display:none" />
                         <input id="uploadifypostverify" name="uploadify" type="file" />
                         <label id="uploadifypostverifytxt" style="display:none" />
@@ -1872,18 +1999,18 @@
                 </tr>
 
                 <tr>
-                    <th class="formTitle" style="width:10%">根本原因</br>分析(3D)：</th>
+                    <th class="formTitle" style="width:10%">根本原因分析(3D)：</th>
                     <td class="formValue" style="width:30%">
                         <b>操作日期：</b> <input id="res_fxdt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>根本原因分析：</b>
-                        <textarea id="res_fxnode" class="txt" style="width:230px;height:80px;"></textarea>
+                        <textarea id="res_fxnode" class="txt" style="width:325px;height:80px;"></textarea>
                         <input id="uploadifyfx" name="uploadify" type="file" /><label id="uploadifyfxtxt" style="display:none" />
                     </td>
                     <td class="formValue" style="width:10%" id="res_fxstate">状态：<input id="res_fx" type="text" class="txt" /></td>
 
-                    <th class="formTitle">纠正措施</br>（7D)：</th>
+                    <th class="formTitle">纠正措施（7D)：</th>
                     <td class="formValue">
                         <b>操作日期：</b> <input id="res_csdt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>纠正措施：</b>
-                        <textarea id="res_csnode" class="txt" style="width:230px;height:80px;"></textarea>
+                        <textarea id="res_csnode" class="txt" style="width:325px;height:80px;"></textarea>
                         <input id="uploadifycs" name="uploadify" type="file" /><label id="uploadifycstxt" style="display:none" />
 
                     </td>
@@ -1894,7 +2021,7 @@
 
 
                 <tr>
-                    <th class="formTitle">防错法</br>（14D)：</th>
+                    <th class="formTitle">防错法（14D)：</th>
                     <td class="formValue">
                         <b>操作日期：</b> <input id="res_fcfdt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>节点状态：</b> <select id="res_fcfnode" class="txtselect">
                             <option value="">请选择</option>
@@ -1905,7 +2032,7 @@
                     </td>
                     <td class="formValue" id="res_fcfstate">状态：<input id="res_fcf" type="text" class="txt" /></td>
 
-                    <th class="formTitle">分层审核</br>（14D):</th>
+                    <th class="formTitle">分层审核（14D):</th>
                     <td class="formValue">
                         <b>操作日期：</b>
                         <input id="res_fcshdt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" />
@@ -1927,10 +2054,10 @@
                             </tr>
                         </table>
 
-                        <button id="btn_fcshadd" onclick="fcshmodify('add')">新增</button>
-                        <button id="btn_fcshedit" onclick="fcshmodify('edit')">编辑</button>
-                        <button id="btn_fcshdel" onclick="fcshmodify('del')">删除</button>
-                        <button id="btn_fcshview" onclick="fcshmodify('view')">查看</button>
+                        <a id="btn_fcshadd" class="button button-tiny" onclick="fcshmodify('add')">新增</a>
+                        <a id="btn_fcshedit" class="button button-tiny" onclick="fcshmodify('edit')">编辑</a>
+                        <a id="btn_fcshdel" class="button button-tiny" onclick="fcshmodify('del')">删除</a>
+                        <a id="btn_fcshview" class="button button-tiny" onclick="fcshmodify('view')">查看</a>
 
                     </td>
                     <td class="formValue" id="res_fcshstate">状态：<input id="res_fcsh" type="text" class="txt" /></td>
@@ -1940,7 +2067,7 @@
 
                 <tr>
 
-                    <th class="formTitle">措施跟踪</br>（34D):</th>
+                    <th class="formTitle">措施跟踪（34D):</th>
                     <td class="formValue">
                         <b>操作日期：</b> <input id="res_csgzdt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>节点状态：</b> <select id="res_csgznode" class="txtselect">
                             <option value="">请选择</option>
@@ -1951,7 +2078,7 @@
                     </td>
                     <td class="formValue" id="res_csgzstate">状态：<input id="res_csgz" type="text" class="txt" /></td>
 
-                    <th class="formTitle">FMEA/CP<br />更新日期</br>（35D):</th>
+                    <th class="formTitle">FMEA/CP<br />更新日期（35D):</th>
                     <td class="formValue">
                         <b>操作日期：</b> <input id="res_fmeadt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>节点状态：</b> <select id="res_fmeanode" class="txtselect">
                             <option value="">请选择</option>
@@ -1965,7 +2092,7 @@
 
                 </tr>
                 <tr>
-                    <th class="formTitle">标准更新</br>（35D):</th>
+                    <th class="formTitle">标准更新（35D):</th>
                     <td class="formValue">
                         <b>操作日期：</b> <input id="res_bzgxdt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>节点状态：</b> <select id="res_bzgxnode" class="txtselect">
                             <option value="">请选择</option>
@@ -1976,7 +2103,7 @@
                     </td>
                     <td class="formValue" id="res_bzgxstate">状态：<input id="res_bzgx" type="text" class="txt" /></td>
 
-                    <th class="formTitle">经验教训</br>（40D):</th>
+                    <th class="formTitle">经验教训（40D):</th>
                     <td class="formValue">
                         <b>操作日期：</b> <input id="res_jyjxdt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>节点状态：</b> <select id="res_jyjxnode" class="txtselect">
                             <option value="">请选择</option>
@@ -1991,7 +2118,7 @@
 
                 </tr>
                 <tr>
-                    <th class="formTitle">完整8D</br>报告(40D)</th>
+                    <th class="formTitle">完整8D报告(40D)</th>
                     <td class="formValue">
                         <b>操作日期：</b> <input id="res_8ddt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" />
                         <b>节点状态：</b> <select id="res_8dnode" class="txtselect">
@@ -2016,13 +2143,13 @@
                     <th class="formTitle">未按进度完成原因：</th>
                     <td class="formValue">
                         @*<Area id="NotCompleteReason" type="text" class="txt" /Area>*@
-                        <textarea id="NotCompleteReason" class="txt" style="width:220px;height:80px;" /></textarea>
+                        <textarea id="NotCompleteReason" class="txt" style="width:325px;height:80px;" /></textarea>
                         <input id="uploadifyNotCompleteReason" name="uploadify" type="file" />
                         <label id="uploadifyNotCompleteReasontxt" style="display:none" />
                     </td>
                     <th class="formTitle">对策措施：</th>
                     <td class="formValue">
-                        <textarea id="Action" class="txt" style="width:220px;height:80px;" /></textarea>
+                        <textarea id="Action" class="txt" style="width:325px;height:80px;" /></textarea>
 
                         <input id="uploadifyAction" name="uploadify" type="file" />
                         <label id="uploadifyActiontxt" style="display:none" />

@@ -44,26 +44,159 @@
                 <tr>
                     <th class="formTitle">项目编号：</th>
                     <td class="formValue">
-
-
-                        <input id="ProjectNO" type="text" class="txt" style="width: 95%" value="@ViewBag.BillNo"/>
-
+                        <input readonly id="ProjectNO" type="text" class="txt" style="width: 95%" value="@ViewBag.BillNo" />
                     </td>
-
-
                     <th class="formTitle">项目名称：</th>
                     <td class="formValue">
-
-
                         <input id="ProjectName" type="text" class="txt" style="width: 95%" />
-
                     </td>
                 </tr>
 
                 <tr>
                     <th class="formTitle">项目描述：</th>
                     <td class="formValue" colspan="3" style="height:80px">
-                        <textarea id="ProjectDescripe" type="text" class="txt" style="width:95%;height:80px"  rows="5"></textarea>
+                        <textarea id="ProjectDescripe" type="text" class="txt" style="width:95%;height:80px" rows="5"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">创建人：</th>
+                    <td class="formValue">
+                        <input readonly id="CreateBy" type="text" class="txt" style="width: 95%" />
+                    </td>
+                    <th class="formTitle">创建日期：</th>
+                    <td class="formValue">
+                        <input readonly id="CreateDate" type="text" class="txt" style="width: 95%" />
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">修改人：</th>
+                    <td class="formValue">
+                        <input readonly id="ModifyBy" type="text" class="txt" style="width: 95%" />
+                    </td>
+                    <th class="formTitle">修改日期：</th>
+                    <td class="formValue">
+                        <input readonly id="ModifyDate" type="text" class="txt" style="width: 95%" />
+                    </td>
+                </tr>
+
+                <tr style="height:40px">
+                    <td colspan="4"></td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="margin-left:50px"><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 项目预算</b></td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="text-align:center">
+                        <table class="form" style="margin-left:50px;margin-right:50px;width:80%">
+                            <tr>
+                                <th class="formTitle" style="width:20%">固定成本预算：</th>
+                                <td class="formValue" style="width:30%">
+                                    <input id="CostBudget" type="text" class="txt" style="width: 95%" />
+                                </td>
+                                <th class="formTitle" style="width:20%">固定成本预算-货币：</th>
+                                <td class="formValue" style="width:30%">
+                                    <input id="CostBudgetUnit" type="text" class="txt" style="width: 95%" />
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th class="formTitle">实际固定成本：</th>
+                                <td class="formValue">
+                                    <input id="RealCostBudget" type="text" class="txt" style="width: 95%" />
+                                </td>
+                                <th class="formTitle">实际固定成本-货币：</th>
+                                <td class="formValue">
+                                    <input id="RealCostBudgetUnit" type="text" class="txt" style="width: 95%" />
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th class="formTitle">变动成本预算：</th>
+                                <td class="formValue">
+                                    <input id="ChangeBudget" type="text" class="txt" style="width: 95%" />
+                                </td>
+                                <th class="formTitle">变动成本预算-货币：</th>
+                                <td class="formValue">
+                                    <input id="ChangeBudgetUnit" type="text" class="txt" style="width: 95%" />
+                                </td>
+                            </tr>
+
+
+                        </table>
+                    </td>
+                </tr>
+
+
+                <tr style="height:40px">
+                    <td colspan="4"></td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="margin-left:50px"><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 项目进度</b></td>
+                </tr>
+                <tr>
+                    <td colspan="4" style="text-align:center">
+                        <table class="form" style="margin-left:50px;margin-right:50px;width:80%">
+                            <tr>
+                                <th class="formTitle" style="width:10%"></th>
+                                <th class="formTitle" colspan="3" style="width:45%"></th>
+
+                                <th class="formTitle" colspan="3" style="width:45%">工作日</th>
+                            </tr>
+                            <tr>
+                                <th class="formTitle" style="width:10%"></th>
+                                <th class="formTitle" style="width:15%">开始</th>
+                                <th class="formTitle" style="width:15%">结束</th>
+                                <th class="formTitle" style="width:15%">持续时间</th>
+                                <th class="formTitle" style="width:15%">开始偏差</th>
+                                <th class="formTitle" style="width:15%">结束偏差</th>
+                                <th class="formTitle" style="width:15%">持续时间偏差</th>
+
+                            </tr>
+                            <tr>
+                                <th class="formTitle">时间表</th>
+                                <td class="formValue"></td>
+                                <td class="formValue"></td>
+                                <td class="formValue" style="text-align:right">天数</td>
+                                <td class="formValue"></td>
+                                <td class="formValue"></td>
+                                <td class="formValue"></td>
+
+
+                            </tr>
+                            <tr>
+                                <th class="formTitle">预计</th>
+                                <td class="formValue"></td>
+                                <td class="formValue"></td>
+                                <td class="formValue"></td>
+                                <td class="formValue"></td>
+                                <td class="formValue"></td>
+                                <td class="formValue"></td>
+
+
+                            </tr>
+                            <tr>
+                                <th class="formTitle">实际</th>
+                                <td class="formValue"></td>
+                                <td class="formValue"></td>
+                                <td class="formValue" style="text-align:right">天数</td>
+                                <td class="formValue" style="text-align:right">天数</td>
+                                <td class="formValue" style="text-align:right">天数</td>
+                                <td class="formValue" style="text-align:right">天数</td>
+
+
+                            </tr>
+                            <tr>
+                                <th class="formTitle">持续时间类型</th>
+                                <td class="formValue"></td>
+                                <td class="formValue" style="text-align:left">工作日</td>
+                                <td class="formValue" colspan="4" style="text-align:left">完成率</td>
+                               
+
+
+                            </tr>
+
+                        </table>
                     </td>
                 </tr>
 
@@ -109,8 +242,8 @@
 
             <input type="button" style="width:80px;" value="保存" onclick="save()" />
             <br />
-            项目名称 &nbsp;&nbsp;
-            <select id="ProjectID" onchange="loadTree()" class="select"></select>
+            @*项目名称 &nbsp;&nbsp;
+            <select id="ProjectID" onchange="loadTree()" class="select"></select>*@
 
 
 
@@ -357,7 +490,7 @@
     }
     //保存事件
     function AcceptClick() {
-        save();
+        //save();
         //if (!CheckDataValid('#form1')) {
         //    return false;
         //}
@@ -442,6 +575,9 @@
     var durl = encodeURI('@Url.Action("GetData", "ProjectGantee")');
     //加载树形数据
     function loadTree() {
+
+        //alert($(window).width());
+        //alert($(window).height());
         //alert(durl);
         //alert($("#ProjectID").val());
         gantt.loading();
@@ -457,10 +593,11 @@
 
                 gantt.unmask();
 
+                
                 //折叠全部
                 //gantt.collapseAll();
                 //alert("width:" + ($(window).width() - 150) + "px;;height:" + ($(window).width() - 150) + "px");
-                gantt.setStyle("width:" + $(window).width() + "px;;height:" + $(window).height() + "px");
+                
             }
         })
     }
@@ -483,6 +620,9 @@
             }
         });
     }
+    loadTree();
+    //gantt.setStyle("width:1600px;height:700px");
+    //gantt.setStyle("width:" + $(window).width() + "px;;height:" + $(window).height() + "px");
     //loadList();     //这个方式，服务端只需要生成列表数据就可以。
     //暂时屏蔽，测试下提交数据
     
@@ -496,7 +636,7 @@
             $("#ProjectID").val(GetQuery('ProjectID'));
 
         }
-        loadTree();
+        
     }
     )
 

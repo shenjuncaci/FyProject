@@ -43,7 +43,9 @@
                 { label: '项目单号', name: 'projectno', index: 'projectno', width: 100, align: 'left' },
                 { label: '项目名称', name: 'projectname', index: 'projectname', width: 100, align: 'left' },
                 { label: '创建人', name: 'createby', index: 'createby', width: 100, align: 'left' },
-                { label: '创建日期', name: 'createdate', index: 'createdate', width: 100, align: 'left' }
+                { label: '创建日期', name: 'createdate', index: 'createdate', width: 100, align: 'left' },
+                { label: '修改人', name: 'modifyby', index: 'modifyby', width: 100, align: 'left' },
+                { label: '修改日期', name: 'modifydate', index: 'modifydate', width: 100, align: 'left' }
 
 
             ],
@@ -68,14 +70,14 @@
                 $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
             },
             ondblClickRow: function (RowIndx) {
+                btn_edit();
+                //var rowData = $(this).jqGrid('getRowData', RowIndx);
 
-                var rowData = $(this).jqGrid('getRowData', RowIndx);
+                //Tabchange('gant');
+                //display('on');
 
-                Tabchange('gant');
-                display('on');
-
-                $("#ProjectID").val(rowData.projectid);
-                loadTree();
+                //$("#ProjectID").val(rowData.projectid);
+                //loadTree();
 
             }
             //ondblClickRow: function (RowIndx) {

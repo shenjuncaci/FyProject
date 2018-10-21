@@ -13,31 +13,29 @@ using System.Text;
 
 namespace LeaRun.Business
 {
-    public class FY_ProcessBll : RepositoryFactory<FY_ProcessBll>
+    public class FY_5M1EBLL : RepositoryFactory<FY_5M1E>
     {
-        public DataTable GetPageList(string keyword, ref JqGridParam jqgridparam, string ParameterJson,string type)
+        public DataTable GetPageList(string keyword, ref JqGridParam jqgridparam, string ParameterJson)
         {
             StringBuilder strSql = new StringBuilder();
             List<DbParameter> parameter = new List<DbParameter>();
-            strSql.Append(@"select * from fy_process where 1=1  ");
-            if (!string.IsNullOrEmpty(keyword))
-            {
-                strSql.Append(@" AND (ProcessName LIKE @keyword
-                                    )");
-                parameter.Add(DbFactory.CreateDbParameter("@keyword", '%' + keyword + '%'));
-            }
+            strSql.AppendFormat(@" select  a.id,a.processname,a.createdate,b.FullName as bangroup,a.changepoint,
+a.changecontent,a.changereason,a.changelevel,a.changeaction,a.enddate,d.RealName as endby
+from FY_5M1E a 
+left join Base_GroupUser b  on a.bangroup=b.GroupUserId
+left join Base_User c on a.createby=c.UserId
+left join Base_User d on a.endby=d.UserId
+
+where 1=1 and a.departmentid='{0}' ",ManageProvider.Provider.Current().DepartmentId);
+            //if (!string.IsNullOrEmpty(keyword))
+            //{
+            //    strSql.Append(@" AND (fy_cus_name LIKE @keyword
+            //                        )");
+            //    parameter.Add(DbFactory.CreateDbParameter("@keyword", '%' + keyword + '%'));
+            //}
             if (!string.IsNullOrEmpty(ParameterJson) && ParameterJson.Length > 2)
             {
                 strSql.Append(ConditionBuilder.GetWhereSql(ParameterJson.JonsToList<Condition>(), out parameter));
-            }
-            if(type=="1")
-            {
-                strSql.AppendFormat(" and ProcessName in ('通用','系统监督') ");
-
-            }
-            else
-            {
-                strSql.AppendFormat(" and DepartmentID='" + ManageProvider.Provider.Current().DepartmentId + "' and ProcessName not in ('通用','系统监督') ");
             }
             return Repository().FindTablePageBySql(strSql.ToString(), parameter.ToArray(), ref jqgridparam);
         }

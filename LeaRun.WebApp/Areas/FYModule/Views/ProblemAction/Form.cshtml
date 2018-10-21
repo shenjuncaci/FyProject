@@ -235,6 +235,10 @@
                 alert("请填写对应措施");
                 return false;
             }
+            if (CheckIsNullNoTip($("#tt").val()) == false) {
+                alert("请上传整改证据");
+                return false;
+            }
         }
         //Loading(true, "正在提交数据...");
 

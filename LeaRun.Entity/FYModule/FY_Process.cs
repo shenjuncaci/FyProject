@@ -39,7 +39,15 @@ namespace LeaRun.Entity
         public string ReactionPlan { get; set; }
         
         public string DepartmentID { get; set; }
+        public string DepartmentIDtxt { get; set; }
+        public string ProcessNametxt { get; set; }
 
+        public string SourceProcessID { get; set; }
+
+        //判断来源，最原始的快速反应中的为1，由快速反应拆分出来的为2
+        public int IsRapid { get; set; }
+
+        public DateTime? EndDate { get; set; }
         #region 扩展操作
         /// <summary>
         /// 新增调用

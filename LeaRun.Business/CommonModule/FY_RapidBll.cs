@@ -317,5 +317,23 @@ where Enabled=1
             return Repository().FindDataSetByProc("AttendanceReport", parameter.ToArray()).Tables[0];
         }
 
+
+        public DataTable GetAttendanceListNew(string keyword, ref JqGridParam jqgridparam, string StartDate,string EndDate)
+        {
+            StringBuilder strSql = new StringBuilder();
+            List<DbParameter> parameter = new List<DbParameter>();
+            strSql.Append(@" select b.Code,b.RealName,a.KqCode,a.KqDate from FY_KqoQin a left join Base_User b on a.KqCode=b.Code  ");
+            if (!string.IsNullOrEmpty(keyword))
+            {
+                strSql.Append(@" and a.kqdate>='"+StartDate+"' and a.kqdate<='"+EndDate+"' ");
+                //parameter.Add(DbFactory.CreateDbParameter("@keyword", '%' + keyword + '%'));
+            }
+            //if (!string.IsNullOrEmpty(ParameterJson) && ParameterJson.Length > 2)
+            //{
+            //    strSql.Append(ConditionBuilder.GetWhereSql(ParameterJson.JonsToList<Condition>(), out parameter));
+            //}
+            return Repository().FindTablePageBySql(strSql.ToString(), parameter.ToArray(), ref jqgridparam);
+        }
+
     }
 }

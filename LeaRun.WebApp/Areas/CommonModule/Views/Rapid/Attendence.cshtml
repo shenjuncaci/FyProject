@@ -1,0 +1,21 @@
+﻿@{
+    ViewBag.Title = "快速反应考勤信息";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+
+<script src="~/Content/Scripts/jquery.qrcode/jquery.qrcode.js"></script>
+<script src="~/Content/Scripts/jquery.qrcode/qrcode.js"></script>
+
+
+<div id="qrcode"></div>
+
+
+<div>
+    <font color="red">该请使用微信扫描二维码签到！</font>
+</div>
+
+<script>
+    $('#qrcode').html('').qrcode({
+        text: "https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxc625758e50b5ced1&redirect_uri=http://sjit.system.fuyaogroup.com/wechat1/wechattest&response_type=code&scope=snsapi_userinfo&agentid=18&state=STATE#wechat_redirect"
+    });
+</script>

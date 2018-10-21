@@ -223,6 +223,14 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
             {
                 strSql.AppendFormat(@"update FY_ProblemAction set ProblemState='待审',ActionContent='{1}',CauseAnaly='{2}' where
                    ActionID='{0}'", ActionID, ActionContent, CauseAnaly);
+
+                string GetReciverSql = " select Email from base_user where userid='" + entity.CreateBy + "'  ";
+                DataTable dt = PostBll.GetDataTable(GetReciverSql);
+                if (dt.Rows.Count > 0)
+                {
+                    //把发送邮件功能写到unitity的静态类中，以后直接调用
+                    MailHelper.SendEmail(dt.Rows[0][0].ToString(), "您好，您有一个分层审核的问题项需要审核，请注意登录系统查看");
+                }
             }
             PostBll.ExecuteSql(strSql);
 
@@ -266,7 +274,7 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
             ExcelHelper ex = new ExcelHelper();
             //NpoiHelper ex2 = new NpoiHelper();
             string sql = @" select a.ProblemState as 状态,a.ProblemDescripe as 问题描述,a.CauseAnaly as 原因分析,a.ActionContent as 对策措施,
-b.RealName as 责任人,c.RealName as 创建人 ,
+b.RealName as 责任人,c.RealName as 创建人 ,CreateDt as 创建日期,
 (select top 1 FullName from Base_Department where DepartmentId=b.DepartmentId) as 责任人部门,
 (select top 1 FullName from Base_Department where DepartmentId=c.DepartmentId) as 创建人部门,
 a.Plandate as 计划完成日期,a.RealCompletedate  as 实际完成日期

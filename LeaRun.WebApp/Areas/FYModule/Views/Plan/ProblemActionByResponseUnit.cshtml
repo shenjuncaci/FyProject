@@ -22,11 +22,14 @@
             <td class="formValue">
                 <input id="txtEndDate" type="text" class="txt Wdate" onfocus="WdatePicker()" />
             </td>
-            <td><button onclick="onChange()">查询</button></td>
+            <td><button onclick="onChange()">按责任人查询</button></td>
+            <td><button onclick="onChange2()">按创建人查询</button></td>
         </tr>
     </table>
 </div>
 <div id="main" style="width: auto;height:400px"></div>
+
+<div id="main2" style="width: auto;height:400px"></div>
 
 
 
@@ -88,7 +91,7 @@
         var option = {
             color: ['#3398DB', 'green'],
             title: {
-                text: '问题跟踪统计'
+                text: '问题跟踪统计（责任部门）'
             },
             tooltip: {},
             legend: {
@@ -157,9 +160,111 @@
 
         // 使用刚指定的配置项和数据显示图表。
         myChart.setOption(option);
+    }
 
+    function onChange2()
+        {
+            var startDate = $("#txtStartDate").val();
+            var endDate = $("#txtEndDate").val();
+            var X = new Array();
+            var Y = new Array();
+            var Y2 = new Array();
+            var Y3 = new Array();
+            var durl = encodeURI('@Url.Action("GetProblemActionDataByCreate", "Plan")?StartDate=' + startDate + '&EndDate=' + endDate);
+        $.ajax({
+            type: "post",
+            url: durl,
+            async: false,
+            success: function (data) {
+                var dataA = new Array();
+                dataA = data.split("|");
 
+                X = dataA[2].split(",");
+                Y2 = dataA[1].split(",");
+                Y = dataA[0].split(",");
 
+                //for(var i=0;i<X.length;i++)
+                //{
+                //    X[i] = X[i] + "月份";
+                //}
+            }
+
+        });
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main2'));
+        // 指定图表的配置项和数据
+        var option = {
+            color: ['#3398DB', 'green'],
+            title: {
+                text: '问题跟踪统计（创建部门）'
+            },
+            tooltip: {},
+            legend: {
+                data: ['问题次数','已完成数']
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '30%',
+                containLabel: true
+            },
+            xAxis: {
+                data: X,
+                axisLabel: {
+
+                    interval: 0,
+                    rotate: 90,
+                    margin: 8
+                }
+            },
+            yAxis: [
+                {
+                    type: 'value',
+                    name: '问题次数',
+                    //min: 0,
+                    //max: 250,
+                    //interval: 50,
+                    axisLabel: {
+                        formatter: '{value} 次'
+                    }
+                },
+                //{
+                //    type: 'value',
+                //    name: '完成率',
+                //    //min: 0,
+                //    //max: 25,
+                //    //interval: 5,
+                //    axisLabel: {
+                //        formatter: '{value} %'
+                //    }
+                //}
+            ],
+            series: [{
+                name: '问题次数',
+                type: 'bar',
+                data: Y,
+                itemStyle: { normal: { label: { show: true, position: 'top' } } }
+            },
+                {
+                    name: '已完成数',
+                    type: 'bar',
+                    yAxisIndex: 0,
+                    data: Y2,
+                    itemStyle: { normal: { label: { show: true, position: 'top' } } }
+                },
+            //{
+
+            //    name: '完成率',
+            //    type: 'line',
+            //    yAxisIndex: 1,
+            //    data: Y3,
+            //    itemStyle: { normal: { label: { show: true, position: 'top', formatter: '{c}%' } } }
+            //},
+            ]
+        };
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
         }
 
 </script>

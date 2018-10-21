@@ -300,7 +300,9 @@ function GetWebControls(element) {
                 }
                 break;
             default:
-                
+                //if (id == "DepartmentID") {
+                //    alert($("#DepartmentID").val());
+                //}
                 //value = value.replace(/\\n/g, "\\n")
                 //                      .replace(/\\'/g, "\\'")
                 //                      .replace(/\\"/g, "\\\"")
@@ -309,10 +311,16 @@ function GetWebControls(element) {
                 //                      .replace(/\\t/g, "\\t")
                 //                      .replace(/\\b/g, "\\b")
                 //                      .replace(/\\f/g, "\\f");
-                value = value.replace(/[\n]/ig, '↵');
+                
                 //alert(value);
-                if (value == "") {
+                if (value == "" || value == undefined) {
                     value = "&nbsp;";
+                }
+                else
+                {
+                    value = value.replace(/[\n]/ig, '↵');
+                    value = value.replace(/\"/g, "'");//替换双引号为单引号
+                    //value = value.repeat(/["]/ig, '/"');
                 }
                 reVal += '"' + id + '"' + ':' + '"' + $.trim(value) + '",'
                 break;
