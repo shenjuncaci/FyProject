@@ -229,11 +229,21 @@ where a.BackColor!='' and a.DepartmentID='" + ManageProvider.Provider.Current().
             }
 
             StringBuilder strSql = new StringBuilder();
-            strSql.AppendFormat(@"insert into fy_plandetail  select NEWID(),'{0}',processid,'','{1}',ProcessName,AbleProcess,AuditContent,FailureEffect,ReactionPlan from FY_Process where processid not in 
+            strSql.AppendFormat(@"insert into fy_plandetail  select NEWID(),'{0}',processid,'','{1}',ProcessName,AbleProcess,AuditContent,FailureEffect,ReactionPlan 
+                from FY_Process where processid not in 
                 (select processid from fy_plandetail where planid='{0}') and (ProcessName in (select PlanContent from FY_Plan where PlanID='{0}' ) 
                 or (processname in ('通用','{3}') and DepartmentID='cb016a86-d835-4eb9-ad80-6a86d2140c88') )  and (DepartmentID='{2}' or DepartmentID='cb016a86-d835-4eb9-ad80-6a86d2140c88') 
-                and cast(EndDate as date)>=cast(GETDATE() as date) ",
+                and cast(EndDate as date)>=cast(GETDATE() as date)
+union
+select NEWID(),'{0}',a.ID,'','{1}',a.ProcessName,'过程输入','变更点:'+a.ChangePoint+';变更内容:'+a.ChangeContent,'生产产生重大影响的变更',a.ChangeAction 
+from FY_5M1E a left join Base_GroupUser b on a.BanGroup=b.GroupUserId 
+where ID not in (select processid from fy_plandetail where planid='{0}') and (ProcessName in (select PlanContent from FY_Plan where PlanID='{0}' ))
+and a.DepartmentId='{2}' and (IsCofirm=0 or cast(EndDate as date)>=cast(GETDATE() as date))
+and GETDATE()>=cast( cast(cast(GETDATE() as date) as nvarchar(50))+' '+b.StartTime+':00.000' as datetime) 
+and  GETDATE()<=cast( cast(cast(GETDATE() as date) as nvarchar(50))+' '+b.EndTime+':00.000' as datetime) 
+",
                 KeyValue, ManageProvider.Provider.Current().UserId, deptID, IsLeader);
+
             PlanBll.ExecuteSql(strSql);
 
             //获取数据展示到页面
@@ -502,6 +512,172 @@ where a.DepartmentId='" + ManageProvider.Provider.Current().DepartmentId + "' or
         /// date格式 七月 2017
         /// </summary>
         /// <returns></returns>
+        //        public int BatchPlan(string date)
+        //        {
+        //            string[] dateArr = date.Split(' ');
+        //            string monthEN = dateArr[0];    //传过来的月份是中文，修改成阿拉伯数字
+        //            string month = "";
+        //            switch (monthEN)
+        //            {
+        //                case "一月":
+        //                    month = "1";
+        //                    break;
+        //                case "二月":
+        //                    month = "2";
+        //                    break;
+        //                case "三月":
+        //                    month = "3";
+        //                    break;
+        //                case "四月":
+        //                    month = "4";
+        //                    break;
+        //                case "五月":
+        //                    month = "5";
+        //                    break;
+        //                case "六月":
+        //                    month = "6";
+        //                    break;
+        //                case "七月":
+        //                    month = "7";
+        //                    break;
+        //                case "八月":
+        //                    month = "8";
+        //                    break;
+        //                case "九月":
+        //                    month = "9";
+        //                    break;
+        //                case "十月":
+        //                    month = "10";
+        //                    break;
+        //                case "十一月":
+        //                    month = "11";
+        //                    break;
+        //                case "十二月":
+        //                    month = "12";
+        //                    break;
+        //                default:
+        //                    month = monthEN;
+        //                    break;
+
+        //            }
+        //            string year = dateArr[1];
+        //            //如果有数据，先把当前月份的数据删除，删除的数据必须是没有明细表的数据
+        //            StringBuilder DeleteSql = new StringBuilder();
+        //            DeleteSql.AppendFormat("delete from fy_plan where DepartmentID='{0}' and month(plandate)=" + month + " and year(plandate)=" + year + " and (BackColor!='' or backcolor='grey') " +
+        //                " and not exists (select * from FY_PlanDetail where planid=fy_plan.PlanID ) and cast(plandate as date)>cast(getdate() as date) ",
+        //                ManageProvider.Provider.Current().DepartmentId);
+        //            PlanBll.ExecuteSql(DeleteSql);
+
+        //            StringBuilder InsertSql = new StringBuilder();
+        //            //第一步，获取班组基础数据，第一层的循环
+        //            string sql = @"select b.UserId,a.FullName,a.StartTime,a.EndTime,a.BackColor,b.RealName,a.GroupUserId 
+        //from Base_GroupUser a left join Base_User b on a.GroupLeader=b.UserId
+        //where a.DepartmentId='" + ManageProvider.Provider.Current().DepartmentId + "'";
+        //            DataTable dt = PlanBll.GetDataTable(sql);
+        //            //此处获取岗位信息，排产时随机指定审核表内容
+        //            string sqlPost = @" select ProcessName from FY_Process where DepartMentID='" + ManageProvider.Provider.Current().DepartmentId + "' and ProcessName!='通用'  ";
+        //            DataTable dtPost = PlanBll.GetDataTable(sqlPost);
+
+        //            string sqlLine = @"select LineName,LineID from FY_ProduceLine where DepartmentID='" + ManageProvider.Provider.Current().DepartmentId + "'";
+        //            DataTable dtLine = PlanBll.GetDataTable(sqlLine);
+        //            Random ra = new Random();
+        //            int aa = ra.Next(dtPost.Rows.Count);
+        //            int bb = ra.Next(dtLine.Rows.Count);
+        //            //第二部，根据获取的基础数据循环插入计划条数
+        //            if (dt.Rows.Count > 0)
+        //            {
+        //                for (int i = 0; i < dt.Rows.Count; i++)
+        //                {
+        //                    DateTime nowdt = DateTime.Now;
+
+        //                    //循环日期的方法
+        //                    //这个月最小值
+        //                    DateTime mindt = DateTime.Parse(year + "-" + month + "-01");
+        //                    DateTime maxdt = mindt.AddMonths(1).AddDays(-1);
+        //                    if (nowdt > mindt)
+        //                    {
+        //                        mindt = Convert.ToDateTime(nowdt.AddDays(1).ToString("yyyy-MM-dd"));
+        //                    }
+        //                    //这个月最大值
+        //                    //DateTime maxdt = DateTime.Parse(DateTime.Parse(year + "-" + (Convert.ToInt32(month)+1).ToString() + "-01").AddDays(-1).ToString("yyyy-MM-dd"));
+
+        //                    while (mindt <= maxdt)
+        //                    {
+        //                        aa = ra.Next(dtPost.Rows.Count);
+        //                        bb = ra.Next(dtLine.Rows.Count);
+        //                        InsertSql.AppendFormat(@"insert into fy_plan (PlanID,UserID,Plandate,PlanContent,DepartmentID,ResponseByID,BackColor,GroupID,line) 
+        //values(newid(),'{0}','{1}',{2},'{3}','{4}','{5}','{6}','{7}')",
+        //                            ManageProvider.Provider.Current().UserId, 
+        //                            mindt, 
+        //                            "(select top 1 PostName from FY_LinePost where LineID='"+ dtLine.Rows[bb]["LineID"].ToString() + "' order by NEWID())",
+        //                            ManageProvider.Provider.Current().DepartmentId, 
+        //                            "",
+        //                            dt.Rows[i]["BackColor"].ToString(), 
+        //                            dt.Rows[i]["GroupUserId"].ToString(),
+        //                            dtLine.Rows[bb]["LineName"].ToString());
+
+        //                        //如果不是周末，再添加车间主任的审核计划
+        //                        //string temp = mindt.DayOfWeek.ToString();
+        //                        mindt = mindt.AddDays(1);
+
+        //                    }
+        //                }
+        //            }
+
+        //            #region 第三步，加上车间主任的信息，厂长因为没有和车间绑定，暂时没有办法加入到随机排产中，后期可以在部门处加一个厂长的字段来实现厂长的随机计划
+        //            //InsertSql.AppendFormat("insert into fy_plan (PlanID,UserID,Plandate,PlanContent,DepartmentID,ResponseByID,BackColor,GroupID,line) values(newid(),'{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}')",
+        //            //                ManageProvider.Provider.Current().UserId, year + "-" + month + "-05", dtPost.Rows[aa]["ProcessName"].ToString(),
+        //            //                ManageProvider.Provider.Current().DepartmentId, ManageProvider.Provider.Current().UserId,
+        //            //                "", "",
+        //            //                dtLine.Rows[bb]["LineName"].ToString());
+        //            //InsertSql.AppendFormat("insert into fy_plan (PlanID,UserID,Plandate,PlanContent,DepartmentID,ResponseByID,BackColor,GroupID,line) values(newid(),'{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}')",
+        //            //                ManageProvider.Provider.Current().UserId, year + "-" + month + "-10", dtPost.Rows[aa]["ProcessName"].ToString(),
+        //            //                ManageProvider.Provider.Current().DepartmentId, ManageProvider.Provider.Current().UserId,
+        //            //                "", "",
+        //            //                dtLine.Rows[bb]["LineName"].ToString());
+        //            //InsertSql.AppendFormat("insert into fy_plan (PlanID,UserID,Plandate,PlanContent,DepartmentID,ResponseByID,BackColor,GroupID,line) values(newid(),'{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}')",
+        //            //                ManageProvider.Provider.Current().UserId, year + "-" + month + "-15", dtPost.Rows[aa]["ProcessName"].ToString(),
+        //            //                ManageProvider.Provider.Current().DepartmentId, ManageProvider.Provider.Current().UserId,
+        //            //                "", "",
+        //            //                dtLine.Rows[bb]["LineName"].ToString());
+        //            //InsertSql.AppendFormat("insert into fy_plan (PlanID,UserID,Plandate,PlanContent,DepartmentID,ResponseByID,BackColor,GroupID,line) values(newid(),'{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}')",
+        //            //                ManageProvider.Provider.Current().UserId, year + "-" + month + "-25", dtPost.Rows[aa]["ProcessName"].ToString(),
+        //            //                ManageProvider.Provider.Current().DepartmentId, ManageProvider.Provider.Current().UserId,
+        //            //                "", "",
+        //            //                dtLine.Rows[bb]["LineName"].ToString());
+        //            DateTime nowdt2 = DateTime.Now;
+
+        //            DateTime mindt2 = DateTime.Parse(year + "-" + month + "-01");
+        //            DateTime maxdt2 = mindt2.AddMonths(1).AddDays(-1);
+        //            if (nowdt2 > mindt2)
+        //            {
+        //                mindt2 = Convert.ToDateTime(nowdt2.AddDays(1).ToString("yyyy-MM-dd"));
+        //            }
+
+        //            while (mindt2 <= maxdt2)
+        //            {
+        //                aa = ra.Next(dtPost.Rows.Count);
+        //                bb = ra.Next(dtLine.Rows.Count);
+        //                if (mindt2.DayOfWeek.ToString() != "Sunday" && mindt2.DayOfWeek.ToString() != "Saturday")
+        //                {
+        //                    InsertSql.AppendFormat(@"insert into fy_plan (PlanID,UserID,Plandate,PlanContent,DepartmentID,ResponseByID,BackColor,GroupID,line) 
+        //values(newid(),'{0}','{1}',{2},'{3}','{4}','{5}','{6}','{7}')",
+        //                    ManageProvider.Provider.Current().UserId, 
+        //                    mindt2, 
+        //                    "(select top 1 PostName from FY_LinePost where LineID='" + dtLine.Rows[bb]["LineID"].ToString() + "' order by NEWID())",
+        //                    ManageProvider.Provider.Current().DepartmentId, ManageProvider.Provider.Current().UserId,
+        //                    "grey", 
+        //                    "",
+        //                    dtLine.Rows[bb]["LineName"].ToString());
+        //                }
+        //                mindt2 = mindt2.AddDays(1);
+        //            }
+
+        //            #endregion
+        //            //最后，执行sql，我去；这么长的sql希望执行效率没有问题
+        //            return PlanBll.ExecuteSql(InsertSql);
+        //        }
+        //更新随机算法，是每个月可以覆盖该车间所有产线所有工位，佩服我自己可以想出这么牛逼的算法(*^_^*)
         public int BatchPlan(string date)
         {
             string[] dateArr = date.Split(' ');
@@ -559,25 +735,32 @@ where a.DepartmentId='" + ManageProvider.Provider.Current().DepartmentId + "' or
             PlanBll.ExecuteSql(DeleteSql);
 
             StringBuilder InsertSql = new StringBuilder();
-            //第一步，获取基础数据
+            //第一步，获取班组基础数据，第一层的循环
             string sql = @"select b.UserId,a.FullName,a.StartTime,a.EndTime,a.BackColor,b.RealName,a.GroupUserId 
 from Base_GroupUser a left join Base_User b on a.GroupLeader=b.UserId
 where a.DepartmentId='" + ManageProvider.Provider.Current().DepartmentId + "'";
             DataTable dt = PlanBll.GetDataTable(sql);
             //此处获取岗位信息，排产时随机指定审核表内容
-            string sqlPost = @" select ProcessName from FY_Process where DepartMentID='" + ManageProvider.Provider.Current().DepartmentId + "' and ProcessName!='通用'  ";
-            DataTable dtPost = PlanBll.GetDataTable(sqlPost);
+            //string sqlPost = @" select ProcessName from FY_Process where DepartMentID='" + ManageProvider.Provider.Current().DepartmentId + "' and ProcessName!='通用'  ";
+            //DataTable dtPost = PlanBll.GetDataTable(sqlPost);
 
-            string sqlLine = @"select LineName,LineID from FY_ProduceLine where DepartmentID='" + ManageProvider.Provider.Current().DepartmentId + "'";
-            DataTable dtLine = PlanBll.GetDataTable(sqlLine);
-            Random ra = new Random();
-            int aa = ra.Next(dtPost.Rows.Count);
-            int bb = ra.Next(dtLine.Rows.Count);
+            //string sqlLine = @"select LineName,LineID from FY_ProduceLine where DepartmentID='" + ManageProvider.Provider.Current().DepartmentId + "'";
+            //DataTable dtLine = PlanBll.GetDataTable(sqlLine);
+            //Random ra = new Random();
+            //int aa = ra.Next(dtPost.Rows.Count);
+            //int bb = ra.Next(dtLine.Rows.Count);
+            string sqlPostLine = @"select LineName,PostName from FY_ProduceLine a left join FY_LinePost b on a.LineID=b.LineID
+where a.DepartmentID='{0}' order by newid() ";
+            sqlPostLine = string.Format(sqlPostLine, ManageProvider.Provider.Current().DepartmentId);
+            DataTable dtPL = PlanBll.GetDataTable(sqlPostLine);
+            
             //第二部，根据获取的基础数据循环插入计划条数
             if (dt.Rows.Count > 0)
             {
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
+                    Random ra = new Random();
+                    int aa = ra.Next(dtPL.Rows.Count); 
                     DateTime nowdt = DateTime.Now;
 
                     //循环日期的方法
@@ -593,21 +776,29 @@ where a.DepartmentId='" + ManageProvider.Provider.Current().DepartmentId + "'";
 
                     while (mindt <= maxdt)
                     {
-                        aa = ra.Next(dtPost.Rows.Count);
-                        bb = ra.Next(dtLine.Rows.Count);
+                        //aa = ra.Next(dtPost.Rows.Count);
+                        //bb = ra.Next(dtLine.Rows.Count);
                         InsertSql.AppendFormat(@"insert into fy_plan (PlanID,UserID,Plandate,PlanContent,DepartmentID,ResponseByID,BackColor,GroupID,line) 
-values(newid(),'{0}','{1}',{2},'{3}','{4}','{5}','{6}','{7}')",
-                            ManageProvider.Provider.Current().UserId, 
-                            mindt, 
-                            "(select top 1 PostName from FY_LinePost where LineID='"+ dtLine.Rows[bb]["LineID"].ToString() + "' order by NEWID())",
-                            ManageProvider.Provider.Current().DepartmentId, 
+values(newid(),'{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}')",
+                            ManageProvider.Provider.Current().UserId,
+                            mindt,
+                            dtPL.Rows[aa][1].ToString(),
+                            ManageProvider.Provider.Current().DepartmentId,
                             "",
-                            dt.Rows[i]["BackColor"].ToString(), 
+                            dt.Rows[i]["BackColor"].ToString(),
                             dt.Rows[i]["GroupUserId"].ToString(),
-                            dtLine.Rows[bb]["LineName"].ToString());
+                            dtPL.Rows[aa]["LineName"].ToString());
 
                         //如果不是周末，再添加车间主任的审核计划
                         //string temp = mindt.DayOfWeek.ToString();
+                        if(aa<dtPL.Rows.Count-1)
+                        {
+                            aa = aa + 1;
+                        }
+                        else
+                        {
+                            aa = 0;
+                        }
                         mindt = mindt.AddDays(1);
 
                     }
@@ -635,6 +826,8 @@ values(newid(),'{0}','{1}',{2},'{3}','{4}','{5}','{6}','{7}')",
             //                ManageProvider.Provider.Current().DepartmentId, ManageProvider.Provider.Current().UserId,
             //                "", "",
             //                dtLine.Rows[bb]["LineName"].ToString());
+            Random ra2 = new Random();
+            int bb = ra2.Next(dtPL.Rows.Count);
             DateTime nowdt2 = DateTime.Now;
 
             DateTime mindt2 = DateTime.Parse(year + "-" + month + "-01");
@@ -646,19 +839,26 @@ values(newid(),'{0}','{1}',{2},'{3}','{4}','{5}','{6}','{7}')",
 
             while (mindt2 <= maxdt2)
             {
-                aa = ra.Next(dtPost.Rows.Count);
-                bb = ra.Next(dtLine.Rows.Count);
+                
                 if (mindt2.DayOfWeek.ToString() != "Sunday" && mindt2.DayOfWeek.ToString() != "Saturday")
                 {
                     InsertSql.AppendFormat(@"insert into fy_plan (PlanID,UserID,Plandate,PlanContent,DepartmentID,ResponseByID,BackColor,GroupID,line) 
-values(newid(),'{0}','{1}',{2},'{3}','{4}','{5}','{6}','{7}')",
-                    ManageProvider.Provider.Current().UserId, 
-                    mindt2, 
-                    "(select top 1 PostName from FY_LinePost where LineID='" + dtLine.Rows[bb]["LineID"].ToString() + "' order by NEWID())",
+values(newid(),'{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}')",
+                    ManageProvider.Provider.Current().UserId,
+                    mindt2,
+                    dtPL.Rows[bb][1].ToString(),
                     ManageProvider.Provider.Current().DepartmentId, ManageProvider.Provider.Current().UserId,
-                    "grey", 
+                    "grey",
                     "",
-                    dtLine.Rows[bb]["LineName"].ToString());
+                     dtPL.Rows[bb]["LineName"].ToString());
+                }
+                if (bb < dtPL.Rows.Count-1)
+                {
+                    bb = bb + 1;
+                }
+                else
+                {
+                    bb = 0;
                 }
                 mindt2 = mindt2.AddDays(1);
             }

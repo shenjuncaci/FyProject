@@ -194,11 +194,13 @@ namespace LeaRun.Business
 
         public DataTable GetReportJson(string keyword, ref JqGridParam jqgridparam)
         {
-            StringBuilder strSql = new StringBuilder();
+            if(CommonHelper.IsEmpty(keyword))
+            {
+                keyword = DateTime.Now.Year.ToString();
+            }
             List<DbParameter> parameter = new List<DbParameter>();
-            strSql.Append(@"select * from ##list ");
-            StringBuilder proc = new StringBuilder();
-            proc.AppendFormat(@"RapidMonthlyReport 2017 ");
+
+            
             
             //Repository().ExecuteBySql(proc);
             //if (!string.IsNullOrEmpty(keyword))
@@ -206,7 +208,7 @@ namespace LeaRun.Business
                 
                 //parameter.Add(DbFactory.CreateDbParameter("@keyword", 2017));
             //}
-            parameter.Add(DbFactory.CreateDbParameter("@Year", 2017));
+            parameter.Add(DbFactory.CreateDbParameter("@Year", keyword));
 
             return Repository().FindDataSetByProc("RapidMonthlyReport", parameter.ToArray()).Tables[0];
         }

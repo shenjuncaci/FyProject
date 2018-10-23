@@ -588,6 +588,10 @@ namespace LeaRun.WebApp.Areas.CommonModule.Controllers
 
         public string GetPictueData(string year)
         {
+            if(year=="")
+            {
+                year = DateTime.Now.Year.ToString();
+            }
             string result = "";
             string temp1 = "";
             string temp2 = "";
