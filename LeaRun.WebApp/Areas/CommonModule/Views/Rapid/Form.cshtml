@@ -1479,6 +1479,18 @@
                 }
             }
             else {
+                if (field == "res_fmea") {
+                    var ProjectName = $("#ProjectName").val();
+                    var IsFmea = $("#res_fmeanode").val();
+                    if (IsFmea == "G") {
+                        if (ProjectName == "" || ProjectName == undefined || ProjectName == null) {
+                            alert("请选择需要修改的FMEA的本厂编号");
+                            //closeDialog();
+                            return false;
+                        }
+                    }
+                    
+                }
                 upload = delHtmlTag(upload);
                 if (upload == "" || upload == undefined || upload == null) {
                     alert("请先上传附件再提交");
@@ -1763,7 +1775,24 @@
     }
 
 
+    function addProject() {
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '选择Fmea',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['550px', '350px'],
+            content: 'ChooseFmea'
+        });
+    }
 
+    function SelectProject(result) {
+
+        $("#ProjectName").val(result[0]);
+        $("#FileYmbatch").val(result[1]);
+        $("#VersionCode").val(result[2]);
+        //VersionCode
+    }
 
 </script>
 <form id="form1">
@@ -2080,12 +2109,28 @@
 
                     <th class="formTitle">FMEA/CP<br />更新日期（35D):</th>
                     <td class="formValue">
-                        <b>操作日期：</b> <input id="res_fmeadt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" /> <b>节点状态：</b> <select id="res_fmeanode" class="txtselect">
+                        <b>操作日期：</b>
+                        <input id="res_fmeadt" type="text" class="txt Wdate" onfocus="WdatePicker()" style="background:#E0FFFF" />
+                        <b>节点状态：</b>
+                        <select id="res_fmeanode" class="txtselect">
                             <option value="">请选择</option>
                             <option value="NA">NA</option>
                             <option value="G">G</option>
-
-                        </select> <input id="uploadifyfmea" name="uploadify" type="file" /><label id="uploadifyfmeatxt" style="display:none" />
+                        </select>
+                        <b>本厂编号：</b>
+                        <table style="width:100%">
+                            <tr>
+                                <td style="width:90%">
+                                    <input readonly id="FileYmbatch" type="text" class="txt" datacol="yes" err="APQP编号" style="width:10%;display:none" />
+                                    <input readonly id="VersionCode" type="text" class="txt" datacol="yes" err="版本号" style="width:10%;display:none" />
+                                    <input readonly id="ProjectName" type="text" class="txt" datacol="yes" err="本厂编号" style="width:90%" />
+                                </td>
+                                <td style="width:10%">
+                                    <img src="~/Content/Images/Icon16/bullet_magnify.png" onclick="addProject()">
+                                </td>
+                            </tr>
+                        </table>
+                        <input id="uploadifyfmea" name="uploadify" type="file" /><label id="uploadifyfmeatxt" style="display:none" />
 
                     </td>
                     <td class="formValue" id="res_fmeastate">状态：<input id="res_fmea" type="text" class="txt" /></td>

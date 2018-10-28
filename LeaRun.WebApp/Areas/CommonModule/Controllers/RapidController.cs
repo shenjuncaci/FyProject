@@ -1357,6 +1357,12 @@ left join Base_User b on a.res_cpeo=b.Code left join Base_Department c on b.Depa
             return View();
         }
 
+        //增加fmea选择，从apqp中选择
+        public ActionResult ChooseFmea()
+        {
+            return View();
+        }
+
 
     }
 }

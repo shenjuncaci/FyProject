@@ -91,7 +91,9 @@
                 { label: '等级', name: 'changelevel', index: 'changelevel', width: 80, align: 'left' },
                 { label: '对策', name: 'changeaction', index: 'changeaction', width: 200, align: 'left' },
                 { label: '关闭日期', name: 'enddate', index: 'enddate', width: 120, align: 'left', formatter: dateFormat },
-                { label: '确认人', name: 'endby', index: 'endby', width: 120, align: 'left', formatter: dateFormat },
+                { label: '确认人', name: 'endby', index: 'endby', width: 120, align: 'left' },
+                { label: '过程科确认', name: 'gckendby', index: 'gckendby', width: 120, align: 'left' },
+                { label: '审核发现问题', name: 'problemdescripe', index: 'problemdescripe', width: 200, align: 'left' },
             ],
             viewrecords: true,
             rowNum: 30,
@@ -246,6 +248,28 @@
         }
     }
 
+    function btn_GCKCheck() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "id");
+
+        if (IsChecked(KeyValue)) {
+            $.ajax({
+                type: "post",
+                url: "/FYModule/FiveMOneE/GCKConfirmIt",
+                data: { ID: KeyValue },
+                async: false,
+                success: function (msg) {
+                    windowload();
+                },
+                error: function () {
+                    alert("出错了");
+                }
+            });
+        }
+    }
+
+    function btn_derive() {
+        window.open(encodeURI("ExcelExport"));
+    }
 
 
 </script>

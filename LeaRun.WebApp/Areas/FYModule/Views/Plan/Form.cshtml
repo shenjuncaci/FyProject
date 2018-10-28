@@ -134,7 +134,7 @@
         $("#Line").append("<option value=''>==请选择==</option>");
         AjaxJson("/FYModule/Plan/LineJson2", { DepartmentId: DepartmentID }, function (DataJson) {
             $.each(DataJson, function (i) {
-                $("#Line").append($("<option></option>").val(DataJson[i].LineName).html(DataJson[i].LineName));
+                $("#Line").append($("<option></option>").val(DataJson[i].LineName).html(DataJson[i].LineNameD));
             });
         })
 
@@ -143,7 +143,7 @@
         $("#PlanContent").append("<option value=''>==请选择==</option>");
         AjaxJson("/FYModule/Plan/EventJson2", { DepartmentId: DepartmentID }, function (DataJson) {
             $.each(DataJson, function (i) {
-                $("#PlanContent").append($("<option></option>").val(DataJson[i].ProcessName).html(DataJson[i].ProcessName));
+                $("#PlanContent").append($("<option></option>").val(DataJson[i].ProcessName).html(DataJson[i].ProcessNameD));
             });
         })
     }

@@ -92,7 +92,7 @@
         </td>
     </tr>
     <tr>
-        <td>重大问题列入一般问题</td>
+        <td>重大问题列入快速反应</td>
         <td>
             <select id="IsRapid" class="txtselect">
                 <option value="否">否</option>
@@ -133,7 +133,7 @@
             alert("请填写完整项目再提交");
             return false;
         }
-        var durl = encodeURI('@Url.Action("InsertAction", "Plan")?problem=' + _Descripe + '&action1=' + _Action + '&response=' + _ResponseBy + '&plandate=' + _PlanDate + '&IsRapid=' + _IsRapid);
+        var durl = encodeURI('@Url.Action("InsertAction", "Plan")?problem=' + _Descripe + '&action1=' + _Action + '&response=' + _ResponseBy + '&plandate=' + _PlanDate + '&IsRapid=' + _IsRapid + '&plandid=' + GetQuery('plandid'));
         $.ajax({
             type: "post",
             url: durl,

@@ -48,65 +48,119 @@
 <table class="gridtable" border="1" bordercolor="#000000" style="border-collapse: collapse;">
 
     <tr>
-        <th style="border: solid 1px #000000; display:none">ID
+        <th style="border: solid 1px #000000; display:none">
+            ID
         </th>
-        <th style="border: solid 1px #000000 ;width:20px">工序名称
+        <th style="border: solid 1px #000000 ;width:20px">
+            工序名称
         </th>
-        <th style="border: solid 1px #000000; width:20px">适用过程
+        <th style="border: solid 1px #000000; width:20px">
+            适用过程
         </th>
-        <th style="border: solid 1px #000000;width:60px">审核内容
+        <th style="border: solid 1px #000000;width:60px">
+            审核内容
         </th>
-        <th style="border: solid 1px #000000; width:60px">失效后果
+        <th style="border: solid 1px #000000; width:60px">
+            失效后果
         </th>
-        <th style="border: solid 1px #000000; width:60px">反应计划
+        <th style="border: solid 1px #000000; width:60px">
+            反应计划
         </th>
-        <th style="border: solid 1px #000000;width:20px">检查后果
+        <th style="border: solid 1px #000000;width:20px">
+            检查后果
         </th>
         <th style="border: solid 1px #000000; width:20px;display:none">
         </th>
     </tr>
     @for (int i = 0; i < dt.Rows.Count; i++)
     {
-        string IDs = "ID"+i;
-        <tr>
-            <td style="border: solid 1px #000000;display:none" id="@IDs">
-                @dt.Rows[i][0]
-            </td>
-            <td style="border: solid 1px #000000; ">
-                @dt.Rows[i][1]
-            </td>
-            <td style="border: solid 1px #000000; ">
-                @dt.Rows[i][2]
-            </td>
-            <td style="border: solid 1px #000000; ">
-                @dt.Rows[i][3]
-            </td>
-            <td style="border: solid 1px #000000;">
-                @dt.Rows[i][4]
-            </td>
-            <td style="border: solid 1px #000000; ">
-                @dt.Rows[i][5]
-            </td>
-            <td style="border: solid 1px #000000; ">
-                @if(@dt.Rows[i][6].ToString()!="")
-                {
-                @dt.Rows[i][6]
-                }
-                else
-                {
-                <select id="@i" class="txtselect" onchange="inputCs(@i)">
-                    <option value=""></option>
-                    <option value="Y">Y</option>
-                    <option value="N">N</option>
-                    <option value="不适用">不适用</option>
-                </select>
-                }
-            </td>
-            <td style="display:none">
-                <button class="button button-primary button-square button-small" onclick="confirm('@dt.Rows[i][0].ToString()',@i)">确认</button>
-            </td>
-        </tr>
-         
+        string IDs = "ID" + i;
+        if (dt.Rows[i]["FromSource"].ToString() == "2" || dt.Rows[i]["FromSource"].ToString() == "3")
+        {
+            <tr>
+                <td style="border: solid 1px #000000;display:none" id="@IDs">
+                   <font color="red">  @dt.Rows[i][0] </font>
+                </td>
+                <td style="border: solid 1px #000000; ">
+                    <font color="red"> @dt.Rows[i][1]</font>
+</td>
+                <td style="border: solid 1px #000000; ">
+                    <font color="red"> @dt.Rows[i][2]</font>
+</td>
+                <td style="border: solid 1px #000000; ">
+                    <font color="red"> @dt.Rows[i][3]</font>
+</td>
+                <td style="border: solid 1px #000000;">
+                    <font color="red"> @dt.Rows[i][4]</font>
+</td>
+                <td style="border: solid 1px #000000; ">
+                    <font color="red"> @dt.Rows[i][5]</font>
+</td>
+                <td style="border: solid 1px #000000; ">
+                    <font color="red">
+                        @if (@dt.Rows[i][6].ToString() != "")
+    {
+                    @dt.Rows[i][6]
+}
+else
+{
+                    <select id="@i" class="txtselect" onchange="inputCs(@i)">
+                        <option value=""></option>
+                        <option value="Y">Y</option>
+                        <option value="N">N</option>
+                        <option value="不适用">不适用</option>
+                    </select>
+}
+                    </font>
+</td>
+                <td style="display:none">
+                    <button class="button button-primary button-square button-small" onclick="confirm('@dt.Rows[i][0].ToString()',@i)">确认</button>
+                </td>
+            </tr>
+        }
+        else
+        {
+            <tr>
+                <td style="border: solid 1px #000000;display:none" id="@IDs">
+                    @dt.Rows[i][0]
+                </td>
+                <td style="border: solid 1px #000000; ">
+                    @dt.Rows[i][1]
+                </td>
+                <td style="border: solid 1px #000000; ">
+                    @dt.Rows[i][2]
+                </td>
+                <td style="border: solid 1px #000000; ">
+                    @dt.Rows[i][3]
+                </td>
+                <td style="border: solid 1px #000000;">
+                    @dt.Rows[i][4]
+                </td>
+                <td style="border: solid 1px #000000; ">
+                    @dt.Rows[i][5]
+                </td>
+                <td style="border: solid 1px #000000; ">
+                    @if (@dt.Rows[i][6].ToString() != "")
+                    {
+                        @dt.Rows[i][6]
+                    }
+                    else
+                    {
+                        <select id="@i" class="txtselect" onchange="inputCs(@i)">
+                            <option value=""></option>
+                            <option value="Y">Y</option>
+                            <option value="N">N</option>
+                            <option value="不适用">不适用</option>
+                        </select>
+                    }
+                </td>
+                <td style="display:none">
+                    <button class="button button-primary button-square button-small" onclick="confirm('@dt.Rows[i][0].ToString()',@i)">确认</button>
+                </td>
+            </tr>
+        }
+
+
     }
 </table>
 @*<table style="text-align:right">
@@ -245,6 +299,7 @@
         function inputCs(i)
         {
             var checkResult = $("#" + i).val();
+            var plandid = document.getElementById("ID" + i).innerText;
             //alert(checkResult);
             if (checkResult == "N")
             {
@@ -256,7 +311,7 @@
                     maxmin: true,
                     shadeClose: true, //点击遮罩关闭层
                     area: ['500px', '500px'],
-                    content: 'ProblemResponse?id=' + i,
+                    content: 'ProblemResponse?id=' + i + '&plandid=' + plandid,
                     end: function () {
                         if (temp == 1) {
                             temp = 0;

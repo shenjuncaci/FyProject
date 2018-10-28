@@ -229,13 +229,14 @@ where a.BackColor!='' and a.DepartmentID='" + ManageProvider.Provider.Current().
             }
 
             StringBuilder strSql = new StringBuilder();
-            strSql.AppendFormat(@"insert into fy_plandetail  select NEWID(),'{0}',processid,'','{1}',ProcessName,AbleProcess,AuditContent,FailureEffect,ReactionPlan 
+            //2表示来源为客诉，3表示来源为5M1E
+            strSql.AppendFormat(@"insert into fy_plandetail  select NEWID(),'{0}',processid,'','{1}',ProcessName,AbleProcess,AuditContent,FailureEffect,ReactionPlan,IsRapid 
                 from FY_Process where processid not in 
                 (select processid from fy_plandetail where planid='{0}') and (ProcessName in (select PlanContent from FY_Plan where PlanID='{0}' ) 
                 or (processname in ('通用','{3}') and DepartmentID='cb016a86-d835-4eb9-ad80-6a86d2140c88') )  and (DepartmentID='{2}' or DepartmentID='cb016a86-d835-4eb9-ad80-6a86d2140c88') 
                 and cast(EndDate as date)>=cast(GETDATE() as date)
 union
-select NEWID(),'{0}',a.ID,'','{1}',a.ProcessName,'过程输入','变更点:'+a.ChangePoint+';变更内容:'+a.ChangeContent,'生产产生重大影响的变更',a.ChangeAction 
+select NEWID(),'{0}',a.ID,'','{1}',a.ProcessName,'过程输入','变更点:'+a.ChangePoint+';变更内容:'+a.ChangeContent,'生产产生重大影响的变更',a.ChangeAction ,3
 from FY_5M1E a left join Base_GroupUser b on a.BanGroup=b.GroupUserId 
 where ID not in (select processid from fy_plandetail where planid='{0}') and (ProcessName in (select PlanContent from FY_Plan where PlanID='{0}' ))
 and a.DepartmentId='{2}' and (IsCofirm=0 or cast(EndDate as date)>=cast(GETDATE() as date))
@@ -247,8 +248,8 @@ and  GETDATE()<=cast( cast(cast(GETDATE() as date) as nvarchar(50))+' '+b.EndTim
             PlanBll.ExecuteSql(strSql);
 
             //获取数据展示到页面
-            string sql = @" select a.plandid,a.ProcessName,a.AbleProcess,a.AuditContent,a.FailureEffect,a.ReactionPlan,a.examresult 
-from fy_plandetail a left join FY_Process b on a.processid=b.ProcessID where a.planid='" + KeyValue + "' order by a.ProcessName desc ";
+            string sql = @" select a.plandid,a.ProcessName,a.AbleProcess,a.AuditContent,a.FailureEffect,a.ReactionPlan,a.examresult,FromSource 
+from fy_plandetail a  where a.planid='" + KeyValue + "' order by a.ProcessName desc ";
             DataTable dt = PlanBll.GetDataTable(sql);
             ViewData["dt"] = dt;
 
@@ -374,7 +375,13 @@ from fy_plandetail a left join FY_Process b on a.processid=b.ProcessID where a.p
 
         public ActionResult EventJson2(string DepartmentId)
         {
-            string sql = "select distinct ProcessName from FY_Process where DepartmentID='" + DepartmentId + "'";
+            string sql = @" select ProcessName,ProcessName+IsKesu as ProcessNameD from (
+ select distinct ProcessName,
+ case when exists(select ProcessName from FY_Process where IsRapid = 2 and DepartmentID = '{0}' and ProcessName = a.ProcessName) then '(有客诉)'
+ else '' end as IsKesu
+ from FY_Process a where DepartmentID = '{0}')
+ as aa order by IsKesu desc ";
+            sql = string.Format(sql, DepartmentId);
             DataTable dt = PlanBll.GetDataTable(sql);
             return Content(dt.ToJson());
         }
@@ -389,7 +396,12 @@ from fy_plandetail a left join FY_Process b on a.processid=b.ProcessID where a.p
 
         public ActionResult LineJson2(string DepartmentId)
         {
-            string sql = " select distinct LineName from FY_ProduceLine where DepartmentID='" + DepartmentId + "'  ";
+            //string sql = " select distinct LineName from FY_ProduceLine where DepartmentID='" + DepartmentId + "'  ";
+            string sql = @"select LineName,LineName+kesu as LineNameD from (
+ select distinct LineName,case when exists ( select postname from FY_LinePost where PostName in (
+ select ProcessName from FY_Process where IsRapid=2) and LineID=a.LineID) then '(有客诉)' else '' end as kesu
+ from FY_ProduceLine a where a.DepartmentID='{0}') as aa order by kesu desc ";
+            sql = string.Format(sql, DepartmentId);
             DataTable dt = PlanBll.GetDataTable(sql);
             return Content(dt.ToJson());
 
@@ -913,12 +925,12 @@ values(newid(),'{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}')",
             return View();
         }
 
-        public int InsertAction(string problem, string action1, string response, string plandate,string IsRapid)
+        public int InsertAction(string problem, string action1, string response, string plandate,string IsRapid,string plandid)
         {
             if(IsRapid=="否")
             {
                 StringBuilder strSql = new StringBuilder();
-                strSql.AppendFormat("insert into FY_ProblemAction (actionid,problemdescripe,actioncontent,responseby,plandate,createby,createbydept,createdt,problemstate) values (NEWID(),'" + problem + "','" + action1 + "','" + response + "','" + plandate + "','" + ManageProvider.Provider.Current().UserId + "','" + ManageProvider.Provider.Current().DepartmentId + "',getdate(),'进行中')");
+                strSql.AppendFormat("insert into FY_ProblemAction (actionid,problemdescripe,actioncontent,responseby,plandate,createby,createbydept,createdt,problemstate,PlanDID) values (NEWID(),'" + problem + "','" + action1 + "','" + response + "','" + plandate + "','" + ManageProvider.Provider.Current().UserId + "','" + ManageProvider.Provider.Current().DepartmentId + "',getdate(),'进行中','"+plandid.Trim()+"')");
                 int result = PlanBll.ExecuteSql(strSql);
 
                 string GetReciverSql = " select Email from base_user where userid='" + response + "' ";
@@ -931,6 +943,9 @@ values(newid(),'{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}')",
             }
             else
             {
+                StringBuilder strSql = new StringBuilder();
+                strSql.AppendFormat("insert into FY_ProblemAction (actionid,problemdescripe,actioncontent,responseby,plandate,createby,createbydept,createdt,problemstate,PlanDID) values (NEWID(),'" + problem + "','" + action1 + "','" + response + "','" + plandate + "','" + ManageProvider.Provider.Current().UserId + "','" + ManageProvider.Provider.Current().DepartmentId + "',getdate(),'进行中','" + plandid.Trim() + "')");
+                int result = PlanBll.ExecuteSql(strSql);
                 string code = "";
                 string GetReciverSql = " select code from base_user where userid='" + response + "' ";
                 DataTable dt = PlanBll.GetDataTable(GetReciverSql);
@@ -941,28 +956,28 @@ values(newid(),'{0}','{1}','{2}','{3}','{4}','{5}','{6}','{7}')",
 
                 IDatabase database = DataFactory.Database();
                 DbTransaction isOpenTrans = database.BeginTrans();
-                //FY_Rapid rapid = new FY_Rapid();
-                //rapid.Create();
-                //rapid.res_cdate = DateTime.Now;
+                FY_Rapid rapid = new FY_Rapid();
+                rapid.Create();
+                rapid.res_cdate = DateTime.Now;
 
                 ////测试下微信公众号消息通知
-                //WeChatHelper.SendWxMessage(rapid.res_cpeo, "您好，您有一条新的快速反应需要处理，具体如下：" + rapid.res_ms + "\n 请登录系统处理：172.19.0.5:8086  ");
-                ////int IsEmail = SendEmail(rapid.res_cpeo, "您好，您有一条新的快速反应需要处理，具体如下：" + rapid.res_ms + "\n 请登录系统处理：172.19.0.5:8086  ");
-                //rapid.IsEmail = 1;
-                //rapid.PlanTime = Convert.ToDateTime(plandate);
-                //rapid.res_ms = problem;
-                //rapid.res_cpeo = code;
-                FY_GeneralProblem GPentity = new FY_GeneralProblem();
-                GPentity.Create();
-                GPentity.ProblemDescripe = problem;
-                GPentity.ResponseBy = code;
-                GPentity.FollowBy = code;
-                GPentity.PlanFinishDt = Convert.ToDateTime(plandate);
-                
+                // WeChatHelper.SendWxMessage(rapid.res_cpeo, "您好，您有一条新的快速反应需要处理，具体如下：" + rapid.res_ms + "\n 请登录系统处理：172.19.0.5:8086  ");
+                //int IsEmail = SendEmail(rapid.res_cpeo, "您好，您有一条新的快速反应需要处理，具体如下：" + rapid.res_ms + "\n 请登录系统处理：172.19.0.5:8086  ");
+                rapid.IsEmail = 1;
+                rapid.PlanTime = Convert.ToDateTime(plandate);
+                rapid.res_ms = problem;
+                rapid.res_cpeo = code;
+                //FY_GeneralProblem GPentity = new FY_GeneralProblem();
+                //GPentity.Create();
+                //GPentity.ProblemDescripe = problem;
+                //GPentity.ResponseBy = code;
+                //GPentity.FollowBy = code;
+                //GPentity.PlanFinishDt = Convert.ToDateTime(plandate);
 
-                WeChatHelper.SendWxMessage(GPentity.ResponseBy, "您好，您有一条新的一般问题需要处理，具体如下：" + GPentity.ProblemDescripe + "\n 请登录系统处理：172.19.0.5:8086  ");
 
-                database.Insert(GPentity, isOpenTrans);
+                WeChatHelper.SendWxMessage(rapid.res_cpeo, "您好，您有一条新的快速反应需要处理，具体如下：" + rapid.res_ms + "\n 请登录系统处理：172.19.0.5:8086  ");
+
+                database.Insert(rapid, isOpenTrans);
                 database.Commit();
                 return 1;
             }
@@ -1202,8 +1217,15 @@ where MONTH(Plandate)='" + month + "' and YEAR(Plandate)='" + year + "' and Back
         public ActionResult CZDepartmentJson()
         {
             StringBuilder strSql = new StringBuilder();
-            strSql.AppendFormat(@"select distinct a.DepartmentID,b.FullName from FY_Plan 
-a left join Base_Department b on a.DepartmentID=b.DepartmentId where 1=1
+            strSql.AppendFormat(@"select DepartmentID,FullName+case when IsKS=1 then '（有客诉）' else '' end as FullName from (
+select distinct a.DepartmentID,b.FullName,
+case when exists(select * from FY_Process where IsRapid=2 and cast(enddate as date)>=cast(GETDATE() as date) and DepartmentID=a.DepartmentID) then 1 
+else 0 end as IsKS
+from FY_Plan a 
+left join Base_Department b on a.DepartmentID=b.DepartmentId 
+where 1=1
+) as aa order by isks desc
+
 ", ManageProvider.Provider.Current().UserId);
             DataTable dt = PlanBll.GetDataTable(strSql.ToString());
             return Content(dt.ToJson());
@@ -1612,20 +1634,26 @@ on a.BasicMonth=c.month ";
             string temp3 = "";
             string temp4 = "";
             //string sql = " select count(*) as rapidcount,MONTH(res_cdate) as month from FY_Rapid where YEAR(res_cdate)='"+year+"' group by MONTH(res_cdate),YEAR(res_cdate)  ";
-            string sql = @" select count(*),
+            string sql = @" select aaa.allcount,aaa.finishcount,
+
+aaa.fullname,
+cast(100.0*finishcount/(case when allcount=0 then 1 else allcount end) as decimal(18,2)) as rate
+from
+(
+select count(*) as allcount,
 (select count(*) from FY_ProblemAction aa 
 left join Base_User bb on aa.ResponseBy=bb.UserId
 left join Base_Department cc on bb.DepartmentId=cc.DepartmentId
 where cast(aa.CreateDt as date)>= cast('{0}' as date) 
 and cast(aa.CreateDt as date)<=cast('{1}' as date) 
 and ProblemState='已完成'
-and cc.DepartmentId=c.DepartmentId),c.FullName
+and cc.DepartmentId=c.DepartmentId) as finishcount,c.FullName
  from FY_ProblemAction a 
 left join Base_User b on a.ResponseBy=b.UserId
 left join Base_Department c on b.DepartmentId=c.DepartmentId
 where cast(a.CreateDt as date)>= cast('{0}' as date) 
 and cast(a.CreateDt as date)<=cast('{1}' as date) 
-group by c.FullName,c.DepartmentId ";
+group by c.FullName,c.DepartmentId) as aaa ";
 
             sql = string.Format(sql, StartDate, EndDate);
             DataTable dt = PlanBll.GetDataTable(sql);
@@ -1637,14 +1665,16 @@ group by c.FullName,c.DepartmentId ";
                     temp1 = temp1 + dt.Rows[i][0] + ",";
                     temp2 = temp2 + dt.Rows[i][1] + ",";
                     temp3 = temp3 + dt.Rows[i][2] + ",";
+                    temp4 = temp4 + dt.Rows[i][3] + ",";
                    
                 }
                 temp1 = temp1.Substring(0, temp1.Length - 1);
                 temp2 = temp2.Substring(0, temp2.Length - 1);
                 temp3 = temp3.Substring(0, temp3.Length - 1);
+                temp4 = temp4.Substring(0, temp4.Length - 1);
                 
             }
-            result = temp1 + "|" + temp2 + "|" + temp3;
+            result = temp1 + "|" + temp2 + "|" + temp3+"|"+temp4;
 
 
             return result;
@@ -1658,20 +1688,24 @@ group by c.FullName,c.DepartmentId ";
             string temp3 = "";
             string temp4 = "";
             //string sql = " select count(*) as rapidcount,MONTH(res_cdate) as month from FY_Rapid where YEAR(res_cdate)='"+year+"' group by MONTH(res_cdate),YEAR(res_cdate)  ";
-            string sql = @"select count(*),
+            string sql = @"select aaa.allcount,aaa.finishcount,aaa.fullname,
+cast(100.0*finishcount/(case when allcount=0 then 1 else allcount end) as decimal(18,2)) as rate
+from
+(
+select count(*) as allcount,
 (select count(*) from FY_ProblemAction aa 
 left join Base_User bb on aa.CreateBy=bb.UserId
 left join Base_Department cc on bb.DepartmentId=cc.DepartmentId
 where cast(aa.CreateDt as date)>= cast('{0}' as date) 
 and cast(aa.CreateDt as date)<=cast('{1}' as date) 
 and ProblemState='已完成'
-and cc.DepartmentId=c.DepartmentId),c.FullName
+and cc.DepartmentId=c.DepartmentId) as finishcount,c.FullName
  from FY_ProblemAction a 
 left join Base_User b on a.CreateBy=b.UserId
 left join Base_Department c on b.DepartmentId=c.DepartmentId
 where cast(a.CreateDt as date)>= cast('{0}' as date) 
 and cast(a.CreateDt as date)<=cast('{1}' as date) 
-group by c.FullName,c.DepartmentId  ";
+group by c.FullName,c.DepartmentId) as aaa  ";
 
             sql = string.Format(sql, StartDate, EndDate);
             DataTable dt = PlanBll.GetDataTable(sql);
@@ -1683,14 +1717,16 @@ group by c.FullName,c.DepartmentId  ";
                     temp1 = temp1 + dt.Rows[i][0] + ",";
                     temp2 = temp2 + dt.Rows[i][1] + ",";
                     temp3 = temp3 + dt.Rows[i][2] + ",";
+                    temp4 = temp4 + dt.Rows[i][3] + ",";
 
                 }
                 temp1 = temp1.Substring(0, temp1.Length - 1);
                 temp2 = temp2.Substring(0, temp2.Length - 1);
                 temp3 = temp3.Substring(0, temp3.Length - 1);
+                temp4 = temp4.Substring(0, temp4.Length - 1);
 
             }
-            result = temp1 + "|" + temp2 + "|" + temp3;
+            result = temp1 + "|" + temp2 + "|" + temp3+"|"+temp4;
 
 
             return result;

@@ -155,7 +155,7 @@ where exists (select * from Base_ObjectUserRelation where UserId=a.UserId and Ob
                         entity.AfterRPN = entity.AfterD * entity.AfterS * entity.AfterO;
                         entity.AfterPriorityLevel = PriorityLevel[detectionZone[entity.AfterD - 1, entity.AfterS - 1]-1, SeverityZone[entity.AfterO - 1, entity.AfterS - 1]-1];
                     }
-//                    if(entity.IsEffective=="有效")
+//                    if (entity.IsEffective == "有效")
 //                    {
 //                        entity.FinishState = "已完成";
 //                        sqlSync = @"insert into genyeedata.dbo.sys_YmMessage (OrganID,MsgYmBatch,items,ReciveManID,ReceiveMan,SendmanID,Sendman,Sendrq,sType,stypeico,subject,
@@ -242,14 +242,14 @@ where exists (select * from Base_ObjectUserRelation where UserId=a.UserId and Ob
                 Base_FormAttributeBll.Instance.SaveBuildForm(BuildFormJson, entity.FollowID, ModuleId, isOpenTrans);
                 database.Commit();
 
-                sqlSync = string.Format(sqlSync, entity.ProjectName, ManageProvider.Provider.Current().Code, ManageProvider.Provider.Current().UserName, entity.FileYmbatch, entity.VersionCode);
-                StringBuilder strSql = new StringBuilder();
+                //sqlSync = string.Format(sqlSync, entity.ProjectName, ManageProvider.Provider.Current().Code, ManageProvider.Provider.Current().UserName, entity.FileYmbatch, entity.VersionCode);
+                //StringBuilder strSql = new StringBuilder();
 
-                sqlInsert = string.Format(sqlInsert, entity.ProjectName, entity.FileYmbatch, entity.VersionCode, ManageProvider.Provider.Current().Code,
-                    ManageProvider.Provider.Current().UserName, entity.HighRiskItem, entity.CauseAnaly, entity.ActionMeasures);
-                strSql.AppendFormat(sqlSync);
-                strSql.AppendFormat(sqlInsert);
-                RiskDownFollowBll.ExecuteSql(strSql);
+                //sqlInsert = string.Format(sqlInsert, entity.ProjectName, entity.FileYmbatch, entity.VersionCode, ManageProvider.Provider.Current().Code,
+                //    ManageProvider.Provider.Current().UserName, entity.HighRiskItem, entity.CauseAnaly, entity.ActionMeasures);
+                //strSql.AppendFormat(sqlSync);
+                //strSql.AppendFormat(sqlInsert);
+                //RiskDownFollowBll.ExecuteSql(strSql);
                 return Content(new JsonMessage { Success = true, Code = "1", Message = Message }.ToString());
             }
             catch (Exception ex)

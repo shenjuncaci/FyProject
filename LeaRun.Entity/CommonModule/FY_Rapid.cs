@@ -184,6 +184,11 @@ namespace LeaRun.Entity
         public string BigType { get; set; }
         public string DetailType { get; set; }
 
+        public string VersionCode { get; set; }
+        public string ProjectName { get; set; }
+
+        public string FileYmbatch { get; set; }
+
 
 
         #region 扩展操作

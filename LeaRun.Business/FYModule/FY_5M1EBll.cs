@@ -20,13 +20,19 @@ namespace LeaRun.Business
             StringBuilder strSql = new StringBuilder();
             List<DbParameter> parameter = new List<DbParameter>();
             strSql.AppendFormat(@" select  a.id,a.processname,a.createdate,b.FullName as bangroup,a.changepoint,
-a.changecontent,a.changereason,a.changelevel,a.changeaction,a.enddate,d.RealName as endby
+a.changecontent,a.changereason,a.changelevel,a.changeaction,a.enddate,d.RealName as endby,
+(select top 1 ProblemDescripe from FY_ProblemAction  where PlanDID in (select plandid from FY_Plan aa left join FY_PlanDetail bb on aa.PlanID=bb.PlanID where bb.ProcessID=a.id) and createbydept='{0}') as problemdescripe,
+a.GCKEndBy
 from FY_5M1E a 
 left join Base_GroupUser b  on a.bangroup=b.GroupUserId
 left join Base_User c on a.createby=c.UserId
 left join Base_User d on a.endby=d.UserId
 
-where 1=1 and a.departmentid='{0}' ",ManageProvider.Provider.Current().DepartmentId);
+where 1=1  ", ManageProvider.Provider.Current().DepartmentId);
+            if(ManageProvider.Provider.Current().ObjectId.IndexOf("c2a1ed38-01f5-4311-902d-afc98bec3ad9")<0)
+            {
+                strSql.AppendFormat(" and a.departmentid='{0}' ", ManageProvider.Provider.Current().DepartmentId);
+            }
             //if (!string.IsNullOrEmpty(keyword))
             //{
             //    strSql.Append(@" AND (fy_cus_name LIKE @keyword
