@@ -126,7 +126,7 @@ namespace LeaRun.Business
                 }
                 if (state == "待审")
                 {
-                    if (field == "res_fmea")   //如果是fmea节点，增加插入apqp的数据
+                    if (field == "res_fmea"&&node=="G")   //如果是fmea节点，增加插入apqp的数据
                     {
                         string TempSql = "select VersionCode,ProjectName,FileYmbatch,res_ms from fy_rapid where res_id='" + KeyValue + "'";
                         DataTable dttemp = GetDataTable(TempSql);

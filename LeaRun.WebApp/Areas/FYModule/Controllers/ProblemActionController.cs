@@ -294,6 +294,22 @@ left join Base_User c on a.CreateBy=c.UserId where 1=1 ";
             ms.Dispose();
         }
 
+        public string ConfirmIt(string ID)
+        {
+            StringBuilder strsql = new StringBuilder();
+            strsql.AppendFormat(@" update FY_ProblemAction set confirmby='{0}',ProblemState='{1}' where ActionID='{2}'  ",ManageProvider.Provider.Current().UserName,"已完成",ID);
+            PostBll.ExecuteSql(strsql);
+            return "";
+        }
+
+        public string RejectIt(string ID)
+        {
+            StringBuilder strsql = new StringBuilder();
+            strsql.AppendFormat(@" update FY_ProblemAction set confirmby='{0}',ProblemState='{1}' where ActionID='{2}'  ", ManageProvider.Provider.Current().UserName, "回退", ID);
+            PostBll.ExecuteSql(strsql);
+            return "";
+        }
+
 
 
 
