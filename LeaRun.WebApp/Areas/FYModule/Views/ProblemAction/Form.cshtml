@@ -243,7 +243,9 @@
                 alert("请填写对应措施");
                 return false;
             }
-            if (CheckIsNullNoTip($("#tt").val()) == false) {
+            //console.log($("#tt").val());
+            //    alert($("#tt").val());
+            if (CheckIsNullNoTip($("#tt").html().trim()) == false) {
                 alert("请上传整改证据");
                 return false;
             }
@@ -253,7 +255,8 @@
         var postData = { ActionID: GetQueryNew('KeyValue'), Tag: tag, ActionContent: $("#ActionContent").val(), CauseAnaly: $("#CauseAnaly").val() }
         AjaxJson("/FYModule/ProblemAction/Approve", postData, function (data) {
             //Loading(false);
-            window.close();
+            top.frames[tabiframeId()].windowload();
+            closeDialog();
         });
     }
 

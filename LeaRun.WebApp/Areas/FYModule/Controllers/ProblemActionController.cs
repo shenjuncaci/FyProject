@@ -219,7 +219,8 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
                    ActionID='{0}'", ActionID);
                 }
             }
-            if(ManageProvider.Provider.Current().UserId==entity.ResponseBy&&entity.ProblemState!= "待审")
+            //if(ManageProvider.Provider.Current().UserId==entity.ResponseBy&&entity.ProblemState!= "待审")
+            else
             {
                 strSql.AppendFormat(@"update FY_ProblemAction set ProblemState='待审',ActionContent='{1}',CauseAnaly='{2}' where
                    ActionID='{0}'", ActionID, ActionContent, CauseAnaly);

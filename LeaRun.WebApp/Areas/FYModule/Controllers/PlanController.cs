@@ -1301,6 +1301,47 @@ union select '','监督人员','0' ) as a order by sortcode ");
             return View();
         }
 
+        public ActionResult FCSHrate()
+        {
+            return View();
+        }
+
+        public ActionResult GetFCSHrate(string keywords, string CompanyId, string DepartmentId, JqGridParam jqgridparam
+            , string startDate, string endDate)
+        {
+            DateTime now = DateTime.Now;
+            DateTime d1 = new DateTime(now.Year, now.Month, 1);
+            DateTime d2 = d1.AddMonths(1).AddDays(-1);
+            if (startDate == "undefined" || startDate == "" || startDate == null)
+            {
+                startDate = d1.ToString();
+            }
+            if (endDate == "undefined" || endDate == "" || endDate == null)
+            {
+                endDate = d2.ToString();
+            }
+
+            try
+            {
+                Stopwatch watch = CommonHelper.TimerStart();
+                DataTable ListData = PlanBll.GetFCSHReport(keywords, ref jqgridparam, startDate, endDate);
+                var JsonData = new
+                {
+                    total = jqgridparam.total,
+                    page = jqgridparam.page,
+                    records = jqgridparam.records,
+                    costtime = CommonHelper.TimerEnd(watch),
+                    rows = ListData,
+                };
+                return Content(JsonData.ToJson());
+            }
+            catch (Exception ex)
+            {
+                Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "异常错误：" + ex.Message);
+                return null;
+            }
+        }
+
         public string GetSperateReport(string keywords, string CompanyId, string DepartmentId, JqGridParam jqgridparam
             , string startDate, string endDate)
         {

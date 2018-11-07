@@ -189,6 +189,16 @@ left join base_department e on e.departmentid=a.departmentid where 1=1 ");
             return Repository().FindDataSetByProc("BZCompleteRate", parameter.ToArray()).Tables[0];
         }
 
+        public DataTable GetFCSHReport(string keyword, ref JqGridParam jqgridparam,
+            string startdate, string enddate)
+        {
+            StringBuilder strSql = new StringBuilder();
+            List<DbParameter> parameter = new List<DbParameter>();
+            parameter.Add(DbFactory.CreateDbParameter("@StartDate", startdate));
+            parameter.Add(DbFactory.CreateDbParameter("@EndDate", enddate));
+            return Repository().FindDataSetByProc("FCSHCompleteRate", parameter.ToArray()).Tables[0];
+        }
+
         public DataTable GetPersonalCompleteRate(string DepartmentID,string StartDate,string EndDate)
         {
             StringBuilder strSql = new StringBuilder();
