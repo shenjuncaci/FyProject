@@ -34,7 +34,11 @@ namespace LeaRun.Entity
         public string ModifyBy { get; set; }
         public DateTime? ModifyDate { get; set; }
         public decimal CostBudget { get; set; }
-
+        public string CostBudgetUnit { get; set; }
+        public decimal RealCostBudget { get; set; }
+        public string RealCostBudgetUnit { get; set; }
+        public decimal ChangeBudget { get; set; }
+        public string ChangeBudgetUnit { get; set; }
 
         #region 扩展操作
         /// <summary>

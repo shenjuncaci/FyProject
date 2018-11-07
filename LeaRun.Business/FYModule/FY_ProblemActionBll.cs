@@ -19,7 +19,9 @@ namespace LeaRun.Business
         {
             StringBuilder strSql = new StringBuilder();
             List<DbParameter> parameter = new List<DbParameter>();
-            strSql.Append(@"select a.*,b.RealName,c.RealName as createman,(select top 1 FullName from Base_Department where DepartmentId=b.DepartmentId) as responsedepart,(select top 1 FullName from Base_Department where DepartmentId=c.DepartmentId) as createdepart from FY_ProblemAction a left join Base_User b on a.ResponseBy=b.UserId left join Base_User c on a.CreateBy=c.UserId where 1=1  ");
+            strSql.Append(@"select a.*,b.RealName,c.RealName as createman,(select top 1 FullName from Base_Department where DepartmentId=b.DepartmentId) as responsedepart,
+(select top 1 FullName from Base_Department where DepartmentId=c.DepartmentId) as createdepart  
+from FY_ProblemAction a left join Base_User b on a.ResponseBy=b.UserId left join Base_User c on a.CreateBy=c.UserId where 1=1  ");
             if (!string.IsNullOrEmpty(keyword))
             {
                 strSql.Append(keyword);

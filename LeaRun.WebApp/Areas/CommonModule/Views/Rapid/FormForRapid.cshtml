@@ -3,8 +3,12 @@
     Layout = "~/Views/Shared/_LayoutForm.cshtml";
 }
 
+<link href="~/Content/Scripts/jquery.select2/css/select2.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery.select2/js/select2.js"></script>
+
 
 <script type="text/javascript">
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
     //$(document).ready(function () {
 
     //    uploadify();
@@ -12,6 +16,13 @@
     $(function () {
         BindData();
         InitControl();
+        //console.log($("#DepartmentIDtxt").val().split(','));
+        //console.log($("#ProcessNametxt").val().split(','));
+        //console.log("[" + $("#DepartmentIDtxt").val() + "]");
+        //console.log($("#DepartmentIDtxt").val().split(','));
+        //$("#DepartmentID").val(JSON.parse($("#DepartmentIDtxt").val().replace(/\'/g, "\""))).trigger("change");
+        $("#DepartmentID").val($("#DepartmentIDtxt").val().replace(/\'/g, "").split(',')).trigger("change");
+       
         //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
         //BindResponseBy();
 
@@ -47,9 +58,19 @@
     }
     //保存事件
     function AcceptClick() {
+
+        //var type = $("#DepartmentID").attr('type');
+        //alert(type);
+
         if (!CheckDataValid('#form1')) {
             return false;
         }
+        //alert($("#DepartmentID").val());
+        //console.log(JSON.stringify($("#DepartmentID").val()));
+        //var jsonString = JSON.stringify($("#DepartmentID").val());
+        $("#DepartmentID").val(JSON.stringify($("#DepartmentID").val()));
+        $("#ProcessName").val(JSON.stringify($("#ProcessName").val()));
+
         Loading(true, "正在提交数据...");
         window.setTimeout(function () {
             var postData = GetWebControls("#form1");
@@ -57,46 +78,106 @@
             AjaxJson("/FYModule/Process/SubmitRapidForm?KeyValue=" + "@ViewData["ProcessID"]"+"&rapidID="+"@ViewData["rapidID"]", postData, function (data) {
                 //tipDialog(data.Message, 3, data.Code);
                 //top.frames[tabiframeId()].windowload();
-                alert("新增成功");
-                window.close();
+                //alert("新增成功");
+                //window.close();
+                //alert(data.Message);
+                parent.$('#ProcessID').val(data.Message);
+                parent.layer.close(index);
+
+
             });
         }, 200);
     }
 
     function BindData()
     {
-        
+
 
 
         $("#DepartmentID").html("");
 
-        $("#DepartmentID").append("<option value=''>==请选择==</option>");
+        //$("#DepartmentID").append("<option value=''>==请选择==</option>");
         AjaxJson("/CommonModule/Rapid/DepartmentJson", {}, function (DataJson) {
             $.each(DataJson, function (i) {
                 $("#DepartmentID").append($("<option></option>").val(DataJson[i].DepartmentID).html(DataJson[i].FullName));
             });
         })
 
+        
+
         $("#ProcessName").html("");
 
-        $("#ProcessName").append("<option value=''>==请选择==</option>");
+        //$("#ProcessName").append("<option value=''>==请选择==</option>");
         AjaxJson("/CommonModule/Rapid/EventAllJson", { }, function (DataJson) {
             $.each(DataJson, function (i) {
                 $("#ProcessName").append($("<option></option>").val(DataJson[i].postname).html(DataJson[i].postname));
             });
         })
+        $("#DepartmentID").select2();
+        //$("#DepartmentID").val(['6ea65ac7-1283-4faf-bcee-e3ae5c844ff5', '18ced5bd-0b26-4920-8aa7-e7e6c7565228']).trigger("change");
+        
+        $("#ProcessName").select2();
+        
     }
 
     function BindProcess()
     {
-        $("#ProcessName").html("");
+        //console.log($("#DepartmentID").val());
+        var jsonString = JSON.stringify($("#DepartmentID").val());
+        //console.log(jsonString);
+        window.setTimeout(function () {
+            
+            $("#ProcessName").html("");
 
-        $("#ProcessName").append("<option value=''>==请选择==</option>");
-        AjaxJson("/CommonModule/Rapid/EventJson", { DepartmentID: $("#DepartmentID").val() }, function (DataJson) {
-            $.each(DataJson, function (i) {
-                $("#ProcessName").append($("<option></option>").val(DataJson[i].postname).html(DataJson[i].postname));
-            });
-        })
+            //$("#ProcessName").append("<option value=''>==请选择==</option>");
+            AjaxJson("/CommonModule/Rapid/EventJson", { DepartmentID: jsonString }, function (DataJson) {
+                $.each(DataJson, function (i) {
+                    $("#ProcessName").append($("<option></option>").val(DataJson[i].postname).html(DataJson[i].postname));
+                });
+            })
+            //$("#ProcessName").val($("#ProcessNametxt").val().splt(',')).trigger("change");
+            //$("#ProcessName").val($("#ProcessNametxt").val().split(',')).trigger("change");
+
+            $("#ProcessName").val($("#ProcessNametxt").val().replace(/\'/g, "").split(',')).trigger("change");
+        }, 200);
+        
+    }
+
+
+
+    //$(function () {
+    //    alert(121);
+    //    $('#DepartmentID').select2({
+    //        placeholder: "请至少选择一个人名",
+    //        tags: true,
+    //        createTag: function (decorated, params) {
+    //            return null;
+    //        },
+    //        width: '256px'
+    //    });
+
+    //    function formatState(state) {
+    //        if (!state.id) { return state.text; }
+    //        var $state = $(
+    //            '<span>' + state.text + '</span>'
+    //        );
+    //        return $state;
+    //    };
+
+    //    $('#DepartmentID').select2({
+    //        placeholder: "请选择一个人名",
+    //        templateResult: formatState,
+    //        width: '256px'
+    //    });
+    //});
+
+    function SetTXTValue() {
+        $("#DepartmentIDtxt").val(JSON.stringify($("#DepartmentID").val()));
+    }
+
+    function SetTXTValue2() {
+        $("#ProcessNametxt").val(JSON.stringify($("#ProcessName").val()));
+        //id = "ProcessNametxt" 
     }
 
 </script>
@@ -119,16 +200,20 @@
             <table class="form" id="table1">
                 <tr>
                     <th class="formTitle">车间名称：</th>
-                    <td class="formValue" colspan="3">
-                        <select id="DepartmentID" onchange="BindProcess()" class="txtselect" datacol="yes" err="车间名称" checkexpession="NotNull"></select>
-                        @*<input id="ProcessName" type="text" class="txt" />*@
+                    <td class="formValue" colspan="1">
+                        <select style="width:100%" multiple="multiple" id="DepartmentID" onchange="BindProcess();SetTXTValue()" class="select2" datacol="yes" err="车间名称" checkexpession="NotNull"></select>
+                        <input hidden id="DepartmentIDtxt" type="text" class="txt" />
+                    </td>
+                    <th class="formTitle">有效期至：</th>
+                    <td class="formValue">
+                        <input id="EndDate" type="text" class="txt Wdate" onfocus="WdatePicker()" @*style="background:#E0FFFF"*@ err="有效期" checkexpession="NotNull"/>
                     </td>
                 </tr>
                 <tr>
                     <th class="formTitle">岗位名称：</th>
                     <td class="formValue">
-                        <select id="ProcessName" class="txtselect" datacol="yes" err="岗位名称" checkexpession="NotNull"></select>
-                        @*<input id="ProcessName" type="text" class="txt" />*@
+                        <select style="width:100%" multiple="multiple" id="ProcessName" onchange="SetTXTValue2()" class="txtselect" datacol="yes" err="岗位名称" checkexpession="NotNull"></select>
+                        <input hidden id="ProcessNametxt" type="text" class="txt" />
                     </td>
                     <th class="formTitle">适用过程</th>
                     <td class="formValue">
@@ -142,7 +227,7 @@
                         </select>
                     </td>
                 </tr>
-                
+
                 <tr>
                     <th class="formTitle">审核内容：</th>
                     <td class="formValue" colspan="3">
@@ -169,6 +254,6 @@
     </div>
 
 </form>
-<button id="cc1" onclick="AcceptClick()">确认</button>
+@*<button id="cc1" onclick="AcceptClick()">确认</button>*@
 
 

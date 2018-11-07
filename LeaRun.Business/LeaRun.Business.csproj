@@ -11,10 +11,14 @@
     <AssemblyName>LeaRun.Business</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -87,6 +91,7 @@
     <Compile Include="ExampleModule\Base_PhoneNoteBll.cs" />
     <Compile Include="ExampleModule\POOrderBll.cs" />
     <Compile Include="ExampleModule\ReportBll.cs" />
+    <Compile Include="FYModule\FY_5M1EBll.cs" />
     <Compile Include="FYModule\FY_BreakPointBll.cs" />
     <Compile Include="FYModule\FY_ChangeBll.cs" />
     <Compile Include="FYModule\FY_ChangeDataBll.cs" />
@@ -94,6 +99,7 @@
     <Compile Include="FYModule\FY_CompetitorInfoBll.cs" />
     <Compile Include="FYModule\FY_CUSBll.cs" />
     <Compile Include="FYModule\FY_CusInfoBll.cs" />
+    <Compile Include="FYModule\FY_DTProductBll.cs" />
     <Compile Include="FYModule\FY_GeneralProblemBll.cs" />
     <Compile Include="FYModule\FY_HrProblemBll.cs" />
     <Compile Include="FYModule\FY_PlanBll.cs" />

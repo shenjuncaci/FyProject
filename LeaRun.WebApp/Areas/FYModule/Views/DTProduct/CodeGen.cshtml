@@ -1,0 +1,155 @@
+﻿@{
+    ViewBag.Title = "断点内容明细";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+   
+}
+
+<style>
+    .ts {
+        width: 305px;
+        height: 36px;
+        line-height: 36px\9;
+        margin: 0px;
+        font-size: 14px;
+        padding: 0 5px;
+        border: 1px solid;
+        border-color: #C9C9C9 #DFDFDF #DFDFDF #C9C9C9;
+    }
+
+</style>
+
+
+
+<script src="~/Content/Scripts/jquery.qrcode/jquery.qrcode.js"></script>
+<script src="~/Content/Scripts/jquery.qrcode/qrcode.js"></script>
+
+
+<link href="~/Content/Scripts/jqprint/PrintCss.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jqprint/jquery.jqprint-0.3.js"></script>
+
+
+<script src="~/Content/Scripts/lodop/LodopFuncs.js"></script>
+
+<br>
+<br>
+<div style="text-align:center;vertical-align:middle;">
+    <h2><input placeholder="请先将光标置于此处再开始扫码！" class="ts" style="width:300px;height:50px" id="OriginCode" /></h2>
+    <br>
+    <br>
+    @*<div id="myarea" style="text-align:center">
+            <table style="text-align:center">
+                <tr>
+                    <td>
+                    <div id="qrcode"></div>
+                        </td>
+                    <td>
+
+                    </td>
+                </tr>
+                </table>
+            </div>
+        </div>*@
+    <div id="qrcode"></div>
+
+    <label readonly id="txtValue" />
+
+</div>
+<div>
+    <font color="red">该程序用于生成二维码，在开始扫码前，请先将产品数据维护进系统！</font>
+</div>
+@*<button onclick="print()">打印</button>*@
+
+
+
+<script>
+
+
+
+    $('#OriginCode').bind('keydown', function (event) {
+        if (event.keyCode == "13") {
+            $.ajax({
+                type: "post",
+                url: "/FYModule/DTProduct/GetCode",
+                data: { OriginCode: $("#OriginCode").val()},
+                async: false,
+                success: function (msg) {
+                    //if (msg == "")
+
+                    //alert(msg);
+                    $("#txtValue").text(msg);
+                    ////alert(msg);
+                    $('#qrcode').html('').qrcode({
+                        text: msg
+                    });
+
+                    print(msg);
+                },
+                error: function () {
+                    alert("出错了");
+                }
+            });
+        }
+    });  
+    var LODOP; //声明为全局变量
+
+
+
+    function CreateOneFormPage(msg) {
+        
+        LODOP = getLodop();
+        LODOP.PRINT_INIT("打印功能测试");
+        LODOP.SET_PRINT_STYLE("FontSize", 8);
+        LODOP.SET_PRINT_STYLE("Bold", 1);
+        LODOP.ADD_PRINT_BARCODE(0, 0, 100, 100, "QRCode", msg);
+        //LODOP.ADD_PRINT_TEXT(50, 231, 260, 39, "打印页面部分内容");
+        LODOP.ADD_PRINT_TEXT(30, 80, 300, 30, msg)
+    };	 
+
+    function print(msg) {
+
+        
+
+        
+
+        CreateOneFormPage(msg);
+        LODOP.PREVIEW();
+        	
+        //LODOP.PRINT();	
+
+
+
+
+
+
+
+
+
+
+
+
+        //PageSetup_Null();
+        //var input = $('#myarea')
+        
+
+        //var img = document.getElementById("image"); /// get image element
+        //var canvas = document.getElementsByTagName("canvas")[0];  /// get canvas element
+        //img.src = canvas.toDataURL();                     /// update image
+
+        //$("#qrcode").css("display", "none");
+
+        //$("#myarea").jqprint({
+        //    debug: false,
+        //    importCSS: true,
+        //    printContainer: true,
+        //    operaSupport: false
+        //});
+
+        //$("#image").jqprint({
+        //    debug: false,
+        //    importCSS: true,
+        //    printContainer: true,
+        //    operaSupport: false
+        //});
+    
+    }
+</script>

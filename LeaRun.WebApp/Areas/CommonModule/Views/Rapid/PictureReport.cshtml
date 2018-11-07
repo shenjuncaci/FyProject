@@ -3,28 +3,53 @@
 }
 
 
- <link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
-    <link href="~/Content/Styles/learunui-accordion.css" rel="stylesheet" />
-    <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
-    <script src="~/Content/Scripts/learunui-framework.js"></script>
+<link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+<link href="~/Content/Styles/learunui-accordion.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+<script src="~/Content/Scripts/learunui-framework.js"></script>
 <script src="~/Content/Scripts/jquery.echarts/echarts.js"></script>
-<div><table><tr> <th class="formTitle">年份：</th>
-                    <td class="formValue">
-                         <select id="year" class="txtselect" onchange="onChange()">
-                            <option value="2017">2017</option>
-                            <option value="2016">2016</option>
-                            <option value="2018">2018</option>
-                        </select>
-                    </td></tr></table></div>
+
+<script src="~/Content/Scripts/datepicker/WdatePicker.js"></script>
+
+<link href="~/Content/Scripts/layui/css/layui.css" rel="stylesheet" />
+<script src="~/Content/Scripts/layui/layui.js"></script>
+
+<div>
+    <table>
+        <tr>
+            <th class="formTitle"><label class="layui-form-label">年份</label></th>
+            <td class="formValue">
+                @*<select id="year" class="txtselect" onchange="onChange()">
+                        <option value="2016">2016</option>
+                        <option value="2017">2017</option>
+                        <option value="2018">2018</option>
+                    </select>*@
+                <input id="year" class="layui-input" type="text" />
+            </td>
+            <td>
+                <button class="layui-btn" onclick="onChange()">查询</button>
+            </td>
+        </tr>
+    </table>
+</div>
 <div id="main" style="width: auto;height:400px"></div>
 <div id="main2" style="width: auto;height:400px"></div>
 <div id="main3" style="width: auto;height:400px"></div>
 <div id="main4" style="width: auto;height:400px"></div>
-    <script type="text/javascript">
-       
+<script type="text/javascript">
+    layui.use('laydate', function () {
+        var laydate = layui.laydate;
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#year'
+            , type: 'year'
+        });
+    });
+    
 
 
-        
+
         $(document).ready(function () {
             onChange();
         });
@@ -283,7 +308,7 @@
                 //boundaryGap: [0, 0.01],
                 //axisLine: true
                 //axisLine.show: true
-               
+
                 //splitArea: {
                 //    show: true,
                 //    interval: 0,
@@ -322,4 +347,4 @@
 
         }
 
-    </script>
+</script>

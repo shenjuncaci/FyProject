@@ -19,7 +19,7 @@ namespace LeaRun.Business
         {
             StringBuilder strSql = new StringBuilder();
             List<DbParameter> parameter = new List<DbParameter>();
-            strSql.Append(@"select * from fy_process where 1=1 and DepartmentID='"+ManageProvider.Provider.Current().DepartmentId+"' ");
+            strSql.Append(@"select * from fy_process where 1=1  ");
             if (!string.IsNullOrEmpty(keyword))
             {
                 strSql.Append(@" AND (ProcessName LIKE @keyword
@@ -37,7 +37,7 @@ namespace LeaRun.Business
             }
             else
             {
-                strSql.AppendFormat(" and ProcessName not in ('通用','系统监督') ");
+                strSql.AppendFormat(" and DepartmentID='" + ManageProvider.Provider.Current().DepartmentId + "' and ProcessName not in ('通用','系统监督') ");
             }
             return Repository().FindTablePageBySql(strSql.ToString(), parameter.ToArray(), ref jqgridparam);
         }

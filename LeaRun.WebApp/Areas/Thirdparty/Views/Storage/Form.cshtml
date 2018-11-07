@@ -1,0 +1,349 @@
+﻿@{
+    ViewBag.Title = "判断题";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+    string UserName = ViewData["UserName"] as string;
+}
+
+<link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
+<script src="~/Content/Scripts/uploadify/jquery.uploadify.js"></script>
+
+<style>
+    #grid td {
+        text-align: left;
+        border-bottom: 1px solid #ccc;
+        padding: 6px 2px;
+    }
+
+    #divFileName {
+        width: 310px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        -o-text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    #grid td img {
+        vertical-align: middle;
+        border: 0px solid #fff;
+    }
+
+    .uploadify-queue {
+        margin-top: 6px;
+    }
+
+    .uploadify-queue-item {
+        width: 468px;
+        padding-top: 8px;
+        padding-bottom: 7px;
+        margin-top: 0px;
+        border-top: none;
+    }
+
+        .uploadify-queue-item .cancel a {
+            display: none;
+        }
+
+    input {
+        background: #E0FFFF;
+    }
+
+    textarea {
+        background: #E0FFFF;
+    }
+
+    select {
+        background: #E0FFFF;
+    }
+</style>
+
+
+<script type="text/javascript">
+    //$(document).ready(function () {
+
+    //    uploadify();
+    //});
+    $(function () {
+
+        InitControl();
+        //判断新增的时候。如果选择了left项目，公司、部门会自动赋值
+        //BindResponseBy();
+
+
+    })
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/Thirdparty/Storage/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+
+            });
+
+            var rowindex = 1;
+            //评审明细信息
+            AjaxJson("/Thirdparty/Storage/GetDetailList", { productid: GetQuery('KeyValue') }, function (data) {
+                var JsonData = data.rows;
+                //var colorState = "";
+                $.each(JsonData, function (i) {
+
+                    addone(rowindex);
+                    var rowData = JsonData[i];
+                    //alert(rowData.FllowStatus);
+                    //alert(rowData.ReviewDepart);ChangeReviewState
+                    $("#ProductID➩" + rowindex).val(rowData.ProductID);
+                    $("#ProductName➩" + rowindex).val(rowData.ProductName);
+                    $("#ProductLevel➩" + rowindex).val(rowData.ProductLevel);
+                    $("#Num➩" + rowindex).val(rowData.Num);
+
+
+                    rowindex++;
+
+                });
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            var DetailForm = GetTableDataJson("#Detail");
+            postData["DetailForm"] = DetailForm;
+            postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
+            AjaxJson("/Thirdparty/Storage/SubmitForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                closeDialog();
+            });
+        }, 200);
+    }
+
+
+    function addDetailProduct(i) {
+
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '选择项目',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['550px', '350px'],
+            content: 'ChooseDetailProduct?Level=' + $("#ProductLevel").val() + '&NO=' + i
+        });
+    }
+
+    function SelectProject(result) {
+        $("#ProductID").val(result[0]);
+        $("#ProductName").val(result[1]);
+        $("#ProductLevel").val(result[2]);
+        var tab = document.getElementById('Detail');
+        var rowIndex = tab.rows.length + 1;
+        //alert(rowIndex);
+        for (var i = rowIndex; i >= 2; i--) {
+
+            $('#Detail tr:eq(' + i + ')').remove();
+            //console.log(i);
+        }
+    }
+
+    function add(i) {
+        if ($("#ProductLevel").val() == "") {
+            alert("请先选择主产品等级");
+            return false;
+        }
+        if ($("#ProductLevel").val() == "1") {
+            alert("所选产品是基础产品，无法添加基础产品");
+            return false;
+        }
+
+        addDetailProduct(i);
+    }
+
+    function SelectDetailProduct(result, i) {
+        if (result == undefined) {
+            return false;
+        }
+
+        var tab = document.getElementById('Detail');
+        var rowIndex = tab.rows.length + 1;
+        if (i == 999) {
+            //999表示是新增，-3表示减去3行标题
+            i = rowIndex - 2;
+        }
+        //添加一行;
+        var tr = tab.insertRow();
+        //tr.onmouseover = tr.className = "displayStyle";
+        //tr.onmouseout = tr.className = "hideStyle";
+        //tr.onclick = function () { this.className = "onClickChangeStyle(this)"; }
+
+        var td1 = tr.insertCell();
+        var td2 = tr.insertCell();
+        var td3 = tr.insertCell();
+        var td4 = tr.insertCell();
+
+
+        td1.className = "formValue";
+        td2.className = "formValue";
+        td3.className = "formValue";
+        td4.className = "formValue";
+
+
+
+        td1.innerHTML = "<input style=\"width:95%\" hidden id='ProductID➩" + i + "' type=\"text\" class=\"txt\"><input readonly id='ProductName➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"名称\" checkexpession=\"NotNull\">";
+        td2.innerHTML = "<select readonly id=\"ProductLevel➩" + i + "\" class=\"select\" datacol=\"yes\" ><option value = \"\">==请选择 ==</option><option value=\"1\">基础产品</option><option value=\"2\">二级产品</option><option value=\"3\">三级产品</option></select > ";
+        td3.innerHTML = "<input id='Num➩" + i + "' class=\"txt\"   datacol=\"yes\" >";
+
+        td4.innerHTML = "<button class=\"button button-square button-small\" onclick='deleteCurrentRow(this)'>删除</button>";
+
+        $("#ProductID➩" + i).val(result[0]);
+        $("#ProductName➩" + i).val(result[1]);
+        $("#ProductLevel➩" + i).val(result[2]);
+
+        $("#ProductLevel➩" + i).css("disabled", "true");
+
+
+    }
+
+    function deleteCurrentRow(obj) {
+        var tr = obj.parentNode.parentNode;
+        var tbody = tr.parentNode;
+        tbody.removeChild(tr);
+        //只剩行首时删除表格
+        //if (tbody.rows.length == 1) {
+        //    tbody.parentNode.removeChild(tbody);
+        //}
+        //删除数组中的值
+        //removeByValue(array,)
+    }
+
+    function addone(i) {
+        //alert(i);
+        var tab = document.getElementById('Detail');
+        var rowIndex = tab.rows.length + 1;
+        if (i == 999) {
+            //999表示是新增，-3表示减去3行标题
+            i = rowIndex - 2;
+        }
+        //添加一行;
+        var tr = tab.insertRow();
+        //tr.onmouseover = tr.className = "displayStyle";
+        //tr.onmouseout = tr.className = "hideStyle";
+        //tr.onclick = function () { this.className = "onClickChangeStyle(this)"; }
+
+        var td1 = tr.insertCell();
+        var td2 = tr.insertCell();
+        var td3 = tr.insertCell();
+        var td4 = tr.insertCell();
+
+
+        td1.className = "formValue";
+        td2.className = "formValue";
+        td3.className = "formValue";
+        td4.className = "formValue";
+
+
+
+        td1.innerHTML = "<input style=\"width:95%\" hidden id='ProductID➩" + i + "' type=\"text\" class=\"txt\"><input readonly id='ProductName➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"名称\" checkexpession=\"NotNull\">";
+        td2.innerHTML = "<select readonly id=\"ProductLevel➩" + i + "\" class=\"select\" datacol=\"yes\" ><option value = \"\">==请选择 ==</option><option value=\"1\">基础产品</option><option value=\"2\">二级产品</option><option value=\"3\">三级产品</option></select > ";
+        td3.innerHTML = "<input id='Num➩" + i + "' class=\"txt\"   datacol=\"yes\" >";
+
+        td4.innerHTML = "<button class=\"button button-square button-small\" onclick='deleteCurrentRow(this)'>删除</button>";
+
+        //初始化行;
+        //initRows(tab);
+    }
+
+
+</script>
+
+
+<form id="form1">
+    <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">产品基本信息</div>
+
+
+            </div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+        <!--基本信息-->
+        <div id="basic" class="tabPanel">
+            <table class="form">
+
+                <tr>
+                    <th class="formTitle">产品名称：</th>
+                    <td class="formValue">
+
+                        <input id="ProductName" type="text" class="txt" datacol="yes" err="产品名称" checkexpession="NotNull" />
+
+                    </td>
+
+                    <th class="formTitle">产品等级</th>
+                    <td class="formValue">
+                        <select id="ProductLevel" class="select" datacol="yes" err="产品等级" checkexpession="NotNull">
+                            <option value="">==请选择==</option>
+                            <option value="1">基础产品</option>
+                            <option value="2">二级产品</option>
+                            <option value="3">三级产品</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">产品单位：</th>
+                    <td class="formValue">
+
+                        <select id="ProductUnit" class="select" datacol="yes" err="产品单位" checkexpession="NotNull">
+                            <option value="">==请选择==</option>
+                            <option value="个">个</option>
+                            <option value="台">台</option>
+                            <option value="套">套</option>
+                        </select>
+
+                    </td>
+
+                    <th class="formTitle">创建日期</th>
+                    <td class="formValue">
+                        <input readonly id="CreateDate" type="text" class="txt" datacol="yes" placeholder="自动生成，无需填写" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">备注：</th>
+                    <td class="formValue" colspan="3">
+
+                        <input id="Remark" type="text" class="txt" datacol="yes" err="备注" checkexpession="NotNull" />
+
+                    </td>
+
+
+                </tr>
+
+                <tr>
+                    <th colspan="4" style="text-align:left"><strong> 添加一、二级物料</strong></th>
+                </tr>
+                <tr>
+                    <td colspan="4">
+                        <table id="Detail" class="formdetail" style="width:98%">
+                            <tr><td colspan="3" style="width:95%"></td><td style="width:5%"><a class="button button-caution button-square button-small" onclick="add(999)">添加</a></td></tr>
+                            <tr>
+                                <th class="formTitle" style="width:25%;text-align:left">产品名称</th>
+                                <th class="formTitle" style="width:20%;text-align:left">产品等级</th>
+                                <th class="formTitle" style="width:25%;text-align:left">数量</th>
+
+                                <th class="formTitle" style="width:5%;text-align:left">删除</th>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+            </table>
+        </div>
+
+
+    </div>
+
+</form>

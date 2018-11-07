@@ -1,0 +1,152 @@
+﻿@{
+    ViewBag.Title = "技能列表";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script>
+
+    //注意：parent 是 JS 自带的全局对象，可用于操作父页面
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
+    //parent.layer.iframeAuto(index);
+
+    $(function () {
+        $("#keywords").focus();
+
+        GetGrid();
+        //绑定键盘按下事件
+        $(document).keypress(function (e) {
+            // 回车键事件
+            if (e.which == 13) {
+                $("#keywords").focus();
+                $("#keywords").select();
+                $("#btnSearch").click();
+            }
+        });
+    });
+    //搜索
+    function btn_Search() {
+        var keywords = $("#ProjectName").val();
+        //var keywords = " and projectname like '%" + SkillName + "%' ";
+        $("#gridTable").jqGrid('setGridParam', {
+            url: encodeURI("@Url.Content("~/Thirdparty/Storage/GridPageListJson")?keywords=" + keywords)
+        }).trigger('reloadGrid');
+    }
+    //显示技能列表
+    function GetGrid() {
+        var index = GetQuery('index');
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/Thirdparty/Storage/GridPageListJson")?ProductLevel=" + GetQuery('Level'),
+            datatype: "json",
+            height: 230,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'productid', index: 'productid', width: 80, align: 'left', hidden: true },
+                { label: '产品等级', name: 'productlevel', index: 'productlevel', width: 150, align: 'left', hidden: true },
+                { label: '产品名称', name: 'productname', index: 'productname', width: 150, align: 'left' },
+                { label: '单位', name: 'productunit', index: 'productunit', width: 80, align: 'left' },
+                { label: '备注', name: 'remark', index: 'remark', width: 250, align: 'left' },
+                { label: '创建日期', name: 'createdate', index: 'createdate', width: 100, align: 'left'},
+
+            ],
+            pager: false,
+            rowNum: 1000,
+            //rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            multiselect: false
+            //双击事件
+            //ondblClickRow: function (RowIndx) {
+            //    var rowData = $(this).jqGrid('getRowData', RowIndx);
+            //    //var $parentobj = top.$.dialog;
+            //    //if (!$parentobj.IsExistItem(index, rowData.SkillID)) {
+            //    //    $parentobj.$("#SkillID➩" + index).val(rowData.SkillID);
+            //    //    $parentobj.$("#SkillName➩" + index).val(rowData.SkillName);
+
+            //    //    index++;
+
+            //    // closeDialog();
+            //    //} else {
+            //    //    top.TipMsg("技能已存在,不能重复添加", 4000, "error");
+            //    //}
+            //    var ResultArr = new Array();
+            //    ResultArr[0] = rowData.skillid;
+            //    ResultArr[1] = rowData.skillname;
+            //    ResultArr[2] = rowData.skilldescripe;
+
+            //    window.returnValue = ResultArr;
+            //    window.close();
+            //}
+        });
+    }
+
+    //多选，一次传多个技能回去
+    function btn_Confirm()
+    {
+        var Result = new Array();
+        var productid = GetJqGridRowValue("#gridTable", "productid");
+        var productname = GetJqGridRowValue("#gridTable", "productname");
+        var productlevel = GetJqGridRowValue("#gridTable", "productlevel");
+        //var SkillDescripe = GetJqGridRowValue("#gridTable", "skilldescripe");
+        //var SkillIDArr = SkillId.split(",");
+        //var SkillNameArr = SkillName.split(",");
+
+        //for (var i = 0; i < SkillIDArr.length; i++)
+        //{
+
+        //    var TempObject = {};
+        //    TempObject["SkillID"] = SkillIDArr[i];
+        //    TempObject["SkillName"] = SkillNameArr[i];
+        //    Result.push(TempObject);
+
+        //}
+
+
+        Result[0] = productid;
+        Result[1] = productname;
+        Result[2] = productlevel;
+
+        if (Result.length==0)
+        {
+            alert("请选择一个产品");
+            return false;
+        }
+
+        parent.SelectDetailProduct(Result, GetQuery('NO'));
+        parent.layer.close(index);
+
+
+    }
+
+
+</script>
+<div class="border" style="margin: 1px; border-bottom: none; margin-bottom: 0px;">
+    <div class="QueryArea">
+        <table border="0" class="form-find" style="height: 45px;">
+            <tr>
+                <th>
+                    产品名称：
+                </th>
+                <td>
+                    <input id="ProjectName" type="text" class="txt" style="width: 50px" />
+                </td>
+
+                <td>
+                    <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                </td>
+                <td>
+                    <input id="btnSearch" type="button" class="btnSearch" value="确 认" onclick="btn_Confirm()" />
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="line"></div>
+    <table id="gridTable"></table>
+    <style>
+        .ui-widget-content {
+            border-left: none;
+        }
+
+        .ui-th-column, .ui-jqgrid .ui-jqgrid-htable th.ui-th-column {
+            background: none;
+        }
+    </style>
+</div>

@@ -91,6 +91,7 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
                 {
                     //entity.DepartmentID = ManageProvider.Provider.Current().DepartmentId;
                     entity.Create();
+                    
 
 
                     database.Insert(entity, isOpenTrans);

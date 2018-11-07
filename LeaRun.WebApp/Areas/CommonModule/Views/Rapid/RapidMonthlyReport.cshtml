@@ -2,25 +2,37 @@
     ViewBag.Title = "QsB";
     Layout = "~/Views/Shared/_LayoutIndex.cshtml";
 }
+<link href="~/Content/Scripts/layui/css/layui.css" rel="stylesheet" />
+<script src="~/Content/Scripts/layui/layui.js"></script>
+
 <style>
     .ui-jqgrid tr.jqgrow td {
-white-space: normal !important;
-height:auto;
-vertical-align:text-top;
-padding-top:2px;
-border-bottom:1px solid #E8E8E8;
-/*border-top:1px solid #E8E8E8;*/
-
-}
+        white-space: normal !important;
+        height: auto;
+        vertical-align: text-top;
+        padding-top: 2px;
+        border-bottom: 1px solid #E8E8E8;
+        /*border-top:1px solid #E8E8E8;*/
+    }
 </style>
 <script type="text/javascript">
+    layui.use('laydate', function () {
+        var laydate = layui.laydate;
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#keywords'
+            , type: 'year'
+        });
+    });
+
     $(document).ready(function () {
         GetTree();
         GetGrid();
         SwitchListAndView();
-        //绑定键盘按下事件  
+        //绑定键盘按下事件
         $(document).keypress(function (e) {
-            //回车键事件  
+            //回车键事件
             if (e.which == 13) {
                 $("#keywords").focus();
                 $("#keywords").select();
@@ -50,7 +62,7 @@ border-bottom:1px solid #E8E8E8;
     }
     //搜索
     function btn_Search() {
-        
+
         var keywords = $("#keywords").val();
         $("#gridTable").jqGrid('setGridParam', {
             url: "@Url.Content("~/CommonModule/Rapid/GetReportJson")?keywords=" + escape(keywords) , page: 1
@@ -65,7 +77,7 @@ border-bottom:1px solid #E8E8E8;
             height: $(window).height() - 178,
             autowidth: true,
             colModel: [
-                
+
                 { label: '部门', name: 'FullName', index: 'fullname', width: 150, align: 'left' },
                 { label: '1月', name: 'one', index: 'one', width: 70, align: 'right' },
                 { label: '2月', name: 'two', index: 'two', width: 70, align: 'right' },
@@ -80,7 +92,7 @@ border-bottom:1px solid #E8E8E8;
                 { label: '11月', name: 'eleven', index: 'eleven', width: 70, align: 'right' },
                 { label: '12月', name: 'twelve', index: 'twelve', width: 70, align: 'right' },
                 { label: '年度合计', name: 'total', index: 'total', width: 70, align: 'right' },
-                
+
 
 
 
@@ -96,7 +108,7 @@ border-bottom:1px solid #E8E8E8;
             gridview: true,
             //multiselect: true,
             //cellattr: addCellAttr,
-            
+
             // useColSpanStyle:true,
             //onSelectRow: function () {
             //    SelectRowIndx = GetJqGridRowIndx("#" + this.id);
@@ -112,14 +124,14 @@ border-bottom:1px solid #E8E8E8;
             $("#gridTable").setGridHeight($(window).height() - 178);
         });
 
-        
+
 
 
     }
 
-    
 
-    
+
+
     //高级查询
     var QueryParamJson = "";
     function btn_query() {
@@ -132,17 +144,17 @@ border-bottom:1px solid #E8E8E8;
             });
         });
     }
-    
-    
-   
-   
-   
-    
-    
-   
+
+
+
+
+
+
+
+
     //刷新
     function windowload() {
-        $("#gridTable").trigger("reloadGrid"); //重新载入 
+        $("#gridTable").trigger("reloadGrid"); //重新载入
     }
     /*视图begin=========================================================================*/
     //切换到列表/视图
@@ -216,34 +228,20 @@ border-bottom:1px solid #E8E8E8;
     <div class="layoutPanel layout-center">
         <div class="btnbartitle">
             <div>
-                用户列表 <span id="CenterTitle"></span>
+                整改率列表 <span id="CenterTitle"></span>
             </div>
         </div>
         <!--工具栏-->
-        <div class="tools_bar" style="border-top: none; margin-bottom: 0px;">
-            <div class="PartialButton">
-                @Html.Partial("_PartialButton")
-            </div>
-            <div style="padding-top: 6px; padding-right: 5px;">
-                <ul class="switch-btns" style="float: right;">
-                    <li id="li-switch-list" class="selected" style="border: 1px solid #ccc;" title="切换到列表视图">
-                        <div class="icon icon-btn-switch-list-select"></div>
-                    </li>
-                    <li id="li-switch-view" style="border: 1px solid #ccc; border-left: none;" title="切换到大图视图">
-                        <div class="icon icon-btn-switch-view"></div>
-                    </li>
-                </ul>
-            </div>
-        </div>
         <!--列表-->
         <div id="grid_List">
             <div class="bottomline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
                 <table border="0" class="form-find" style="height: 45px;">
                     <tr>
-                        <th>关键字：
+                        <th>
+                            年度：
                         </th>
                         <td>
-                            <input id="keywords" type="text" class="txt" style="width: 200px" />
+                            <input id="keywords" class="layui-input" type="text" />
                         </td>
                         <td>
                             <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />

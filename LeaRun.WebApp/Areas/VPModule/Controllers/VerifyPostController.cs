@@ -221,7 +221,7 @@ namespace LeaRun.WebApp.Areas.VPModule.Controllers
                 }
                 Base_FormAttributeBll.Instance.SaveBuildForm(BuildFormJson, entity.VerifyPostID, ModuleId, isOpenTrans);
                 database.Commit();
-                return Content(new JsonMessage { Success = true, Code = "1", Message = Message }.ToString());
+                return Content(new JsonMessage { Success = true, Code = "1", Message = entity.VerifyPostID }.ToString());
             }
             catch (Exception ex)
             {

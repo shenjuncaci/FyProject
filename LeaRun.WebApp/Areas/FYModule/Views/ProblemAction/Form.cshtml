@@ -165,9 +165,13 @@
 
     function Controleditable()
     {
+        
+        
         var OrderState = $("#ProblemState").val();
         var ResponseBy = $("#ResponseBy").val();
         var CreateBy = $("#CreateBy").val();
+
+       
 
         if (OrderState == "已完成") {
             $("form input").prop("readonly", true);
@@ -180,8 +184,12 @@
         }
         else
         {
-            if ('@UserID' == CreateBy)
+            if ('@UserID' == OrderState)
             {
+                //console.log(OrderState);
+                if ('@UserID' == ResponseBy) {
+                    IsResponse = 1;
+                }
                 IsCreate = 1;
                 $("#ResponseBy").searchableSelect();
                 document.getElementsByClassName("searchable-select-holder")[0].innerHTML = $("#ResponseBy").find("option:selected").text();
@@ -233,6 +241,10 @@
             }
             if (CheckIsNullNoTip($("#ActionContent").val()) == false) {
                 alert("请填写对应措施");
+                return false;
+            }
+            if (CheckIsNullNoTip($("#tt").val()) == false) {
+                alert("请上传整改证据");
                 return false;
             }
         }

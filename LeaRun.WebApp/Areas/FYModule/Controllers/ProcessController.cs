@@ -247,22 +247,69 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
                 string Message = KeyValue == "" ? "新增成功。" : "编辑成功。";
                 if (!string.IsNullOrEmpty(KeyValue))
                 {
-                    if (KeyValue == ManageProvider.Provider.Current().UserId)
-                    {
-                        throw new Exception("无权限编辑信息");
-                    }
+                    //按照sourceprocessid删除原来的数据，再重新添加，审核表保存最新数据没有用ID关联真是太好了o(╥﹏╥)o
+                    StringBuilder strsql = new StringBuilder();
+                    strsql.AppendFormat(" delete from fy_process where SourceProcessID='{0}' ",KeyValue);
+                    ProcessBll.ExecuteSql(strsql);
 
 
+
+                   
                     entity.Modify(KeyValue);
+                    entity.DepartmentIDtxt = entity.DepartmentIDtxt.Replace("[", "").Replace("]", "");
+                    entity.ProcessNametxt = entity.ProcessNametxt.Replace("[", "").Replace("]", "");
 
 
                     database.Update(entity, isOpenTrans);
 
+                    
+
+                    //两级循环，对所有可能进行组合
+                    string[] DepartArr = entity.DepartmentIDtxt.Split(',');
+
+                    for (int i = 0; i < DepartArr.Length; i++)
+                    {
+                        string sql = " select postname from fy_post where DepartMentID=" + DepartArr[i] + " ";
+                        DataTable dt = ProcessBll.GetDataTable(sql);
+                        if (dt.Rows.Count > 0)
+                        {
+                            for (int j = 0; j < dt.Rows.Count; j++)
+                            {
+                                if (entity.ProcessNametxt.IndexOf(dt.Rows[j][0].ToString()) >= 0)
+                                {
+                                    FY_Process tempentity = new FY_Process();
+                                    tempentity.Create();
+                                    tempentity.AbleProcess = entity.AbleProcess;
+                                    tempentity.AuditContent = entity.AuditContent;
+                                    tempentity.DepartmentID = DepartArr[i].Replace("'", "");
+                                    tempentity.IsRapid = 2;
+                                    tempentity.ProcessName = dt.Rows[j][0].ToString();
+                                    tempentity.FailureEffect = entity.FailureEffect;
+                                    tempentity.ReactionPlan = entity.ReactionPlan;
+                                    tempentity.SortNO = 0;
+                                    tempentity.SourceProcessID = entity.ProcessID;
+
+                                    database.Insert(tempentity, isOpenTrans);
+                                }
+                            }
+                        }
+                    }
+
+                    entity.DepartmentID = entity.DepartmentIDtxt;
+                    entity.ProcessName = entity.ProcessNametxt;
+
                 }
                 else
                 {
-                    entity.DepartmentID = ManageProvider.Provider.Current().DepartmentId;
+                    entity.DepartmentIDtxt = entity.DepartmentIDtxt.Replace("[", "").Replace("]", "");
+                    entity.ProcessNametxt = entity.ProcessNametxt.Replace("[", "").Replace("]", "");
+
+
+                    entity.DepartmentID = entity.DepartmentIDtxt;
+                    entity.ProcessName = entity.ProcessNametxt;
+                    //entity.DepartmentID = ManageProvider.Provider.Current().DepartmentId;
                     entity.Create();
+                    entity.IsRapid = 1;
 
                     StringBuilder strSql = new StringBuilder();
                     
@@ -271,13 +318,45 @@ namespace LeaRun.WebApp.Areas.FYModule.Controllers
                     database.Insert(entity, isOpenTrans);
 
 
+                    //两级循环，对所有可能进行组合
+                    string[] DepartArr = entity.DepartmentIDtxt.Split(',');
+
+                    for (int i = 0; i < DepartArr.Length; i++)
+                    {
+                        string sql = " select postname from fy_post where DepartMentID=" + DepartArr[i] + " ";
+                        DataTable dt = ProcessBll.GetDataTable(sql);
+                        if (dt.Rows.Count > 0)
+                        {
+                            for (int j = 0; j < dt.Rows.Count; j++)
+                            {
+                                if (entity.ProcessNametxt.IndexOf(dt.Rows[j][0].ToString()) >= 0)
+                                {
+                                    FY_Process tempentity = new FY_Process();
+                                    tempentity.Create();
+                                    tempentity.AbleProcess = entity.AbleProcess;
+                                    tempentity.AuditContent = entity.AuditContent;
+                                    tempentity.DepartmentID = DepartArr[i].Replace("'", "");
+                                    tempentity.IsRapid = 2;
+                                    tempentity.ProcessName = dt.Rows[j][0].ToString();
+                                    tempentity.FailureEffect = entity.FailureEffect;
+                                    tempentity.ReactionPlan = entity.ReactionPlan;
+                                    tempentity.SortNO = 0;
+                                    tempentity.SourceProcessID = entity.ProcessID;
+
+                                    database.Insert(tempentity, isOpenTrans);
+                                }
+                            }
+                        }
+                    }
+
+
                     Base_DataScopePermissionBll.Instance.AddScopeDefault(ModuleId, ManageProvider.Provider.Current().UserId, entity.ProcessID, isOpenTrans);
                     strSql.AppendFormat(@"update FY_Rapid  set ProcessID='{0}' where res_id='{1}' ", entity.ProcessID, rapidID);
                     ProcessBll.ExecuteSql(strSql);
                 }
                 Base_FormAttributeBll.Instance.SaveBuildForm(BuildFormJson, entity.ProcessID, ModuleId, isOpenTrans);
                 database.Commit();
-                return Content(new JsonMessage { Success = true, Code = "1", Message = Message }.ToString());
+                return Content(new JsonMessage { Success = true, Code = "1", Message = entity.ProcessID }.ToString());
             }
             catch (Exception ex)
             {

@@ -842,7 +842,7 @@ border-top:1px solid #E8E8E8;
     //新增
     function btn_add() {
         var url = "/CommonModule/Rapid/FormNew"
-        openDialog(url, "Form", "新增", 650, 350, function (iframe) {
+        openDialog(url, "Form", "新增", 750, 350, function (iframe) {
             top.frames[iframe].AcceptClick()
         });
     }
@@ -851,7 +851,7 @@ border-top:1px solid #E8E8E8;
         var KeyValue = GetJqGridRowValue("#gridTable", "res_id");
         if (IsChecked(KeyValue)) {
             var url = "/CommonModule/Rapid/Form?KeyValue=" + KeyValue;
-            openDialog(url, "Form", "编辑", 800, 450, function (iframe) {
+            openDialog(url, "Form", "编辑", 1100, 500, function (iframe) {
                 top.frames[iframe].AcceptClick();
             });
         }

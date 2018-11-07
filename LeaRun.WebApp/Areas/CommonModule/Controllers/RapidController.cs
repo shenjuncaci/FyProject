@@ -20,6 +20,7 @@ using System.Net.Mail;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
+using Newtonsoft.Json.Linq;
 
 namespace LeaRun.WebApp.Areas.CommonModule.Controllers
 {
@@ -587,6 +588,10 @@ namespace LeaRun.WebApp.Areas.CommonModule.Controllers
 
         public string GetPictueData(string year)
         {
+            if(year=="")
+            {
+                year = DateTime.Now.Year.ToString();
+            }
             string result = "";
             string temp1 = "";
             string temp2 = "";
@@ -948,6 +953,42 @@ where 1=1 ";
             }
         }
 
+        public ActionResult AttendanceNew()
+        {
+            return View();
+        }
+
+        public ActionResult GetAttendanceNewReportJson(string keywords, string CompanyId, string DepartmentId, JqGridParam jqgridparam, string startdate, string enddate)
+        {
+            try
+            {
+                if (startdate == null || startdate == "undefined" || startdate == "")
+                {
+                    startdate = DateTime.Now.ToString();
+                }
+                if (enddate == null || enddate == "undefined" || enddate == "")
+                {
+                    enddate = DateTime.Now.ToString();
+                }
+                Stopwatch watch = CommonHelper.TimerStart();
+                DataTable ListData = rapidbll.GetAttendanceListNew(keywords, ref jqgridparam, startdate, enddate);
+                var JsonData = new
+                {
+                    total = jqgridparam.total,
+                    page = jqgridparam.page,
+                    records = jqgridparam.records,
+                    costtime = CommonHelper.TimerEnd(watch),
+                    rows = ListData,
+                };
+                return Content(JsonData.ToJson());
+            }
+            catch (Exception ex)
+            {
+                Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "异常错误：" + ex.Message);
+                return null;
+            }
+        }
+
         public void AttendanceExcelExport(string startDate, string endDate, JqGridParam jqgridparam)
         {
             ExcelHelper ex = new ExcelHelper();
@@ -1058,7 +1099,7 @@ dataCondition + " and b.RealName='" + Name + "' " +
         public ActionResult DeleteFcsh(string KeyValue,string ProcessID)
         {
             StringBuilder strSql = new StringBuilder();
-            strSql.AppendFormat(@"delete from FY_Process where ProcessID='{0}' ", ProcessID);
+            strSql.AppendFormat(@"delete from FY_Process where ProcessID='{0}' delete from fy_process where SourceProcessID='{0}' ", ProcessID);
             strSql.AppendFormat(@"update FY_Rapid  set ProcessID='' where res_id='{0}' ", KeyValue);
             rapidbll.ExecuteSql(strSql);
             return Content(new JsonMessage { Success = true, Code = 1.ToString(), Message = "操作成功。" }.ToString());
@@ -1122,7 +1163,24 @@ dataCondition + " and b.RealName='" + Name + "' " +
 
         public ActionResult EventJson(string DepartmentID)
         {
-            string sql = " select postname from fy_post where DepartMentID='"+DepartmentID+"' ";
+            string DepartmentIDforSearch = "";
+            DepartmentID = DepartmentID.Replace("[", "").Replace("]", "").Replace("\"","");
+            if(DepartmentID.IndexOf(',')>=0)
+            {
+                string[] DepartArr = DepartmentID.Split(',');
+                for(int i=0;i<DepartArr.Length;i++)
+                {
+                    DepartmentIDforSearch = DepartmentIDforSearch + "'" + DepartArr[i] + "'" + ",";
+                }
+                DepartmentIDforSearch = DepartmentIDforSearch.Substring(0, DepartmentIDforSearch.Length - 1);
+            }
+            else
+            {
+                DepartmentIDforSearch = "'"+DepartmentID+"'";
+            }
+            //foreach (JProperty jProperty in temp.Properties())
+            //{ }
+            string sql = " select postname from fy_post where DepartMentID in ("+ DepartmentIDforSearch + ") ";
             DataTable ListData = rapidbll.GetDataTable(sql);
             return Content(ListData.ToJson());
         }
@@ -1291,6 +1349,17 @@ left join Base_User b on a.res_cpeo=b.Code left join Base_Department c on b.Depa
             DataTable dt = rapidbll.GetDataTable(sql);
             ViewData["dt"] = dt;
 
+            return View();
+        }
+
+        public ActionResult Attendence()
+        {
+            return View();
+        }
+
+        //增加fmea选择，从apqp中选择
+        public ActionResult ChooseFmea()
+        {
             return View();
         }
 

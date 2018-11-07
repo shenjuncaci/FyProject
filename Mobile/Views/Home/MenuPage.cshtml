@@ -130,7 +130,7 @@
             var longitude = position.coords.longitude;
             alert("latitude: " + latitude + "\r\n longitude: " + longitude);
             var length = getFlatternDistance(Number(latitude), Number(longitude), 31.326268, 121.186716);
-            alert(length);
+            alert("您距离会议室还有" + length + "米");
             if (length <= 5) {
                 alert("签到成功");
             }

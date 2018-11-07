@@ -117,7 +117,7 @@
                 { label: '创建人', name: 'createman', index: 'createman', width: 80, align: 'left' },
                 { label: '计划完成日期', name: 'plandate', index: 'plandate', width: 150, align: 'left', formatter: dateFormat },
                 { label: '实际完成日期', name: 'realcompletedate', index: 'realcompletedate', width: 150, align: 'left', formatter: dateFormat },
-               
+                { label: '体系科', name: 'confirmby', index: 'confirmby', width: 80, align: 'left' },
 
 
 
@@ -308,7 +308,43 @@
         return cellvalue;
     }
 
+    function btn_Done() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "actionid");
 
+        if (IsChecked(KeyValue)) {
+            $.ajax({
+                type: "post",
+                url: "/FYModule/ProblemAction/ConfirmIt",
+                data: { ID: KeyValue },
+                async: false,
+                success: function (msg) {
+                    windowload();
+                },
+                error: function () {
+                    alert("出错了");
+                }
+            });
+        }
+    }
+
+    function btn_Reject() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "actionid");
+
+        if (IsChecked(KeyValue)) {
+            $.ajax({
+                type: "post",
+                url: "/FYModule/ProblemAction/RejectIt",
+                data: { ID: KeyValue },
+                async: false,
+                success: function (msg) {
+                    windowload();
+                },
+                error: function () {
+                    alert("出错了");
+                }
+            });
+        }
+    }
 
 </script>
 

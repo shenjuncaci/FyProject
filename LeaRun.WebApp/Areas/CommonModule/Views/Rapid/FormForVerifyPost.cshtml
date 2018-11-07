@@ -57,6 +57,7 @@
 
 
 <script type="text/javascript">
+    var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
     //$(document).ready(function () {
 
     //    uploadify();
@@ -162,8 +163,10 @@
             var postData = GetWebControls("#form1");
             postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
             AjaxJson("/VPModule/VerifyPost/SubmitRapidForm?KeyValue=" + GetQuery('VerifyPostID') + "&rapidID=" + GetQuery('rapidID'), postData, function (data) {
-                alert("新增成功");
-                window.close();
+                //alert("新增成功");
+                //window.close();
+                parent.$('#VerifyPostID').val(data.Message);
+                parent.layer.close(index);
             });
         }, 200);
     }
@@ -341,4 +344,4 @@
     </div>
 
 </form>
-<button id="cc1" onclick="AcceptClick()">确认</button>
+@*<button id="cc1" onclick="AcceptClick()">确认</button>*@
