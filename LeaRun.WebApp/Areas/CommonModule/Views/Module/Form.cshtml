@@ -60,25 +60,29 @@
     <div id="message" style="display: none"></div>
     <table class="form">
         <tr>
-            <th class="formTitle">模块编码：
+            <th class="formTitle">
+                模块编码：
             </th>
             <td class="formValue">
                 <input id="Code" type="text" class="txt required" datacol="yes" err="模块编码" checkexpession="NotNull" />
             </td>
-            <th class="formTitle">模块名称：
+            <th class="formTitle">
+                模块名称：
             </th>
             <td class="formValue">
                 <input id="FullName" type="text" class="txt required" datacol="yes" err="模块名称" checkexpession="NotNull" />
             </td>
         </tr>
         <tr>
-            <th class="formTitle">上级模块：
+            <th class="formTitle">
+                上级模块：
             </th>
             <td class="formValue">
                 <input id="ParentId" type="hidden" />
                 <input id="ParentName" type="text" class="txt icontree" />
             </td>
-            <th class="formTitle">模块分类：
+            <th class="formTitle">
+                模块分类：
             </th>
             <td class="formValue">
                 <select id="Category" class="txtselect">
@@ -88,7 +92,8 @@
             </td>
         </tr>
         <tr>
-            <th class="formTitle">Icon图标：
+            <th class="formTitle">
+                Icon图标：
             </th>
             <td class="formValue">
                 <input id="Icon" type="text" class="txt" />
@@ -111,6 +116,25 @@
                 <input id="SortCode" type="text" onkeyup="IsNumber(this.id)" class="txt" datacol="yes" err="显示顺序" checkexpession="Num" />
             </td>
         </tr>
+
+        <tr>
+            <th class="formTitle">
+                链接类型：
+            </th>
+            <td class="formValue">
+                <select id="linkType" class="txtselect">
+                    <option value="0">内部链接</option>
+                    <option value="1">外部链接</option>
+                </select>
+            </td>
+            <th class="formTitle">
+                
+            </th>
+            <td class="formValue">
+                
+            </td>
+        </tr>
+
         <tr>
             <th class="formTitle">选项：</th>
             <td class="formValue" colspan="3">
@@ -145,14 +169,16 @@
             </td>
         </tr>
         <tr>
-            <th class="formTitle">访问地址：
+            <th class="formTitle">
+                访问地址：
             </th>
             <td class="formValue" colspan="3">
                 <input id="Location" type="text" class="txt" />
             </td>
         </tr>
         <tr>
-            <th class="formTitle">说明：
+            <th class="formTitle">
+                说明：
             </th>
             <td class="formValue" colspan="3">
                 <textarea id="Remark" name="Description" maxlength="200" class="txtArea" rows="5"></textarea>
