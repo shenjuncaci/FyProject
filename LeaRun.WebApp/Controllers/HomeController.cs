@@ -171,6 +171,7 @@ namespace LeaRun.WebApp.Controllers
                 tree.hasChildren = hasChildren;
                 tree.parentId = item.ParentId;
                 tree.img = item.Icon != null ? "/Content/Images/Icon16/" + item.Icon : item.Icon;
+                tree.linkType = item.linkType;
                 TreeList.Add(tree);
             }
             return Content(TreeList.TreeToJson(ModuleId).Replace("分层审核", "分层审核" + "(" + ManageProvider.Provider.Current().DepartmentName + ")"));

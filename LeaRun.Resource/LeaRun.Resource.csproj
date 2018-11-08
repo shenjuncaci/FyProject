@@ -28,7 +28,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <IntermediateOutputPath>C:\Users\XiaoMi\AppData\Local\Temp\vsE375.tmp\Debug\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\XiaoMi\AppData\Local\Temp\vsE6B4.tmp\Debug\</IntermediateOutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -37,7 +37,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <IntermediateOutputPath>C:\Users\XiaoMi\AppData\Local\Temp\vsE375.tmp\Release\</IntermediateOutputPath>
+    <IntermediateOutputPath>C:\Users\XiaoMi\AppData\Local\Temp\vsE6B4.tmp\Release\</IntermediateOutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

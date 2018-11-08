@@ -54,6 +54,7 @@ namespace LeaRun.Utilities
                     }
                     strJson.Append("\"showcheck\":" + entity.showcheck.ToString().ToLower() + ",");
                     strJson.Append("\"isexpand\":" + entity.isexpand.ToString().ToLower() + ",");
+                    strJson.Append("\"linktype\":" + entity.linkType.ToString().ToLower() + ",");
                     if (entity.complete == true)
                     {
                         strJson.Append("\"complete\":" + entity.complete.ToString().ToLower() + ",");
@@ -105,5 +106,7 @@ namespace LeaRun.Utilities
         /// 自定义属性值A
         /// </summary>
         public string AttributeValueA { get; set; }
+
+        public int linkType { get; set; }
     }
 }

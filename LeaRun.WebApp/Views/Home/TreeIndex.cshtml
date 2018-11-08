@@ -165,7 +165,13 @@
                 onnodeclick: function (item) {
                     if (!!item.Location) {
                         var filename = item.img.replace(/.*(\/|\\)/, "");
-                        AddTabMenu(item.id, RootPath() + item.Location, item.text, filename, 'true');
+                        if (item.linkType == 0) {
+                            AddTabMenu(item.id, RootPath() + item.Location, item.text, filename, 'true');
+                        }
+                        else {
+                            AddTabMenu(item.id, item.Location, item.text, filename, 'true');
+                        }
+                        
                         linkAddTabMenu();
                     }
                     //点击展开

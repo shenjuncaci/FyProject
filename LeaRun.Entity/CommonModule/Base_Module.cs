@@ -174,6 +174,9 @@ namespace LeaRun.Entity
         /// <returns></returns>
         [DisplayName("修改用户")]
         public string ModifyUserName { get; set; }
+
+        //0表是内部连接，1表是外部
+        public int linkType { get; set; }  
         #endregion
 
         #region 扩展操作

@@ -159,12 +159,20 @@
                         submenu += GetSubmenu(accordionJson[i].ModuleId, "c-children")
                         submenu += "</li>";
                     } else {
-                        submenu += "<li title=" + accordionJson[i].FullName + " onclick=\"AddTabMenu('" + accordionJson[i].ModuleId + "', '" + RootPath() + accordionJson[i].Location + "', '" + accordionJson[i].FullName + "',  '" + accordionJson[i].Icon + "','true');linkAddTabMenu()\"><img src='../Content/Images/Icon16/" + accordionJson[i].Icon + "'><a><span>" + accordionJson[i].FullName + "</span></a></li>";
+                        if (accordionJson[i].linkType == 0) {
+                            submenu += "<li title=" + accordionJson[i].FullName + " onclick=\"AddTabMenu('" + accordionJson[i].ModuleId + "', '" + RootPath() + accordionJson[i].Location + "', '" + accordionJson[i].FullName + "',  '" + accordionJson[i].Icon + "','true');linkAddTabMenu()\"><img src='../Content/Images/Icon16/" + accordionJson[i].Icon + "'><a><span>" + accordionJson[i].FullName + "</span></a></li>";
+                        }
+                        else {
+                            submenu += "<li title=" + accordionJson[i].FullName + " onclick=\"AddTabMenu('" + accordionJson[i].ModuleId + "', '" + accordionJson[i].Location + "', '" + accordionJson[i].FullName + "',  '" + accordionJson[i].Icon + "','true');linkAddTabMenu()\"><img src='../Content/Images/Icon16/" + accordionJson[i].Icon + "'><a><span>" + accordionJson[i].FullName + "</span></a></li>";
+                        }
+                        
                     }
                 }
             });
             submenu += "</ul>";
+            console.log(submenu);
             return submenu;
+            
         }
         //判断是否有子节点
         function IsBelowMenu(ModuleId) {
