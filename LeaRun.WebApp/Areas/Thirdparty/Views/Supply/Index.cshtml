@@ -69,7 +69,7 @@
     function btn_Search() {
         var keywords = $("#keywords").val();
         $("#gridTable").jqGrid('setGridParam', {
-            url: "@Url.Content("~/Thirdparty/OutStorage/GridPageListJson")?keywords=" + escape(keywords), page: 1
+            url: "@Url.Content("~/Thirdparty/Supply/GridPageListJson")?keywords=" + escape(keywords), page: 1
         }).trigger('reloadGrid');
     }
 
@@ -78,23 +78,22 @@
     function GetGrid() {
         var SelectRowIndx;
         $("#gridTable").jqGrid({
-            url: "@Url.Content("~/Thirdparty/OutStorage/GridPageListJson")",
+            url: "@Url.Content("~/Thirdparty/Supply/GridPageListJson")",
             datatype: "json",
             height: $(window).height() - 178,
             autowidth: true,
             colModel: [
-                { label: '主键', name: 'outid', index: 'outid', width: 80, align: 'left', hidden: true },
-                { label: '产品名称', name: 'productname', index: 'productname', width: 150, align: 'left' },
-                { label: '出库数', name: 'outnum', index: 'outnum', width: 80, align: 'left' },
-                { label: '单位', name: 'productunit', index: 'productunit', width: 80, align: 'left' },
+                { label: '主键', name: 'supplyid', index: 'supplyid', width: 80, align: 'left', hidden: true },
+                { label: '供应商名称', name: 'supplyname', index: 'supplyname', width: 150, align: 'left' },
+               
                 { label: '备注', name: 'remark', index: 'remark', width: 250, align: 'left' },
-                { label: '创建日期', name: 'createdate', index: 'createdate', width: 100, align: 'left', formatter: dateFormat },
+               
             ],
             viewrecords: true,
             rowNum: 30,
             rowList: [30, 50, 100, 500, 1000],
             pager: "#gridPager",
-            sortname: 'createdate',
+            sortname: 'supplyid',
             sortorder: 'desc',
             rownumbers: true,
             shrinkToFit: false,
@@ -121,16 +120,16 @@
 
     //新增
     function btn_add() {
-        var url = "/Thirdparty/OutStorage/Form"
+        var url = "/Thirdparty/Supply/Form"
         openDialog(url, "Form", "新增", 1000, 350, function (iframe) {
             top.frames[iframe].AcceptClick();
         });
     }
     //编辑
     function btn_edit() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "outid");
+        var KeyValue = GetJqGridRowValue("#gridTable", "supplyid");
         if (IsChecked(KeyValue)) {
-            var url = "/Thirdparty/OutStorage/Form?KeyValue=" + KeyValue;
+            var url = "/Thirdparty/Supply/Form?KeyValue=" + KeyValue;
             openDialog(url, "Form", "编辑", 1000, 350, function (iframe) {
                 top.frames[iframe].AcceptClick()
             });
@@ -140,10 +139,10 @@
 
     //删除
     function btn_delete() {
-        var KeyValue = GetJqGridRowValue("#gridTable", "outid");
+        var KeyValue = GetJqGridRowValue("#gridTable", "supplyid");
         if (IsDelData(KeyValue)) {
             var delparm = 'KeyValue=' + KeyValue;
-            delConfig('/Thirdparty/OutStorage/Delete', delparm, KeyValue.split(",").length);
+            delConfig('/Thirdparty/Supply/Delete', delparm, KeyValue.split(",").length);
         }
     }
 

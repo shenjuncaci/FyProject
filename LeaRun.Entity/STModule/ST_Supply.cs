@@ -18,41 +18,29 @@ namespace LeaRun.Entity
     ///		<date>2014.08.11 15:45</date>
     /// </author>
     /// </summary>
-    [Description("固定资产表")]
-    [PrimaryKey("ProductID")]
-    public class ST_Products : BaseEntity
+    [Description("供应商表")]
+    [PrimaryKey("SupplyID")]
+    public class ST_Supply : BaseEntity
     {
 
         [DisplayName("主键")]
-        public string ProductID { get; set; }
-        public int ProductLevel { get; set; }
-        public string ProductName { get; set; }
-        public string Remark { get; set; }
-        public string ProductUnit { get; set; }
-        public DateTime? CreateDate { get; set; }
-
         public string SupplyID { get; set; }
+        public string SupplyName { get; set; }
+        public string Remark { get; set; }
 
-        //添加明细字段
-        public string Weight { get; set; }
-        public string Tiji { get; set; }
-        public string PrdouctNO { get; set; }
-        public string TuoPan { get; set; }
-        public string SPC { get; set; }
         #region 扩展操作
         /// <summary>
         /// 新增调用
         /// </summary>
         public override void Create()
         {
-            this.ProductID = CommonHelper.GetGuid;
-            this.CreateDate = DateTime.Now;
-            //this.CreateBy
+            this.SupplyID = CommonHelper.GetGuid;
+            
         }
 
         public override void Modify(string KeyValue)
         {
-            this.ProductID = KeyValue;
+            this.SupplyID = KeyValue;
 
         }
 

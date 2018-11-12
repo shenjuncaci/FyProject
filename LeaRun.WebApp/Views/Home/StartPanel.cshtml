@@ -52,7 +52,7 @@
             //ShortcutsList();
             //GetWaitToDoList();
             GetGrid();
-            ShortcutsList();
+            //ShortcutsList();
            
         });
 
@@ -67,37 +67,35 @@
             //var year = $("#year").val();
             var X = new Array();
             var Y = new Array();
-            var Y2 = new Array();
-            var durl = encodeURI('@Url.Action("GetPictueData", "Rapid")?year='+year);
+           
+            var durl = encodeURI('@Url.Action("GetPictueData", "Storage")');
         $.ajax({
             type: "post",
             url: durl,
             async: false,
             success: function (data) {
-                var dataA = new Array();
-                dataA = data.split("|");
-
-                X = dataA[2].split(",");
-                Y2 = dataA[1].split(",");
-                Y = dataA[0].split(",");
-                for(var i=0;i<X.length;i++)
-                {
-                    X[i] = X[i] + "月份";
+                Jdata = JSON.parse(data);
+                for (var i = 0; i < Jdata.length; i++) {
+                    X.push(Jdata[i].supplyname);
+                    Y.push(Jdata[i].num);
                 }
+               
             }
 
-        });
+            });
+
+           
         // 基于准备好的dom，初始化echarts实例
         var myChart = echarts.init(document.getElementById('container'));
         // 指定图表的配置项和数据
         var option = {
-            color: ['#3398DB','green'],
+            color: ['#3398DB'],
             title: {
-                text: '快速反应年度统计'
+                text: '各供应商入库累计'
             },
             tooltip: {},
             legend: {
-                data: ['问题次数','已完成数']
+                data: ['入库数']
             },
             xAxis: {
                 data: X
@@ -107,23 +105,12 @@
                 //boundaryGap: [0, 0.01]
             },
             series: [{
-                name: '问题次数',
+                name: '入库数',
                 type: 'bar',
                 data: Y,
                 itemStyle: { normal: { label: { show: true, position: 'top' } } }
-            },
-                {
-                    name: '已完成数',
-                    type: 'bar',
-                    data: Y2,
-                    itemStyle: { normal: { label: { show: true, position: 'top' } } }
-                }
-            //{
+            }
 
-            //    name: '已完成问题数',
-            //    type: 'bar',
-            //    data: Y
-            //},
             ]
         };
 
@@ -354,21 +341,20 @@
     function GetGrid() {
         var SelectRowIndx;
         $("#gridTable").jqGrid({
-            url: "@Url.Content("~/Home/GetGridList")",
+            url: "@Url.Content("~/Thirdparty/Storage/GridStoragePageListJson")",
             datatype: "json",
             height: $(window).height() - 488,
             autowidth: true,
             colModel: [
-                { label: '主键', name: 'KeyValue', index: 'KeyValue', width: 80, align: 'left', hidden: true },
-                { label: 'URL', name: 'Url', index: 'Url', width: 80, align: 'left', hidden: true },
-                { label: '模块', name: 'mokuai', index: 'mokuai', width: 100, align: 'left' },
-                { label: '问题描述', name: 'ProblemDescripe', index: 'ProblemDescripe', width: 200, align: 'left', formatter: lengthFormat }
+                { label: '产品名称', name: 'productname', index: 'productname', width: 150, align: 'left' },
+                { label: '库存数量', name: 'num', index: 'num', width: 80, align: 'left' },
+                { label: '单位', name: 'productunit', index: 'productunit', width: 80, align: 'left' },
             ],
             viewrecords: true,
             rowNum: 30,
             rowList: [30, 50, 100, 500, 1000],
             pager: "#gridPager",
-            sortname: 'planstartdt',
+            sortname: 'num',
             sortorder: 'desc',
             rownumbers: true,
             shrinkToFit: false,
@@ -426,7 +412,7 @@
                                 <img src="~/Content/Images/Icon32/chart_bar.png" alt="" width="20" height="20" />
                                 数据统计
                             </div>
-                            <div id="SeriesType" title="点击切换图表" style="float: right; padding-right: 10px; cursor: pointer;">
+                            @*<div id="SeriesType" title="点击切换图表" style="float: right; padding-right: 10px; cursor: pointer;">
                                 <ul class="menu">
                                     <li class="li_3">
                                         <a class="noclick">更多</a>
@@ -439,7 +425,7 @@
                                     </li>
                                 </ul>
 
-                            </div>
+                            </div>*@
                         </div>
                         <div class="box-content" id="boxtop" style="height: 320px;overflow:scroll">
                             <div id="container" style="height: 300px;">
@@ -454,12 +440,12 @@
                 <td colspan="2" style="width:100%">
                     <table style="width: 100%;">
                         <tr>
-                <td style="width:50%">
+                <td colspan="2" style="width:50%">
                     <div class="box">
                         <div class="box-title" style="width:100%;">
                             <div style="float: left;">
                                 <img src="~/Content/Images/Icon32/hourglass_go.png" alt="" width="20" height="20" />
-                                待办任务(双击进入处理)
+                              库存统计
                             </div>
                             <div style="float: right; padding-right: 10px;"></div>
                         </div>
@@ -469,7 +455,7 @@
                         </div>
                     </div>
                 </td>
-                <td style="width:50%">
+                @*<td style="width:50%">
                     <div class="box">
                         <div class="box-title" style="width:100%;">
                             <div style="float:left">
@@ -482,7 +468,7 @@
                             <div id="Shortcuts"></div>
                         </div>
                     </div>
-                </td>
+                </td>*@
                 @*<td>
                         <div class="box" style="display:none">
                             <div class="box-title">

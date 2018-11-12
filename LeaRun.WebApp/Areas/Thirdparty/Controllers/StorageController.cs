@@ -290,6 +290,15 @@ group by aaa.ProductName,aaa.ProductUnit  ", condition);
         }
 
 
+        public ActionResult GetPictueData()
+        {
+            string sql = @" select sum(InNum) as num,c.supplyname from ST_InStorage a left join ST_Products b on a.ProductID=b.ProductID
+left join ST_Supply c on b.SupplyID=b.SupplyID
+group by c.SupplyName ";
+            DataTable dt = re.FindTableBySql(sql);
+            return Content(dt.ToJson());
+        }
+
 
 
 

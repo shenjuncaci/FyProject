@@ -21,12 +21,10 @@ using System.Net;
 
 namespace LeaRun.WebApp.Areas.Thirdparty.Controllers
 {
-    public class InStorageController : Controller
+    public class SupplyController : Controller
     {
-        Repository<ST_InStorage> re = new Repository<ST_InStorage>();
-        Repository<ST_InOutDetail> red = new Repository<ST_InOutDetail>();
-        Repository<ST_DetailDisplay> redisplay = new Repository<ST_DetailDisplay>();
-        //
+        Repository<ST_Supply> re = new Repository<ST_Supply>();
+        
 
         public ActionResult Index()
         {
@@ -40,10 +38,10 @@ namespace LeaRun.WebApp.Areas.Thirdparty.Controllers
                 Stopwatch watch = CommonHelper.TimerStart();
                 StringBuilder strSql = new StringBuilder();
                 List<DbParameter> parameter = new List<DbParameter>();
-                strSql.Append(@" select InID,b.ProductName,b.ProductUnit,a.InNum,a.remark,a.createdate from ST_InStorage a left join st_products b on a.productid=b.productid where 1=1  ");
+                strSql.Append(@" select * from ST_Supply a  where 1=1  ");
                 if (!string.IsNullOrEmpty(keyword))
                 {
-                    strSql.Append(@" AND (ProductName LIKE @keyword
+                    strSql.Append(@" AND (SupplyName LIKE @keyword
                                     )");
                     parameter.Add(DbFactory.CreateDbParameter("@keyword", '%' + keyword + '%'));
                 }
@@ -78,7 +76,7 @@ namespace LeaRun.WebApp.Areas.Thirdparty.Controllers
         }
 
         [HttpPost]
-        public ActionResult SubmitForm(string KeyValue, ST_InStorage entity, string BuildFormJson, HttpPostedFileBase Filedata,string DetailForm)
+        public ActionResult SubmitForm(string KeyValue, ST_Supply entity, string BuildFormJson, HttpPostedFileBase Filedata, string DetailForm)
         {
             string ModuleId = DESEncrypt.Decrypt(CookieHelper.GetCookie("ModuleId"));
             IDatabase database = DataFactory.Database();
@@ -95,23 +93,6 @@ namespace LeaRun.WebApp.Areas.Thirdparty.Controllers
 
 
                     entity.Modify(KeyValue);
-
-                    database.Delete<ST_InOutDetail>("MID", KeyValue, isOpenTrans);
-                    List<ST_InOutDetail> DetailList = DetailForm.JonsToList<ST_InOutDetail>();
-                    int index = 1;
-                    foreach (ST_InOutDetail entityD in DetailList)
-                    {
-                        if (!string.IsNullOrEmpty(entityD.ProductID))
-                        {
-                            entityD.Create();
-                            entityD.InOut = 0;
-                            entityD.MID = KeyValue;
-                            database.Insert(entityD, isOpenTrans);
-                            index++;
-                        }
-                    }
-
-
                     database.Update(entity, isOpenTrans);
 
                 }
@@ -120,24 +101,12 @@ namespace LeaRun.WebApp.Areas.Thirdparty.Controllers
 
                     entity.Create();
 
-                    List<ST_InOutDetail> DetailList = DetailForm.JonsToList<ST_InOutDetail>();
-                    int index = 1;
-                    foreach (ST_InOutDetail entityD in DetailList)
-                    {
-                        if (!string.IsNullOrEmpty(entityD.ProductID))
-                        {
-                            entityD.Create();
-                            entityD.MID = entity.InID;
-                            entityD.InOut = 0;
-                            database.Insert(entityD, isOpenTrans);
-                            index++;
-                        }
-                    }
+                   
                     database.Insert(entity, isOpenTrans);
 
-                    Base_DataScopePermissionBll.Instance.AddScopeDefault(ModuleId, ManageProvider.Provider.Current().UserId, entity.InID, isOpenTrans);
+                    Base_DataScopePermissionBll.Instance.AddScopeDefault(ModuleId, ManageProvider.Provider.Current().UserId, entity.SupplyID, isOpenTrans);
                 }
-                Base_FormAttributeBll.Instance.SaveBuildForm(BuildFormJson, entity.InID, ModuleId, isOpenTrans);
+                Base_FormAttributeBll.Instance.SaveBuildForm(BuildFormJson, entity.SupplyID, ModuleId, isOpenTrans);
                 database.Commit();
                 return Content(new JsonMessage { Success = true, Code = "1", Message = Message }.ToString());
             }
@@ -153,7 +122,7 @@ namespace LeaRun.WebApp.Areas.Thirdparty.Controllers
         [ValidateInput(false)]
         public ActionResult SetForm(string KeyValue)
         {
-            ST_InStorage entity = DataFactory.Database().FindEntity<ST_InStorage>(KeyValue);
+            ST_Supply entity = DataFactory.Database().FindEntity<ST_Supply>(KeyValue);
             if (entity == null)
             {
                 return Content("");
@@ -193,78 +162,21 @@ namespace LeaRun.WebApp.Areas.Thirdparty.Controllers
         public void WriteLog(int IsOk, string KeyValue, string Message = "")
         {
             string[] array = KeyValue.Split(',');
-            Base_SysLogBll.Instance.WriteLog<ST_InStorage>(array, IsOk.ToString(), Message);
+            Base_SysLogBll.Instance.WriteLog<ST_Supply>(array, IsOk.ToString(), Message);
         }
 
-
-        public ActionResult ChooseProduct()
+        public ActionResult SupplyList()
         {
-            return View();
+            string sql = " select * from st_supply ";
+            DataTable dt = re.FindTableBySql(sql);
+            return Content(dt.ToJson());
         }
 
-        public ActionResult ChooseDetailProduct()
+        public ActionResult SupplyProductList(string SupplyID)
         {
-            return View();
+            string sql = " select * from ST_Products where supplyid='"+ SupplyID + "' ";
+            DataTable dt = re.FindTableBySql(sql);
+            return Content(dt.ToJson());
         }
-
-        public ActionResult GetDetailList(string MID)
-        {
-            try
-            {
-                StringBuilder strSql = new StringBuilder();
-                List<DbParameter> parameter = new List<DbParameter>();
-                strSql.Append(@"select b.ProductID,b.ProductName,b.ProductLevel,a.num from st_inoutdetail a left join ST_Products b on a.productid=b.ProductID where MID=@MID");
-               // strSql.Append(" AND RelationID = @RelationID order by SkillWeight desc ");
-                parameter.Add(DbFactory.CreateDbParameter("@MID", MID));
-               
-
-                var JsonData = new
-                {
-                    rows = redisplay.FindListBySql(strSql.ToString(), parameter.ToArray()),
-                };
-                return Content(JsonData.ToJson());
-            }
-            catch (Exception ex)
-            {
-                Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "异常错误：" + ex.Message);
-                return null;
-            }
-        }
-
-        public ActionResult BatchForm()
-        {
-            return View();
-        }
-
-
-        public ActionResult SubmitFormBatch(string KeyValue, ST_InStorage entity, string BuildFormJson, HttpPostedFileBase Filedata, string DetailForm)
-        {
-            IDatabase database = DataFactory.Database();
-            DbTransaction isOpenTrans = database.BeginTrans();
-            List<ST_InStorage> DetailList = DetailForm.JonsToList<ST_InStorage>();
-            int index = 1;
-            foreach (ST_InStorage entityD in DetailList)
-            {
-                if (!string.IsNullOrEmpty(entityD.ProductID))
-                {
-                    entityD.Create();
-                    
-                    database.Insert(entityD, isOpenTrans);
-                    index++;
-                }
-
-                database.Commit();
-                
-            }
-            return Content(new JsonMessage { Success = true, Code = "1", Message = "成功入库" }.ToString());
-        }
-
-
-
-
-
-
-
-
     }
 }

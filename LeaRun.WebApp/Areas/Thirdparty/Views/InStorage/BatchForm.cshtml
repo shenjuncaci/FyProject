@@ -74,32 +74,12 @@
     //得到一个对象实体
     function InitControl() {
         if (!!GetQuery('KeyValue')) {
-            AjaxJson("/Thirdparty/Storage/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+            AjaxJson("/Thirdparty/InStorage/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
                 SetWebControls(data);
 
             });
 
-            var rowindex = 1;
-            //评审明细信息
-            AjaxJson("/Thirdparty/Storage/GetDetailList", { productid: GetQuery('KeyValue') }, function (data) {
-                var JsonData = data.rows;
-                //var colorState = "";
-                $.each(JsonData, function (i) {
-
-                    addone(rowindex);
-                    var rowData = JsonData[i];
-                    //alert(rowData.FllowStatus);
-                    //alert(rowData.ReviewDepart);ChangeReviewState
-                    $("#ProductID➩" + rowindex).val(rowData.ProductID);
-                    $("#ProductName➩" + rowindex).val(rowData.ProductName);
-                    $("#ProductLevel➩" + rowindex).val(rowData.ProductLevel);
-                    $("#Num➩" + rowindex).val(rowData.Num);
-
-
-                    rowindex++;
-
-                });
-            });
+           
         }
     }
     //保存事件
@@ -107,13 +87,18 @@
         if (!CheckDataValid('#form1')) {
             return false;
         }
+
+
+
         Loading(true, "正在提交数据...");
         window.setTimeout(function () {
+
+            //var postData = { RelationID: GetQueryNew('KeyValue'), DetailForm: DetailForm }
             var postData = GetWebControls("#form1");
             var DetailForm = GetTableDataJson("#Detail");
             postData["DetailForm"] = DetailForm;
             postData["BuildFormJson"] = JSON.stringify(GetWebControls("#CustomAttribute"));
-            AjaxJson("/Thirdparty/Storage/SubmitForm?KeyValue=" + GetQuery('KeyValue'), postData, function (data) {
+            AjaxJson("/Thirdparty/InStorage/SubmitFormBatch?KeyValue=" + $("#SupplyID").val(), postData, function (data) {
                 tipDialog(data.Message, 3, data.Code);
                 top.frames[tabiframeId()].windowload();
                 closeDialog();
@@ -121,6 +106,16 @@
         }, 200);
     }
 
+    function addProduct() {
+        layer.open({
+            type: 2,  //2表示ifrmae弹出层
+            title: '选择产品',
+            maxmin: true,
+            shadeClose: true, //点击遮罩关闭层
+            area: ['550px', '350px'],
+            content: 'ChooseProduct'
+        });
+    }
 
     function addDetailProduct(i) {
 
@@ -150,7 +145,7 @@
 
     function add(i) {
         if ($("#ProductLevel").val() == "") {
-            alert("请先选择主产品等级");
+            alert("请先选择主产品");
             return false;
         }
         if ($("#ProductLevel").val() == "1") {
@@ -161,7 +156,7 @@
         addDetailProduct(i);
     }
 
-    function SelectDetailProduct(result, i) {
+    function SelectDetailProduct(result,i) {
         if (result == undefined) {
             return false;
         }
@@ -201,7 +196,7 @@
         $("#ProductName➩" + i).val(result[1]);
         $("#ProductLevel➩" + i).val(result[2]);
 
-        $("#ProductLevel➩" + i).css("disabled", "true");
+        $("#ProductLevel➩" + i).css("disabled","true");
 
 
     }
@@ -247,7 +242,7 @@
 
         td1.innerHTML = "<input style=\"width:95%\" hidden id='ProductID➩" + i + "' type=\"text\" class=\"txt\"><input readonly id='ProductName➩" + i + "' class=\"txt\" datacol=\"yes\" err=\"名称\" checkexpession=\"NotNull\">";
         td2.innerHTML = "<select readonly id=\"ProductLevel➩" + i + "\" class=\"select\" datacol=\"yes\" ><option value = \"\">==请选择 ==</option><option value=\"1\">基础产品</option><option value=\"2\">二级产品</option><option value=\"3\">三级产品</option></select > ";
-        td3.innerHTML = "<input id='Num➩" + i + "' class=\"txt\"   datacol=\"yes\" >";
+        td3.innerHTML = "<input id='InNum➩" + i + "' class=\"txt\"   datacol=\"yes\" >";
 
         td4.innerHTML = "<button class=\"button button-square button-small\" onclick='deleteCurrentRow(this)'>删除</button>";
 
@@ -268,6 +263,26 @@
         });
     }
 
+    function LoadDetail() {
+        var rowindex = 1;
+        AjaxJson("/Thirdparty/Supply/SupplyProductList", {SupplyID:$("#SupplyID").val()}, function (DataJson) {
+            $.each(DataJson, function (i) {
+
+                console.log(DataJson);
+                addone(rowindex);
+                var rowData = DataJson[i];
+                //alert(rowData.FllowStatus);
+                //alert(rowData.ReviewDepart);ChangeReviewState
+                $("#ProductID➩" + rowindex).val(rowData.productid);
+                $("#ProductName➩" + rowindex).val(rowData.productname);
+                $("#ProductLevel➩" + rowindex).val(rowData.productlevel);
+                $("#InNum➩" + rowindex).val(0);
+
+                rowindex++;
+
+            });
+        });
+    }
 
 </script>
 
@@ -277,7 +292,7 @@
     <div class="bd" style="border-bottom: none; margin: 1px;">
         <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
             <div class="tab_list_top" style="position: absolute">
-                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">产品基本信息</div>
+                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">入库单</div>
 
 
             </div>
@@ -289,98 +304,23 @@
             <table class="form">
 
                 <tr>
-                    <th class="formTitle">产品名称：</th>
-                    <td class="formValue">
-
-                        <input id="ProductName" type="text" class="txt" datacol="yes" err="产品名称" checkexpession="NotNull" />
-
-                    </td>
-
-                    <th class="formTitle">产品等级</th>
-                    <td class="formValue">
-                        <select id="ProductLevel" class="select" datacol="yes" err="产品等级" checkexpession="NotNull">
-                            <option value="">==请选择==</option>
-                            <option value="1">基础产品</option>
-                            <option value="2">二级产品</option>
-                            <option value="3">三级产品</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <th class="formTitle">产品单位：</th>
-                    <td class="formValue">
-
-                        <select id="ProductUnit" class="select" datacol="yes" err="产品单位" checkexpession="NotNull">
-                            <option value="">==请选择==</option>
-                            <option value="个">个</option>
-                            <option value="台">台</option>
-                            <option value="套">套</option>
-                        </select>
-
-                    </td>
-
                     <th class="formTitle">供应商选择</th>
                     <td class="formValue">
-                        <select id="SupplyID" class="select" datacol="yes" err="供应商选择" checkexpession="NotNull"></select>
+                        <select id="SupplyID" class="select" datacol="yes" err="供应商选择" checkexpession="NotNull" onchange="LoadDetail()"></select>
                     </td>
-                </tr>
-                <tr>
-                    <th class="formTitle">产品体积：</th>
-                    <td class="formValue">
-
-                        <input id="Tiji" type="text" class="txt" datacol="yes" err="产品体积" checkexpession="NotNull" />
-
-                    </td>
-
-                    <th class="formTitle">产品重量</th>
-                    <td class="formValue">
-                        <input id="Weight" type="text" class="txt" datacol="yes" err="产品重量" checkexpession="NotNull" />
-                    </td>
-                </tr>
-                <tr>
-                    <th class="formTitle">产品编号：</th>
-                    <td class="formValue">
-
-                        <input id="PrdouctNO" type="text" class="txt" datacol="yes" err="产品编号" checkexpession="NotNull" />
-
-                    </td>
-
-                    <th class="formTitle">托盘</th>
-                    <td class="formValue">
-                        <input id="TuoPan" type="text" class="txt" datacol="yes" err="托盘" checkexpession="NotNull" />
-                    </td>
-                </tr>
-                <tr>
-                    <th class="formTitle">产品规格：</th>
-                    <td class="formValue">
-
-                        <input id="SPC" type="text" class="txt" datacol="yes" err="产品规格" checkexpession="NotNull" />
-
-                    </td>
-
                     <th class="formTitle"></th>
                     <td class="formValue">
                        
                     </td>
                 </tr>
-                <tr>
-                    <th class="formTitle">备注：</th>
-                    <td class="formValue" colspan="3">
-
-                        <input id="Remark" type="text" class="txt" datacol="yes" err="备注" checkexpession="NotNull" />
-
-                    </td>
-
-
-                </tr>
 
                 <tr>
-                    <th colspan="4" style="text-align:left"><strong> 添加一、二级物料</strong></th>
+                    <th colspan="4" style="text-align:left"><strong> 供应商货品明细</strong></th>
                 </tr>
                 <tr>
                     <td colspan="4">
                         <table id="Detail" class="formdetail" style="width:98%">
-                            <tr><td colspan="3" style="width:95%"></td><td style="width:5%"><a class="button button-caution button-square button-small" onclick="add(999)">添加</a></td></tr>
+                            <tr><td colspan="3" style="width:95%"></td><td style="width:5%">@*<a class="button button-caution button-square button-small" onclick="add(999)">添加</a></td>*@</tr>
                             <tr>
                                 <th class="formTitle" style="width:25%;text-align:left">产品名称</th>
                                 <th class="formTitle" style="width:20%;text-align:left">产品等级</th>
@@ -391,6 +331,7 @@
                         </table>
                     </td>
                 </tr>
+
 
             </table>
         </div>

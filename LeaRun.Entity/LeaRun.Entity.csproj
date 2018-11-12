@@ -181,6 +181,7 @@
     <Compile Include="STModule\ST_Products.cs" />
     <Compile Include="STModule\ST_ProductsDetail.cs" />
     <Compile Include="STModule\ST_Storage.cs" />
+    <Compile Include="STModule\ST_Supply.cs" />
     <Compile Include="TCModule\TC_AttachContract.cs" />
     <Compile Include="TCModule\TC_AttachContractDetail.cs" />
     <Compile Include="TCModule\TC_ShortContract.cs" />
